@@ -40,7 +40,7 @@ const deals = [
   {
     id: "make",
     name: "Make",
-    logo: "https://images.ctfassets.net/qqlj6g4ee76j/2qBkARKOnfQ4CDnntDdkKM/3c2d0d45ec67ce4ab0e2f77eabb13ec8/make-logo-square-small.png",
+    logo: "https://www.make.com/en/apple-touch-icon.png",
     description: "A no-code AI platform for limitless automation",
     dealText: "First month free on Pro plan (10,000 credits) + 40% off Pro or Teams annual plans",
     savings: "$283",
@@ -50,7 +50,7 @@ const deals = [
   {
     id: "brevo",
     name: "Brevo",
-    logo: "https://asset.brandfetch.io/idHYpS17EC/idlM3u45p2.jpeg",
+    logo: "https://www.brevo.com/wp-content/uploads/2024/01/Logo.svg",
     description: "Centralize marketing and sales tools to increase your growth",
     dealText: "75% off the annual Starter and Standard Plans",
     savings: "$5,661",

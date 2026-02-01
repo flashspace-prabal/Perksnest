@@ -29,10 +29,7 @@ const DealCard = ({
 }: DealCardProps) => {
   const dealId = id || name.toLowerCase().replace(/\s+/g, '-');
 
-  const handleButtonClick = (e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-  };
+  // Removed preventDefault to allow navigation
 
   return (
     <div className="deal-card group relative">
@@ -83,7 +80,7 @@ const DealCard = ({
           <Users className="h-4 w-4" />
           <span>{memberCount.toLocaleString()} members</span>
         </div>
-        <Link to={`/deals/${dealId}/redeem`} onClick={handleButtonClick}>
+        <Link to={`/deals/${dealId}/redeem`}>
           <Button 
             variant={isFree ? "default" : "outline"}
             size="sm"
