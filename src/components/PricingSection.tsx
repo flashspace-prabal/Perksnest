@@ -2,15 +2,15 @@ import { Check, Crown, ArrowUpRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 
-// Slack-themed logo icons
-const logoIcons = [
-  { name: "Notion", bg: "bg-foreground", textColor: "text-background" },
-  { name: "Airtable", bg: "bg-[hsl(0,76%,57%)]", textColor: "text-white" }, // Slack red
-  { name: "Monday", bg: "bg-[hsl(43,96%,56%)]", textColor: "text-foreground" }, // Slack yellow
-  { name: "Google", bg: "bg-card border border-border", textColor: "text-foreground" },
-  { name: "AWS", bg: "bg-[hsl(38,92%,50%)]", textColor: "text-white" }, // Orange
-  { name: "Brevo", bg: "bg-[hsl(196,100%,40%)]", textColor: "text-white" }, // Slack blue
-  { name: "Meta", bg: "bg-primary", textColor: "text-white" }, // Aubergine
+// Software logos for the pricing cards
+const softwareLogos = [
+  { name: "Notion", logo: "https://upload.wikimedia.org/wikipedia/commons/4/45/Notion_app_logo.png" },
+  { name: "Slack", logo: "https://upload.wikimedia.org/wikipedia/commons/d/d5/Slack_icon_2019.svg" },
+  { name: "Figma", logo: "https://upload.wikimedia.org/wikipedia/commons/3/33/Figma-logo.svg" },
+  { name: "Stripe", logo: "https://upload.wikimedia.org/wikipedia/commons/b/ba/Stripe_Logo%2C_revised_2016.svg" },
+  { name: "HubSpot", logo: "https://www.hubspot.com/hubfs/HubSpot_Logos/HubSpot-Inversed-Favicon.png" },
+  { name: "AWS", logo: "https://upload.wikimedia.org/wikipedia/commons/9/93/Amazon_Web_Services_Logo.svg" },
+  { name: "Zoom", logo: "https://upload.wikimedia.org/wikipedia/commons/7/7b/Zoom_Communications_Logo.svg" },
 ];
 
 interface Testimonial {
@@ -176,15 +176,22 @@ const PricingSection = () => {
                 {plan.description}
               </p>
 
-              {/* Logo Stack */}
+              {/* Logo Stack - Real software logos */}
               {plan.showLogos && (
                 <div className="flex items-center gap-1.5 mb-6">
-                  {logoIcons.map((logo, i) => (
+                  {softwareLogos.map((software, i) => (
                     <div
                       key={i}
-                      className={`w-8 h-8 rounded-lg ${logo.bg} flex items-center justify-center text-xs font-bold ${logo.textColor} shadow-sm`}
+                      className="w-8 h-8 rounded-lg bg-card border border-border flex items-center justify-center p-1.5 shadow-sm"
                     >
-                      {logo.name.charAt(0)}
+                      <img 
+                        src={software.logo} 
+                        alt={software.name}
+                        className="w-full h-full object-contain"
+                        onError={(e) => {
+                          (e.target as HTMLImageElement).style.display = 'none';
+                        }}
+                      />
                     </div>
                   ))}
                   {plan.extraLogosText && (
