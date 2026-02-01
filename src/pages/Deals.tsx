@@ -1,14 +1,15 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { Grid, List, Bell } from "lucide-react";
+import { Grid, List, Bell, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import DealCardNew from "@/components/DealCardNew";
 import CategorySidebar from "@/components/CategorySidebar";
-import SafeImage from "@/components/SafeImage";
 import { dealsData } from "@/data/deals";
+
+const DEALS_PER_PAGE = 9;
 
 const filterOptions = ["Most popular", "Premium", "Free", "Recently added"];
 
@@ -18,6 +19,7 @@ const Deals = () => {
   const [activeFilter, setActiveFilter] = useState("Most popular");
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
   const [notificationsEnabled, setNotificationsEnabled] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
 
   const filteredDeals = dealsData.filter((deal) => {
     const matchesSearch = deal.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -28,6 +30,31 @@ const Deals = () => {
                          (activeFilter === "Free" && deal.isFree);
     return matchesSearch && matchesCategory && matchesFilter;
   });
+
+  const totalPages = Math.ceil(filteredDeals.length / DEALS_PER_PAGE);
+  const startIndex = (currentPage - 1) * DEALS_PER_PAGE;
+  const paginatedDeals = filteredDeals.slice(startIndex, startIndex + DEALS_PER_PAGE);
+
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const getPageNumbers = () => {
+    const pages: (number | string)[] = [];
+    if (totalPages <= 5) {
+      for (let i = 1; i <= totalPages; i++) pages.push(i);
+    } else {
+      pages.push(1);
+      if (currentPage > 3) pages.push('...');
+      for (let i = Math.max(2, currentPage - 1); i <= Math.min(totalPages - 1, currentPage + 1); i++) {
+        if (!pages.includes(i)) pages.push(i);
+      }
+      if (currentPage < totalPages - 2) pages.push('...');
+      if (!pages.includes(totalPages)) pages.push(totalPages);
+    }
+    return pages;
+  };
 
   return (
     <div className="min-h-screen bg-background">
@@ -88,7 +115,7 @@ const Deals = () => {
 
                 <div className="flex items-center gap-4">
                   <span className="text-sm text-muted-foreground">
-                    1 to {filteredDeals.length} of {dealsData.length} results
+                    {startIndex + 1} to {Math.min(startIndex + DEALS_PER_PAGE, filteredDeals.length)} of {filteredDeals.length} results
                   </span>
                   <div className="flex items-center border border-border rounded-lg bg-card">
                     <button
@@ -119,27 +146,67 @@ const Deals = () => {
               <h2 className="text-2xl font-bold text-foreground mb-6">Most Popular Deals</h2>
 
               {/* Deals Grid */}
-              {filteredDeals.length > 0 ? (
-                <div className={`grid gap-5 ${
-                  viewMode === "grid" 
-                    ? "grid-cols-1 md:grid-cols-2 xl:grid-cols-3" 
-                    : "grid-cols-1"
-                }`}>
-                  {filteredDeals.map((deal, index) => (
-                    <Link 
-                      key={deal.id}
-                      to={`/deals/${deal.id}`}
-                      className="animate-fade-in block h-full"
-                      style={{ animationDelay: `${index * 30}ms` }}
-                    >
-                      <DealCardNew {...deal} />
-                    </Link>
-                  ))}
-                </div>
+              {paginatedDeals.length > 0 ? (
+                <>
+                  <div className={`grid gap-5 ${
+                    viewMode === "grid" 
+                      ? "grid-cols-1 md:grid-cols-2 xl:grid-cols-3" 
+                      : "grid-cols-1"
+                  }`}>
+                    {paginatedDeals.map((deal, index) => (
+                      <Link 
+                        key={deal.id}
+                        to={`/deals/${deal.id}`}
+                        className="animate-fade-in block h-full"
+                        style={{ animationDelay: `${index * 30}ms` }}
+                      >
+                        <DealCardNew {...deal} />
+                      </Link>
+                    ))}
+                  </div>
+
+                  {/* Pagination */}
+                  {totalPages > 1 && (
+                    <div className="flex items-center justify-between mt-12 pt-8 border-t border-border">
+                      {/* Page Numbers */}
+                      <div className="flex items-center gap-1">
+                        {getPageNumbers().map((page, idx) => (
+                          typeof page === 'number' ? (
+                            <button
+                              key={idx}
+                              onClick={() => handlePageChange(page)}
+                              className={`w-10 h-10 rounded-lg text-sm font-medium transition-all ${
+                                currentPage === page
+                                  ? "bg-card border-2 border-foreground text-foreground"
+                                  : "text-muted-foreground hover:bg-secondary hover:text-foreground"
+                              }`}
+                            >
+                              {page}
+                            </button>
+                          ) : (
+                            <span key={idx} className="px-2 text-muted-foreground">…</span>
+                          )
+                        ))}
+                      </div>
+
+                      {/* Next Button */}
+                      {currentPage < totalPages && (
+                        <Button
+                          variant="outline"
+                          onClick={() => handlePageChange(currentPage + 1)}
+                          className="gap-1"
+                        >
+                          Next
+                          <ChevronRight className="h-4 w-4" />
+                        </Button>
+                      )}
+                    </div>
+                  )}
+                </>
               ) : (
                 <div className="text-center py-16">
                   <p className="text-lg text-muted-foreground mb-4">No deals found matching your criteria</p>
-                  <Button variant="outline" onClick={() => { setSearchQuery(""); setActiveCategory("all"); setActiveFilter("Most popular"); }}>
+                  <Button variant="outline" onClick={() => { setSearchQuery(""); setActiveCategory("all"); setActiveFilter("Most popular"); setCurrentPage(1); }}>
                     Clear filters
                   </Button>
                 </div>
