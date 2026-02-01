@@ -5,21 +5,21 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import SafeImage from "@/components/SafeImage";
 
-// Floating brand logos for hero
+// Floating brand logos for hero - bigger sizes
 const leftLogos = [
-  { name: "Figma", logo: "https://upload.wikimedia.org/wikipedia/commons/3/33/Figma-logo.svg", size: "w-12 h-12" },
-  { name: "AWS", logo: "https://upload.wikimedia.org/wikipedia/commons/9/93/Amazon_Web_Services_Logo.svg", size: "w-16 h-16" },
-  { name: "Zendesk", logo: "https://upload.wikimedia.org/wikipedia/commons/c/c8/Zendesk_logo.svg", size: "w-14 h-14" },
-  { name: "Notion", logo: "https://upload.wikimedia.org/wikipedia/commons/4/45/Notion_app_logo.png", size: "w-10 h-10" },
-  { name: "Airtable", logo: "https://upload.wikimedia.org/wikipedia/commons/4/4b/Airtable_Logo.svg", size: "w-12 h-12" },
+  { name: "Figma", logo: "https://upload.wikimedia.org/wikipedia/commons/3/33/Figma-logo.svg", size: "w-16 h-16", delay: "0s" },
+  { name: "AWS", logo: "https://upload.wikimedia.org/wikipedia/commons/9/93/Amazon_Web_Services_Logo.svg", size: "w-24 h-24", delay: "0.5s" },
+  { name: "Zendesk", logo: "https://upload.wikimedia.org/wikipedia/commons/c/c8/Zendesk_logo.svg", size: "w-20 h-20", delay: "1s" },
+  { name: "Notion", logo: "https://upload.wikimedia.org/wikipedia/commons/4/45/Notion_app_logo.png", size: "w-16 h-16", delay: "1.5s" },
+  { name: "Airtable", logo: "https://upload.wikimedia.org/wikipedia/commons/4/4b/Airtable_Logo.svg", size: "w-20 h-20", delay: "2s" },
 ];
 
 const rightLogos = [
-  { name: "Intercom", logo: "https://upload.wikimedia.org/wikipedia/commons/9/9b/Intercom_logo.svg", size: "w-12 h-12" },
-  { name: "Twilio", logo: "https://upload.wikimedia.org/wikipedia/commons/7/7e/Twilio-logo-red.svg", size: "w-14 h-14" },
-  { name: "Slack", logo: "https://upload.wikimedia.org/wikipedia/commons/d/d5/Slack_icon_2019.svg", size: "w-12 h-12" },
-  { name: "Stripe", logo: "https://upload.wikimedia.org/wikipedia/commons/b/ba/Stripe_Logo%2C_revised_2016.svg", size: "w-14 h-14" },
-  { name: "HubSpot", logo: "https://www.hubspot.com/hubfs/HubSpot_Logos/HubSpot-Inversed-Favicon.png", size: "w-10 h-10" },
+  { name: "Intercom", logo: "https://upload.wikimedia.org/wikipedia/commons/9/9b/Intercom_logo.svg", size: "w-16 h-16", delay: "0.3s" },
+  { name: "Twilio", logo: "https://upload.wikimedia.org/wikipedia/commons/7/7e/Twilio-logo-red.svg", size: "w-20 h-20", delay: "0.8s" },
+  { name: "Slack", logo: "https://upload.wikimedia.org/wikipedia/commons/d/d5/Slack_icon_2019.svg", size: "w-16 h-16", delay: "1.3s" },
+  { name: "Stripe", logo: "https://upload.wikimedia.org/wikipedia/commons/b/ba/Stripe_Logo%2C_revised_2016.svg", size: "w-24 h-24", delay: "1.8s" },
+  { name: "HubSpot", logo: "https://www.hubspot.com/hubfs/HubSpot_Logos/HubSpot-Inversed-Favicon.png", size: "w-14 h-14", delay: "2.3s" },
 ];
 
 const HeroBanner = () => {
@@ -50,14 +50,15 @@ const HeroBanner = () => {
         />
       </div>
 
-      {/* Left Floating Logos */}
-      <div className="absolute left-8 lg:left-16 top-1/2 -translate-y-1/2 hidden lg:flex flex-col gap-8 items-center">
+      {/* Left Floating Logos - Bigger and Visible */}
+      <div className="absolute left-4 lg:left-12 xl:left-20 top-1/2 -translate-y-1/2 hidden lg:flex flex-col gap-6 items-center z-20">
         {leftLogos.map((logo, i) => (
           <div
             key={logo.name}
-            className={`${logo.size} opacity-50 hover:opacity-100 transition-opacity duration-300`}
+            className={`${logo.size} animate-float drop-shadow-lg hover:scale-110 transition-transform duration-300`}
             style={{
-              transform: `translateX(${i % 2 === 0 ? '20px' : '-10px'})`,
+              transform: `translateX(${i % 2 === 0 ? '30px' : '-15px'})`,
+              animationDelay: logo.delay,
             }}
           >
             <SafeImage
@@ -69,14 +70,15 @@ const HeroBanner = () => {
         ))}
       </div>
 
-      {/* Right Floating Logos */}
-      <div className="absolute right-8 lg:right-16 top-1/3 -translate-y-1/2 hidden lg:flex flex-col gap-8 items-center">
+      {/* Right Floating Logos - Bigger and Visible */}
+      <div className="absolute right-4 lg:right-12 xl:right-20 top-1/3 -translate-y-1/2 hidden lg:flex flex-col gap-6 items-center z-20">
         {rightLogos.map((logo, i) => (
           <div
             key={logo.name}
-            className={`${logo.size} opacity-50 hover:opacity-100 transition-opacity duration-300`}
+            className={`${logo.size} animate-float drop-shadow-lg hover:scale-110 transition-transform duration-300`}
             style={{
-              transform: `translateX(${i % 2 === 0 ? '-20px' : '10px'})`,
+              transform: `translateX(${i % 2 === 0 ? '-30px' : '15px'})`,
+              animationDelay: logo.delay,
             }}
           >
             <SafeImage
@@ -155,7 +157,7 @@ const HeroBanner = () => {
                 </Button>
                 
                 {/* "it's free" annotation */}
-                <div className="absolute -right-20 top-1/2 -translate-y-1/2 hidden lg:flex items-center gap-1">
+                <div className="absolute -right-20 top-1/2 -translate-y-1/2 hidden xl:flex items-center gap-1">
                   <svg width="40" height="20" viewBox="0 0 40 20" className="text-primary">
                     <path 
                       d="M0 10 Q 10 5 30 15" 
@@ -210,7 +212,7 @@ const HeroBanner = () => {
       <div className="lg:hidden mt-12 overflow-x-auto">
         <div className="flex items-center justify-center gap-6 px-4">
           {[...leftLogos.slice(0, 3), ...rightLogos.slice(0, 3)].map((logo) => (
-            <div key={logo.name} className="w-10 h-10 shrink-0 opacity-50">
+            <div key={logo.name} className="w-12 h-12 shrink-0 animate-float" style={{ animationDelay: logo.delay }}>
               <SafeImage
                 src={logo.logo}
                 alt={logo.name}
