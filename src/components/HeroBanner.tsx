@@ -1,6 +1,5 @@
 import { ArrowRight, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import heroBlob from "@/assets/hero-blob.png";
 
 const HeroBanner = () => {
   // Trusted by logos
@@ -10,23 +9,40 @@ const HeroBanner = () => {
 
   return (
     <section className="relative overflow-hidden bg-background min-h-[600px] lg:min-h-[700px]">
-      {/* Abstract Gradient Blob - Positioned absolutely to extend to edge */}
-      <div 
-        className="absolute top-0 right-0 w-[55%] h-full hidden lg:block pointer-events-none"
-        style={{
-          background: `url(${heroBlob}) no-repeat`,
-          backgroundSize: 'cover',
-          backgroundPosition: 'left center',
-          mixBlendMode: 'multiply',
-        }}
-        aria-hidden="true"
-      />
+      {/* Abstract Blob - CSS-based with solid Slack colors */}
+      <div className="absolute top-0 right-0 w-[60%] h-full hidden lg:block pointer-events-none" aria-hidden="true">
+        {/* Main aubergine blob */}
+        <div 
+          className="absolute -top-20 -right-20 w-[700px] h-[700px] rounded-[40%_60%_55%_45%/55%_45%_55%_45%] bg-primary/80"
+          style={{ transform: 'rotate(-15deg)' }}
+        />
+        {/* Blue accent blob */}
+        <div 
+          className="absolute top-10 right-10 w-[600px] h-[600px] rounded-[45%_55%_50%_50%/50%_50%_55%_45%] bg-accent/70"
+          style={{ transform: 'rotate(-25deg)' }}
+        />
+        {/* Yellow/warm accent blob */}
+        <div 
+          className="absolute top-40 right-0 w-[550px] h-[550px] rounded-[50%_50%_45%_55%/45%_55%_50%_50%] bg-slack-yellow/60"
+          style={{ transform: 'rotate(-10deg)' }}
+        />
+        {/* Red accent blob */}
+        <div 
+          className="absolute top-60 right-20 w-[450px] h-[450px] rounded-[55%_45%_50%_50%/50%_50%_45%_55%] bg-slack-red/50"
+          style={{ transform: 'rotate(5deg)' }}
+        />
+        {/* Green accent blob */}
+        <div 
+          className="absolute top-20 right-40 w-[400px] h-[400px] rounded-[48%_52%_55%_45%/52%_48%_50%_50%] bg-slack-green/40"
+          style={{ transform: 'rotate(-20deg)' }}
+        />
+      </div>
       
-      {/* Gradient overlay to blend with background */}
+      {/* Fade overlay for smooth blend */}
       <div 
-        className="absolute top-0 right-0 w-[55%] h-full hidden lg:block pointer-events-none"
+        className="absolute top-0 right-0 w-[60%] h-full hidden lg:block pointer-events-none"
         style={{
-          background: 'linear-gradient(to right, hsl(45 33% 97%) 0%, transparent 15%)',
+          background: 'linear-gradient(to right, hsl(45 33% 97%) 0%, transparent 20%)',
         }}
         aria-hidden="true"
       />
@@ -39,12 +55,12 @@ const HeroBanner = () => {
             Global founders using PerksNest: <span className="text-primary font-semibold">100,000+</span>
           </p>
 
-          {/* Main headline with gradient */}
+          {/* Main headline with solid colors */}
           <h1 className="text-4xl md:text-5xl lg:text-[3.5rem] font-bold leading-[1.1] mb-6 animate-fade-in animation-delay-100">
-            Perks infrastructure{" "}
-            <span className="bg-gradient-to-r from-primary via-[hsl(270,60%,50%)] to-[hsl(350,80%,60%)] bg-clip-text text-transparent">
-              to grow your startup.
-            </span>
+            Perks infrastructure to{" "}
+            <br className="hidden sm:block" />
+            <span className="text-primary">grow your </span>
+            <span className="text-slack-red">startup.</span>
           </h1>
 
           {/* Subtitle */}
