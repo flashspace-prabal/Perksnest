@@ -1,6 +1,7 @@
 import MegaMenuHeader from "@/components/MegaMenuHeader";
 import Footer from "@/components/Footer";
 import PromoBanner from "@/components/PromoBanner";
+import HeroBanner from "@/components/HeroBanner";
 import TestimonialsCarousel from "@/components/TestimonialsCarousel";
 import DealCarousel from "@/components/DealCarousel";
 import PopularCategoriesSection from "@/components/PopularCategoriesSection";
@@ -23,6 +24,9 @@ const Index = () => {
       <MegaMenuHeader />
       
       <main>
+        {/* Hero Banner */}
+        <HeroBanner />
+
         {/* Testimonials */}
         <TestimonialsCarousel />
 
