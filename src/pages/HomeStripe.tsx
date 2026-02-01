@@ -212,17 +212,25 @@ const StripeSectionHeader = ({ title, subtitle }: { title: string; subtitle: str
   </div>
 );
 
+// Card color variants for visual interest
+const cardColors = [
+  "bg-gradient-to-br from-[#f8f9ff] to-[#f0f4ff] border-[#e0e7ff]",
+  "bg-gradient-to-br from-[#fdf8ff] to-[#f8f0ff] border-[#e8e0ff]",
+  "bg-gradient-to-br from-[#f8fffc] to-[#f0fff8] border-[#d0f0e0]",
+  "bg-gradient-to-br from-[#fffbf8] to-[#fff5f0] border-[#ffe8d8]",
+];
+
 // Deal Card Component (Stripe style)
-const StripeDealCard = ({ deal }: { deal: any }) => (
+const StripeDealCard = ({ deal, index = 0 }: { deal: any; index?: number }) => (
   <Link 
     to={`/deals/${deal.id}`}
-    className="group bg-white rounded-2xl border border-gray-100 p-6 hover:shadow-xl hover:border-gray-200 transition-all duration-300"
+    className={`group rounded-2xl border p-6 hover:shadow-xl hover:-translate-y-1 transition-all duration-300 ${cardColors[index % cardColors.length]}`}
   >
     <div className="flex items-start gap-4 mb-4">
       <img 
         src={deal.logo} 
         alt={deal.name}
-        className="w-12 h-12 rounded-xl object-contain bg-gray-50 p-2"
+        className="w-12 h-12 rounded-xl object-contain bg-white p-2 shadow-sm"
         onError={(e) => {
           e.currentTarget.style.display = 'none';
         }}
@@ -234,7 +242,7 @@ const StripeDealCard = ({ deal }: { deal: any }) => (
         <p className="text-sm text-gray-500">{deal.category}</p>
       </div>
       {deal.isPremium && (
-        <span className="text-xs bg-[#635bff]/10 text-[#635bff] px-2 py-1 rounded-full font-medium">
+        <span className="text-xs bg-[#635bff] text-white px-2 py-1 rounded-full font-medium">
           Premium
         </span>
       )}
@@ -245,19 +253,19 @@ const StripeDealCard = ({ deal }: { deal: any }) => (
 );
 
 // Deal Carousel Section
-const StripeDealSection = ({ title, subtitle, deals }: { title: string; subtitle: string; deals: any[] }) => (
-  <section className="py-16 lg:py-24 bg-white">
+const StripeDealSection = ({ title, subtitle, deals, darkBg = false }: { title: string; subtitle: string; deals: any[]; darkBg?: boolean }) => (
+  <section className={`py-16 lg:py-24 ${darkBg ? 'bg-gradient-to-b from-gray-50 to-white' : 'bg-white'}`}>
     <div className="max-w-7xl mx-auto px-6 lg:px-8">
       <StripeSectionHeader title={title} subtitle={subtitle} />
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        {deals.slice(0, 8).map((deal) => (
-          <StripeDealCard key={deal.id} deal={deal} />
+        {deals.slice(0, 8).map((deal, index) => (
+          <StripeDealCard key={deal.id} deal={deal} index={index} />
         ))}
       </div>
-      <div className="mt-8 flex justify-center">
+      <div className="mt-10 flex justify-center">
         <Link 
           to="/deals" 
-          className="inline-flex items-center gap-2 text-[#635bff] font-medium hover:underline"
+          className="inline-flex items-center gap-2 px-6 py-3 bg-[#635bff] hover:bg-[#5851ea] text-white font-medium rounded-full transition-colors"
         >
           View all deals
           <ArrowRight className="h-4 w-4" />
