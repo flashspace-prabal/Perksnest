@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Link } from "react-router-dom";
 import { Search, ChevronDown, Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -9,11 +10,11 @@ import {
 } from "@/components/ui/dropdown-menu";
 
 const categories = [
-  { name: "AI", subcategories: ["Development", "Automation", "Writing", "Marketing"] },
-  { name: "Project Management", subcategories: ["Collaboration", "Task Management", "Productivity"] },
-  { name: "Marketing", subcategories: ["Email Marketing", "SEO", "Social Media", "Content"] },
-  { name: "Finance", subcategories: ["Payments", "Accounting", "Banking"] },
-  { name: "Development", subcategories: ["Web Dev", "No-Code", "APIs"] },
+  { name: "AI", href: "/deals?category=ai" },
+  { name: "Project Management", href: "/deals?category=project" },
+  { name: "Marketing", href: "/deals?category=marketing" },
+  { name: "Finance", href: "/deals?category=finance" },
+  { name: "Development", href: "/deals?category=development" },
 ];
 
 const Header = () => {
@@ -26,7 +27,7 @@ const Header = () => {
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
           <div className="flex items-center gap-10">
-            <a href="/" className="flex items-center gap-2">
+            <Link to="/" className="flex items-center gap-2">
               <svg width="28" height="28" viewBox="0 0 54 54" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path d="M19.712 35.746c0 3.218-2.61 5.828-5.828 5.828-3.219 0-5.829-2.61-5.829-5.828 0-3.219 2.61-5.829 5.829-5.829h5.828v5.829z" fill="#E01E5A"/>
                 <path d="M22.608 35.746c0-3.219 2.61-5.829 5.828-5.829 3.219 0 5.829 2.61 5.829 5.829v14.571c0 3.218-2.61 5.828-5.829 5.828-3.218 0-5.828-2.61-5.828-5.828V35.746z" fill="#E01E5A"/>
@@ -38,22 +39,29 @@ const Header = () => {
                 <path d="M35.746 41.575c-3.218 0-5.828-2.61-5.828-5.829 0-3.218 2.61-5.828 5.828-5.828h14.571c3.218 0 5.828 2.61 5.828 5.828 0 3.219-2.61 5.829-5.828 5.829H35.746z" fill="#ECB22E"/>
               </svg>
               <span className="font-bold text-xl text-foreground">secret</span>
-            </a>
+            </Link>
 
             {/* Desktop Navigation */}
             <nav className="hidden lg:flex items-center gap-1">
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <button className="nav-link flex items-center gap-1 px-3 py-2 rounded-md hover:bg-secondary transition-colors">
-                    Features
+                    Deals
                     <ChevronDown className="h-4 w-4" />
                   </button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent className="w-56">
-                  {categories.map((cat) => (
-                    <DropdownMenuItem key={cat.name} className="cursor-pointer">
-                      {cat.name}
+                  <Link to="/deals">
+                    <DropdownMenuItem className="cursor-pointer font-medium">
+                      All Deals
                     </DropdownMenuItem>
+                  </Link>
+                  {categories.map((cat) => (
+                    <Link key={cat.name} to={cat.href}>
+                      <DropdownMenuItem className="cursor-pointer">
+                        {cat.name}
+                      </DropdownMenuItem>
+                    </Link>
                   ))}
                 </DropdownMenuContent>
               </DropdownMenu>
@@ -80,24 +88,28 @@ const Header = () => {
                   </button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent className="w-56">
-                  <DropdownMenuItem className="cursor-pointer">Blog</DropdownMenuItem>
+                  <Link to="/blog">
+                    <DropdownMenuItem className="cursor-pointer">Blog</DropdownMenuItem>
+                  </Link>
+                  <Link to="/invite">
+                    <DropdownMenuItem className="cursor-pointer">Invite & Earn</DropdownMenuItem>
+                  </Link>
                   <DropdownMenuItem className="cursor-pointer">Help Center</DropdownMenuItem>
-                  <DropdownMenuItem className="cursor-pointer">Community</DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
 
-              <a href="#pricing" className="nav-link px-3 py-2 rounded-md hover:bg-secondary transition-colors">
+              <Link to="/pricing" className="nav-link px-3 py-2 rounded-md hover:bg-secondary transition-colors">
                 Pricing
-              </a>
+              </Link>
             </nav>
           </div>
 
           {/* Right Side */}
           <div className="flex items-center gap-3">
             {/* Search */}
-            <button className="hidden md:flex p-2 rounded-lg hover:bg-secondary text-muted-foreground hover:text-foreground transition-colors">
+            <Link to="/deals" className="hidden md:flex p-2 rounded-lg hover:bg-secondary text-muted-foreground hover:text-foreground transition-colors">
               <Search className="h-5 w-5" />
-            </button>
+            </Link>
 
             {/* Sign In */}
             <a href="#" className="hidden sm:block nav-link font-medium">
@@ -108,9 +120,11 @@ const Header = () => {
             <Button variant="outline" className="hidden sm:flex border-primary text-primary hover:bg-primary hover:text-primary-foreground">
               Request a demo
             </Button>
-            <Button className="hidden md:flex">
-              Get started
-            </Button>
+            <Link to="/deals">
+              <Button className="hidden md:flex">
+                Get started
+              </Button>
+            </Link>
 
             {/* Mobile Menu Toggle */}
             <button
@@ -126,13 +140,15 @@ const Header = () => {
         {mobileMenuOpen && (
           <div className="lg:hidden border-t border-border py-4 animate-fade-in">
             <div className="flex flex-col gap-2">
-              <a href="#" className="nav-link px-3 py-2 rounded-md hover:bg-secondary">Features</a>
-              <a href="#" className="nav-link px-3 py-2 rounded-md hover:bg-secondary">Solutions</a>
-              <a href="#" className="nav-link px-3 py-2 rounded-md hover:bg-secondary">Resources</a>
-              <a href="#pricing" className="nav-link px-3 py-2 rounded-md hover:bg-secondary">Pricing</a>
+              <Link to="/deals" className="nav-link px-3 py-2 rounded-md hover:bg-secondary" onClick={() => setMobileMenuOpen(false)}>Deals</Link>
+              <Link to="/pricing" className="nav-link px-3 py-2 rounded-md hover:bg-secondary" onClick={() => setMobileMenuOpen(false)}>Pricing</Link>
+              <Link to="/blog" className="nav-link px-3 py-2 rounded-md hover:bg-secondary" onClick={() => setMobileMenuOpen(false)}>Blog</Link>
+              <Link to="/invite" className="nav-link px-3 py-2 rounded-md hover:bg-secondary" onClick={() => setMobileMenuOpen(false)}>Invite & Earn</Link>
               <div className="pt-3 border-t border-border mt-2 space-y-2">
-                <Button variant="outline" className="w-full border-primary text-primary">Request a demo</Button>
-                <Button className="w-full">Get started</Button>
+                <Button variant="outline" className="w-full border-primary text-primary">Sign in</Button>
+                <Link to="/deals" className="block" onClick={() => setMobileMenuOpen(false)}>
+                  <Button className="w-full">Get started</Button>
+                </Link>
               </div>
             </div>
           </div>
