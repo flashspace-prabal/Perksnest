@@ -67,8 +67,8 @@ const dealExtendedInfo: Record<string, {
 const saasLogos = [
   { logo: "https://upload.wikimedia.org/wikipedia/commons/4/45/Notion_app_logo.png", discount: "-50%" },
   { logo: "https://upload.wikimedia.org/wikipedia/commons/b/ba/Stripe_Logo%2C_revised_2016.svg", discount: "-$400" },
-  { logo: "https://www.gstatic.com/devrel-devsite/prod/v0e0f589edd85502a40d78d7d0825db8ea5ef3b99ab4070381ee86977c9168730/cloud/images/favicons/onecloud/super_cloud.png", discount: "-100%" },
-  { logo: "https://www.brevo.com/wp-content/uploads/2024/01/Logo.svg", discount: "-75%" },
+  { logo: "https://lh3.googleusercontent.com/qBrmypwrgJrOaAo6suvxYl9BPsYezAwCL6pP1nbWvjpKnYkkNbEGv4f4d7q2p7lYYQ6DaA=s85", discount: "-100%" },
+  { logo: "https://www.brevo.com/favicon.ico", discount: "-75%" },
   { logo: "https://www.make.com/en/apple-touch-icon.png", discount: "-100%" },
 ];
 
