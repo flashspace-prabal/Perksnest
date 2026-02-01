@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 interface SafeImageProps {
   src: string;
@@ -10,10 +10,22 @@ interface SafeImageProps {
 const SafeImage = ({ src, alt, className = "", fallbackClassName = "" }: SafeImageProps) => {
   const [hasError, setHasError] = useState(false);
 
-  if (hasError) {
+  const fallbackChar = useMemo(() => {
+    const normalized = (alt ?? "").trim();
+    return normalized ? normalized.charAt(0).toUpperCase() : "?";
+  }, [alt]);
+
+  // If the image source changes, allow re-trying the load.
+  useEffect(() => {
+    setHasError(false);
+  }, [src]);
+
+  const shouldShowFallback = hasError || !src;
+
+  if (shouldShowFallback) {
     return (
       <div className={`flex items-center justify-center bg-secondary text-muted-foreground font-bold ${fallbackClassName || className}`}>
-        {alt.charAt(0).toUpperCase()}
+        {fallbackChar}
       </div>
     );
   }
@@ -23,6 +35,7 @@ const SafeImage = ({ src, alt, className = "", fallbackClassName = "" }: SafeIma
       src={src}
       alt={alt}
       className={className}
+      referrerPolicy="no-referrer"
       onError={() => setHasError(true)}
     />
   );

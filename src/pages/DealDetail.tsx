@@ -9,6 +9,12 @@ import SafeImage from "@/components/SafeImage";
 import { toast } from "sonner";
 import { dealsData } from "@/data/deals";
 
+import notionLogo from "@/assets/logos/notion.png";
+import stripeLogo from "@/assets/logos/stripe.svg";
+import googleCloudLogo from "@/assets/logos/google-cloud.svg";
+import brevoLogo from "@/assets/logos/brevo.ico";
+import makeLogo from "@/assets/logos/make.ico";
+
 // Extended deal info for detail pages
 const dealExtendedInfo: Record<string, {
   tagline: string;
@@ -65,11 +71,11 @@ const dealExtendedInfo: Record<string, {
 };
 
 const saasLogos = [
-  { logo: "https://upload.wikimedia.org/wikipedia/commons/4/45/Notion_app_logo.png", discount: "-50%" },
-  { logo: "https://upload.wikimedia.org/wikipedia/commons/b/ba/Stripe_Logo%2C_revised_2016.svg", discount: "-$400" },
-  { logo: "https://lh3.googleusercontent.com/qBrmypwrgJrOaAo6suvxYl9BPsYezAwCL6pP1nbWvjpKnYkkNbEGv4f4d7q2p7lYYQ6DaA=s85", discount: "-100%" },
-  { logo: "https://www.brevo.com/favicon.ico", discount: "-75%" },
-  { logo: "https://www.make.com/en/apple-touch-icon.png", discount: "-100%" },
+  { name: "Notion", logo: notionLogo, discount: "-50%" },
+  { name: "Stripe", logo: stripeLogo, discount: "-$400" },
+  { name: "Google Cloud", logo: googleCloudLogo, discount: "-100%" },
+  { name: "Brevo", logo: brevoLogo, discount: "-75%" },
+  { name: "Make", logo: makeLogo, discount: "-100%" },
 ];
 
 const relatedDeals = dealsData.slice(0, 3);
@@ -216,7 +222,7 @@ const DealDetail = () => {
                       {saasLogos.map((item, index) => (
                         <div key={index} className="relative">
                           <div className="w-10 h-10 rounded-lg bg-card border border-border flex items-center justify-center overflow-hidden">
-                            <SafeImage src={item.logo} alt="" className="w-6 h-6 object-contain" />
+                            <SafeImage src={item.logo} alt={item.name} className="w-6 h-6 object-contain" />
                           </div>
                           <span className="absolute -top-2 -right-1 px-1.5 py-0.5 text-[10px] font-bold bg-success text-white rounded">
                             {item.discount}
@@ -308,7 +314,7 @@ const DealDetail = () => {
             <h2 className="text-2xl font-bold mb-8">People also liked these deals</h2>
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
               {relatedDeals.map((deal) => (
-                <Link key={deal.id} to={`/deals/${deal.id}`}>
+                <Link key={deal.id} to={`/deals/${deal.id}`} className="block h-full">
                   <DealCardNew {...deal} />
                 </Link>
               ))}

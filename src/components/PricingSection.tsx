@@ -1,16 +1,25 @@
 import { Check, Crown, ArrowUpRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
+import SafeImage from "@/components/SafeImage";
+
+import notionLogo from "@/assets/logos/notion.png";
+import slackLogo from "@/assets/logos/slack.svg";
+import figmaLogo from "@/assets/logos/figma.svg";
+import stripeLogo from "@/assets/logos/stripe.svg";
+import hubspotLogo from "@/assets/logos/hubspot.png";
+import awsLogo from "@/assets/logos/aws.svg";
+import zoomLogo from "@/assets/logos/zoom.svg";
 
 // Software logos for the pricing cards
 const softwareLogos = [
-  { name: "Notion", logo: "https://upload.wikimedia.org/wikipedia/commons/4/45/Notion_app_logo.png" },
-  { name: "Slack", logo: "https://upload.wikimedia.org/wikipedia/commons/d/d5/Slack_icon_2019.svg" },
-  { name: "Figma", logo: "https://upload.wikimedia.org/wikipedia/commons/3/33/Figma-logo.svg" },
-  { name: "Stripe", logo: "https://upload.wikimedia.org/wikipedia/commons/b/ba/Stripe_Logo%2C_revised_2016.svg" },
-  { name: "HubSpot", logo: "https://www.hubspot.com/hubfs/HubSpot_Logos/HubSpot-Inversed-Favicon.png" },
-  { name: "AWS", logo: "https://upload.wikimedia.org/wikipedia/commons/9/93/Amazon_Web_Services_Logo.svg" },
-  { name: "Zoom", logo: "https://upload.wikimedia.org/wikipedia/commons/7/7b/Zoom_Communications_Logo.svg" },
+  { name: "Notion", logo: notionLogo },
+  { name: "Slack", logo: slackLogo },
+  { name: "Figma", logo: figmaLogo },
+  { name: "Stripe", logo: stripeLogo },
+  { name: "HubSpot", logo: hubspotLogo },
+  { name: "AWS", logo: awsLogo },
+  { name: "Zoom", logo: zoomLogo },
 ];
 
 interface Testimonial {
@@ -142,7 +151,7 @@ const PricingSection = () => {
           {plans.map((plan, index) => (
             <div
               key={plan.name}
-              className={`relative bg-card rounded-2xl p-6 flex flex-col transition-all duration-300 hover:-translate-y-1 ${
+              className={`relative bg-card rounded-2xl p-6 h-full flex flex-col transition-all duration-300 hover:-translate-y-1 ${
                 plan.isPremium 
                   ? 'border-2 border-primary shadow-lg ring-1 ring-primary/20' 
                   : 'border border-border hover:border-primary/30 hover:shadow-md'
@@ -184,13 +193,10 @@ const PricingSection = () => {
                       key={i}
                       className="w-8 h-8 rounded-lg bg-card border border-border flex items-center justify-center p-1.5 shadow-sm"
                     >
-                      <img 
-                        src={software.logo} 
+                      <SafeImage
+                        src={software.logo}
                         alt={software.name}
                         className="w-full h-full object-contain"
-                        onError={(e) => {
-                          (e.target as HTMLImageElement).style.display = 'none';
-                        }}
                       />
                     </div>
                   ))}

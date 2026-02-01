@@ -129,7 +129,7 @@ const Deals = () => {
                     <Link 
                       key={deal.id}
                       to={`/deals/${deal.id}`}
-                      className="animate-fade-in"
+                      className="animate-fade-in block h-full"
                       style={{ animationDelay: `${index * 30}ms` }}
                     >
                       <DealCardNew {...deal} />
