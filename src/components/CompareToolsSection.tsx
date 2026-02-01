@@ -124,14 +124,14 @@ const comparisons: ComparisonItem[] = [
 
 const CompareToolsSection = () => {
   return (
-    <section className="py-16 bg-foreground">
+    <section className="py-16 bg-primary/90">
       <div className="container-wide">
         {/* Header */}
         <div className="mb-10">
-          <h2 className="text-2xl md:text-3xl font-bold text-background mb-3">
+          <h2 className="text-2xl md:text-3xl font-bold text-primary-foreground mb-3">
             Compare tools to make the right choices
           </h2>
-          <p className="text-muted-foreground/80 text-lg max-w-3xl">
+          <p className="text-primary-foreground/70 text-lg max-w-3xl">
             Considering buying new software? PerksNest helps you choose the tools & services that best suit your business with our comparison pages.
           </p>
         </div>
@@ -142,7 +142,7 @@ const CompareToolsSection = () => {
             <Link
               key={index}
               to={`/compare/${comparison.slug}`}
-              className="flex items-center gap-4 p-4 rounded-xl border border-border/20 bg-card/5 hover:bg-card/10 transition-colors"
+              className="flex items-center gap-4 p-4 rounded-xl border border-primary-foreground/20 bg-primary-foreground/10 backdrop-blur-sm hover:bg-primary-foreground/20 transition-all duration-200 hover:border-primary-foreground/30"
             >
               {/* Tool logos */}
               <div className="flex items-center -space-x-2">
@@ -169,7 +169,7 @@ const CompareToolsSection = () => {
               </div>
 
               {/* Comparison title */}
-              <span className="text-background font-medium text-sm">
+              <span className="text-primary-foreground font-medium text-sm">
                 {comparison.tool1.name} vs {comparison.tool2.name}
               </span>
             </Link>

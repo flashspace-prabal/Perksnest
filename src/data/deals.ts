@@ -42,7 +42,7 @@ export const dealsData: Deal[] = [
   {
     id: "google-cloud",
     name: "Google Cloud (GCP)",
-    logo: "https://www.gstatic.com/devrel-devsite/prod/v0e0f589edd85502a40d78d7d0825db8ea5ef3b99ab4070381ee86977c9168730/cloud/images/favicons/onecloud/super_cloud.png",
+    logo: "https://www.gstatic.com/pantheon/images/welcome/supercloud.svg",
     description: "Cloud services by Google",
     dealText: "$2,000 in credits for 1 year if you never raised funds // $350,000 in credits for 2 years if you did",
     savings: "$350,000",

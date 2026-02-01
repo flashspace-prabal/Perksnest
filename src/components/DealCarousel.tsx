@@ -102,12 +102,11 @@ const DealCarousel = ({ title, subtitle, deals, browseLink, browseLinkText }: De
                     <span>Used by {deal.memberCount.toLocaleString()} members</span>
                   </div>
 
-                  {/* Get deal button - separate line */}
+                  {/* Get deal button - separate line, always aubergine color */}
                   <div className="mb-4">
                     <Button
                       size="sm"
-                      variant={deal.isFree ? "default" : "outline"}
-                      className={`gap-1.5 text-sm w-full ${!deal.isFree ? 'border-primary text-primary hover:bg-primary hover:text-primary-foreground' : ''}`}
+                      className="gap-1.5 text-sm w-full bg-primary text-primary-foreground hover:bg-primary/90"
                     >
                       {deal.isFree ? "Get deal for free" : "Get deal"}
                       <ArrowUpRight className="h-3.5 w-3.5" />
