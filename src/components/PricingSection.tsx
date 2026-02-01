@@ -2,14 +2,15 @@ import { Check, Crown, ArrowUpRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 
+// Slack-themed logo icons
 const logoIcons = [
-  { name: "Notion", bg: "bg-white", initial: "N" },
-  { name: "Airtable", bg: "bg-red-500", initial: "A" },
-  { name: "Monday", bg: "bg-yellow-400", initial: "M" },
-  { name: "Google", bg: "bg-white", initial: "G" },
-  { name: "AWS", bg: "bg-orange-500", initial: "A" },
-  { name: "Brevo", bg: "bg-blue-600", initial: "B" },
-  { name: "Meta", bg: "bg-blue-500", initial: "M" },
+  { name: "Notion", bg: "bg-foreground", textColor: "text-background" },
+  { name: "Airtable", bg: "bg-[hsl(0,76%,57%)]", textColor: "text-white" }, // Slack red
+  { name: "Monday", bg: "bg-[hsl(43,96%,56%)]", textColor: "text-foreground" }, // Slack yellow
+  { name: "Google", bg: "bg-card border border-border", textColor: "text-foreground" },
+  { name: "AWS", bg: "bg-[hsl(38,92%,50%)]", textColor: "text-white" }, // Orange
+  { name: "Brevo", bg: "bg-[hsl(196,100%,40%)]", textColor: "text-white" }, // Slack blue
+  { name: "Meta", bg: "bg-primary", textColor: "text-white" }, // Aubergine
 ];
 
 interface Testimonial {
@@ -60,7 +61,7 @@ const plans: PricingPlan[] = [
       role: "Marketing Manager",
       quote: "\"PerksNest has helped us discover new tools as well as get free usage for tools we already use. It's like free money. Sounds too good to be true, but... it's real!\"",
       initial: "J",
-      color: "from-gray-500 to-gray-700",
+      color: "bg-foreground",
     },
   },
   {
@@ -88,7 +89,7 @@ const plans: PricingPlan[] = [
       role: "Founder at Thirsty Sprout",
       quote: "\"PerksNest is a must join if you'd like to accelerate your companies growth. We've taken advantage of several deals offered by PerksNest some of which can't be found anywhere else!\"",
       initial: "D",
-      color: "from-amber-500 to-orange-600",
+      color: "bg-[hsl(38,92%,50%)]",
     },
   },
   {
@@ -117,7 +118,7 @@ const plans: PricingPlan[] = [
       role: "Founder of Early AI-dopters",
       quote: "\"By integrating PerksNest as a reward in our gamified community, we boosted conversions, slashed churn, and saw a 60% increase in annual upgrades, with full ROI in under one week!\"",
       initial: "M",
-      color: "from-blue-500 to-indigo-600",
+      color: "bg-primary",
     },
   },
 ];
@@ -128,7 +129,7 @@ const PricingSection = () => {
       <div className="container-wide">
         {/* Pricing Cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-6xl mx-auto">
-          {plans.map((plan, index) => (
+          {plans.map((plan) => (
             <div
               key={plan.name}
               className="bg-card border border-border rounded-2xl p-6 flex flex-col"
@@ -154,12 +155,12 @@ const PricingSection = () => {
               {/* Logo Stack */}
               {plan.showLogos && (
                 <div className="flex items-center gap-1 mb-6">
-                  {logoIcons.slice(0, 7).map((logo, i) => (
+                  {logoIcons.map((logo, i) => (
                     <div
                       key={i}
-                      className={`w-7 h-7 rounded-md ${logo.bg} border border-border flex items-center justify-center text-xs font-bold text-foreground`}
+                      className={`w-8 h-8 rounded-lg ${logo.bg} flex items-center justify-center text-xs font-bold ${logo.textColor}`}
                     >
-                      {logo.initial}
+                      {logo.name.charAt(0)}
                     </div>
                   ))}
                   {plan.extraLogosText && (
@@ -191,13 +192,7 @@ const PricingSection = () => {
 
               {/* CTA Button */}
               <Button
-                className={`w-full mb-4 ${
-                  plan.ctaVariant === "primary"
-                    ? "bg-primary text-primary-foreground hover:bg-primary/90"
-                    : plan.ctaVariant === "outline"
-                    ? "bg-foreground text-background hover:bg-foreground/90"
-                    : "bg-foreground text-background hover:bg-foreground/90"
-                }`}
+                className="w-full mb-4 bg-foreground text-background hover:bg-foreground/90"
                 size="lg"
               >
                 {plan.isPremium && <Crown className="h-4 w-4 mr-2" />}
@@ -238,7 +233,7 @@ const PricingSection = () => {
                         <>
                           {feature.text}
                           <strong className="text-foreground">{feature.bold}</strong>
-                          {(feature as any).text2}
+                          {feature.text2}
                         </>
                       ) : (
                         feature.text
@@ -251,7 +246,7 @@ const PricingSection = () => {
               {/* Testimonial */}
               <div className="bg-secondary/50 rounded-xl p-4 mt-auto">
                 <div className="flex items-center gap-3 mb-3">
-                  <div className={`w-10 h-10 rounded-full bg-gradient-to-br ${plan.testimonial.color} flex items-center justify-center text-white font-bold`}>
+                  <div className={`w-10 h-10 rounded-full ${plan.testimonial.color} flex items-center justify-center text-white font-bold`}>
                     {plan.testimonial.initial}
                   </div>
                   <div>

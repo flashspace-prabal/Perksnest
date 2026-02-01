@@ -12,21 +12,21 @@ const testimonials: Testimonial[] = [
     role: "Co-Founder",
     quote: "PerksNest was the best investment I made in the early days of my company. Pays for itself more or less instantly with Premium, very responsive staff, new offerings get added frequently. Great deal. Recommended.",
     avatarInitial: "A",
-    avatarColor: "from-blue-500 to-indigo-600"
+    avatarColor: "bg-primary" // Slack aubergine
   },
   {
     name: "David Velardo",
     role: "Founder & CEO",
     quote: "The team at PerksNest have been extremely responsive and helpful to my startup. Their offers have worked perfectly and saved my startup tons of $$",
     avatarInitial: "D",
-    avatarColor: "from-amber-500 to-orange-600"
+    avatarColor: "bg-[hsl(38,92%,50%)]" // Slack yellow/orange
   },
   {
     name: "Josh Bartolomucci",
     role: "Marketing Manager",
     quote: "PerksNest has helped us discover new tools as well as get free usage for tools we already use. It's like free money. Sounds too good to be true, but... it's real!",
     avatarInitial: "J",
-    avatarColor: "from-gray-500 to-gray-700"
+    avatarColor: "bg-foreground" // Dark aubergine
   },
 ];
 
@@ -48,7 +48,7 @@ const TestimonialCards = () => {
             >
               {/* Author Info */}
               <div className="flex items-center gap-3 mb-4">
-                <div className={`w-12 h-12 rounded-full bg-gradient-to-br ${testimonial.avatarColor} flex items-center justify-center text-white font-bold text-lg`}>
+                <div className={`w-12 h-12 rounded-full ${testimonial.avatarColor} flex items-center justify-center text-white font-bold text-lg`}>
                   {testimonial.avatarInitial}
                 </div>
                 <div>
