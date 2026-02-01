@@ -5,28 +5,26 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import SafeImage from "@/components/SafeImage";
 
-// Featured deal cards - reduced to 8 cards
+// Featured deal cards - reduced to 6 cards with subtle offsets
 const featuredDeals = [
-  { name: "MongoDB", logo: "https://upload.wikimedia.org/wikipedia/commons/9/93/MongoDB_Logo.svg", deal: "$500 Free Cloud Credits", subtitle: "The developer data platform", isNew: false, hasTrend: true, offsetY: "mt-0" },
-  { name: "HubSpot", logo: "https://www.hubspot.com/hubfs/HubSpot_Logos/HubSpot-Inversed-Favicon.png", deal: "90% off your first year", subtitle: "Leading CRM & Customer Platform", isNew: false, hasFlame: true, offsetY: "mt-12", highlight: true },
-  { name: "TikTok for Business", logo: "https://upload.wikimedia.org/wikipedia/en/thumb/a/a9/TikTok_logo.svg/512px-TikTok_logo.svg.png", deal: "Up to $6,000 Free", subtitle: "Engage with your audience on TikTok with Ads", isNew: true, hasFlame: false, offsetY: "mt-6" },
-  { name: "Make", logo: "https://upload.wikimedia.org/wikipedia/commons/7/7e/Make_%28formerly_Integromat%29_Logo.png", deal: "12 Months Free", subtitle: "No-code workflow automation", isNew: false, hasFlame: true, offsetY: "mt-16" },
-  { name: "GitHub", logo: "https://upload.wikimedia.org/wikipedia/commons/9/91/Octicons-mark-github.svg", deal: "12 Months Free", subtitle: "The developer platform to build and deliver software", isNew: false, hasFlame: true, offsetY: "mt-8" },
-  { name: "Asana", logo: "https://upload.wikimedia.org/wikipedia/commons/thumb/3/3b/Asana_logo.svg/512px-Asana_logo.svg.png", deal: "80% off", subtitle: "Manage your team's work, projects & tasks online", isNew: true, hasFlame: false, offsetY: "mt-0" },
-  { name: "Webflow", logo: "https://upload.wikimedia.org/wikipedia/commons/9/92/Webflow_logo.svg", deal: "100% Off For One Year", subtitle: "A visual way to build the web", isNew: false, hasFlame: true, offsetY: "mt-10" },
-  { name: "Pipedrive", logo: "https://upload.wikimedia.org/wikipedia/commons/thumb/4/45/Pipedrive_Logo.svg/512px-Pipedrive_Logo.svg.png", deal: "20% off for 12 months", subtitle: "Leading sales CRM & pipeline management", isNew: false, hasFlame: true, offsetY: "mt-4" },
+  { name: "MongoDB", logo: "https://upload.wikimedia.org/wikipedia/commons/9/93/MongoDB_Logo.svg", deal: "$500 Free Cloud Credits", subtitle: "The developer data platform", isNew: false, hasTrend: true, translateY: "-translate-y-2" },
+  { name: "HubSpot", logo: "https://www.hubspot.com/hubfs/HubSpot_Logos/HubSpot-Inversed-Favicon.png", deal: "90% off your first year", subtitle: "Leading CRM & Customer Platform", isNew: false, hasFlame: true, translateY: "translate-y-4", highlight: true },
+  { name: "TikTok for Business", logo: "https://upload.wikimedia.org/wikipedia/en/thumb/a/a9/TikTok_logo.svg/512px-TikTok_logo.svg.png", deal: "Up to $6,000 Free", subtitle: "Engage with your audience on TikTok with Ads", isNew: true, hasFlame: false, translateY: "-translate-y-1" },
+  { name: "GitHub", logo: "https://upload.wikimedia.org/wikipedia/commons/9/91/Octicons-mark-github.svg", deal: "12 Months Free", subtitle: "The developer platform to build and deliver software", isNew: false, hasFlame: true, translateY: "translate-y-3" },
+  { name: "Asana", logo: "https://upload.wikimedia.org/wikipedia/commons/thumb/3/3b/Asana_logo.svg/512px-Asana_logo.svg.png", deal: "80% off", subtitle: "Manage your team's work, projects & tasks online", isNew: true, hasFlame: false, translateY: "-translate-y-2" },
+  { name: "Webflow", logo: "https://upload.wikimedia.org/wikipedia/commons/9/92/Webflow_logo.svg", deal: "100% Off For One Year", subtitle: "A visual way to build the web", isNew: false, hasFlame: true, translateY: "translate-y-2" },
 ];
 
-const DealCard = ({ deal, className = "" }: { deal: typeof featuredDeals[0], className?: string }) => (
+const DealCard = ({ deal }: { deal: typeof featuredDeals[0] }) => (
   <Link
     to="/deals"
     className={`group bg-card rounded-2xl border border-border p-6 transition-all duration-300 
-      hover:shadow-2xl hover:-translate-y-2 hover:border-primary/30 hover:scale-[1.02]
-      ${deal.highlight ? 'ring-2 ring-primary shadow-lg' : 'shadow-md'} ${className}`}
+      hover:shadow-2xl hover:-translate-y-3 hover:border-primary/30
+      ${deal.highlight ? 'ring-2 ring-primary shadow-lg' : 'shadow-md'} ${deal.translateY}`}
   >
     {/* Icon badges */}
     <div className="flex justify-between items-start mb-4">
-      <div className="w-16 h-16 flex items-center justify-center bg-secondary/50 rounded-xl p-2 group-hover:bg-primary/10 transition-colors">
+      <div className="w-14 h-14 flex items-center justify-center bg-secondary/50 rounded-xl p-2 group-hover:bg-primary/10 transition-colors">
         <SafeImage
           src={deal.logo}
           alt={deal.name}
@@ -207,32 +205,30 @@ const HeroBanner = () => {
       </div>
 
       {/* Purple Diagonal Stripes Decoration */}
-      <div className="relative h-24 overflow-hidden">
+      <div className="relative h-20 overflow-hidden">
         <div 
-          className="absolute left-0 w-[60%] h-16 bg-primary/20"
+          className="absolute left-0 w-[55%] h-12 bg-primary/20"
           style={{ transform: 'skewY(-3deg)', transformOrigin: 'left' }}
         />
         <div 
-          className="absolute left-0 top-6 w-[50%] h-14 bg-primary/30"
+          className="absolute left-0 top-4 w-[45%] h-10 bg-primary/30"
           style={{ transform: 'skewY(-3deg)', transformOrigin: 'left' }}
         />
       </div>
 
-      {/* Floating Deal Cards Section - Larger cards, fewer items */}
-      <div className="bg-gradient-to-b from-primary/5 to-background pb-24 relative">
+      {/* Floating Deal Cards Section */}
+      <div className="bg-gradient-to-b from-primary/5 to-background py-16 relative">
         {/* Decorative diagonal on right */}
         <div 
-          className="absolute right-0 top-20 w-[40%] h-20 bg-primary/10"
+          className="absolute right-0 top-10 w-[35%] h-16 bg-primary/10"
           style={{ transform: 'skewY(3deg)', transformOrigin: 'right' }}
         />
         
         <div className="container-wide relative z-10">
-          {/* Scattered Grid - 4 columns on desktop */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          {/* 3 columns on desktop with subtle stagger */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 items-start">
             {featuredDeals.map((deal) => (
-              <div key={deal.name} className={deal.offsetY}>
-                <DealCard deal={deal} />
-              </div>
+              <DealCard key={deal.name} deal={deal} />
             ))}
           </div>
         </div>
