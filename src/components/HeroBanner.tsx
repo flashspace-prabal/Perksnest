@@ -1,6 +1,8 @@
+import { useState } from "react";
 import { Link } from "react-router-dom";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, Check, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import SafeImage from "@/components/SafeImage";
 
 // Floating brand logos for hero
@@ -21,17 +23,23 @@ const rightLogos = [
 ];
 
 const HeroBanner = () => {
+  const [email, setEmail] = useState("");
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    console.log("Email submitted:", email);
+  };
+
   return (
-    <section className="relative overflow-hidden bg-background py-20 lg:py-28">
+    <section className="relative overflow-hidden bg-background py-16 lg:py-24">
       {/* Left Floating Logos */}
-      <div className="absolute left-8 lg:left-16 top-1/2 -translate-y-1/2 hidden md:flex flex-col gap-8 items-center">
+      <div className="absolute left-8 lg:left-16 top-1/2 -translate-y-1/2 hidden lg:flex flex-col gap-8 items-center">
         {leftLogos.map((logo, i) => (
           <div
             key={logo.name}
-            className={`${logo.size} opacity-60 hover:opacity-100 transition-opacity duration-300`}
+            className={`${logo.size} opacity-50 hover:opacity-100 transition-opacity duration-300`}
             style={{
               transform: `translateX(${i % 2 === 0 ? '20px' : '-10px'})`,
-              animationDelay: `${i * 100}ms`
             }}
           >
             <SafeImage
@@ -44,14 +52,13 @@ const HeroBanner = () => {
       </div>
 
       {/* Right Floating Logos */}
-      <div className="absolute right-8 lg:right-16 top-1/2 -translate-y-1/2 hidden md:flex flex-col gap-8 items-center">
+      <div className="absolute right-8 lg:right-16 top-1/2 -translate-y-1/2 hidden lg:flex flex-col gap-8 items-center">
         {rightLogos.map((logo, i) => (
           <div
             key={logo.name}
-            className={`${logo.size} opacity-60 hover:opacity-100 transition-opacity duration-300`}
+            className={`${logo.size} opacity-50 hover:opacity-100 transition-opacity duration-300`}
             style={{
               transform: `translateX(${i % 2 === 0 ? '-20px' : '10px'})`,
-              animationDelay: `${i * 100}ms`
             }}
           >
             <SafeImage
@@ -66,9 +73,11 @@ const HeroBanner = () => {
       {/* Center Content */}
       <div className="container-wide relative z-10">
         <div className="max-w-2xl mx-auto text-center">
-          {/* Main headline */}
-          <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-foreground mb-6 leading-tight">
-            Top deals for founders
+          {/* Main headline with mixed weight */}
+          <h1 className="text-4xl md:text-5xl lg:text-6xl text-foreground mb-6 leading-tight">
+            <span className="font-bold">Top deals</span>{" "}
+            <span className="font-normal">for</span>{" "}
+            <span className="font-bold">founders</span>
           </h1>
 
           {/* Highlighted amount */}
@@ -82,13 +91,75 @@ const HeroBanner = () => {
             Affording SaaS resources and tools is tough for startups early on. This fixes it.
           </p>
 
-          {/* CTA Button */}
-          <Button 
-            size="lg" 
-            className="bg-primary hover:bg-primary/90 text-primary-foreground px-10 py-6 text-lg font-semibold rounded-lg shadow-lg hover:shadow-xl transition-all"
-          >
-            Join the Club
-          </Button>
+          {/* Trust badges */}
+          <div className="flex flex-wrap items-center justify-center gap-6 mb-10">
+            <div className="flex items-center gap-2 text-sm text-foreground">
+              <Check className="h-5 w-5 text-[hsl(145,63%,42%)]" />
+              <span>350+ exclusive perks</span>
+            </div>
+            <div className="flex items-center gap-2 text-sm text-foreground">
+              <Check className="h-5 w-5 text-[hsl(145,63%,42%)]" />
+              <span>All directly negotiated by us</span>
+            </div>
+            <div className="flex items-center gap-2 text-sm text-foreground">
+              <Check className="h-5 w-5 text-[hsl(145,63%,42%)]" />
+              <span>Trusted by 100,000+ founders globally</span>
+            </div>
+          </div>
+
+          {/* Email form */}
+          <form onSubmit={handleSubmit} className="max-w-md mx-auto mb-4">
+            <div className="space-y-3">
+              <div className="text-left">
+                <label htmlFor="email" className="text-sm font-medium text-foreground mb-1.5 block">
+                  Email
+                </label>
+                <Input
+                  id="email"
+                  type="email"
+                  placeholder="e.g max@yourbusiness.com"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="w-full h-12 text-base bg-card border-border"
+                  required
+                />
+              </div>
+              
+              <div className="relative">
+                <Button 
+                  type="submit"
+                  size="lg" 
+                  className="w-full h-14 text-base font-semibold gap-2 bg-foreground text-background hover:bg-foreground/90"
+                >
+                  <Sparkles className="h-5 w-5" />
+                  Get your free membership
+                  <ArrowRight className="h-5 w-5" />
+                </Button>
+                
+                {/* "it's free" annotation */}
+                <div className="absolute -right-20 top-1/2 -translate-y-1/2 hidden lg:flex items-center gap-1">
+                  <svg width="40" height="20" viewBox="0 0 40 20" className="text-primary">
+                    <path 
+                      d="M0 10 Q 10 5 30 15" 
+                      fill="none" 
+                      stroke="currentColor" 
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                    />
+                    <path 
+                      d="M25 12 L30 15 L28 10" 
+                      fill="none" 
+                      stroke="currentColor" 
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                  </svg>
+                  <span className="text-primary font-medium italic text-lg">it's free</span>
+                </div>
+              </div>
+            </div>
+          </form>
 
           {/* Secondary Link */}
           <div className="mt-6">
@@ -104,10 +175,10 @@ const HeroBanner = () => {
       </div>
 
       {/* Mobile Logos Row */}
-      <div className="md:hidden mt-12 overflow-x-auto">
+      <div className="lg:hidden mt-12 overflow-x-auto">
         <div className="flex items-center justify-center gap-6 px-4">
           {[...leftLogos.slice(0, 3), ...rightLogos.slice(0, 3)].map((logo) => (
-            <div key={logo.name} className="w-10 h-10 shrink-0 opacity-60">
+            <div key={logo.name} className="w-10 h-10 shrink-0 opacity-50">
               <SafeImage
                 src={logo.logo}
                 alt={logo.name}
