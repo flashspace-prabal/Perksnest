@@ -6,7 +6,6 @@ import TestimonialsCarousel from "@/components/TestimonialsCarousel";
 import TestimonialCards from "@/components/TestimonialCards";
 import DealCarousel from "@/components/DealCarousel";
 import PopularCategoriesSection from "@/components/PopularCategoriesSection";
-import FeatureCategoriesSection from "@/components/FeatureCategoriesSection";
 import CompareToolsSection from "@/components/CompareToolsSection";
 import PricingSection from "@/components/PricingSection";
 import CTASection from "@/components/CTASection";
@@ -64,9 +63,6 @@ const Index = () => {
           browseLink="/deals?filter=free"
           browseLinkText="Browse free deals"
         />
-
-        {/* Feature Categories */}
-        <FeatureCategoriesSection />
 
         {/* Compare Tools */}
         <CompareToolsSection />
