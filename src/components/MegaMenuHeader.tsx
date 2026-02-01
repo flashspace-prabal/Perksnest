@@ -260,6 +260,9 @@ const MegaMenuHeader = () => {
               <Link to="/blog" className="nav-link px-3 py-2 rounded-md hover:bg-secondary transition-colors">
                 Blog
               </Link>
+              <Link to="/h1" className="nav-link px-3 py-2 rounded-md hover:bg-secondary transition-colors font-semibold text-primary">
+                H1
+              </Link>
             </nav>
           </div>
 
