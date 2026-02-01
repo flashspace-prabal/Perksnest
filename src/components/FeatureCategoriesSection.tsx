@@ -1,9 +1,13 @@
-import { Cloud, PenTool, Users, TrendingUp, Shield, Zap } from "lucide-react";
+import analyticsIllustration from "@/assets/illustrations/analytics-illustration.png";
+import productivityIllustration from "@/assets/illustrations/productivity-illustration.png";
+import collaborationIllustration from "@/assets/illustrations/collaboration-illustration.png";
+import marketingIllustration from "@/assets/illustrations/marketing-illustration.png";
+import securityIllustration from "@/assets/illustrations/security-illustration.png";
 
 interface FeatureSection {
   title: string;
   description: React.ReactNode;
-  icon: React.ReactNode;
+  illustration: string;
   bgColor: string;
   reverse?: boolean;
 }
@@ -17,26 +21,7 @@ const features: FeatureSection[] = [
         <strong>Zoho Flow,</strong> amongst several other automators.
       </>
     ),
-    icon: (
-      <div className="relative">
-        {/* Analytics illustration */}
-        <div className="flex items-end gap-4">
-          <div className="relative">
-            <div className="w-32 h-24 bg-primary/10 rounded-lg" />
-            <TrendingUp className="absolute bottom-2 left-2 w-28 h-20 text-primary/40" />
-          </div>
-          <div className="flex flex-col items-center gap-2">
-            <div className="w-16 h-16 rounded-full bg-[hsl(38,92%,50%)] flex items-center justify-center">
-              <div className="w-0 h-0 border-l-[8px] border-l-transparent border-r-[8px] border-r-transparent border-b-[12px] border-b-white rotate-[30deg]" />
-              <div className="w-0 h-0 border-l-[6px] border-l-transparent border-r-[6px] border-r-transparent border-b-[10px] border-b-white rotate-[-60deg] -ml-2" />
-            </div>
-          </div>
-        </div>
-        {/* Doodle characters */}
-        <div className="absolute -bottom-4 left-8 text-6xl opacity-80">📊</div>
-        <div className="absolute -bottom-4 right-8 text-5xl opacity-80">📈</div>
-      </div>
-    ),
+    illustration: analyticsIllustration,
     bgColor: "bg-primary/5",
     reverse: false,
   },
@@ -48,12 +33,7 @@ const features: FeatureSection[] = [
         <strong>Notion, Clickup, Miro, Typeform</strong> so you build even better!
       </>
     ),
-    icon: (
-      <div className="relative flex items-center justify-center">
-        <div className="text-8xl">✏️</div>
-        <PenTool className="absolute w-16 h-16 text-[hsl(38,92%,50%)] -rotate-12" />
-      </div>
-    ),
+    illustration: productivityIllustration,
     bgColor: "bg-background",
     reverse: true,
   },
@@ -65,13 +45,7 @@ const features: FeatureSection[] = [
         <strong>Loom</strong> to communicate seamlessly across the globe.
       </>
     ),
-    icon: (
-      <div className="relative flex items-center justify-center">
-        <Users className="w-24 h-24 text-primary/60" />
-        <div className="absolute -top-2 -right-2 text-4xl">💬</div>
-        <div className="absolute -bottom-2 -left-2 text-3xl">🎥</div>
-      </div>
-    ),
+    illustration: collaborationIllustration,
     bgColor: "bg-primary/5",
     reverse: false,
   },
@@ -83,13 +57,7 @@ const features: FeatureSection[] = [
         <strong>Brevo</strong> to reach more customers effectively.
       </>
     ),
-    icon: (
-      <div className="relative flex items-center justify-center">
-        <Zap className="w-20 h-20 text-[hsl(38,92%,50%)]" />
-        <div className="absolute top-0 right-0 text-4xl">🚀</div>
-        <div className="absolute bottom-0 left-0 text-3xl">📧</div>
-      </div>
-    ),
+    illustration: marketingIllustration,
     bgColor: "bg-background",
     reverse: true,
   },
@@ -101,12 +69,7 @@ const features: FeatureSection[] = [
         <strong>Auth0</strong> for enterprise-grade security solutions.
       </>
     ),
-    icon: (
-      <div className="relative flex items-center justify-center">
-        <Shield className="w-24 h-24 text-primary/60" />
-        <div className="absolute -top-1 right-4 text-3xl">🔒</div>
-      </div>
-    ),
+    illustration: securityIllustration,
     bgColor: "bg-primary/5",
     reverse: false,
   },
@@ -131,8 +94,12 @@ const FeatureCategoriesSection = () => {
 
               {/* Illustration */}
               <div className="flex-1 flex items-center justify-center">
-                <div className="w-64 h-64 lg:w-80 lg:h-80 flex items-center justify-center">
-                  {feature.icon}
+                <div className="w-72 h-72 lg:w-96 lg:h-96 rounded-2xl overflow-hidden shadow-lg">
+                  <img 
+                    src={feature.illustration} 
+                    alt={feature.title}
+                    className="w-full h-full object-cover"
+                  />
                 </div>
               </div>
             </div>
