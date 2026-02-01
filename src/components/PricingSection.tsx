@@ -125,24 +125,48 @@ const plans: PricingPlan[] = [
 
 const PricingSection = () => {
   return (
-    <section id="pricing" className="py-20 bg-secondary/30">
+    <section id="pricing" className="py-20 bg-background">
       <div className="container-wide">
+        {/* Section Header */}
+        <div className="text-center mb-12">
+          <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
+            Choose your plan
+          </h2>
+          <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
+            Start for free, upgrade when you need more. Access exclusive deals that help you save thousands.
+          </p>
+        </div>
+
         {/* Pricing Cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-6xl mx-auto">
-          {plans.map((plan) => (
+          {plans.map((plan, index) => (
             <div
               key={plan.name}
-              className="bg-card border border-border rounded-2xl p-6 flex flex-col"
+              className={`relative bg-card rounded-2xl p-6 flex flex-col transition-all duration-300 hover:-translate-y-1 ${
+                plan.isPremium 
+                  ? 'border-2 border-primary shadow-lg ring-1 ring-primary/20' 
+                  : 'border border-border hover:border-primary/30 hover:shadow-md'
+              }`}
             >
+              {/* Premium Badge */}
+              {plan.isPremium && (
+                <div className="absolute -top-3 left-1/2 -translate-x-1/2">
+                  <span className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full text-xs font-semibold bg-primary text-primary-foreground shadow-md">
+                    <Crown className="h-3 w-3" />
+                    Most Popular
+                  </span>
+                </div>
+              )}
+
               {/* Trust Badge */}
-              <p className={`text-sm font-medium mb-4 ${plan.trustBadgeColor}`}>
+              <p className={`text-sm font-medium mb-4 ${plan.isPremium ? 'text-primary mt-2' : plan.trustBadgeColor}`}>
                 {plan.trustBadge}
               </p>
 
               {/* Plan Name */}
               <div className="flex items-center gap-2 mb-3">
                 {plan.isPremium && (
-                  <Crown className="h-5 w-5 text-foreground" />
+                  <Crown className="h-5 w-5 text-primary" />
                 )}
                 <h3 className="text-2xl font-bold text-foreground">{plan.name}</h3>
               </div>
@@ -154,17 +178,17 @@ const PricingSection = () => {
 
               {/* Logo Stack */}
               {plan.showLogos && (
-                <div className="flex items-center gap-1 mb-6">
+                <div className="flex items-center gap-1.5 mb-6">
                   {logoIcons.map((logo, i) => (
                     <div
                       key={i}
-                      className={`w-8 h-8 rounded-lg ${logo.bg} flex items-center justify-center text-xs font-bold ${logo.textColor}`}
+                      className={`w-8 h-8 rounded-lg ${logo.bg} flex items-center justify-center text-xs font-bold ${logo.textColor} shadow-sm`}
                     >
                       {logo.name.charAt(0)}
                     </div>
                   ))}
                   {plan.extraLogosText && (
-                    <span className="text-xs text-muted-foreground ml-1">
+                    <span className="text-xs text-muted-foreground ml-1 font-medium">
                       {plan.extraLogosText}
                     </span>
                   )}
@@ -176,7 +200,9 @@ const PricingSection = () => {
                 {plan.price ? (
                   <>
                     <div className="flex items-baseline gap-1">
-                      <span className="text-4xl font-bold text-foreground">{plan.price}</span>
+                      <span className={`text-4xl font-bold ${plan.isPremium ? 'text-primary' : 'text-foreground'}`}>
+                        {plan.price}
+                      </span>
                       {plan.priceSubtext && (
                         <span className="text-muted-foreground text-sm">{plan.priceSubtext}</span>
                       )}
@@ -192,7 +218,13 @@ const PricingSection = () => {
 
               {/* CTA Button */}
               <Button
-                className="w-full mb-4 bg-foreground text-background hover:bg-foreground/90"
+                className={`w-full mb-4 ${
+                  plan.isPremium 
+                    ? 'bg-primary text-primary-foreground hover:bg-primary/90' 
+                    : index === 2 
+                      ? 'bg-card text-foreground border-2 border-primary hover:bg-primary hover:text-primary-foreground'
+                      : 'bg-foreground text-background hover:bg-foreground/90'
+                }`}
                 size="lg"
               >
                 {plan.isPremium && <Crown className="h-4 w-4 mr-2" />}
@@ -211,7 +243,7 @@ const PricingSection = () => {
                     <Link
                       key={i}
                       to={link.href}
-                      className="text-sm text-muted-foreground hover:text-foreground flex items-center justify-center gap-1"
+                      className="text-sm text-primary hover:text-primary/80 flex items-center justify-center gap-1 font-medium"
                     >
                       {link.text}
                       <ArrowUpRight className="h-3 w-3" />
@@ -227,7 +259,9 @@ const PricingSection = () => {
               <ul className="space-y-3 mb-6 flex-1">
                 {plan.features.map((feature, i) => (
                   <li key={i} className="flex items-start gap-3">
-                    <Check className="h-4 w-4 shrink-0 mt-0.5 text-muted-foreground" />
+                    <div className="w-5 h-5 rounded-full bg-primary/10 flex items-center justify-center shrink-0 mt-0.5">
+                      <Check className="h-3 w-3 text-primary" />
+                    </div>
                     <span className="text-sm text-muted-foreground">
                       {feature.bold ? (
                         <>
@@ -244,9 +278,9 @@ const PricingSection = () => {
               </ul>
 
               {/* Testimonial */}
-              <div className="bg-secondary/50 rounded-xl p-4 mt-auto">
+              <div className={`rounded-xl p-4 mt-auto ${plan.isPremium ? 'bg-primary/5 border border-primary/10' : 'bg-secondary/50'}`}>
                 <div className="flex items-center gap-3 mb-3">
-                  <div className={`w-10 h-10 rounded-full ${plan.testimonial.color} flex items-center justify-center text-white font-bold`}>
+                  <div className={`w-10 h-10 rounded-full ${plan.testimonial.color} flex items-center justify-center text-white font-bold shadow-sm`}>
                     {plan.testimonial.initial}
                   </div>
                   <div>
