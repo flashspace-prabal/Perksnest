@@ -12,18 +12,14 @@ const floatingLogos = [
   { name: "AWS", logo: "https://upload.wikimedia.org/wikipedia/commons/9/93/Amazon_Web_Services_Logo.svg", size: "w-16 h-16", position: "left-[8%] top-[40%]", animation: "animate-float-reverse", delay: "1.2s" },
   { name: "Zendesk", logo: "https://upload.wikimedia.org/wikipedia/commons/c/c8/Zendesk_logo.svg", size: "w-16 h-16", position: "left-[3%] top-[65%]", animation: "animate-float-diagonal", delay: "0.8s" },
   { name: "Notion", logo: "https://upload.wikimedia.org/wikipedia/commons/4/45/Notion_app_logo.png", size: "w-16 h-16", position: "left-[12%] top-[85%]", animation: "animate-float-gentle", delay: "2s" },
-  { name: "Airtable", logo: "https://upload.wikimedia.org/wikipedia/commons/4/4b/Airtable_Logo.svg", size: "w-16 h-16", position: "left-[15%] top-[25%]", animation: "animate-float", delay: "1.5s" },
+  { name: "Airtable", logo: "https://upload.wikimedia.org/wikipedia/commons/4/4b/Airtable_Logo.svg", size: "w-20 h-20", position: "left-[15%] top-[25%]", animation: "animate-float", delay: "1.5s" },
   
   // Right side logos
-  { name: "Intercom", logo: "https://upload.wikimedia.org/wikipedia/commons/9/9b/Intercom_logo.svg", size: "w-16 h-16", position: "right-[5%] top-[12%]", animation: "animate-float-reverse", delay: "0.5s" },
-  { name: "Twilio", logo: "https://upload.wikimedia.org/wikipedia/commons/7/7e/Twilio-logo-red.svg", size: "w-16 h-16", position: "right-[10%] top-[35%]", animation: "animate-float-diagonal", delay: "1.8s" },
+  { name: "Twilio", logo: "https://upload.wikimedia.org/wikipedia/commons/7/7e/Twilio-logo-red.svg", size: "w-20 h-20", position: "right-[10%] top-[35%]", animation: "animate-float-diagonal", delay: "1.8s" },
   { name: "Slack", logo: "https://upload.wikimedia.org/wikipedia/commons/d/d5/Slack_icon_2019.svg", size: "w-16 h-16", position: "right-[4%] top-[55%]", animation: "animate-float-gentle", delay: "0.3s" },
   { name: "Stripe", logo: "https://upload.wikimedia.org/wikipedia/commons/b/ba/Stripe_Logo%2C_revised_2016.svg", size: "w-16 h-16", position: "right-[12%] top-[75%]", animation: "animate-float", delay: "2.2s" },
   { name: "HubSpot", logo: "https://www.hubspot.com/hubfs/HubSpot_Logos/HubSpot-Inversed-Favicon.png", size: "w-16 h-16", position: "right-[8%] top-[90%]", animation: "animate-float-reverse", delay: "1s" },
-  
-  // Extra scattered logos
-  { name: "Monday", logo: "https://dapulse-res.cloudinary.com/image/upload/f_auto,q_auto/remote_mondaycom_static/img/monday-logo-x2.png", size: "w-16 h-16", position: "left-[18%] top-[55%]", animation: "animate-float-gentle", delay: "0.7s" },
-  { name: "Zoom", logo: "https://upload.wikimedia.org/wikipedia/commons/7/7b/Zoom_Communications_Logo.svg", size: "w-16 h-16", position: "right-[18%] top-[20%]", animation: "animate-float-diagonal", delay: "1.4s" },
+  { name: "Zoom", logo: "https://upload.wikimedia.org/wikipedia/commons/7/7b/Zoom_Communications_Logo.svg", size: "w-20 h-20", position: "right-[18%] top-[20%]", animation: "animate-float-diagonal", delay: "1.4s" },
 ];
 
 const HeroBanner = () => {
