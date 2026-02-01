@@ -75,38 +75,42 @@ const DealCarousel = ({ title, subtitle, deals, browseLink, browseLinkText }: De
               className="flex-shrink-0 w-[320px] group"
             >
               <div className={`relative bg-card rounded-xl border transition-all hover:shadow-lg hover:border-primary/30 h-full ${deal.isPick ? 'border-primary ring-1 ring-primary/20' : 'border-border'}`}>
-                {/* Secret's Pick Badge */}
+                {/* Secret's Pick Badge - positioned with more space */}
                 {deal.isPick && (
-                  <div className="absolute -top-3 right-4">
-                    <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-semibold bg-primary text-primary-foreground shadow-md">
+                  <div className="absolute -top-3 right-4 z-10">
+                    <span className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-semibold bg-primary text-primary-foreground shadow-md whitespace-nowrap">
                       <Sparkles className="h-3 w-3" />
                       Secret's Pick
                     </span>
                   </div>
                 )}
 
-                <div className="p-5">
-                  {/* Header */}
-                  <div className="flex items-start justify-between mb-4">
-                    <div className="flex items-center gap-3">
-                      <div className="w-12 h-12 rounded-lg bg-secondary flex items-center justify-center overflow-hidden border border-border">
-                        <SafeImage src={deal.logo} alt={deal.name} className="w-8 h-8 object-contain" />
-                      </div>
-                      <div>
-                        <h3 className="font-semibold text-foreground">{deal.name}</h3>
-                        <p className="text-xs text-muted-foreground flex items-center gap-1">
-                          <Users className="h-3 w-3" />
-                          Used by {deal.memberCount.toLocaleString()} members
-                        </p>
-                      </div>
+                <div className={`p-5 ${deal.isPick ? 'pt-6' : ''}`}>
+                  {/* Logo and Name Row */}
+                  <div className="flex items-center gap-3 mb-3">
+                    <div className="w-12 h-12 rounded-lg bg-secondary flex items-center justify-center overflow-hidden border border-border shrink-0">
+                      <SafeImage src={deal.logo} alt={deal.name} className="w-8 h-8 object-contain" />
                     </div>
+                    <div className="min-w-0">
+                      <h3 className="font-semibold text-foreground truncate">{deal.name}</h3>
+                    </div>
+                  </div>
+
+                  {/* Used by members - separate line */}
+                  <div className="flex items-center gap-1 text-xs text-muted-foreground mb-3">
+                    <Users className="h-3 w-3 shrink-0" />
+                    <span>Used by {deal.memberCount.toLocaleString()} members</span>
+                  </div>
+
+                  {/* Get deal button - separate line */}
+                  <div className="mb-4">
                     <Button
                       size="sm"
                       variant={deal.isFree ? "default" : "outline"}
-                      className={`gap-1 text-xs ${!deal.isFree ? 'border-primary text-primary hover:bg-primary hover:text-primary-foreground' : ''}`}
+                      className={`gap-1.5 text-sm w-full ${!deal.isFree ? 'border-primary text-primary hover:bg-primary hover:text-primary-foreground' : ''}`}
                     >
                       {deal.isFree ? "Get deal for free" : "Get deal"}
-                      <ArrowUpRight className="h-3 w-3" />
+                      <ArrowUpRight className="h-3.5 w-3.5" />
                     </Button>
                   </div>
 
@@ -114,10 +118,10 @@ const DealCarousel = ({ title, subtitle, deals, browseLink, browseLinkText }: De
                   <p className="text-sm text-muted-foreground mb-3 line-clamp-1">{deal.description}</p>
 
                   {/* Deal Text */}
-                  <p className="text-sm font-medium text-foreground mb-3 line-clamp-2">{deal.dealText}</p>
+                  <p className="text-sm font-medium text-foreground mb-4 line-clamp-2">{deal.dealText}</p>
 
-                  {/* Footer */}
-                  <div className="flex items-center justify-between">
+                  {/* Footer - savings and premium badge */}
+                  <div className="flex items-center justify-between pt-3 border-t border-border">
                     <span className="text-sm text-success font-semibold">Save up to {deal.savings}</span>
                     {deal.isPremium && (
                       <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-medium bg-secondary text-muted-foreground">
