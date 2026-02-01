@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Grid, List, SlidersHorizontal, ChevronDown } from "lucide-react";
+import { Grid, List, ArrowRight } from "lucide-react";
 import DealCard from "./DealCard";
 import { Button } from "@/components/ui/button";
 
@@ -100,25 +100,25 @@ const DealsGrid = () => {
   const [activeFilter, setActiveFilter] = useState("Most popular");
 
   return (
-    <section className="py-12 bg-background">
+    <section className="py-16 bg-background">
       <div className="container-wide">
         {/* Section Header */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-10">
           <div>
-            <h2 className="text-2xl font-bold text-foreground mb-1">Most popular deals</h2>
+            <h2 className="text-2xl md:text-3xl font-bold text-foreground mb-2">Most popular deals</h2>
             <p className="text-muted-foreground">
-              Discover the SaaS deals that are the most popular on our software marketplace right now
+              Discover the SaaS deals your team needs to scale faster
             </p>
           </div>
 
           <div className="flex items-center gap-3">
             {/* View Toggle */}
-            <div className="flex items-center border border-border rounded-lg p-1">
+            <div className="flex items-center border border-border rounded-lg p-1 bg-card">
               <button
                 onClick={() => setViewMode("grid")}
                 className={`p-2 rounded-md transition-colors ${
                   viewMode === "grid" 
-                    ? "bg-muted text-foreground" 
+                    ? "bg-secondary text-foreground" 
                     : "text-muted-foreground hover:text-foreground"
                 }`}
               >
@@ -128,33 +128,26 @@ const DealsGrid = () => {
                 onClick={() => setViewMode("list")}
                 className={`p-2 rounded-md transition-colors ${
                   viewMode === "list" 
-                    ? "bg-muted text-foreground" 
+                    ? "bg-secondary text-foreground" 
                     : "text-muted-foreground hover:text-foreground"
                 }`}
               >
                 <List className="h-4 w-4" />
               </button>
             </div>
-
-            {/* Filter Button */}
-            <Button variant="outline" className="gap-2">
-              <SlidersHorizontal className="h-4 w-4" />
-              Filters
-              <ChevronDown className="h-4 w-4" />
-            </Button>
           </div>
         </div>
 
         {/* Filter Pills */}
-        <div className="flex gap-2 mb-8 overflow-x-auto pb-2">
+        <div className="flex gap-2 mb-10 overflow-x-auto pb-2">
           {filterOptions.map((filter) => (
             <button
               key={filter}
               onClick={() => setActiveFilter(filter)}
-              className={`px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-all ${
+              className={`px-5 py-2.5 rounded-full text-sm font-medium whitespace-nowrap transition-all ${
                 activeFilter === filter
-                  ? "bg-foreground text-background"
-                  : "bg-muted text-muted-foreground hover:bg-muted/80 hover:text-foreground"
+                  ? "bg-primary text-primary-foreground"
+                  : "bg-card border border-border text-foreground hover:border-primary/30"
               }`}
             >
               {filter}
@@ -180,10 +173,10 @@ const DealsGrid = () => {
         </div>
 
         {/* Load More */}
-        <div className="flex justify-center mt-12">
-          <Button variant="outline" size="lg" className="gap-2">
+        <div className="flex justify-center mt-14">
+          <Button size="lg" variant="outline" className="gap-2 border-primary text-primary hover:bg-primary hover:text-primary-foreground">
             View all 563 deals
-            <ChevronDown className="h-4 w-4" />
+            <ArrowRight className="h-4 w-4" />
           </Button>
         </div>
       </div>

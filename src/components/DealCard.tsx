@@ -1,4 +1,4 @@
-import { ArrowUpRight, Crown, Star, Users } from "lucide-react";
+import { ArrowUpRight, Crown, Sparkles, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 interface DealCardProps {
@@ -27,7 +27,7 @@ const DealCard = ({
   return (
     <div className="deal-card group relative">
       {/* Badges */}
-      <div className="absolute top-4 right-4 flex gap-2">
+      <div className="absolute top-5 right-5 flex gap-2">
         {isPremium && (
           <span className="badge-premium">
             <Crown className="h-3 w-3" />
@@ -36,16 +36,16 @@ const DealCard = ({
         )}
         {isPick && (
           <span className="badge-pick">
-            <Star className="h-3 w-3" />
-            Secret's Pick
+            <Sparkles className="h-3 w-3" />
+            Top Pick
           </span>
         )}
       </div>
 
       {/* Logo and Header */}
-      <div className="flex items-start gap-4 mb-4">
-        <div className="w-14 h-14 rounded-xl bg-muted flex items-center justify-center overflow-hidden shrink-0">
-          <img src={logo} alt={name} className="w-10 h-10 object-contain" />
+      <div className="flex items-start gap-4 mb-5">
+        <div className="w-14 h-14 rounded-xl bg-secondary flex items-center justify-center overflow-hidden shrink-0 border border-border">
+          <img src={logo} alt={name} className="w-9 h-9 object-contain" />
         </div>
         <div className="flex-1 min-w-0 pr-20">
           <h3 className="font-semibold text-lg text-foreground truncate">{name}</h3>
@@ -54,29 +54,31 @@ const DealCard = ({
       </div>
 
       {/* Deal Info */}
-      <div className="mb-4">
+      <div className="mb-5">
         <p className="text-sm text-foreground leading-relaxed line-clamp-2">
           {dealText}
         </p>
       </div>
 
       {/* Savings */}
-      <div className="flex items-center gap-2 mb-4">
-        <span className="text-primary font-bold text-lg">Save up to {savings}</span>
+      <div className="flex items-center gap-2 mb-5">
+        <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-semibold bg-success/10 text-success">
+          Save up to {savings}
+        </span>
       </div>
 
       {/* Footer */}
-      <div className="flex items-center justify-between pt-4 border-t border-border">
+      <div className="flex items-center justify-between pt-5 border-t border-border">
         <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
           <Users className="h-4 w-4" />
-          <span>Used by {memberCount.toLocaleString()} members</span>
+          <span>{memberCount.toLocaleString()} members</span>
         </div>
         <Button 
-          variant={isFree ? "default" : "secondary"}
+          variant={isFree ? "default" : "outline"}
           size="sm"
-          className="gap-1.5 group-hover:gap-2 transition-all"
+          className={`gap-1.5 group-hover:gap-2 transition-all ${!isFree ? 'border-primary text-primary hover:bg-primary hover:text-primary-foreground' : ''}`}
         >
-          {isFree ? "Get deal for free" : "Get deal"}
+          {isFree ? "Get free deal" : "Get deal"}
           <ArrowUpRight className="h-4 w-4" />
         </Button>
       </div>

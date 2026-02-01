@@ -2,27 +2,27 @@ import { Mail, Twitter, Linkedin, Github } from "lucide-react";
 
 const footerLinks = {
   product: [
-    { name: "Deals", href: "#" },
+    { name: "Features", href: "#" },
     { name: "Pricing", href: "#pricing" },
-    { name: "Solutions", href: "#" },
-    { name: "For Startups", href: "#" },
+    { name: "Deals", href: "#" },
+    { name: "Enterprise", href: "#" },
   ],
   company: [
     { name: "About", href: "#" },
     { name: "Blog", href: "#" },
     { name: "Careers", href: "#" },
-    { name: "Contact", href: "#" },
+    { name: "Press", href: "#" },
   ],
   resources: [
     { name: "Help Center", href: "#" },
-    { name: "Partner Program", href: "#" },
-    { name: "Referral Program", href: "#" },
-    { name: "API Docs", href: "#" },
+    { name: "Community", href: "#" },
+    { name: "Partners", href: "#" },
+    { name: "Developers", href: "#" },
   ],
   legal: [
-    { name: "Privacy Policy", href: "#" },
-    { name: "Terms of Service", href: "#" },
-    { name: "Cookie Policy", href: "#" },
+    { name: "Privacy", href: "#" },
+    { name: "Terms", href: "#" },
+    { name: "Security", href: "#" },
   ],
 };
 
@@ -41,13 +41,20 @@ const Footer = () => {
           {/* Brand Column */}
           <div className="col-span-2 md:col-span-1">
             <div className="flex items-center gap-2 mb-4">
-              <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center">
-                <span className="text-primary-foreground font-bold text-lg">S</span>
-              </div>
-              <span className="font-bold text-xl">Secret</span>
+              <svg width="24" height="24" viewBox="0 0 54 54" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M19.712 35.746c0 3.218-2.61 5.828-5.828 5.828-3.219 0-5.829-2.61-5.829-5.828 0-3.219 2.61-5.829 5.829-5.829h5.828v5.829z" fill="#E01E5A"/>
+                <path d="M22.608 35.746c0-3.219 2.61-5.829 5.828-5.829 3.219 0 5.829 2.61 5.829 5.829v14.571c0 3.218-2.61 5.828-5.829 5.828-3.218 0-5.828-2.61-5.828-5.828V35.746z" fill="#E01E5A"/>
+                <path d="M28.436 19.712c-3.218 0-5.828-2.61-5.828-5.828 0-3.219 2.61-5.829 5.828-5.829 3.219 0 5.829 2.61 5.829 5.829v5.828h-5.829z" fill="#36C5F0"/>
+                <path d="M28.436 22.608c3.219 0 5.829 2.61 5.829 5.828 0 3.219-2.61 5.829-5.829 5.829H13.884c-3.218 0-5.828-2.61-5.828-5.829 0-3.218 2.61-5.828 5.828-5.828h14.552z" fill="#36C5F0"/>
+                <path d="M44.471 28.436c0-3.218 2.61-5.828 5.828-5.828 3.219 0 5.829 2.61 5.829 5.828 0 3.219-2.61 5.829-5.829 5.829h-5.828v-5.829z" fill="#2EB67D"/>
+                <path d="M41.575 28.436c0 3.219-2.61 5.829-5.829 5.829-3.218 0-5.828-2.61-5.828-5.829V13.884c0-3.218 2.61-5.828 5.828-5.828 3.219 0 5.829 2.61 5.829 5.828v14.552z" fill="#2EB67D"/>
+                <path d="M35.746 44.471c3.219 0 5.829 2.61 5.829 5.828 0 3.219-2.61 5.829-5.829 5.829-3.218 0-5.828-2.61-5.828-5.829v-5.828h5.828z" fill="#ECB22E"/>
+                <path d="M35.746 41.575c-3.218 0-5.828-2.61-5.828-5.829 0-3.218 2.61-5.828 5.828-5.828h14.571c3.218 0 5.828 2.61 5.828 5.828 0 3.219-2.61 5.829-5.828 5.829H35.746z" fill="#ECB22E"/>
+              </svg>
+              <span className="font-bold text-lg">secret</span>
             </div>
             <p className="text-background/70 text-sm mb-6">
-              The #1 platform for exclusive SaaS deals. Save big on the software tools you love.
+              The #1 platform for exclusive SaaS deals. Save big on the tools you love.
             </p>
             <div className="flex gap-3">
               {socialLinks.map((social) => {
@@ -129,9 +136,11 @@ const Footer = () => {
             <p className="text-background/60 text-sm">
               © 2026 Secret. All rights reserved.
             </p>
-            <p className="text-background/60 text-sm">
-              Made with ❤️ for startups worldwide
-            </p>
+            <div className="flex items-center gap-2">
+              <span className="text-background/60 text-sm">Made with</span>
+              <span className="text-slack-red">❤️</span>
+              <span className="text-background/60 text-sm">for startups worldwide</span>
+            </div>
           </div>
         </div>
       </div>

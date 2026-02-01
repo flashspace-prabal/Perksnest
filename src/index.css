@@ -2,114 +2,121 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Secret-inspired SaaS Deals Marketplace Design System */
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+/* Slack-inspired SaaS Deals Marketplace Design System */
+@import url('https://fonts.googleapis.com/css2?family=Larsseit:wght@400;500;600;700&family=Inter:wght@400;500;600;700;800&display=swap');
 
 @layer base {
   :root {
-    /* Emerald Green Theme - Secret Inspired */
-    --background: 0 0% 100%;
-    --foreground: 220 20% 15%;
+    /* Slack Cream/Beige Theme */
+    --background: 45 33% 97%;
+    --foreground: 270 30% 15%;
 
     --card: 0 0% 100%;
-    --card-foreground: 220 20% 15%;
+    --card-foreground: 270 30% 15%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 220 20% 15%;
+    --popover-foreground: 270 30% 15%;
 
-    /* Primary: Emerald Green */
-    --primary: 160 84% 39%;
+    /* Primary: Slack Aubergine/Purple */
+    --primary: 289 52% 27%;
     --primary-foreground: 0 0% 100%;
 
-    /* Secondary: Soft gray */
-    --secondary: 220 14% 96%;
-    --secondary-foreground: 220 20% 25%;
+    /* Secondary: Warm cream */
+    --secondary: 45 30% 92%;
+    --secondary-foreground: 270 30% 20%;
 
-    --muted: 220 14% 96%;
-    --muted-foreground: 220 10% 50%;
+    --muted: 45 25% 94%;
+    --muted-foreground: 270 15% 45%;
 
-    /* Accent: Lighter emerald */
-    --accent: 158 64% 92%;
-    --accent-foreground: 160 84% 30%;
+    /* Accent: Slack Blue */
+    --accent: 196 100% 40%;
+    --accent-foreground: 0 0% 100%;
 
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 220 13% 91%;
-    --input: 220 13% 91%;
-    --ring: 160 84% 39%;
+    --border: 45 20% 88%;
+    --input: 45 20% 88%;
+    --ring: 289 52% 27%;
 
-    --radius: 0.75rem;
+    --radius: 0.5rem;
 
     /* Custom tokens */
-    --success: 160 84% 39%;
+    --success: 145 63% 42%;
     --success-foreground: 0 0% 100%;
     --warning: 38 92% 50%;
     --warning-foreground: 0 0% 100%;
-    --premium: 280 68% 50%;
+    --premium: 289 52% 27%;
     --premium-foreground: 0 0% 100%;
     
-    /* Gradients */
-    --gradient-primary: linear-gradient(135deg, hsl(160 84% 39%) 0%, hsl(158 64% 35%) 100%);
-    --gradient-premium: linear-gradient(135deg, hsl(280 68% 50%) 0%, hsl(260 68% 45%) 100%);
-    --gradient-hero: linear-gradient(180deg, hsl(160 84% 39%) 0%, hsl(158 74% 32%) 100%);
+    /* Slack Brand Colors */
+    --slack-aubergine: 289 52% 27%;
+    --slack-blue: 196 100% 40%;
+    --slack-green: 145 63% 42%;
+    --slack-yellow: 43 96% 56%;
+    --slack-red: 0 76% 57%;
+    
+    /* Gradients - Slack's signature pastel gradient */
+    --gradient-primary: linear-gradient(135deg, hsl(289 52% 27%) 0%, hsl(270 40% 35%) 100%);
+    --gradient-hero: linear-gradient(180deg, hsl(45 33% 97%) 0%, hsl(320 30% 95%) 50%, hsl(200 40% 95%) 100%);
+    --gradient-slack: linear-gradient(135deg, hsl(320 30% 95%) 0%, hsl(45 33% 97%) 25%, hsl(200 40% 95%) 50%, hsl(145 30% 95%) 75%, hsl(45 33% 97%) 100%);
     
     /* Shadows */
     --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
-    --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
-    --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+    --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.07), 0 2px 4px -2px rgb(0 0 0 / 0.07);
+    --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.08), 0 4px 6px -4px rgb(0 0 0 / 0.08);
     --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
-    --shadow-card: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
-    --shadow-card-hover: 0 10px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.04);
+    --shadow-card: 0 2px 8px 0 rgb(0 0 0 / 0.06);
+    --shadow-card-hover: 0 12px 28px -5px rgb(0 0 0 / 0.12);
     
-    /* Sidebar */
-    --sidebar-background: 0 0% 98%;
-    --sidebar-foreground: 240 5.3% 26.1%;
-    --sidebar-primary: 160 84% 39%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 158 64% 92%;
-    --sidebar-accent-foreground: 160 84% 30%;
-    --sidebar-border: 220 13% 91%;
-    --sidebar-ring: 160 84% 39%;
+    /* Sidebar - Slack Aubergine */
+    --sidebar-background: 289 52% 27%;
+    --sidebar-foreground: 0 0% 100%;
+    --sidebar-primary: 0 0% 100%;
+    --sidebar-primary-foreground: 289 52% 27%;
+    --sidebar-accent: 289 40% 35%;
+    --sidebar-accent-foreground: 0 0% 100%;
+    --sidebar-border: 289 40% 35%;
+    --sidebar-ring: 0 0% 100%;
   }
 
   .dark {
-    --background: 220 25% 8%;
-    --foreground: 210 40% 98%;
+    --background: 270 30% 10%;
+    --foreground: 45 30% 95%;
 
-    --card: 220 25% 12%;
-    --card-foreground: 210 40% 98%;
+    --card: 270 25% 14%;
+    --card-foreground: 45 30% 95%;
 
-    --popover: 220 25% 12%;
-    --popover-foreground: 210 40% 98%;
+    --popover: 270 25% 14%;
+    --popover-foreground: 45 30% 95%;
 
-    --primary: 160 84% 45%;
+    --primary: 289 52% 55%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 220 20% 18%;
-    --secondary-foreground: 210 40% 98%;
+    --secondary: 270 20% 20%;
+    --secondary-foreground: 45 30% 95%;
 
-    --muted: 220 20% 18%;
-    --muted-foreground: 215 15% 60%;
+    --muted: 270 20% 20%;
+    --muted-foreground: 45 20% 60%;
 
-    --accent: 160 40% 20%;
-    --accent-foreground: 160 84% 70%;
+    --accent: 196 100% 50%;
+    --accent-foreground: 0 0% 100%;
 
     --destructive: 0 62% 50%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 220 20% 20%;
-    --input: 220 20% 20%;
-    --ring: 160 84% 45%;
+    --border: 270 20% 22%;
+    --input: 270 20% 22%;
+    --ring: 289 52% 55%;
     
-    --sidebar-background: 220 25% 10%;
-    --sidebar-foreground: 240 4.8% 95.9%;
-    --sidebar-primary: 160 84% 45%;
+    --sidebar-background: 270 30% 12%;
+    --sidebar-foreground: 45 30% 95%;
+    --sidebar-primary: 289 52% 55%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 160 40% 20%;
-    --sidebar-accent-foreground: 160 84% 70%;
-    --sidebar-border: 220 20% 20%;
-    --sidebar-ring: 160 84% 45%;
+    --sidebar-accent: 270 25% 18%;
+    --sidebar-accent-foreground: 45 30% 95%;
+    --sidebar-border: 270 20% 22%;
+    --sidebar-ring: 289 52% 55%;
   }
 }
 
@@ -124,7 +131,7 @@
 
   body {
     @apply bg-background text-foreground font-sans antialiased;
-    font-family: 'Inter', system-ui, sans-serif;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   }
 }
 
@@ -134,7 +141,7 @@
   }
 
   .deal-card {
-    @apply bg-card rounded-xl border border-border p-5 transition-all duration-300;
+    @apply bg-card rounded-xl border border-border p-6 transition-all duration-300;
     box-shadow: var(--shadow-card);
   }
 
@@ -144,17 +151,17 @@
   }
 
   .badge-premium {
-    @apply inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold;
-    background: var(--gradient-premium);
+    @apply inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold;
+    background: var(--gradient-primary);
     color: hsl(var(--premium-foreground));
   }
 
   .badge-free {
-    @apply inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold bg-accent text-accent-foreground;
+    @apply inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold bg-success/10 text-success;
   }
 
   .badge-pick {
-    @apply inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold bg-primary text-primary-foreground;
+    @apply inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold bg-primary/10 text-primary;
   }
 
   .promo-banner {
@@ -162,16 +169,32 @@
     @apply text-primary-foreground;
   }
 
+  .gradient-hero {
+    background: var(--gradient-hero);
+  }
+
+  .gradient-slack {
+    background: var(--gradient-slack);
+  }
+
   .stat-value {
     @apply text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight;
   }
 
   .nav-link {
-    @apply text-muted-foreground hover:text-foreground transition-colors font-medium;
+    @apply text-foreground/70 hover:text-foreground transition-colors font-medium;
   }
 
   .nav-link-active {
     @apply text-foreground font-semibold;
+  }
+
+  .btn-slack {
+    @apply bg-primary text-primary-foreground font-semibold px-6 py-3 rounded-md hover:bg-primary/90 transition-all;
+  }
+
+  .btn-slack-outline {
+    @apply border-2 border-primary text-primary font-semibold px-6 py-3 rounded-md hover:bg-primary hover:text-primary-foreground transition-all;
   }
 }
 

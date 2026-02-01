@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { ChevronLeft, ChevronRight, Quote } from "lucide-react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 
 const testimonials = [
   {
@@ -14,7 +14,7 @@ const testimonials = [
     role: "Founder & CEO",
     company: "Innovation Labs",
     avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop&crop=faces",
-    quote: "Jean-Loup and Secret have been extremely responsive and helpful to my startup. Their offers have worked perfectly and saved my startup tons of $$",
+    quote: "Secret has been extremely responsive and helpful to my startup. Their offers have worked perfectly and saved my startup tons of $$",
   },
   {
     name: "Josh Bartolomucci",
@@ -57,12 +57,12 @@ const Testimonials = () => {
   };
 
   return (
-    <section className="py-20 bg-muted/30">
+    <section className="py-20 gradient-slack">
       <div className="container-wide">
         {/* Section Header */}
-        <div className="text-center mb-12">
+        <div className="text-center mb-14">
           <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
-            They're growing more and spending less with Secret
+            Startups scale faster with Secret
           </h2>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
             Join 212,980+ businesses who trust Secret to find the best SaaS deals
@@ -74,13 +74,13 @@ const Testimonials = () => {
           {/* Navigation Buttons */}
           <button
             onClick={goToPrevious}
-            className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4 md:-translate-x-12 p-3 rounded-full bg-card border border-border shadow-lg hover:bg-muted transition-colors z-10"
+            className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4 md:-translate-x-12 p-3 rounded-full bg-card border border-border shadow-lg hover:bg-secondary transition-colors z-10"
           >
             <ChevronLeft className="h-5 w-5 text-foreground" />
           </button>
           <button
             onClick={goToNext}
-            className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-4 md:translate-x-12 p-3 rounded-full bg-card border border-border shadow-lg hover:bg-muted transition-colors z-10"
+            className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-4 md:translate-x-12 p-3 rounded-full bg-card border border-border shadow-lg hover:bg-secondary transition-colors z-10"
           >
             <ChevronRight className="h-5 w-5 text-foreground" />
           </button>
@@ -88,11 +88,6 @@ const Testimonials = () => {
           {/* Testimonial Card */}
           <div className="bg-card rounded-2xl border border-border p-8 md:p-12 shadow-lg">
             <div className="flex flex-col items-center text-center">
-              {/* Quote Icon */}
-              <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mb-6">
-                <Quote className="h-6 w-6 text-primary" />
-              </div>
-
               {/* Quote Text */}
               <blockquote className="text-lg md:text-xl text-foreground leading-relaxed mb-8 max-w-2xl">
                 "{testimonials[currentIndex].quote}"
@@ -103,14 +98,14 @@ const Testimonials = () => {
                 <img
                   src={testimonials[currentIndex].avatar}
                   alt={testimonials[currentIndex].name}
-                  className="w-14 h-14 rounded-full object-cover"
+                  className="w-14 h-14 rounded-full object-cover ring-2 ring-primary/20"
                 />
                 <div className="text-left">
                   <div className="font-semibold text-foreground">
                     {testimonials[currentIndex].name}
                   </div>
                   <div className="text-sm text-muted-foreground">
-                    {testimonials[currentIndex].role} at {testimonials[currentIndex].company}
+                    {testimonials[currentIndex].role}, {testimonials[currentIndex].company}
                   </div>
                 </div>
               </div>
@@ -118,7 +113,7 @@ const Testimonials = () => {
           </div>
 
           {/* Dots Indicator */}
-          <div className="flex justify-center gap-2 mt-6">
+          <div className="flex justify-center gap-2 mt-8">
             {testimonials.map((_, index) => (
               <button
                 key={index}
@@ -126,10 +121,10 @@ const Testimonials = () => {
                   setIsAutoPlaying(false);
                   setCurrentIndex(index);
                 }}
-                className={`w-2.5 h-2.5 rounded-full transition-all ${
+                className={`h-2.5 rounded-full transition-all ${
                   index === currentIndex
                     ? "bg-primary w-8"
-                    : "bg-muted-foreground/30 hover:bg-muted-foreground/50"
+                    : "bg-border w-2.5 hover:bg-muted-foreground/50"
                 }`}
               />
             ))}

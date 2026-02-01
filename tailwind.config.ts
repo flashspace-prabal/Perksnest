@@ -14,7 +14,7 @@ export default {
     },
     extend: {
       fontFamily: {
-        sans: ['Inter', 'system-ui', 'sans-serif'],
+        sans: ['Inter', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'sans-serif'],
       },
       colors: {
         border: "hsl(var(--border))",
@@ -72,6 +72,13 @@ export default {
           DEFAULT: "hsl(var(--premium))",
           foreground: "hsl(var(--premium-foreground))",
         },
+        slack: {
+          aubergine: "hsl(var(--slack-aubergine))",
+          blue: "hsl(var(--slack-blue))",
+          green: "hsl(var(--slack-green))",
+          yellow: "hsl(var(--slack-yellow))",
+          red: "hsl(var(--slack-red))",
+        },
       },
       borderRadius: {
         lg: "var(--radius)",
@@ -105,9 +112,9 @@ export default {
           from: { opacity: "0", transform: "translateX(20px)" },
           to: { opacity: "1", transform: "translateX(0)" },
         },
-        "count-up": {
-          from: { opacity: "0", transform: "scale(0.5)" },
-          to: { opacity: "1", transform: "scale(1)" },
+        "float": {
+          "0%, 100%": { transform: "translateY(0)" },
+          "50%": { transform: "translateY(-10px)" },
         },
         "pulse-subtle": {
           "0%, 100%": { opacity: "1" },
@@ -120,7 +127,7 @@ export default {
         "fade-in": "fade-in 0.5s ease-out forwards",
         "fade-in-up": "fade-in-up 0.6s ease-out forwards",
         "slide-in-right": "slide-in-right 0.4s ease-out forwards",
-        "count-up": "count-up 0.4s ease-out forwards",
+        "float": "float 3s ease-in-out infinite",
         "pulse-subtle": "pulse-subtle 2s ease-in-out infinite",
       },
     },
