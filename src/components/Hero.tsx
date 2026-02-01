@@ -71,7 +71,7 @@ const Hero = () => {
               </div>
               <div className="flex-1 flex justify-center">
                 <div className="bg-background rounded-md px-4 py-1 text-sm text-muted-foreground w-64 text-center">
-                  secret.com/deals
+                  perksnest.com/deals
                 </div>
               </div>
             </div>

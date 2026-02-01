@@ -19,7 +19,7 @@ const CTASection = () => {
 
           {/* Subheading */}
           <p className="text-lg md:text-xl text-primary-foreground/80 mb-10 max-w-xl mx-auto">
-            Join 212,000+ startups already saving millions with Secret. Start free today.
+            Join 212,000+ startups already saving millions with PerksNest. Start free today.
           </p>
 
           {/* CTAs */}

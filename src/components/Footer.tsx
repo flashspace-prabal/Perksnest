@@ -51,7 +51,7 @@ const Footer = () => {
                 <path d="M35.746 44.471c3.219 0 5.829 2.61 5.829 5.828 0 3.219-2.61 5.829-5.829 5.829-3.218 0-5.828-2.61-5.828-5.829v-5.828h5.828z" fill="#ECB22E"/>
                 <path d="M35.746 41.575c-3.218 0-5.828-2.61-5.828-5.829 0-3.218 2.61-5.828 5.828-5.828h14.571c3.218 0 5.828 2.61 5.828 5.828 0 3.219-2.61 5.829-5.828 5.829H35.746z" fill="#ECB22E"/>
               </svg>
-              <span className="font-bold text-lg">secret</span>
+              <span className="font-bold text-lg">PerksNest</span>
             </div>
             <p className="text-background/70 text-sm mb-6">
               The #1 platform for exclusive SaaS deals. Save big on the tools you love.
@@ -134,7 +134,7 @@ const Footer = () => {
         <div className="mt-12 pt-8 border-t border-background/10">
           <div className="flex flex-col md:flex-row justify-between items-center gap-4">
             <p className="text-background/60 text-sm">
-              © 2026 Secret. All rights reserved.
+              © 2026 PerksNest. All rights reserved.
             </p>
             <div className="flex items-center gap-2">
               <span className="text-background/60 text-sm">Made with</span>

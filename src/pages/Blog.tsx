@@ -21,7 +21,7 @@ const blogPosts = [
   },
   {
     id: "2",
-    title: "How We Saved $50,000 in Our First Year Using Secret",
+    title: "How We Saved $50,000 in Our First Year Using PerksNest",
     excerpt: "A detailed breakdown of every SaaS deal we redeemed and how it impacted our runway and growth trajectory.",
     category: "Startup Tips",
     author: "Marcus Johnson",
@@ -123,7 +123,7 @@ const Blog = () => {
           <div className="container-wide">
             <div className="text-center max-w-3xl mx-auto">
               <h1 className="text-4xl md:text-5xl font-bold text-foreground mb-6">
-                The Secret Blog
+                The PerksNest Blog
               </h1>
               <p className="text-lg md:text-xl text-muted-foreground mb-8">
                 Tips, guides, and insights to help your startup save money and grow faster.

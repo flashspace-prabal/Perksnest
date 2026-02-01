@@ -25,12 +25,12 @@ const DealCardNew = ({
 }: DealCardNewProps) => {
   return (
     <div className={`relative bg-card rounded-xl border transition-all hover:shadow-lg hover:border-primary/30 h-full flex flex-col ${isPick ? 'border-primary ring-1 ring-primary/20' : 'border-border'}`}> 
-      {/* Secret's Pick Badge - keep fully inside card to avoid clipping */}
+      {/* PerksNest Pick Badge - keep fully inside card to avoid clipping */}
       {isPick && (
         <div className="absolute top-4 right-4 z-10">
           <span className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-semibold bg-primary text-primary-foreground shadow-md whitespace-nowrap">
             <Sparkles className="h-3 w-3" />
-            Secret's Pick
+            PerksNest Pick
           </span>
         </div>
       )}

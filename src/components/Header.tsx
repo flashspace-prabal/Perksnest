@@ -20,19 +20,19 @@ const solutionsTestimonials = [
   {
     name: "Stephane Gringer",
     role: "Partner at Chameleon Collective",
-    quote: "I'm able to put forth innovative growth strategies and systems for clients that were previously constrained by the cost of entry for some of Secret's fantastic library of platforms.",
+    quote: "I'm able to put forth innovative growth strategies and systems for clients that were previously constrained by the cost of entry for some of PerksNest's fantastic library of platforms.",
     avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=80&h=80&fit=crop&crop=face",
   },
   {
     name: "David Stepania",
     role: "Founder at Thirsty Sprout",
-    quote: "Secret is a must join if you'd like to accelerate your companies growth. We've taken advantage of several deals offered by Secret some of which can't be found anywhere else!",
+    quote: "PerksNest is a must join if you'd like to accelerate your companies growth. We've taken advantage of several deals offered by PerksNest some of which can't be found anywhere else!",
     avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=80&h=80&fit=crop&crop=face",
   },
   {
     name: "Scott McKeon",
     role: "Co-Founder at Espresso",
-    quote: "Secret is an amazing resource for startups. It has helped us discover new tools as well as get free usage for tools we already use. It sounds too good to be true, but it's real!",
+    quote: "PerksNest is an amazing resource for startups. It has helped us discover new tools as well as get free usage for tools we already use. It sounds too good to be true, but it's real!",
     avatar: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=80&h=80&fit=crop&crop=face",
   },
 ];
@@ -66,7 +66,7 @@ const Header = () => {
                 <path d="M35.746 44.471c3.219 0 5.829 2.61 5.829 5.828 0 3.219-2.61 5.829-5.829 5.829-3.218 0-5.828-2.61-5.828-5.829v-5.828h5.828z" fill="#ECB22E"/>
                 <path d="M35.746 41.575c-3.218 0-5.828-2.61-5.828-5.829 0-3.218 2.61-5.828 5.828-5.828h14.571c3.218 0 5.828 2.61 5.828 5.828 0 3.219-2.61 5.829-5.828 5.829H35.746z" fill="#ECB22E"/>
               </svg>
-              <span className="font-bold text-xl text-foreground">secret</span>
+              <span className="font-bold text-xl text-foreground">PerksNest</span>
             </Link>
 
             {/* Desktop Navigation */}

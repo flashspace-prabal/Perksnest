@@ -36,7 +36,7 @@ const dealExtendedInfo: Record<string, {
     rating: 4.5,
     reviewCount: 50,
     testimonial: {
-      quote: "I tried to apply for Notion's startup program on my own, but I was not accepted. After joining Secret, they approved my request in a matter of days, and now I can benefit from a plan that really helps my business without adding recurring costs, which is great for a startup.",
+      quote: "I tried to apply for Notion's startup program on my own, but I was not accepted. After joining PerksNest, they approved my request in a matter of days, and now I can benefit from a plan that really helps my business without adding recurring costs, which is great for a startup.",
       author: "Alejandro Goffa",
       role: "Founder, KeySpanish",
       avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&h=100&fit=crop&crop=face",
@@ -49,7 +49,7 @@ const dealExtendedInfo: Record<string, {
     rating: 4.8,
     reviewCount: 120,
     testimonial: {
-      quote: "Stripe's integration was seamless and the fee waiver through Secret saved us a significant amount during our early growth phase.",
+      quote: "Stripe's integration was seamless and the fee waiver through PerksNest saved us a significant amount during our early growth phase.",
       author: "Sarah Chen",
       role: "CTO, TechStartup",
       avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&h=100&fit=crop&crop=face",
@@ -62,7 +62,7 @@ const dealExtendedInfo: Record<string, {
     rating: 4.6,
     reviewCount: 85,
     testimonial: {
-      quote: "The Google Cloud credits from Secret allowed us to scale our infrastructure without worrying about costs in the early stages.",
+      quote: "The Google Cloud credits from PerksNest allowed us to scale our infrastructure without worrying about costs in the early stages.",
       author: "Mike Johnson",
       role: "Founder, CloudApp",
       avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop&crop=face",

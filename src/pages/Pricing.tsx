@@ -102,7 +102,7 @@ const faqs = [
   },
   {
     question: "Is there a referral program?",
-    answer: "Yes! Share Secret with friends and earn $20 credit for every person who upgrades to Pro. Your friends also get $20 off their first year. Check out our Invite page for your unique referral link.",
+    answer: "Yes! Share PerksNest with friends and earn $20 credit for every person who upgrades to Pro. Your friends also get $20 off their first year. Check out our Invite page for your unique referral link.",
   },
 ];
 
