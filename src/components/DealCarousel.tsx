@@ -75,9 +75,9 @@ const DealCarousel = ({ title, subtitle, deals, browseLink, browseLinkText }: De
               className="flex-shrink-0 w-[320px] group"
             >
               <div className={`relative bg-card rounded-xl border transition-all hover:shadow-lg hover:border-primary/30 h-full ${deal.isPick ? 'border-primary ring-1 ring-primary/20' : 'border-border'}`}>
-                {/* Secret's Pick Badge - positioned with more space */}
+                {/* Secret's Pick Badge - keep fully inside card to avoid clipping */}
                 {deal.isPick && (
-                  <div className="absolute -top-3 right-4 z-10">
+                  <div className="absolute top-4 right-4 z-10">
                     <span className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-semibold bg-primary text-primary-foreground shadow-md whitespace-nowrap">
                       <Sparkles className="h-3 w-3" />
                       Secret's Pick
@@ -85,7 +85,7 @@ const DealCarousel = ({ title, subtitle, deals, browseLink, browseLinkText }: De
                   </div>
                 )}
 
-                <div className={`p-5 ${deal.isPick ? 'pt-6' : ''}`}>
+                <div className={`p-5 ${deal.isPick ? 'pt-14' : ''}`}>
                   {/* Logo and Name Row */}
                   <div className="flex items-center gap-3 mb-3">
                     <div className="w-12 h-12 rounded-lg bg-secondary flex items-center justify-center overflow-hidden border border-border shrink-0">
