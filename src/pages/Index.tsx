@@ -5,9 +5,10 @@ import HeroBanner from "@/components/HeroBanner";
 import TestimonialsCarousel from "@/components/TestimonialsCarousel";
 import DealCarousel from "@/components/DealCarousel";
 import PopularCategoriesSection from "@/components/PopularCategoriesSection";
+import CompareToolsSection from "@/components/CompareToolsSection";
 import PricingSection from "@/components/PricingSection";
 import CTASection from "@/components/CTASection";
-import { 
+import {
   getMostPopularDeals, 
   getFreeDeals, 
   getRecentlyAddedDeals,
@@ -61,6 +62,9 @@ const Index = () => {
           browseLink="/deals?filter=free"
           browseLinkText="Browse free deals"
         />
+
+        {/* Compare Tools */}
+        <CompareToolsSection />
 
         {/* Pricing */}
         <PricingSection />
