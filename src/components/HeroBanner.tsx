@@ -1,5 +1,6 @@
 import { ArrowRight, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import heroBlob from "@/assets/hero-blob.png";
 
 const HeroBanner = () => {
   // Trusted by logos
@@ -76,31 +77,12 @@ const HeroBanner = () => {
 
           {/* Right Side - Abstract Gradient Blob */}
           <div className="hidden lg:flex justify-end items-center relative">
-            <div className="relative w-[500px] h-[500px]">
-              {/* Main blob */}
-              <div 
-                className="absolute inset-0 rounded-full"
-                style={{
-                  background: "linear-gradient(135deg, hsl(270 60% 85% / 0.8) 0%, hsl(320 70% 80% / 0.7) 40%, hsl(30 80% 75% / 0.8) 100%)",
-                  filter: "blur(2px)",
-                }}
-              />
-              {/* Inner lighter blob */}
-              <div 
-                className="absolute inset-8 rounded-full"
-                style={{
-                  background: "linear-gradient(180deg, hsl(280 50% 92% / 0.9) 0%, hsl(320 60% 88% / 0.7) 50%, hsl(30 70% 85% / 0.6) 100%)",
-                  filter: "blur(1px)",
-                }}
-              />
-              {/* Innermost glow */}
-              <div 
-                className="absolute inset-20 rounded-full"
-                style={{
-                  background: "radial-gradient(circle, hsl(0 0% 100% / 0.6) 0%, transparent 70%)",
-                }}
-              />
-            </div>
+            <img 
+              src={heroBlob} 
+              alt="" 
+              className="w-[550px] h-auto object-contain"
+              aria-hidden="true"
+            />
           </div>
         </div>
       </div>
