@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { ArrowRight, Check, Sparkles } from "lucide-react";
+import { ArrowRight, Check, Sparkles, Star } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import SafeImage from "@/components/SafeImage";
@@ -31,7 +31,25 @@ const HeroBanner = () => {
   };
 
   return (
-    <section className="relative overflow-hidden bg-background py-16 lg:py-24">
+    <section className="relative overflow-hidden bg-gradient-to-b from-background via-background to-primary/5 py-16 lg:py-24">
+      {/* Decorative Purple Diagonal Shapes */}
+      <div className="absolute bottom-0 right-0 w-full h-[300px] pointer-events-none overflow-hidden">
+        {/* Back shape */}
+        <div 
+          className="absolute bottom-0 right-0 w-[700px] h-[200px] bg-primary/10 origin-bottom-right"
+          style={{
+            transform: 'skewY(-6deg) translateY(50px)',
+          }}
+        />
+        {/* Front shape */}
+        <div 
+          className="absolute bottom-0 right-0 w-[600px] h-[180px] bg-primary/15 origin-bottom-right"
+          style={{
+            transform: 'skewY(-6deg) translateY(80px)',
+          }}
+        />
+      </div>
+
       {/* Left Floating Logos */}
       <div className="absolute left-8 lg:left-16 top-1/2 -translate-y-1/2 hidden lg:flex flex-col gap-8 items-center">
         {leftLogos.map((logo, i) => (
@@ -52,7 +70,7 @@ const HeroBanner = () => {
       </div>
 
       {/* Right Floating Logos */}
-      <div className="absolute right-8 lg:right-16 top-1/2 -translate-y-1/2 hidden lg:flex flex-col gap-8 items-center">
+      <div className="absolute right-8 lg:right-16 top-1/3 -translate-y-1/2 hidden lg:flex flex-col gap-8 items-center">
         {rightLogos.map((logo, i) => (
           <div
             key={logo.name}
@@ -161,15 +179,29 @@ const HeroBanner = () => {
             </div>
           </form>
 
-          {/* Secondary Link */}
-          <div className="mt-6">
-            <Link 
-              to="/deals"
-              className="inline-flex items-center gap-2 text-primary font-medium hover:underline"
-            >
-              Explore Perks
-              <ArrowRight className="h-4 w-4" />
-            </Link>
+          {/* Social Proof - Join founders with avatars and stars */}
+          <div className="flex items-center justify-center gap-4 mt-10">
+            <span className="text-sm text-muted-foreground">Join 100,000+ founders</span>
+            
+            {/* Avatar stack */}
+            <div className="flex -space-x-2">
+              <div className="w-9 h-9 rounded-full bg-gradient-to-br from-amber-700 to-amber-900 border-2 border-background flex items-center justify-center text-white text-xs font-bold overflow-hidden">
+                <span>👨</span>
+              </div>
+              <div className="w-9 h-9 rounded-full bg-gradient-to-br from-orange-400 to-orange-600 border-2 border-background flex items-center justify-center text-white text-xs font-bold overflow-hidden">
+                <span>👨‍🦰</span>
+              </div>
+              <div className="w-9 h-9 rounded-full bg-gradient-to-br from-rose-400 to-rose-600 border-2 border-background flex items-center justify-center text-white text-xs font-bold overflow-hidden">
+                <span>👩</span>
+              </div>
+            </div>
+            
+            {/* Star rating */}
+            <div className="flex items-center gap-0.5">
+              {[...Array(5)].map((_, i) => (
+                <Star key={i} className="h-5 w-5 fill-[hsl(43,96%,56%)] text-[hsl(43,96%,56%)]" />
+              ))}
+            </div>
           </div>
         </div>
       </div>
