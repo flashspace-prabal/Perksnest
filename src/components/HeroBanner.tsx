@@ -9,32 +9,44 @@ const HeroBanner = () => {
 
   return (
     <section className="relative overflow-hidden bg-background min-h-[600px] lg:min-h-[700px]">
-      {/* Abstract Blob - CSS-based with solid Slack colors */}
+      {/* Abstract Blob - CSS-based with soothing colors */}
       <div className="absolute top-0 right-0 w-[60%] h-full hidden lg:block pointer-events-none" aria-hidden="true">
-        {/* Main aubergine blob */}
+        {/* Main aubergine blob - keeping this prominent */}
         <div 
-          className="absolute -top-20 -right-20 w-[700px] h-[700px] rounded-[40%_60%_55%_45%/55%_45%_55%_45%] bg-primary/80"
+          className="absolute -top-20 -right-20 w-[700px] h-[700px] rounded-[40%_60%_55%_45%/55%_45%_55%_45%] bg-primary/75"
           style={{ transform: 'rotate(-15deg)' }}
         />
-        {/* Blue accent blob */}
+        {/* Soft lavender blob */}
         <div 
-          className="absolute top-10 right-10 w-[600px] h-[600px] rounded-[45%_55%_50%_50%/50%_50%_55%_45%] bg-accent/70"
-          style={{ transform: 'rotate(-25deg)' }}
+          className="absolute top-10 right-10 w-[600px] h-[600px] rounded-[45%_55%_50%_50%/50%_50%_55%_45%]"
+          style={{ 
+            transform: 'rotate(-25deg)',
+            backgroundColor: 'hsl(270 30% 85% / 0.6)'
+          }}
         />
-        {/* Yellow/warm accent blob */}
+        {/* Warm cream/beige blob */}
         <div 
-          className="absolute top-40 right-0 w-[550px] h-[550px] rounded-[50%_50%_45%_55%/45%_55%_50%_50%] bg-slack-yellow/60"
-          style={{ transform: 'rotate(-10deg)' }}
+          className="absolute top-40 right-0 w-[550px] h-[550px] rounded-[50%_50%_45%_55%/45%_55%_50%_50%]"
+          style={{ 
+            transform: 'rotate(-10deg)',
+            backgroundColor: 'hsl(40 40% 90% / 0.7)'
+          }}
         />
-        {/* Red accent blob */}
+        {/* Soft blush/rose blob */}
         <div 
-          className="absolute top-60 right-20 w-[450px] h-[450px] rounded-[55%_45%_50%_50%/50%_50%_45%_55%] bg-slack-red/50"
-          style={{ transform: 'rotate(5deg)' }}
+          className="absolute top-60 right-20 w-[450px] h-[450px] rounded-[55%_45%_50%_50%/50%_50%_45%_55%]"
+          style={{ 
+            transform: 'rotate(5deg)',
+            backgroundColor: 'hsl(350 40% 88% / 0.6)'
+          }}
         />
-        {/* Green accent blob */}
+        {/* Light sage/muted green blob */}
         <div 
-          className="absolute top-20 right-40 w-[400px] h-[400px] rounded-[48%_52%_55%_45%/52%_48%_50%_50%] bg-slack-green/40"
-          style={{ transform: 'rotate(-20deg)' }}
+          className="absolute top-20 right-40 w-[400px] h-[400px] rounded-[48%_52%_55%_45%/52%_48%_50%_50%]"
+          style={{ 
+            transform: 'rotate(-20deg)',
+            backgroundColor: 'hsl(150 20% 88% / 0.5)'
+          }}
         />
       </div>
       
