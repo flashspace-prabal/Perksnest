@@ -23,18 +23,18 @@ const DealCardNew = ({
   isPick = false,
 }: DealCardNewProps) => {
   return (
-    <div className={`relative bg-card rounded-xl border transition-all hover:shadow-lg hover:border-primary/30 ${isPick ? 'border-primary ring-1 ring-primary/20' : 'border-border'}`}>
-      {/* Secret's Pick Badge */}
+    <div className={`relative bg-card rounded-xl border transition-all hover:shadow-lg hover:border-primary/30 ${isPick ? 'border-primary ring-1 ring-primary/20' : 'border-border'}`}> 
+      {/* Secret's Pick Badge - keep fully inside card to avoid clipping */}
       {isPick && (
-        <div className="absolute -top-3 right-4">
-          <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-semibold bg-primary text-primary-foreground shadow-md">
+        <div className="absolute top-4 right-4 z-10">
+          <span className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-semibold bg-primary text-primary-foreground shadow-md whitespace-nowrap">
             <Sparkles className="h-3 w-3" />
             Secret's Pick
           </span>
         </div>
       )}
 
-      <div className="p-5">
+      <div className={`p-5 ${isPick ? 'pt-14' : ''}`}>
         {/* Header with Logo and Info */}
         <div className="flex items-start gap-4 mb-4">
           <div className="w-12 h-12 rounded-lg bg-secondary flex items-center justify-center overflow-hidden shrink-0 border border-border">
