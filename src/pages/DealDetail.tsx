@@ -5,22 +5,14 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import DealCardNew from "@/components/DealCardNew";
+import SafeImage from "@/components/SafeImage";
 import { toast } from "sonner";
+import { dealsData } from "@/data/deals";
 
-// Mock deal data
-const dealsData: Record<string, {
-  name: string;
-  logo: string;
+// Extended deal info for detail pages
+const dealExtendedInfo: Record<string, {
   tagline: string;
-  description: string;
   longDescription: string;
-  dealText: string;
-  savings: string;
-  memberCount: number;
-  isPremium: boolean;
-  isFree: boolean;
-  isPick: boolean;
-  category: string;
   subcategory: string;
   rating: number;
   reviewCount: number;
@@ -32,18 +24,8 @@ const dealsData: Record<string, {
   };
 }> = {
   "notion": {
-    name: "Notion",
-    logo: "https://upload.wikimedia.org/wikipedia/commons/4/45/Notion_app_logo.png",
     tagline: "Organize teamwork and increase productivity",
-    description: "Organize teamwork and increase productivity",
     longDescription: "Knowledge base, project management, note taking, and more. Notion leverages AI to centralize your team's work, facilitate collaboration, ensure proper project follow-up, and boost overall productivity and efficiency.",
-    dealText: "6 months free on the Business plan with Unlimited AI",
-    savings: "$12,000",
-    memberCount: 14308,
-    isFree: true,
-    isPremium: false,
-    isPick: false,
-    category: "Project Management Software",
     subcategory: "Collaboration Software",
     rating: 4.5,
     reviewCount: 50,
@@ -55,18 +37,8 @@ const dealsData: Record<string, {
     },
   },
   "stripe": {
-    name: "Stripe",
-    logo: "https://upload.wikimedia.org/wikipedia/commons/b/ba/Stripe_Logo%2C_revised_2016.svg",
     tagline: "Manage your online payments",
-    description: "Manage your online payments",
     longDescription: "Stripe is a technology company that builds economic infrastructure for the internet. Businesses of every size use their software to accept payments and manage their businesses online.",
-    dealText: "Waived Stripe fees on your next $20,000 in payment processing",
-    savings: "$500",
-    memberCount: 5721,
-    isPremium: true,
-    isFree: false,
-    isPick: true,
-    category: "Finance Software",
     subcategory: "Payment Processing",
     rating: 4.8,
     reviewCount: 120,
@@ -78,18 +50,8 @@ const dealsData: Record<string, {
     },
   },
   "google-cloud": {
-    name: "Google Cloud",
-    logo: "https://www.gstatic.com/devrel-devsite/prod/v0e0f589edd85502a40d78d7d0825db8ea5ef3b99ab4070381ee86977c9168730/cloud/images/favicons/onecloud/super_cloud.png",
     tagline: "Cloud services by Google",
-    description: "Cloud services by Google",
     longDescription: "Google Cloud Platform is a suite of cloud computing services that runs on the same infrastructure that Google uses internally for its end-user products.",
-    dealText: "$2,000 in credits for 1 year if you never raised funds // $350,000 in credits for 2 years if you did",
-    savings: "$350,000",
-    memberCount: 9663,
-    isFree: true,
-    isPremium: false,
-    isPick: true,
-    category: "Cloud & Infrastructure",
     subcategory: "Cloud Computing",
     rating: 4.6,
     reviewCount: 85,
@@ -102,50 +64,36 @@ const dealsData: Record<string, {
   },
 };
 
-const relatedDeals = [
-  {
-    id: "make",
-    name: "Make",
-    logo: "https://images.ctfassets.net/qqlj6g4ee76j/2qBkARKOnfQ4CDnntDdkKM/3c2d0d45ec67ce4ab0e2f77eabb13ec8/make-logo-square-small.png",
-    description: "A no-code AI platform for limitless automation",
-    dealText: "First month free on Pro plan (10,000 credits) + 40% off",
-    savings: "$283",
-    memberCount: 9806,
-    isFree: true,
-  },
-  {
-    id: "slack",
-    name: "Slack",
-    logo: "https://upload.wikimedia.org/wikipedia/commons/d/d5/Slack_icon_2019.svg",
-    description: "Team communication and collaboration",
-    dealText: "25% off your first year on Slack Pro or Business+",
-    savings: "$1,200",
-    memberCount: 12543,
-    isFree: true,
-  },
-  {
-    id: "figma",
-    name: "Figma",
-    logo: "https://upload.wikimedia.org/wikipedia/commons/3/33/Figma-logo.svg",
-    description: "Collaborative interface design tool",
-    dealText: "50% off Professional plan for startups",
-    savings: "$600",
-    memberCount: 7821,
-    isFree: true,
-  },
-];
-
 const saasLogos = [
   { logo: "https://upload.wikimedia.org/wikipedia/commons/4/45/Notion_app_logo.png", discount: "-50%" },
   { logo: "https://upload.wikimedia.org/wikipedia/commons/b/ba/Stripe_Logo%2C_revised_2016.svg", discount: "-$400" },
   { logo: "https://www.gstatic.com/devrel-devsite/prod/v0e0f589edd85502a40d78d7d0825db8ea5ef3b99ab4070381ee86977c9168730/cloud/images/favicons/onecloud/super_cloud.png", discount: "-100%" },
-  { logo: "https://asset.brandfetch.io/idHYpS17EC/idlM3u45p2.jpeg", discount: "-75%" },
-  { logo: "https://images.ctfassets.net/qqlj6g4ee76j/2qBkARKOnfQ4CDnntDdkKM/3c2d0d45ec67ce4ab0e2f77eabb13ec8/make-logo-square-small.png", discount: "-100%" },
+  { logo: "https://www.brevo.com/wp-content/uploads/2024/01/Logo.svg", discount: "-75%" },
+  { logo: "https://www.make.com/en/apple-touch-icon.png", discount: "-100%" },
 ];
+
+const relatedDeals = dealsData.slice(0, 3);
 
 const DealDetail = () => {
   const { dealId } = useParams<{ dealId: string }>();
-  const deal = dealId ? dealsData[dealId] : null;
+  const baseDeal = dealId ? dealsData.find(d => d.id === dealId) : null;
+  const extendedInfo = dealId ? dealExtendedInfo[dealId] : null;
+  
+  // Combine base deal with extended info
+  const deal = baseDeal ? {
+    ...baseDeal,
+    tagline: extendedInfo?.tagline || baseDeal.description,
+    longDescription: extendedInfo?.longDescription || baseDeal.description,
+    subcategory: extendedInfo?.subcategory || "Software",
+    rating: extendedInfo?.rating || 4.5,
+    reviewCount: extendedInfo?.reviewCount || 50,
+    testimonial: extendedInfo?.testimonial || {
+      quote: "This deal saved us a lot of money!",
+      author: "Happy Customer",
+      role: "Founder",
+      avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&h=100&fit=crop&crop=face",
+    },
+  } : null;
 
   const handleShare = () => {
     navigator.clipboard.writeText(window.location.href);
@@ -197,8 +145,8 @@ const DealDetail = () => {
             <div className="lg:col-span-2">
               {/* Brand Logos */}
               <div className="flex items-center gap-3 mb-6">
-                <div className="w-14 h-14 rounded-xl bg-foreground flex items-center justify-center">
-                  <img src={deal.logo} alt={deal.name} className="w-9 h-9 object-contain" />
+                <div className="w-14 h-14 rounded-xl bg-secondary flex items-center justify-center border border-border">
+                  <SafeImage src={deal.logo} alt={deal.name} className="w-9 h-9 object-contain" />
                 </div>
                 <span className="text-2xl text-muted-foreground">&</span>
                 <div className="w-14 h-14 rounded-xl bg-foreground flex items-center justify-center">
@@ -268,7 +216,7 @@ const DealDetail = () => {
                       {saasLogos.map((item, index) => (
                         <div key={index} className="relative">
                           <div className="w-10 h-10 rounded-lg bg-card border border-border flex items-center justify-center overflow-hidden">
-                            <img src={item.logo} alt="" className="w-6 h-6 object-contain" />
+                            <SafeImage src={item.logo} alt="" className="w-6 h-6 object-contain" />
                           </div>
                           <span className="absolute -top-2 -right-1 px-1.5 py-0.5 text-[10px] font-bold bg-success text-white rounded">
                             {item.discount}
@@ -315,7 +263,7 @@ const DealDetail = () => {
                 <div className="flex items-start justify-between mb-4">
                   <div className="flex items-center gap-3">
                     <div className="w-12 h-12 rounded-xl bg-secondary flex items-center justify-center border border-border">
-                      <img src={deal.logo} alt={deal.name} className="w-8 h-8 object-contain" />
+                      <SafeImage src={deal.logo} alt={deal.name} className="w-8 h-8 object-contain" />
                     </div>
                     <div>
                       <h3 className="font-semibold text-foreground">{deal.name}</h3>

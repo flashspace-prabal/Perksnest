@@ -3,19 +3,12 @@ import { ArrowLeft, Check, Copy, ExternalLink, Clock, Shield, Star, Gift, Chevro
 import { Button } from "@/components/ui/button";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import SafeImage from "@/components/SafeImage";
 import { toast } from "sonner";
+import { dealsData } from "@/data/deals";
 
-// Mock deal data
-const dealsData: Record<string, {
-  name: string;
-  logo: string;
-  description: string;
-  dealText: string;
-  savings: string;
-  memberCount: number;
-  isPremium: boolean;
-  isFree: boolean;
-  category: string;
+// Extended redemption info
+const redemptionInfo: Record<string, {
   promoCode?: string;
   website: string;
   steps: {
@@ -28,15 +21,6 @@ const dealsData: Record<string, {
   expiresIn: string;
 }> = {
   "notion": {
-    name: "Notion",
-    logo: "https://upload.wikimedia.org/wikipedia/commons/4/45/Notion_app_logo.png",
-    description: "Organize teamwork and increase productivity",
-    dealText: "6 months free on the Business plan with Unlimited AI",
-    savings: "$12,000",
-    memberCount: 14308,
-    isFree: true,
-    isPremium: false,
-    category: "Project Management",
     promoCode: "SECRET2024",
     website: "https://notion.so",
     steps: [
@@ -72,15 +56,6 @@ const dealsData: Record<string, {
     expiresIn: "30 days",
   },
   "stripe": {
-    name: "Stripe",
-    logo: "https://upload.wikimedia.org/wikipedia/commons/b/ba/Stripe_Logo%2C_revised_2016.svg",
-    description: "Manage your online payments",
-    dealText: "Waived Stripe fees on your next $20,000 in payment processing",
-    savings: "$500",
-    memberCount: 5721,
-    isPremium: true,
-    isFree: false,
-    category: "Finance",
     website: "https://stripe.com",
     steps: [
       {
@@ -106,15 +81,6 @@ const dealsData: Record<string, {
     expiresIn: "No expiration",
   },
   "google-cloud": {
-    name: "Google Cloud",
-    logo: "https://www.gstatic.com/devrel-devsite/prod/v0e0f589edd85502a40d78d7d0825db8ea5ef3b99ab4070381ee86977c9168730/cloud/images/favicons/onecloud/super_cloud.png",
-    description: "Cloud services by Google",
-    dealText: "$2,000 in credits for 1 year if you never raised funds // $350,000 in credits for 2 years if you did",
-    savings: "$350,000",
-    memberCount: 9663,
-    isFree: true,
-    isPremium: false,
-    category: "Cloud & Infrastructure",
     website: "https://cloud.google.com",
     steps: [
       {
@@ -145,15 +111,6 @@ const dealsData: Record<string, {
     expiresIn: "Ongoing",
   },
   "make": {
-    name: "Make",
-    logo: "https://images.ctfassets.net/qqlj6g4ee76j/2qBkARKOnfQ4CDnntDdkKM/3c2d0d45ec67ce4ab0e2f77eabb13ec8/make-logo-square-small.png",
-    description: "A no-code AI platform for limitless automation",
-    dealText: "First month free on Pro plan + 40% off annual plans",
-    savings: "$283",
-    memberCount: 9812,
-    isFree: true,
-    isPremium: false,
-    category: "Automation",
     promoCode: "SECRETMAKE40",
     website: "https://make.com",
     steps: [
@@ -185,9 +142,50 @@ const dealsData: Record<string, {
   },
 };
 
+// Default redemption info for deals without specific info
+const defaultRedemptionInfo: {
+  promoCode?: string;
+  website: string;
+  steps: {
+    title: string;
+    description: string;
+    link?: string;
+    linkText?: string;
+  }[];
+  eligibility: string[];
+  expiresIn: string;
+} = {
+  website: "#",
+  steps: [
+    {
+      title: "Sign up through Secret",
+      description: "Click the button below to visit the partner website and create your account.",
+    },
+    {
+      title: "Apply your discount",
+      description: "Your discount will be automatically applied when you sign up through our link.",
+    },
+  ],
+  eligibility: [
+    "New customers only",
+    "One redemption per account",
+  ],
+  expiresIn: "Ongoing",
+};
+
 const DealRedeem = () => {
   const { dealId } = useParams<{ dealId: string }>();
-  const deal = dealId ? dealsData[dealId] : null;
+  const baseDeal = dealId ? dealsData.find(d => d.id === dealId) : null;
+  const redemption = dealId && redemptionInfo[dealId] ? redemptionInfo[dealId] : defaultRedemptionInfo;
+  
+  const deal = baseDeal ? {
+    ...baseDeal,
+    promoCode: redemption.promoCode,
+    website: redemption.website,
+    steps: redemption.steps,
+    eligibility: redemption.eligibility,
+    expiresIn: redemption.expiresIn,
+  } : null;
 
   const handleCopyCode = () => {
     if (deal?.promoCode) {
