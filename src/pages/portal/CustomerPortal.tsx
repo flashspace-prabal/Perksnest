@@ -92,7 +92,7 @@ const CustomerPortal = () => {
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-6">
               <Link to="/" className="font-bold text-xl">perksnest.</Link>
-              <Badge variant="secondary" className="bg-blue-100 text-blue-700">My Account</Badge>
+              <Badge className="bg-primary/10 text-primary border-primary/20">My Account</Badge>
             </div>
             <div className="flex items-center gap-4">
               <Link to="/deals">
@@ -143,14 +143,14 @@ const CustomerPortal = () => {
 
         {/* Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
-          <Card className="bg-gradient-to-br from-green-50 to-green-100 border-green-200">
+          <Card className="bg-primary/5 border-primary/10">
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-green-700">Total Savings</p>
-                  <p className="text-2xl font-bold text-green-800">${userData.totalSavings.toLocaleString()}</p>
+                  <p className="text-sm text-primary">Total Savings</p>
+                  <p className="text-2xl font-bold text-primary">${userData.totalSavings.toLocaleString()}</p>
                 </div>
-                <DollarSign className="h-8 w-8 text-green-600" />
+                <DollarSign className="h-8 w-8 text-primary" />
               </div>
             </CardContent>
           </Card>
@@ -174,7 +174,7 @@ const CustomerPortal = () => {
                   <p className="text-sm text-muted-foreground">Referral Earnings</p>
                   <p className="text-2xl font-bold">${userData.referralEarnings}</p>
                 </div>
-                <Users className="h-8 w-8 text-blue-500" />
+                <Users className="h-8 w-8 text-accent" />
               </div>
             </CardContent>
           </Card>
@@ -186,7 +186,7 @@ const CustomerPortal = () => {
                   <p className="text-sm text-muted-foreground">Saved Deals</p>
                   <p className="text-2xl font-bold">{savedDeals.length}</p>
                 </div>
-                <Bookmark className="h-8 w-8 text-yellow-500" />
+                <Bookmark className="h-8 w-8 text-accent" />
               </div>
             </CardContent>
           </Card>
@@ -266,7 +266,7 @@ const CustomerPortal = () => {
                             </Button>
                           </div>
                         </div>
-                        <p className="text-green-600 font-semibold">+${deal.savings}</p>
+                        <p className="text-primary font-semibold">+${deal.savings}</p>
                       </div>
                     </div>
                   ))}
@@ -296,7 +296,7 @@ const CustomerPortal = () => {
                       </div>
                       <p className="text-sm text-muted-foreground mb-3">{deal.name}</p>
                       <div className="flex items-center justify-between">
-                        <p className="text-green-600 font-semibold">{deal.savings} savings</p>
+                        <p className="text-primary font-semibold">{deal.savings} savings</p>
                         <Button size="sm">Claim Deal</Button>
                       </div>
                     </div>
@@ -331,7 +331,7 @@ const CustomerPortal = () => {
                             {referral.status}
                           </Badge>
                           {referral.earnedAmount > 0 && (
-                            <p className="text-green-600 font-semibold">+${referral.earnedAmount}</p>
+                            <p className="text-primary font-semibold">+${referral.earnedAmount}</p>
                           )}
                         </div>
                       </div>

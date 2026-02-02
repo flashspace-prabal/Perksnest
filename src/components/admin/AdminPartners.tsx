@@ -59,9 +59,9 @@ export const AdminPartners = () => {
   const getTierBadge = (tier: string) => {
     switch (tier) {
       case "Premium":
-        return <Badge className="bg-purple-600 text-white hover:bg-purple-600">Premium</Badge>;
+        return <Badge className="bg-primary text-primary-foreground hover:bg-primary">Premium</Badge>;
       case "Growth":
-        return <Badge className="bg-blue-600 text-white hover:bg-blue-600">Growth</Badge>;
+        return <Badge className="bg-accent text-accent-foreground hover:bg-accent">Growth</Badge>;
       default:
         return <Badge variant="secondary">Starter</Badge>;
     }
@@ -70,9 +70,9 @@ export const AdminPartners = () => {
   const getStatusBadge = (status: string) => {
     switch (status) {
       case "active":
-        return <Badge className="bg-green-100 text-green-700 hover:bg-green-100">Active</Badge>;
+        return <Badge className="bg-primary/10 text-primary hover:bg-primary/10">Active</Badge>;
       case "pending":
-        return <Badge className="bg-yellow-100 text-yellow-700 hover:bg-yellow-100">Pending</Badge>;
+        return <Badge className="bg-accent/10 text-accent hover:bg-accent/10">Pending</Badge>;
       default:
         return <Badge variant="secondary">{status}</Badge>;
     }
@@ -109,19 +109,19 @@ export const AdminPartners = () => {
         <Card>
           <CardContent className="p-4">
             <p className="text-xs text-muted-foreground">Active</p>
-            <p className="text-xl font-bold text-green-600">{partnerStats.active}</p>
+            <p className="text-xl font-bold text-primary">{partnerStats.active}</p>
           </CardContent>
         </Card>
         <Card>
           <CardContent className="p-4">
             <p className="text-xs text-muted-foreground">Pending Review</p>
-            <p className="text-xl font-bold text-yellow-600">{partnerStats.pending}</p>
+            <p className="text-xl font-bold text-accent">{partnerStats.pending}</p>
           </CardContent>
         </Card>
         <Card>
           <CardContent className="p-4">
             <p className="text-xs text-muted-foreground">Premium Tier</p>
-            <p className="text-xl font-bold text-purple-600">{partnerStats.premium}</p>
+            <p className="text-xl font-bold text-primary">{partnerStats.premium}</p>
           </CardContent>
         </Card>
         <Card>
@@ -230,7 +230,7 @@ export const AdminPartners = () => {
                           </div>
                         </td>
                         <td className="p-4 text-sm font-medium">${partner.revenue.toLocaleString()}</td>
-                        <td className="p-4 text-sm font-medium text-green-600">${partner.commission.toLocaleString()}</td>
+                        <td className="p-4 text-sm font-medium text-primary">${partner.commission.toLocaleString()}</td>
                         <td className="p-4">{getStatusBadge(partner.status)}</td>
                         <td className="p-4">
                           <DropdownMenu>
@@ -295,7 +295,7 @@ export const AdminPartners = () => {
                         </div>
                         <div>
                           <p className="text-muted-foreground">Est. Value</p>
-                          <p className="font-medium text-green-600">{partner.estimatedValue}</p>
+                          <p className="font-medium text-primary">{partner.estimatedValue}</p>
                         </div>
                         <div>
                           <p className="text-muted-foreground">Submitted</p>
@@ -304,7 +304,7 @@ export const AdminPartners = () => {
                       </div>
                     </div>
                     <div className="flex flex-col gap-2 ml-4">
-                      <Button size="sm" className="bg-green-600 hover:bg-green-700">
+                      <Button size="sm">
                         <CheckCircle className="h-4 w-4 mr-1" />
                         Approve
                       </Button>
@@ -329,7 +329,7 @@ export const AdminPartners = () => {
             <Card>
               <CardHeader>
                 <CardTitle className="text-lg flex items-center gap-2">
-                  <Star className="h-5 w-5 text-yellow-500" />
+                  <Star className="h-5 w-5 text-accent" />
                   Top Performing Partners
                 </CardTitle>
               </CardHeader>
@@ -366,22 +366,22 @@ export const AdminPartners = () => {
                   <div>
                     <div className="flex items-center justify-between mb-2">
                       <div className="flex items-center gap-2">
-                        <div className="w-3 h-3 rounded-full bg-purple-600" />
+                        <div className="w-3 h-3 rounded-full bg-primary" />
                         <span className="text-sm font-medium">Premium Partners</span>
                       </div>
                       <span className="text-sm font-medium">{partnerStats.premium}</span>
                     </div>
-                    <Progress value={(partnerStats.premium / partnerStats.total) * 100} className="h-2 [&>div]:bg-purple-600" />
+                    <Progress value={(partnerStats.premium / partnerStats.total) * 100} className="h-2" />
                   </div>
                   <div>
                     <div className="flex items-center justify-between mb-2">
                       <div className="flex items-center gap-2">
-                        <div className="w-3 h-3 rounded-full bg-blue-600" />
+                        <div className="w-3 h-3 rounded-full bg-accent" />
                         <span className="text-sm font-medium">Growth Partners</span>
                       </div>
                       <span className="text-sm font-medium">{partnerStats.growth}</span>
                     </div>
-                    <Progress value={(partnerStats.growth / partnerStats.total) * 100} className="h-2 [&>div]:bg-blue-600" />
+                    <Progress value={(partnerStats.growth / partnerStats.total) * 100} className="h-2 [&>div]:bg-accent" />
                   </div>
                   <div>
                     <div className="flex items-center justify-between mb-2">
@@ -403,7 +403,7 @@ export const AdminPartners = () => {
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <DollarSign className="h-5 w-5 text-green-600" />
+                <DollarSign className="h-5 w-5 text-primary" />
                 Commission Payouts
               </CardTitle>
             </CardHeader>
@@ -434,9 +434,9 @@ export const AdminPartners = () => {
                         <td className="p-4">{getTierBadge(partner.tier)}</td>
                         <td className="p-4 text-sm">20%</td>
                         <td className="p-4 text-sm">${partner.revenue.toLocaleString()}</td>
-                        <td className="p-4 text-sm font-medium text-green-600">${partner.commission.toLocaleString()}</td>
+                        <td className="p-4 text-sm font-medium text-primary">${partner.commission.toLocaleString()}</td>
                         <td className="p-4">
-                          <Badge className="bg-green-100 text-green-700 hover:bg-green-100">Paid</Badge>
+                          <Badge className="bg-primary/10 text-primary hover:bg-primary/10">Paid</Badge>
                         </td>
                       </tr>
                     ))}
