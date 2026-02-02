@@ -1,15 +1,16 @@
+import { Link } from "react-router-dom";
 import { Mail, Twitter, Linkedin, Github } from "lucide-react";
 
 const footerLinks = {
   product: [
     { name: "Features", href: "#" },
-    { name: "Pricing", href: "#pricing" },
-    { name: "Deals", href: "#" },
+    { name: "Pricing", href: "/pricing" },
+    { name: "Deals", href: "/deals" },
     { name: "Enterprise", href: "#" },
   ],
   company: [
     { name: "About", href: "#" },
-    { name: "Blog", href: "#" },
+    { name: "Blog", href: "/blog" },
     { name: "Careers", href: "#" },
     { name: "Press", href: "#" },
   ],
@@ -18,6 +19,12 @@ const footerLinks = {
     { name: "Community", href: "#" },
     { name: "Partners", href: "#" },
     { name: "Developers", href: "#" },
+  ],
+  portals: [
+    { name: "Customer Portal", href: "/portal/customer" },
+    { name: "Partner Portal", href: "/portal/partner" },
+    { name: "Admin Portal", href: "/portal/admin" },
+    { name: "H1 Demo", href: "/h1" },
   ],
   legal: [
     { name: "Privacy", href: "#" },
@@ -37,7 +44,7 @@ const Footer = () => {
   return (
     <footer className="bg-foreground text-background">
       <div className="container-wide py-16">
-        <div className="grid grid-cols-2 md:grid-cols-5 gap-8 lg:gap-12">
+        <div className="grid grid-cols-2 md:grid-cols-6 gap-8 lg:gap-12">
           {/* Brand Column */}
           <div className="col-span-2 md:col-span-1">
             <div className="flex items-center mb-4">
@@ -69,9 +76,9 @@ const Footer = () => {
             <ul className="space-y-3">
               {footerLinks.product.map((link) => (
                 <li key={link.name}>
-                  <a href={link.href} className="text-background/70 hover:text-background text-sm transition-colors">
+                  <Link to={link.href} className="text-background/70 hover:text-background text-sm transition-colors">
                     {link.name}
-                  </a>
+                  </Link>
                 </li>
               ))}
             </ul>
@@ -83,9 +90,9 @@ const Footer = () => {
             <ul className="space-y-3">
               {footerLinks.company.map((link) => (
                 <li key={link.name}>
-                  <a href={link.href} className="text-background/70 hover:text-background text-sm transition-colors">
+                  <Link to={link.href} className="text-background/70 hover:text-background text-sm transition-colors">
                     {link.name}
-                  </a>
+                  </Link>
                 </li>
               ))}
             </ul>
@@ -97,9 +104,23 @@ const Footer = () => {
             <ul className="space-y-3">
               {footerLinks.resources.map((link) => (
                 <li key={link.name}>
-                  <a href={link.href} className="text-background/70 hover:text-background text-sm transition-colors">
+                  <Link to={link.href} className="text-background/70 hover:text-background text-sm transition-colors">
                     {link.name}
-                  </a>
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {/* Portals Links */}
+          <div>
+            <h4 className="font-semibold mb-4">Portals</h4>
+            <ul className="space-y-3">
+              {footerLinks.portals.map((link) => (
+                <li key={link.name}>
+                  <Link to={link.href} className="text-background/70 hover:text-background text-sm transition-colors">
+                    {link.name}
+                  </Link>
                 </li>
               ))}
             </ul>
@@ -111,9 +132,9 @@ const Footer = () => {
             <ul className="space-y-3">
               {footerLinks.legal.map((link) => (
                 <li key={link.name}>
-                  <a href={link.href} className="text-background/70 hover:text-background text-sm transition-colors">
+                  <Link to={link.href} className="text-background/70 hover:text-background text-sm transition-colors">
                     {link.name}
-                  </a>
+                  </Link>
                 </li>
               ))}
             </ul>

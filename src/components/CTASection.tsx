@@ -34,7 +34,7 @@ const CTASection = () => {
             <Button 
               size="lg" 
               variant="outline"
-              className="border-primary-foreground/30 text-primary-foreground hover:bg-primary-foreground/10 gap-2 text-base px-8"
+              className="border-primary-foreground bg-transparent text-primary-foreground hover:bg-primary-foreground hover:text-primary gap-2 text-base px-8"
             >
               Talk to sales
             </Button>
