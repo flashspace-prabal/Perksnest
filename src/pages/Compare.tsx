@@ -143,7 +143,7 @@ const Compare = () => {
                     <p className="text-sm text-muted-foreground">Used by {comparison.tool1.members} members</p>
                   </div>
                 </div>
-                <p className="text-green-600 font-semibold">{comparison.tool1.deal}</p>
+                <p className="text-primary font-semibold">{comparison.tool1.deal}</p>
                 <p className="text-sm text-muted-foreground">Save up to ${comparison.tool1.savings}</p>
               </div>
 
@@ -167,7 +167,7 @@ const Compare = () => {
                     </Button>
                   </Link>
                 </div>
-                <p className="text-green-600 font-semibold">{comparison.tool2.deal}</p>
+                <p className="text-primary font-semibold">{comparison.tool2.deal}</p>
                 <p className="text-sm text-muted-foreground">Save up to ${comparison.tool2.savings}</p>
               </div>
             </div>
@@ -294,22 +294,22 @@ const Compare = () => {
                 </h2>
                 
                 <div className="grid md:grid-cols-2 gap-6">
-                  <div className="bg-green-50 dark:bg-green-950/20 p-6 rounded-xl border border-green-200 dark:border-green-900">
-                    <h4 className="font-semibold text-green-700 dark:text-green-400 mb-4">Pros</h4>
+                  <div className="bg-primary/5 p-6 rounded-xl border border-primary/20">
+                    <h4 className="font-semibold text-primary mb-4">Pros</h4>
                     <ul className="space-y-2">
                       {comparison.tool1Details.prosCons.pros.map((pro, i) => (
                         <li key={i} className="flex items-start gap-2 text-muted-foreground">
-                          <span className="text-green-600">✓</span> {pro}
+                          <span className="text-primary">✓</span> {pro}
                         </li>
                       ))}
                     </ul>
                   </div>
-                  <div className="bg-red-50 dark:bg-red-950/20 p-6 rounded-xl border border-red-200 dark:border-red-900">
-                    <h4 className="font-semibold text-red-700 dark:text-red-400 mb-4">Cons</h4>
+                  <div className="bg-destructive/5 p-6 rounded-xl border border-destructive/20">
+                    <h4 className="font-semibold text-destructive mb-4">Cons</h4>
                     <ul className="space-y-2">
                       {comparison.tool1Details.prosCons.cons.map((con, i) => (
                         <li key={i} className="flex items-start gap-2 text-muted-foreground">
-                          <span className="text-red-600">✗</span> {con}
+                          <span className="text-destructive">✗</span> {con}
                         </li>
                       ))}
                     </ul>
@@ -348,22 +348,22 @@ const Compare = () => {
                 </h2>
                 
                 <div className="grid md:grid-cols-2 gap-6">
-                  <div className="bg-green-50 dark:bg-green-950/20 p-6 rounded-xl border border-green-200 dark:border-green-900">
-                    <h4 className="font-semibold text-green-700 dark:text-green-400 mb-4">Pros</h4>
+                  <div className="bg-primary/5 p-6 rounded-xl border border-primary/20">
+                    <h4 className="font-semibold text-primary mb-4">Pros</h4>
                     <ul className="space-y-2">
                       {comparison.tool2Details.prosCons.pros.map((pro, i) => (
                         <li key={i} className="flex items-start gap-2 text-muted-foreground">
-                          <span className="text-green-600">✓</span> {pro}
+                          <span className="text-primary">✓</span> {pro}
                         </li>
                       ))}
                     </ul>
                   </div>
-                  <div className="bg-red-50 dark:bg-red-950/20 p-6 rounded-xl border border-red-200 dark:border-red-900">
-                    <h4 className="font-semibold text-red-700 dark:text-red-400 mb-4">Cons</h4>
+                  <div className="bg-destructive/5 p-6 rounded-xl border border-destructive/20">
+                    <h4 className="font-semibold text-destructive mb-4">Cons</h4>
                     <ul className="space-y-2">
                       {comparison.tool2Details.prosCons.cons.map((con, i) => (
                         <li key={i} className="flex items-start gap-2 text-muted-foreground">
-                          <span className="text-red-600">✗</span> {con}
+                          <span className="text-destructive">✗</span> {con}
                         </li>
                       ))}
                     </ul>
