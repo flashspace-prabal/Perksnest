@@ -98,15 +98,15 @@ export const PartnerMessages = () => {
                     }`}
                   >
                     <div className="flex items-start gap-3">
-                      <div className="w-10 h-10 rounded-full bg-muted flex items-center justify-center text-xl">
+                      <div className="w-10 h-10 rounded-full bg-muted flex items-center justify-center text-xl flex-shrink-0">
                         {convo.avatar}
                       </div>
-                      <div className="flex-1 min-w-0">
+                      <div className="flex-1 min-w-0 overflow-hidden">
                         <div className="flex items-center justify-between gap-2">
                           <span className="font-medium truncate">{convo.sender}</span>
-                          <span className="text-xs text-muted-foreground whitespace-nowrap">{convo.time}</span>
+                          <span className="text-xs text-muted-foreground whitespace-nowrap flex-shrink-0">{convo.time}</span>
                         </div>
-                        <p className="text-sm text-muted-foreground truncate mt-1">{convo.lastMessage}</p>
+                        <p className="text-sm text-muted-foreground line-clamp-2 mt-1">{convo.lastMessage}</p>
                       </div>
                       {convo.unread && (
                         <div className="w-2 h-2 rounded-full bg-primary flex-shrink-0 mt-2" />
