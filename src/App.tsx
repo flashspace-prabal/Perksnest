@@ -12,6 +12,9 @@ import Pricing from "./pages/Pricing";
 import Blog from "./pages/Blog";
 import Invite from "./pages/Invite";
 import Compare from "./pages/Compare";
+import AdminPortal from "./pages/portal/AdminPortal";
+import PartnerPortal from "./pages/portal/PartnerPortal";
+import CustomerPortal from "./pages/portal/CustomerPortal";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -33,6 +36,9 @@ const App = () => (
           <Route path="/blog/:postId" element={<Blog />} />
           <Route path="/invite" element={<Invite />} />
           <Route path="/compare/:slug" element={<Compare />} />
+          <Route path="/portal/admin" element={<AdminPortal />} />
+          <Route path="/portal/partner" element={<PartnerPortal />} />
+          <Route path="/portal/customer" element={<CustomerPortal />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
