@@ -93,7 +93,7 @@ export const PartnerMessages = () => {
                   <button
                     key={convo.id}
                     onClick={() => setSelectedChat(convo.id)}
-                    className={`w-full p-4 text-left hover:bg-muted/50 transition-colors ${
+                    className={`w-full py-4 pl-4 pr-6 text-left hover:bg-muted/50 transition-colors ${
                       selectedChat === convo.id ? "bg-primary/5 border-l-2 border-primary" : ""
                     }`}
                   >
@@ -102,11 +102,13 @@ export const PartnerMessages = () => {
                         {convo.avatar}
                       </div>
                       <div className="flex-1 min-w-0 overflow-hidden">
-                        <div className="flex items-center justify-between gap-2">
-                          <span className="font-medium truncate">{convo.sender}</span>
-                          <span className="text-xs text-muted-foreground whitespace-nowrap flex-shrink-0">{convo.time}</span>
+                        <div className="flex items-start gap-2 min-w-0">
+                          <span className="font-medium truncate flex-1 min-w-0 pr-2">{convo.sender}</span>
+                          <span className="text-xs text-muted-foreground whitespace-nowrap flex-shrink-0 ml-auto">{convo.time}</span>
                         </div>
-                        <p className="text-sm text-muted-foreground line-clamp-2 mt-1">{convo.lastMessage}</p>
+                        <p className="text-sm text-muted-foreground mt-1 whitespace-normal break-words leading-snug line-clamp-2">
+                          {convo.lastMessage}
+                        </p>
                       </div>
                       {convo.unread && (
                         <div className="w-2 h-2 rounded-full bg-primary flex-shrink-0 mt-2" />
