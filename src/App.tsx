@@ -11,6 +11,7 @@ import DealRedeem from "./pages/DealRedeem";
 import Pricing from "./pages/Pricing";
 import Blog from "./pages/Blog";
 import Invite from "./pages/Invite";
+import Compare from "./pages/Compare";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -31,6 +32,7 @@ const App = () => (
           <Route path="/blog" element={<Blog />} />
           <Route path="/blog/:postId" element={<Blog />} />
           <Route path="/invite" element={<Invite />} />
+          <Route path="/compare/:slug" element={<Compare />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
