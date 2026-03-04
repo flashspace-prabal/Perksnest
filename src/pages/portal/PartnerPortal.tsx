@@ -24,11 +24,12 @@ const TABS = [
 ];
 
 const PartnerPortal = () => {
-  useEffect(() => { allPartnerDeals.then(setAllPartnerDeals); }, []);
   const [allPartnerDeals, setAllPartnerDeals] = useState<PartnerDeal[]>([]);
+  useEffect(() => { getPartnerDeals().then(setAllPartnerDeals); }, []);
   const { user, isPartner, isAuthenticated, logout } = useAuth();
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState("dashboard");
+  const [profileOpen, setProfileOpen] = useState(false);
 
   useEffect(() => {
     if (!isAuthenticated) navigate("/login?returnUrl=/partner");
@@ -89,9 +90,28 @@ const PartnerPortal = () => {
             <Button variant="ghost" size="sm" className="gap-1.5 text-sm" asChild>
               <Link to="/deals"><ExternalLink className="h-4 w-4" /><span className="hidden sm:inline">View Marketplace</span></Link>
             </Button>
-            <Button variant="ghost" size="sm" className="gap-1.5 text-sm text-muted-foreground" onClick={() => { logout(); navigate("/"); }}>
-              <LogOut className="h-4 w-4" /><span className="hidden sm:inline">Sign Out</span>
-            </Button>
+            <div className="relative">
+              <button onClick={() => setProfileOpen(!profileOpen)}
+                className="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-primary-foreground text-sm font-semibold hover:opacity-90">
+                {user?.avatar ? <img src={user.avatar} alt="" className="w-8 h-8 rounded-full object-cover" /> : user?.name?.charAt(0)?.toUpperCase() || 'P'}
+              </button>
+              {profileOpen && (
+                <div className="absolute right-0 top-10 w-52 bg-background border border-border rounded-xl shadow-lg z-50">
+                  <div className="p-3 border-b border-border">
+                    <p className="font-medium text-sm truncate">{user?.name}</p>
+                    <p className="text-xs text-muted-foreground truncate">{user?.email}</p>
+                  </div>
+                  <div className="p-1">
+                    <Link to="/customer" onClick={() => setProfileOpen(false)} className="flex items-center gap-2 px-3 py-2 text-sm rounded-lg hover:bg-secondary">🎁 Customer Portal</Link>
+                    {(user?.roles?.includes('admin') || user?.role === 'admin') && (
+                      <Link to="/admin" onClick={() => setProfileOpen(false)} className="flex items-center gap-2 px-3 py-2 text-sm rounded-lg hover:bg-secondary">🛡️ Admin Portal</Link>
+                    )}
+                    <button onClick={() => { logout(); navigate("/"); }} className="w-full flex items-center gap-2 px-3 py-2 text-sm rounded-lg hover:bg-secondary text-red-600">🚪 Sign out</button>
+                  </div>
+                </div>
+              )}
+              {profileOpen && <div className="fixed inset-0 z-40" onClick={() => setProfileOpen(false)} />}
+            </div>
           </div>
         </div>
       </header>

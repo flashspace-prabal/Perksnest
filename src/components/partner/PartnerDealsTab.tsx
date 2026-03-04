@@ -14,8 +14,8 @@ const statusConfig = {
 };
 
 export const PartnerDealsTab = () => {
-  useEffect(() => { allPartnerDeals.then(setAllPartnerDeals); }, []);
   const [allPartnerDeals, setAllPartnerDeals] = useState<PartnerDeal[]>([]);
+  useEffect(() => { getPartnerDeals().then(setAllPartnerDeals); }, []);
   const { user } = useAuth();
   const [deals, setDeals] = useState<PartnerDeal[]>([]);
   const [showForm, setShowForm] = useState(false);
