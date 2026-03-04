@@ -234,7 +234,7 @@ const Header = () => {
             {/* Login/Profile icon — always visible on all screen sizes */}
             <button
               type="button"
-              onClick={(e) => { e.stopPropagation(); window.location.href = isAuthenticated && user ? '/customer' : '/login'; }}
+              onClick={(e) => { e.stopPropagation(); e.preventDefault(); navigate(isAuthenticated && user ? '/customer' : '/login'); }}
               className="relative z-20 flex items-center justify-center h-9 w-9 rounded-full bg-primary/10 hover:bg-primary/20 border border-primary/20 transition-colors shrink-0 cursor-pointer"
               title={isAuthenticated && user ? `Signed in as ${user.name}` : 'Sign in to your account'}
             >
@@ -365,7 +365,7 @@ const Header = () => {
                 {/* Login/Profile icon — always visible on all screen sizes */}
             <button
               type="button"
-              onClick={(e) => { e.stopPropagation(); window.location.href = isAuthenticated && user ? '/customer' : '/login'; }}
+              onClick={(e) => { e.stopPropagation(); e.preventDefault(); navigate(isAuthenticated && user ? '/customer' : '/login'); }}
               className="relative z-20 flex items-center justify-center h-9 w-9 rounded-full bg-primary/10 hover:bg-primary/20 border border-primary/20 transition-colors shrink-0 cursor-pointer"
               title={isAuthenticated && user ? `Signed in as ${user.name}` : 'Sign in to your account'}
             >
