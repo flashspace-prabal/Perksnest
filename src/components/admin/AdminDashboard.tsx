@@ -42,7 +42,7 @@ const pendingDeals = [
   }
 ];
 
-const recentActivity = useMemo(() => {
+const getRecentActivity = () => {
     const claims = getClaimEvents().slice(0, 5).map(e => ({
       action: `${e.userName} claimed ${e.dealName}`,
       time: (() => { const d = (Date.now() - new Date(e.timestamp).getTime())/1000; return d<3600?`${Math.floor(d/60)}m ago`:`${Math.floor(d/3600)}h ago`; })(),
@@ -59,9 +59,11 @@ const recentActivity = useMemo(() => {
       type: 'signup' as const,
     }));
     return [...claims, ...partnerSubs, ...users].sort(() => Math.random() - 0.5).slice(0, 8);
-  }, []);
+  };
 
 export const AdminDashboard = () => {
+  const recentActivity = getRecentActivity();
+
   // Calculate real stats from deals data and localStorage users
   const stats = useMemo(() => {
     const allUsers = getAllUsers();

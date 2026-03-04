@@ -1,4 +1,4 @@
-import { addClaimEvent } from '@/lib/store';
+import { addClaimEvent, sendEmail } from '@/lib/store';
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 
 export type UserPlan = 'free' | 'pro' | 'enterprise';

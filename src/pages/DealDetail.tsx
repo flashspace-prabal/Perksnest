@@ -8,7 +8,7 @@ import Footer from "@/components/Footer";
 import DealCardNew from "@/components/DealCardNew";
 import SafeImage from "@/components/SafeImage";
 import { AuthModal } from "@/components/AuthModal";
-import { toggleBookmark, getBookmarks } from '@/lib/store';
+import { toggleBookmark, getBookmarks, sendEmail } from '@/lib/store';
 import { useAuth } from "@/lib/auth";
 import { toast } from "sonner";
 import { dealsData } from "@/data/deals";
@@ -141,6 +141,10 @@ const DealDetail = () => {
 
     if (dealId && claimDeal(dealId)) {
       toast.success(`${deal?.name} deal claimed successfully!`);
+      // Send confirmation email
+      if (user?.email) {
+        sendEmail({ type: 'deal_claimed', to: user.email, name: user.name, dealName: deal?.name || dealId || '', promoCode: undefined });
+      }
       navigate(`/deals/${dealId}/redeem`);
     } else {
       toast.error('Deal already claimed');

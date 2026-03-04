@@ -1,6 +1,6 @@
 import { getAllUsers } from '@/lib/auth';
 import { getPartnerDeals } from '@/lib/store';
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { 
   Search, Filter, Download, Eye, Edit, MoreVertical, Plus, Mail,
   CheckCircle, XCircle, Star, TrendingUp, DollarSign, ArrowUpDown,

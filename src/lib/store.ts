@@ -198,3 +198,28 @@ export const trackDealView = (dealId: string) => {
     localStorage.setItem('pn_deal_views', JSON.stringify(views));
   } catch {}
 };
+
+// ── Email Notifications (via PerksNest API) ──────────────────────────────────
+const API_URL = 'https://api.perksnest.co';
+
+export const sendEmail = async (payload: {
+  type: 'welcome' | 'deal_approved' | 'deal_rejected' | 'deal_claimed';
+  to: string;
+  name?: string;
+  dealName?: string;
+  dealCategory?: string;
+  reason?: string;
+  promoCode?: string;
+}): Promise<boolean> => {
+  try {
+    const res = await fetch(`${API_URL}/api/notify`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
+    return res.ok;
+  } catch (e) {
+    console.warn('Email notification failed (non-critical):', e);
+    return false;
+  }
+};

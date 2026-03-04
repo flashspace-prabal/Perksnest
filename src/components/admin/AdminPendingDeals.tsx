@@ -7,8 +7,9 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { CheckCircle, XCircle, Eye, ExternalLink, Clock } from "lucide-react";
 import { toast } from "sonner";
-import { getPartnerDeals, updatePartnerDeal, addNotification } from "@/lib/store";
+import { getPartnerDeals, updatePartnerDeal, addNotification, sendEmail } from "@/lib/store";
 import { PartnerDeal } from "@/lib/store";
+import { getAllUsers } from "@/lib/auth";
 
 export const AdminPendingDeals = () => {
   const [deals, setDeals] = useState<PartnerDeal[]>([]);
@@ -31,6 +32,12 @@ export const AdminPendingDeals = () => {
       createdAt: new Date().toISOString(),
       dealId: deal.id,
     });
+    // Send approval email to partner
+    const users = getAllUsers();
+    const partner = users.find(u => u.id === deal.partnerId);
+    if (partner?.email) {
+      sendEmail({ type: 'deal_approved', to: partner.email, name: partner.name, dealName: deal.name, dealCategory: deal.category });
+    }
     toast.success(`"${deal.name}" approved and now live!`);
     load();
   };
@@ -48,6 +55,12 @@ export const AdminPendingDeals = () => {
       createdAt: new Date().toISOString(),
       dealId: rejectDialog.id,
     });
+    // Send rejection email to partner
+    const users = getAllUsers();
+    const partner = users.find(u => u.id === rejectDialog.id || u.id === rejectDialog.partnerId);
+    if (partner?.email) {
+      sendEmail({ type: 'deal_rejected', to: partner.email, name: partner.name, dealName: rejectDialog.name, reason: rejectReason || undefined });
+    }
     toast.success(`"${rejectDialog.name}" rejected.`);
     setRejectDialog(null);
     setRejectReason("");
