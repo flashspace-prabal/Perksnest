@@ -37,8 +37,10 @@ const getRecentActivity = (allPartnerDeals: any[] = [], allUsers: any[] = []) =>
 export const AdminDashboard = ({ onTabChange }: { onTabChange?: (tab: string) => void }) => {
   const [allPartnerDeals, setAllPartnerDeals] = useState<any[]>([]);
   const [allUsers, setAllUsers] = useState<any[]>([]);
+  const [stripeData, setStripeData] = useState<{charges: any[], subscriptions: any[]}>({charges: [], subscriptions: []});
   useEffect(() => { getPartnerDeals().then(setAllPartnerDeals); }, []);
   useEffect(() => { getAllUsers().then(setAllUsers); }, []);
+  useEffect(() => { fetch('https://api.perksnest.co/api/stripe/perksnest-charges').then(r=>r.json()).then(d=>setStripeData({charges:d.data||[],subscriptions:d.subscriptions||[]})).catch(()=>{}); }, []);
 
   const recentActivity = getRecentActivity(allPartnerDeals, allUsers);
 
@@ -73,9 +75,20 @@ export const AdminDashboard = ({ onTabChange }: { onTabChange?: (tab: string) =>
       totalDeals: dealsData.length,
       activeDeals: dealsData.length, // All deals in data are active
       pendingApproval: allPartnerDeals.filter(d => d.status === "pending").length,
-      mrr: (premiumUsers * 12) + (enterpriseUsers * 8.25), // $12/mo premium, $99/yr enterprise
-      arr: (premiumUsers * 144) + (enterpriseUsers * 99),
-      totalRevenue: (premiumUsers * 12) + (enterpriseUsers * 8.25),
+      // Real MRR from Stripe subscriptions
+      mrr: stripeData.subscriptions.filter(s=>s.status==='active').reduce((sum,s)=>{
+        const price = s.items?.data?.[0]?.price;
+        if(!price) return sum;
+        const amt = price.unit_amount/100;
+        return sum + (price.recurring?.interval==='year' ? amt/12 : amt);
+      }, 0) || (premiumUsers * 12),
+      arr: (stripeData.subscriptions.filter(s=>s.status==='active').reduce((sum,s)=>{
+        const price = s.items?.data?.[0]?.price;
+        if(!price) return sum;
+        const amt = price.unit_amount/100;
+        return sum + (price.recurring?.interval==='year' ? amt : amt*12);
+      }, 0)) || (premiumUsers * 144),
+      totalRevenue: stripeData.charges.filter(c=>c.status==='succeeded').reduce((sum,c)=>sum+c.amount/100,0) || (premiumUsers * 12),
       partners: 975,
       totalSavings,
       totalMembers,
@@ -85,7 +98,7 @@ export const AdminDashboard = ({ onTabChange }: { onTabChange?: (tab: string) =>
       avgSessionDuration: "8m 34s",
       categories: Array.from(categoryMap.entries()).map(([name, count]) => ({ name, count }))
     };
-  }, []);
+  }, [allUsers, allPartnerDeals, stripeData]);
 
   // Get top performing deals (by member count)
   const topDeals = useMemo(() => {
