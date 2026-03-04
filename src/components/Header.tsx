@@ -231,6 +231,18 @@ const Header = () => {
               <Search className="h-5 w-5" />
             </Link>
 
+            {/* Login/Profile icon — always visible on all screen sizes */}
+            <button
+              onClick={() => window.location.href = isAuthenticated && user ? '/customer' : '/login'}
+              className="flex items-center justify-center h-8 w-8 rounded-full bg-secondary hover:bg-primary/10 transition-colors shrink-0"
+              title={isAuthenticated && user ? user.name : 'Sign in'}
+            >
+              {isAuthenticated && user
+                ? <span className="text-xs font-bold text-primary">{getUserInitials()}</span>
+                : <User className="h-4 w-4 text-muted-foreground" />
+              }
+            </button>
+
             {isAuthenticated && user ? (
               <>
                 {/* Claimed Deals Badge */}
@@ -313,15 +325,6 @@ const Header = () => {
                   Sign in
                 </button>
 
-                {/* Profile icon — always visible, goes to login */}
-                <button
-                  onClick={() => window.location.href = '/login'}
-                  className="flex items-center justify-center h-8 w-8 rounded-full bg-secondary hover:bg-primary/10 transition-colors"
-                  title="Sign in"
-                >
-                  <User className="h-4 w-4 text-muted-foreground" />
-                </button>
-
                 {/* CTA Buttons */}
                 <Button
                   variant="outline"
@@ -358,7 +361,19 @@ const Header = () => {
               <Link to="/blog" className="nav-link px-3 py-2 rounded-md hover:bg-secondary" onClick={() => setMobileMenuOpen(false)}>Blog</Link>
               <Link to="/invite" className="nav-link px-3 py-2 rounded-md hover:bg-secondary" onClick={() => setMobileMenuOpen(false)}>Invite & Earn</Link>
               <div className="pt-3 border-t border-border mt-2 space-y-2">
-                {isAuthenticated && user ? (
+                {/* Login/Profile icon — always visible on all screen sizes */}
+            <button
+              onClick={() => window.location.href = isAuthenticated && user ? '/customer' : '/login'}
+              className="flex items-center justify-center h-8 w-8 rounded-full bg-secondary hover:bg-primary/10 transition-colors shrink-0"
+              title={isAuthenticated && user ? user.name : 'Sign in'}
+            >
+              {isAuthenticated && user
+                ? <span className="text-xs font-bold text-primary">{getUserInitials()}</span>
+                : <User className="h-4 w-4 text-muted-foreground" />
+              }
+            </button>
+
+            {isAuthenticated && user ? (
                   <>
                     <Link to="/customer" className="block" onClick={() => setMobileMenuOpen(false)}>
                       <Button variant="outline" className="w-full">
