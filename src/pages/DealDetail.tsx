@@ -8,6 +8,7 @@ import Footer from "@/components/Footer";
 import DealCardNew from "@/components/DealCardNew";
 import SafeImage from "@/components/SafeImage";
 import { AuthModal } from "@/components/AuthModal";
+import { DealReviews } from "@/components/DealReviews";
 import { toggleBookmark, getBookmarks, sendEmail } from '@/lib/store';
 import { useAuth } from "@/lib/auth";
 import { toast } from "sonner";
@@ -389,6 +390,9 @@ const DealDetail = () => {
               handleClaimDeal();
             }}
           />
+
+          {/* Reviews Section */}
+          <DealReviews dealId={dealId || ''} dealName={deal?.name || ''} />
 
           {/* Related Deals */}
           <section className="mt-16">

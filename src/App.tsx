@@ -18,6 +18,9 @@ import Communities from "./pages/Communities";
 import AdminPortal from "./pages/portal/AdminPortal";
 import PartnerPortal from "./pages/portal/PartnerPortal";
 import CustomerPortal from "./pages/portal/CustomerPortal";
+import PartnerProfile from "./pages/PartnerProfile";
+import WhiteLabel from "./pages/WhiteLabel";
+import Docs from "./pages/Docs";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -43,10 +46,14 @@ const App = () => (
             <Route path="/login" element={<Login />} />
             <Route path="/communities" element={<Communities />} />
             <Route path="/accelerators" element={<Communities />} />
+            <Route path="/white-label" element={<WhiteLabel />} />
+            <Route path="/docs" element={<Docs />} />
             {/* Clean portal URLs */}
             <Route path="/admin" element={<AdminPortal />} />
             <Route path="/partner" element={<PartnerPortal />} />
             <Route path="/customer" element={<CustomerPortal />} />
+            {/* Partner public profiles */}
+            <Route path="/brand/:slug" element={<PartnerProfile />} />
             {/* Legacy redirects */}
             <Route path="/portal/admin" element={<Navigate to="/admin" replace />} />
             <Route path="/portal/partner" element={<Navigate to="/partner" replace />} />

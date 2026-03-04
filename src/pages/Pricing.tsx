@@ -150,13 +150,19 @@ const Pricing = () => {
   const getPlanBadge = (planName: string) => {
     if (!isAuthenticated || !user) return null;
 
-    const userPlan = user.plan.toLowerCase();
-    const currentPlan = planName.toLowerCase();
+    // Map user.plan to tier names
+    const planMap: Record<string, string> = {
+      'free': 'Free',
+      'pro': 'Pro',
+      'enterprise': 'Enterprise'
+    };
 
-    if (userPlan === currentPlan) {
+    const userPlanName = planMap[user.plan] || user.plan;
+
+    if (userPlanName === planName) {
       return (
-        <Badge className="ml-2 bg-success text-white">
-          Current Plan
+        <Badge className="ml-2 bg-green-100 text-green-700">
+          ✓ Your current plan
         </Badge>
       );
     }

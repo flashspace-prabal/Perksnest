@@ -1,10 +1,12 @@
 import { ArrowUpRight, Crown, Sparkles, Users } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
+import { getAverageRating } from "@/lib/reviews";
 
 interface DealCardProps {
   id?: string;
   name: string;
+  company?: string;
   logo: string;
   description: string;
   dealText: string;
@@ -13,11 +15,13 @@ interface DealCardProps {
   isPremium?: boolean;
   isFree?: boolean;
   isPick?: boolean;
+  featured?: boolean;
 }
 
 const DealCard = ({
   id,
   name,
+  company,
   logo,
   description,
   dealText,
@@ -26,8 +30,14 @@ const DealCard = ({
   isPremium = false,
   isFree = true,
   isPick = false,
+  featured = false,
 }: DealCardProps) => {
   const dealId = id || name.toLowerCase().replace(/\s+/g, '-');
+  const avgRating = getAverageRating(dealId);
+
+  const slugify = (str: string) =>
+    str.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+  const companySlug = slugify(company || name);
 
   // Removed preventDefault to allow navigation
 
@@ -35,6 +45,11 @@ const DealCard = ({
     <div className="deal-card group relative">
       {/* Badges */}
       <div className="absolute top-5 right-5 flex gap-2">
+        {featured && (
+          <span className="absolute top-2 right-2 bg-purple-600 text-white text-xs px-2 py-0.5 rounded-full font-medium">
+            ⭐ Featured
+          </span>
+        )}
         {isPremium && (
           <span className="badge-premium">
             <Crown className="h-3 w-3" />
@@ -55,7 +70,16 @@ const DealCard = ({
           <img src={logo} alt={name} className="w-9 h-9 object-contain" />
         </div>
         <div className="flex-1 min-w-0 pr-20">
-          <h3 className="font-semibold text-lg text-foreground truncate">{name}</h3>
+          <div className="flex items-center gap-2">
+            <Link to={`/brand/${companySlug}`} className="hover:underline">
+              <h3 className="font-semibold text-lg text-foreground truncate">{name}</h3>
+            </Link>
+            {avgRating !== null && (
+              <span className="text-xs text-yellow-600 font-medium whitespace-nowrap">
+                ★ {avgRating.toFixed(1)}
+              </span>
+            )}
+          </div>
           <p className="text-sm text-muted-foreground line-clamp-1">{description}</p>
         </div>
       </div>

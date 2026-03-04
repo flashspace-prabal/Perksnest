@@ -1,8 +1,9 @@
 import { useState, useEffect } from "react";
 import { Link, useSearchParams } from "react-router-dom";
-import { Grid, List, Bell, ChevronRight } from "lucide-react";
+import { Grid, List, Bell, ChevronRight, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
+import { Input } from "@/components/ui/input";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import DealCardNew from "@/components/DealCardNew";
@@ -18,6 +19,7 @@ const Deals = () => {
 
   // Read from URL params, with defaults
   const [searchQuery, setSearchQuery] = useState(searchParams.get("q") || "");
+  const [searchInput, setSearchInput] = useState(searchParams.get("q") || "");
   const [activeCategory, setActiveCategory] = useState(searchParams.get("category") || "all");
   const [activeFilter, setActiveFilter] = useState(searchParams.get("sort") || "Most popular");
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
@@ -26,6 +28,15 @@ const Deals = () => {
     return saved === "true";
   });
   const [currentPage, setCurrentPage] = useState(1);
+
+  // Debounce search input
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setSearchQuery(searchInput);
+      setCurrentPage(1); // Reset to page 1 when searching
+    }, 200);
+    return () => clearTimeout(timer);
+  }, [searchInput]);
 
   // Update URL params when filters change
   useEffect(() => {
@@ -43,8 +54,11 @@ const Deals = () => {
 
   const filteredDeals = dealsData
     .filter((deal) => {
-      const matchesSearch = deal.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                           deal.description.toLowerCase().includes(searchQuery.toLowerCase());
+      const matchesSearch = searchQuery === "" ||
+                           deal.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                           deal.company?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                           deal.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                           deal.category.toLowerCase().includes(searchQuery.toLowerCase());
       const matchesCategory = activeCategory === "all" || deal.category === activeCategory;
       const matchesFilter = activeFilter === "Most popular" ||
                            activeFilter === "Recently added" ||
@@ -126,6 +140,25 @@ const Deals = () => {
 
             {/* Main Content */}
             <div className="flex-1">
+              {/* Search Bar */}
+              <div className="mb-6">
+                <div className="relative">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+                  <Input
+                    type="text"
+                    placeholder="Search deals by name, company, category..."
+                    value={searchInput}
+                    onChange={(e) => setSearchInput(e.target.value)}
+                    className="pl-10 h-12 text-base"
+                  />
+                </div>
+                {searchQuery && (
+                  <p className="text-sm text-muted-foreground mt-2">
+                    {filteredDeals.length} result{filteredDeals.length !== 1 ? 's' : ''} for "{searchQuery}"
+                  </p>
+                )}
+              </div>
+
               {/* Toolbar */}
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
                 <div className="flex gap-2">
@@ -173,8 +206,34 @@ const Deals = () => {
                 </div>
               </div>
 
+              {/* Featured Deals Section */}
+              {searchQuery === "" && activeCategory === "all" && (
+                <div className="mb-12">
+                  <h2 className="text-2xl font-bold text-foreground mb-6">⭐ Featured Deals</h2>
+                  <div className="bg-gradient-to-br from-purple-50 to-purple-100 dark:from-purple-950/30 dark:to-purple-900/30 rounded-2xl p-6 border border-purple-200 dark:border-purple-800">
+                    <div className={`grid gap-5 ${
+                      viewMode === "grid"
+                        ? "grid-cols-1 md:grid-cols-2 xl:grid-cols-3"
+                        : "grid-cols-1"
+                    }`}>
+                      {dealsData.filter(deal => deal.featured).slice(0, 6).map((deal) => (
+                        <Link
+                          key={deal.id}
+                          to={`/deals/${deal.id}`}
+                          className="block h-full"
+                        >
+                          <DealCardNew {...deal} />
+                        </Link>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              )}
+
               {/* Section Title */}
-              <h2 className="text-2xl font-bold text-foreground mb-6">Most Popular Deals</h2>
+              <h2 className="text-2xl font-bold text-foreground mb-6">
+                {searchQuery || activeCategory !== "all" ? "Search Results" : "All Deals"}
+              </h2>
 
               {/* Deals Grid */}
               {paginatedDeals.length > 0 ? (
@@ -237,7 +296,16 @@ const Deals = () => {
               ) : (
                 <div className="text-center py-16">
                   <p className="text-lg text-muted-foreground mb-4">No deals found matching your criteria</p>
-                  <Button variant="outline" onClick={() => { setSearchQuery(""); setActiveCategory("all"); setActiveFilter("Most popular"); setCurrentPage(1); }}>
+                  <Button
+                    variant="outline"
+                    onClick={() => {
+                      setSearchInput("");
+                      setSearchQuery("");
+                      setActiveCategory("all");
+                      setActiveFilter("Most popular");
+                      setCurrentPage(1);
+                    }}
+                  >
                     Clear filters
                   </Button>
                 </div>

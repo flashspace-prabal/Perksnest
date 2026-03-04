@@ -77,22 +77,22 @@ export const PartnerAnalytics = ({ partnerData, deals }: PartnerAnalyticsProps) 
     views: {
       current: partnerData.totalViews,
       previous: previousViews,
-      change: ((partnerData.totalViews - previousViews) / previousViews * 100).toFixed(1)
+      change: previousViews > 0 ? ((partnerData.totalViews - previousViews) / previousViews * 100).toFixed(1) + '%' : '—'
     },
     claims: {
       current: partnerData.totalClaims,
       previous: previousClaims,
-      change: ((partnerData.totalClaims - previousClaims) / previousClaims * 100).toFixed(1)
+      change: previousClaims > 0 ? ((partnerData.totalClaims - previousClaims) / previousClaims * 100).toFixed(1) + '%' : '—'
     },
     redemptions: {
       current: partnerData.totalRedemptions,
       previous: previousRedemptions,
-      change: ((partnerData.totalRedemptions - previousRedemptions) / previousRedemptions * 100).toFixed(1)
+      change: previousRedemptions > 0 ? ((partnerData.totalRedemptions - previousRedemptions) / previousRedemptions * 100).toFixed(1) + '%' : '—'
     },
     revenue: {
       current: partnerData.revenue,
       previous: previousRevenue,
-      change: ((partnerData.revenue - previousRevenue) / previousRevenue * 100).toFixed(1)
+      change: previousRevenue > 0 ? ((partnerData.revenue - previousRevenue) / previousRevenue * 100).toFixed(1) + '%' : '—'
     },
   };
 
@@ -150,9 +150,9 @@ export const PartnerAnalytics = ({ partnerData, deals }: PartnerAnalyticsProps) 
           <CardContent className="p-6">
             <div className="flex items-center justify-between mb-4">
               <Eye className="h-8 w-8 text-primary/60" />
-              <div className={`flex items-center gap-1 text-sm ${analyticsData.views.change > 0 ? 'text-primary' : 'text-destructive'}`}>
-                {analyticsData.views.change > 0 ? <ArrowUpRight className="h-4 w-4" /> : <ArrowDownRight className="h-4 w-4" />}
-                {Math.abs(analyticsData.views.change)}%
+              <div className={`flex items-center gap-1 text-sm ${analyticsData.views.change !== '—' && parseFloat(analyticsData.views.change) > 0 ? 'text-primary' : 'text-destructive'}`}>
+                {analyticsData.views.change !== '—' && parseFloat(analyticsData.views.change) > 0 ? <ArrowUpRight className="h-4 w-4" /> : analyticsData.views.change !== '—' ? <ArrowDownRight className="h-4 w-4" /> : null}
+                {analyticsData.views.change}
               </div>
             </div>
             <p className="text-2xl font-bold">{analyticsData.views.current.toLocaleString()}</p>
@@ -164,9 +164,9 @@ export const PartnerAnalytics = ({ partnerData, deals }: PartnerAnalyticsProps) 
           <CardContent className="p-6">
             <div className="flex items-center justify-between mb-4">
               <Users className="h-8 w-8 text-accent/60" />
-              <div className={`flex items-center gap-1 text-sm ${analyticsData.claims.change > 0 ? 'text-primary' : 'text-destructive'}`}>
-                {analyticsData.claims.change > 0 ? <ArrowUpRight className="h-4 w-4" /> : <ArrowDownRight className="h-4 w-4" />}
-                {Math.abs(analyticsData.claims.change)}%
+              <div className={`flex items-center gap-1 text-sm ${analyticsData.claims.change !== '—' && parseFloat(analyticsData.claims.change) > 0 ? 'text-primary' : 'text-destructive'}`}>
+                {analyticsData.claims.change !== '—' && parseFloat(analyticsData.claims.change) > 0 ? <ArrowUpRight className="h-4 w-4" /> : analyticsData.claims.change !== '—' ? <ArrowDownRight className="h-4 w-4" /> : null}
+                {analyticsData.claims.change}
               </div>
             </div>
             <p className="text-2xl font-bold">{analyticsData.claims.current.toLocaleString()}</p>
@@ -178,9 +178,9 @@ export const PartnerAnalytics = ({ partnerData, deals }: PartnerAnalyticsProps) 
           <CardContent className="p-6">
             <div className="flex items-center justify-between mb-4">
               <CheckCircle className="h-8 w-8 text-primary/60" />
-              <div className={`flex items-center gap-1 text-sm ${analyticsData.redemptions.change > 0 ? 'text-primary' : 'text-destructive'}`}>
-                {analyticsData.redemptions.change > 0 ? <ArrowUpRight className="h-4 w-4" /> : <ArrowDownRight className="h-4 w-4" />}
-                {Math.abs(analyticsData.redemptions.change)}%
+              <div className={`flex items-center gap-1 text-sm ${analyticsData.redemptions.change !== '—' && parseFloat(analyticsData.redemptions.change) > 0 ? 'text-primary' : 'text-destructive'}`}>
+                {analyticsData.redemptions.change !== '—' && parseFloat(analyticsData.redemptions.change) > 0 ? <ArrowUpRight className="h-4 w-4" /> : analyticsData.redemptions.change !== '—' ? <ArrowDownRight className="h-4 w-4" /> : null}
+                {analyticsData.redemptions.change}
               </div>
             </div>
             <p className="text-2xl font-bold">{analyticsData.redemptions.current.toLocaleString()}</p>
@@ -192,9 +192,9 @@ export const PartnerAnalytics = ({ partnerData, deals }: PartnerAnalyticsProps) 
           <CardContent className="p-6">
             <div className="flex items-center justify-between mb-4">
               <DollarSign className="h-8 w-8 text-accent/60" />
-              <div className={`flex items-center gap-1 text-sm ${analyticsData.revenue.change > 0 ? 'text-primary' : 'text-destructive'}`}>
-                {analyticsData.revenue.change > 0 ? <ArrowUpRight className="h-4 w-4" /> : <ArrowDownRight className="h-4 w-4" />}
-                {Math.abs(analyticsData.revenue.change)}%
+              <div className={`flex items-center gap-1 text-sm ${analyticsData.revenue.change !== '—' && parseFloat(analyticsData.revenue.change) > 0 ? 'text-primary' : 'text-destructive'}`}>
+                {analyticsData.revenue.change !== '—' && parseFloat(analyticsData.revenue.change) > 0 ? <ArrowUpRight className="h-4 w-4" /> : analyticsData.revenue.change !== '—' ? <ArrowDownRight className="h-4 w-4" /> : null}
+                {analyticsData.revenue.change}
               </div>
             </div>
             <p className="text-2xl font-bold">${analyticsData.revenue.current.toLocaleString()}</p>

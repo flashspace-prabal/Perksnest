@@ -2,6 +2,7 @@
 export interface Deal {
   id: string;
   name: string;
+  company?: string;
   logo: string;
   description: string;
   dealText: string;
@@ -10,6 +11,7 @@ export interface Deal {
   isPremium?: boolean;
   isFree?: boolean;
   isPick?: boolean;
+  featured?: boolean;
   category: string;
   lastAdded?: string;
 }
@@ -25,6 +27,7 @@ export const dealsData: Deal[] = [
     memberCount: 14307,
     isFree: true,
     isPick: true,
+    featured: true,
     category: "project",
     lastAdded: "2026-02-28",
   },
@@ -39,6 +42,7 @@ export const dealsData: Deal[] = [
     isPremium: true,
     isFree: false,
     isPick: true,
+    featured: true,
     category: "finance",
   },
   {
@@ -50,6 +54,7 @@ export const dealsData: Deal[] = [
     savings: "$350,000",
     memberCount: 9663,
     isFree: true,
+    featured: true,
     category: "data",
   },
   {
@@ -95,6 +100,7 @@ export const dealsData: Deal[] = [
     savings: "$2,000",
     memberCount: 2616,
     isFree: true,
+    featured: true,
     category: "customer",
   },
   {
@@ -141,6 +147,7 @@ export const dealsData: Deal[] = [
     memberCount: 5729,
     isFree: true,
     isPick: true,
+    featured: true,
     category: "data",
   },
   {

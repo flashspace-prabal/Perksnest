@@ -6,7 +6,7 @@ const footerLinks = {
     { name: "Features", href: "#" },
     { name: "Pricing", href: "/pricing" },
     { name: "Deals", href: "/deals" },
-    { name: "Enterprise", href: "#" },
+    { name: "White Label", href: "/white-label" },
   ],
   company: [
     { name: "About", href: "/" },
@@ -18,7 +18,7 @@ const footerLinks = {
     { name: "Help Center", href: "#" },
     { name: "Community", href: "#" },
     { name: "Partners", href: "#" },
-    { name: "Developers", href: "mailto:dev@perksnest.co" },
+    { name: "API Docs", href: "/docs" },
   ],
   portals: [
     { name: "Customer Portal", href: "/customer" },

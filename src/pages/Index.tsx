@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { toast } from "sonner";
 import MegaMenuHeader from "@/components/MegaMenuHeader";
 import Footer from "@/components/Footer";
@@ -10,6 +11,8 @@ import PopularCategoriesSection from "@/components/PopularCategoriesSection";
 import CompareToolsSection from "@/components/CompareToolsSection";
 import PricingSection from "@/components/PricingSection";
 import CTASection from "@/components/CTASection";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import {
   getMostPopularDeals, 
   getFreeDeals, 
@@ -74,6 +77,9 @@ const Index = () => {
         {/* Pricing */}
         <PricingSection />
 
+        {/* Weekly Digest Subscribe */}
+        <WeeklyDigestSection />
+
         {/* CTA */}
         <CTASection />
       </main>
@@ -81,6 +87,70 @@ const Index = () => {
       <Footer />
     </div>
   );
-};
+}
+
+function WeeklyDigestSection() {
+  const [email, setEmail] = useState("");
+  const [submitted, setSubmitted] = useState(false);
+  const [alreadySubscribed, setAlreadySubscribed] = useState(false);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!email) return;
+
+    const subscribers = JSON.parse(localStorage.getItem('pn_digest_subscribers') || '[]');
+    if (subscribers.some((s: any) => s.email === email)) {
+      setAlreadySubscribed(true);
+      return;
+    }
+
+    subscribers.push({ email, subscribedAt: new Date().toISOString() });
+    localStorage.setItem('pn_digest_subscribers', JSON.stringify(subscribers));
+
+    fetch('https://api.perksnest.co/api/notify', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ type: 'digest_subscribe', to: email, name: email })
+    }).catch(() => {});
+
+    setSubmitted(true);
+  };
+
+  return (
+    <section className="py-20 bg-gradient-to-br from-purple-600 to-purple-800 text-white">
+      <div className="container mx-auto px-4 text-center">
+        <h2 className="text-3xl md:text-4xl font-bold mb-4">Get the best SaaS deals every Monday</h2>
+        <p className="text-lg text-purple-100 mb-8 max-w-2xl mx-auto">
+          Join 50,000+ founders who get weekly emails with hand-picked deals, new tool launches, and exclusive discounts.
+        </p>
+        {submitted ? (
+          <div className="bg-white/10 backdrop-blur-sm rounded-lg p-6 max-w-md mx-auto">
+            <p className="text-lg font-medium">✓ You're subscribed!</p>
+            <p className="text-sm text-purple-100 mt-2">Check your inbox for the next digest.</p>
+          </div>
+        ) : alreadySubscribed ? (
+          <div className="bg-white/10 backdrop-blur-sm rounded-lg p-6 max-w-md mx-auto">
+            <p className="text-lg font-medium">Already subscribed!</p>
+            <p className="text-sm text-purple-100 mt-2">You're on the list for weekly updates.</p>
+          </div>
+        ) : (
+          <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row gap-3 max-w-md mx-auto">
+            <Input
+              type="email"
+              placeholder="Enter your email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+              className="flex-1 h-12 bg-white text-gray-900"
+            />
+            <Button type="submit" size="lg" className="bg-white text-purple-600 hover:bg-gray-100 h-12 px-8">
+              Subscribe Free
+            </Button>
+          </form>
+        )}
+      </div>
+    </section>
+  );
+}
 
 export default Index;
