@@ -74,7 +74,12 @@ export const MessagingTab = ({ portalRole }: MessagingTabProps) => {
                   {t.unread > 0 && <Badge className="bg-primary text-primary-foreground text-xs px-1.5 min-w-[18px] text-center">{t.unread}</Badge>}
                 </div>
                 <p className="text-xs text-muted-foreground truncate mt-0.5">{t.lastMessage}</p>
-                <p className="text-xs text-muted-foreground/50 mt-0.5">{t.threadId.split("_")[0]} · {new Date(t.updatedAt).toLocaleTimeString([],{hour:"2-digit",minute:"2-digit"})}</p>
+                <div className="flex items-center gap-1.5 mt-1">
+                  <span className={`text-xs px-1.5 py-0 rounded-full font-medium ${t.threadId.startsWith("partner") ? "bg-blue-100 text-blue-700" : "bg-green-100 text-green-700"}`}>
+                    {t.threadId.startsWith("partner") ? "Partner" : "Customer"}
+                  </span>
+                  <span className="text-xs text-muted-foreground/50">{new Date(t.updatedAt).toLocaleTimeString([],{hour:"2-digit",minute:"2-digit"})}</span>
+                </div>
               </button>
             ))
           ) : (
@@ -104,7 +109,12 @@ export const MessagingTab = ({ portalRole }: MessagingTabProps) => {
         ) : <>
           <div className="px-4 py-3 border-b">
             <p className="font-semibold text-sm">{isAdmin ? (threads.find(t=>t.threadId===activeThread)?.senderName || "User") : "PerksNest Support"}</p>
-            <p className="text-xs text-muted-foreground capitalize">{activeThread.split("_")[0]} · support thread</p>
+            <div className="flex items-center gap-2 mt-0.5">
+                <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${activeThread.startsWith("partner") ? "bg-blue-100 text-blue-700" : activeThread.startsWith("customer") ? "bg-green-100 text-green-700" : "bg-muted text-muted-foreground"}`}>
+                  {activeThread.startsWith("partner") ? "🤝 Partner" : activeThread.startsWith("customer") ? "🎁 Customer" : "Admin"}
+                </span>
+                <span className="text-xs text-muted-foreground">support thread</span>
+              </div>
           </div>
           <div className="flex-1 overflow-y-auto p-4 space-y-3">
             {messages.length === 0 && (
