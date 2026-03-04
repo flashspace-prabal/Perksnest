@@ -11,7 +11,7 @@ import { AdminSettings } from "@/components/admin/AdminSettings";
 import { useAuth } from "@/lib/auth";
 
 const AdminPortal = () => {
-  const { user, isAdmin } = useAuth();
+  const { user, logout, isAdmin } = useAuth();
   const [activeTab, setActiveTab] = useState("dashboard");
 
   // Authentication guard - only admin role can access

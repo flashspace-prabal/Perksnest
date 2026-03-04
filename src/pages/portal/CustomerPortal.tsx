@@ -182,8 +182,39 @@ const CustomerPortal = () => {
               <Button variant="ghost" size="icon">
                 <Bell className="h-5 w-5" />
               </Button>
-              <div className="w-10 h-10 rounded-full bg-primary flex items-center justify-center text-primary-foreground font-semibold">
-                {user.name.charAt(0)}
+              <div className="relative group">
+                <button className="w-10 h-10 rounded-full bg-primary flex items-center justify-center text-primary-foreground font-semibold hover:opacity-90 transition-opacity">
+                  {user.avatar 
+                    ? <img src={user.avatar} alt={user.name} className="w-10 h-10 rounded-full object-cover" />
+                    : user.name.charAt(0)
+                  }
+                </button>
+                {/* Dropdown */}
+                <div className="absolute right-0 top-12 w-56 bg-background border border-border rounded-xl shadow-lg z-50 invisible group-hover:visible opacity-0 group-hover:opacity-100 transition-all duration-150">
+                  <div className="p-3 border-b border-border">
+                    <p className="font-medium text-sm truncate">{user.name}</p>
+                    <p className="text-xs text-muted-foreground truncate">{user.email}</p>
+                    <span className="inline-flex items-center gap-1 mt-1 px-2 py-0.5 bg-primary/10 text-primary text-xs rounded-full capitalize">{user.plan}</span>
+                  </div>
+                  <div className="p-1">
+                    {(user.roles?.includes('admin') || user.role === 'admin') && (
+                      <a href="/admin" className="flex items-center gap-2 px-3 py-2 text-sm rounded-lg hover:bg-secondary transition-colors">
+                        🛡️ Admin Portal
+                      </a>
+                    )}
+                    {(user.roles?.includes('partner') || user.role === 'partner') && (
+                      <a href="/partner" className="flex items-center gap-2 px-3 py-2 text-sm rounded-lg hover:bg-secondary transition-colors">
+                        🤝 Partner Portal
+                      </a>
+                    )}
+                    <button
+                      onClick={() => { logout(); window.location.href = '/'; }}
+                      className="w-full flex items-center gap-2 px-3 py-2 text-sm rounded-lg hover:bg-secondary transition-colors text-red-600"
+                    >
+                      🚪 Sign out
+                    </button>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
