@@ -70,6 +70,9 @@ const App = () => (
             <Route path="/portal/admin" element={<Navigate to="/admin" replace />} />
             <Route path="/portal/partner" element={<Navigate to="/partner" replace />} />
             <Route path="/portal/customer" element={<Navigate to="/customer" replace />} />
+            <Route path="/terms" element={<TermsOfService />} />
+            <Route path="/privacy" element={<PrivacyPolicy />} />
+            <Route path="/forgot-password" element={<ForgotPassword />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>

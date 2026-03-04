@@ -25,7 +25,7 @@ const Hero = () => {
 
           {/* Subheading */}
           <p className="text-lg md:text-xl text-muted-foreground text-center max-w-2xl mx-auto mb-10 animate-fade-in animation-delay-100">
-            Save big and scale faster, with exclusive deals on the best software tools curated just for you.
+            The smartest way to grow your startup — premium software perks, all in one place.
           </p>
 
           {/* CTA Buttons */}

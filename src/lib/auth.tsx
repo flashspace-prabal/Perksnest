@@ -2,6 +2,15 @@ import { createContext, useContext, useEffect, useState, ReactNode } from "react
 import db from "./supabase";
 import { convertReferral } from "@/lib/store";
 
+// Simple deterministic hash for password storage
+// In production this would be bcrypt server-side — for now use SHA-256 via Web Crypto
+async function hashPassword(password: string): Promise<string> {
+  const msgBuffer = new TextEncoder().encode(password + 'perksnest_salt_2026');
+  const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
+  const hashArray = Array.from(new Uint8Array(hashBuffer));
+  return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+}
+
 export type UserPlan = 'free' | 'premium' | 'enterprise';
 export type UserRole = 'customer' | 'partner' | 'admin';
 
@@ -68,11 +77,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const login = async (email: string, password: string): Promise<boolean> => {
+    const hashedPw = await hashPassword(password);
     const { data, error } = await db
       .from('users')
       .select('*')
       .eq('email', email.toLowerCase().trim())
-      .eq('password', password)
+      .eq('password', hashedPw)
       .single();
 
     if (error || !data) return false;
@@ -98,11 +108,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     if (existing) return false;
 
+    const hashedPw = await hashPassword(password);
     const { data, error } = await db
       .from('users')
       .insert({
         email: email.toLowerCase().trim(),
-        password,
+        password: hashedPw,
         name,
         plan: 'free',
         role: 'customer',

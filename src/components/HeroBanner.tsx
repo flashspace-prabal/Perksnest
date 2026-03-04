@@ -77,7 +77,7 @@ const HeroBanner = () => {
 
           {/* Subtitle */}
           <p className="text-muted-foreground text-lg md:text-xl mb-8 leading-relaxed animate-fade-in animation-delay-200">
-            Access exclusive deals, unlock savings, and scale faster—from your first tool to your hundredth.
+            Your startup deserves better pricing. Discover the software perks that compound over time.
           </p>
 
           {/* CTA Buttons */}

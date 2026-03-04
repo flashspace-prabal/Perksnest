@@ -153,7 +153,17 @@ const Footer = () => {
           </div>
         </div>
       </div>
-    </footer>
+      <div className="border-t border-border/50 mt-8 pt-6 pb-4">
+    <div className="max-w-6xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-muted-foreground">
+      <p>© 2026 PerksNest by Stirring Minds LLC. All rights reserved.</p>
+      <div className="flex gap-4">
+        <a href="/terms" className="hover:text-primary transition-colors">Terms of Service</a>
+        <a href="/privacy" className="hover:text-primary transition-colors">Privacy Policy</a>
+        <a href="mailto:hello@perksnest.co" className="hover:text-primary transition-colors">Contact</a>
+      </div>
+    </div>
+  </div>
+</footer>
   );
 };
 

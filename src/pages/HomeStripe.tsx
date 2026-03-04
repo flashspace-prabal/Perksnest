@@ -138,7 +138,7 @@ const StripeHero = () => {
 
           {/* Subheadline */}
           <p className="text-xl text-gray-500 leading-relaxed mb-8 max-w-xl">
-            Access exclusive deals, unlock savings, and scale faster—from your first tool to your hundredth.
+            Your startup deserves better pricing. Discover the software perks that compound over time.
           </p>
 
           {/* CTA Buttons */}
@@ -290,8 +290,8 @@ const StripeCategories = () => {
     <section className="py-16 lg:py-24 bg-gradient-to-b from-white to-gray-50">
       <div className="max-w-7xl mx-auto px-6 lg:px-8">
         <StripeSectionHeader 
-          title="Popular categories for founders" 
-          subtitle="Browse deals by category to find exactly what you need" 
+          title="Browse by category" 
+          subtitle="Find the right tools for your stage" 
         />
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
           {categories.map((cat) => (
@@ -325,8 +325,8 @@ const StripeTestimonials = () => {
     <section className="py-16 lg:py-24 bg-gray-50">
       <div className="max-w-7xl mx-auto px-6 lg:px-8">
         <StripeSectionHeader 
-          title="Loved by founders worldwide" 
-          subtitle="See what founders are saying about PerksNest" 
+          title="What our members are saying" 
+          subtitle="Real savings. Real founders." 
         />
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {testimonials.map((t) => (
@@ -357,8 +357,8 @@ const StripeTestimonials = () => {
 // Pricing Section
 const StripePricing = () => {
   const plans = [
-    { name: "Free", price: "$0", period: "/month", features: ["Access to 330+ free deals", "Basic support", "Community access"], cta: "Get started", highlight: false },
-    { name: "Premium", price: "$49", period: "/month", features: ["All 590+ deals", "Priority support", "Exclusive perks", "Early access"], cta: "Start free trial", highlight: true },
+    { name: "Free", price: "$0", period: "/month", features: ["Access to 300+ free deals", "Basic support", "Community access"], cta: "Get started", highlight: false },
+    { name: "Premium", price: "$49", period: "/month", features: ["All 400+ deals", "Priority support", "Exclusive perks", "Early access"], cta: "Start free trial", highlight: true },
     { name: "Team", price: "$199", period: "/month", features: ["Everything in Premium", "Team management", "Custom deals", "Dedicated manager"], cta: "Contact sales", highlight: false },
   ];
 
@@ -497,8 +497,8 @@ const HomeStripe = () => {
         <StripeTrustedBy />
         
         <StripeDealSection
-          title="Most popular deals"
-          subtitle="Discover the SaaS deals that founders love the most"
+          title="Trending perks"
+          subtitle="Community favorites — the deals founders keep coming back to"
           deals={mostPopularDeals}
         />
         
@@ -506,15 +506,15 @@ const HomeStripe = () => {
         
         <div className="bg-gray-50">
           <StripeDealSection
-            title="Recently added deals"
-            subtitle="Fresh perks added every week to help your startup grow"
+            title="Just dropped"
+            subtitle="New savings drop every week — always something worth claiming"
             deals={recentlyAddedDeals}
           />
         </div>
         
         <StripeDealSection
           title="Free deals"
-          subtitle="Get started with these amazing free deals"
+          subtitle="Start saving today — no credit card needed"
           deals={freeDeals}
         />
         
