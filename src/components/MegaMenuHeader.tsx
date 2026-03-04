@@ -6,6 +6,7 @@ import {
   Menu, 
   X, 
   Bell,
+  User,
   Grid3X3,
   Sparkles,
   FolderKanban,
@@ -119,6 +120,8 @@ const featuredDeals = dealsData.slice(0, 8);
 
 const MegaMenuHeader = () => {
   const navigate = useNavigate();
+  const { user, isAuthenticated } = useAuth();
+  const getUserInitials = () => user?.name ? user.name.split(' ').map(n=>n[0]).join('').toUpperCase().slice(0,2) : 'U';
   const [headerSearch, setHeaderSearch] = useState("");
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [dealsMenuOpen, setDealsMenuOpen] = useState(false);
@@ -295,14 +298,22 @@ const MegaMenuHeader = () => {
               Explore Marketplace
             </Link>
 
-            <button className="hidden md:flex p-2 rounded-lg hover:bg-secondary text-muted-foreground hover:text-foreground transition-colors relative">
-              <Bell className="h-5 w-5" />
-              <span className="absolute top-1 right-1 w-2 h-2 bg-primary rounded-full"></span>
-            </button>
+            {isAuthenticated && (
+              <Link to="/customer" className="hidden md:flex p-2 rounded-lg hover:bg-secondary text-muted-foreground hover:text-foreground transition-colors relative">
+                <Bell className="h-5 w-5" />
+              </Link>
+            )}
 
-            <button className="hidden md:flex p-2 rounded-lg hover:bg-secondary text-muted-foreground hover:text-foreground transition-colors">
-              <Users className="h-5 w-5" />
-            </button>
+            <Link
+              to={isAuthenticated && user ? '/customer' : '/login'}
+              className="flex items-center justify-center h-9 w-9 rounded-full bg-primary/10 hover:bg-primary/20 border border-primary/20 transition-colors shrink-0"
+              title={isAuthenticated && user ? `Signed in as ${user?.name}` : 'Sign in'}
+            >
+              {isAuthenticated && user
+                ? <span className="text-xs font-bold text-primary">{getUserInitials()}</span>
+                : <User className="h-4 w-4 text-primary" />
+              }
+            </Link>
 
             {/* Mobile Menu Toggle */}
             <button
