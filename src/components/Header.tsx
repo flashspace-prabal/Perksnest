@@ -74,7 +74,7 @@ const Header = () => {
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
           <div className="flex items-center gap-10">
-            <Link to="/" className="flex items-center">
+            <Link to="/" className="flex items-center relative z-10 cursor-pointer">
               <span className="font-bold text-xl text-foreground">perksnest.</span>
             </Link>
 
