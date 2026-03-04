@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { createClient } from "@supabase/supabase-js";
 import { db } from "@/lib/supabase";
-import { useAuth } from "@/lib/auth";
 
 const supabaseAuth = createClient(
   'https://supabase.stirringminds.com',
@@ -11,33 +10,62 @@ const supabaseAuth = createClient(
 
 export default function AuthCallback() {
   const navigate = useNavigate();
-  const { login } = useAuth();
-  const [status, setStatus] = useState("Processing sign-in...");
+  const [status, setStatus] = useState("Completing sign-in...");
 
   useEffect(() => {
     const handleCallback = async () => {
       try {
-        // Get the session from Supabase auth after OAuth redirect
-        const { data: { session }, error } = await supabaseAuth.auth.getSession();
+        // Step 1: Exchange the code/hash fragment for a session
+        // Supabase puts tokens in URL hash (#access_token=...) or query (?code=...)
+        const hashParams = new URLSearchParams(window.location.hash.replace('#', ''));
+        const queryParams = new URLSearchParams(window.location.search);
+        
+        const accessToken = hashParams.get('access_token');
+        const refreshToken = hashParams.get('refresh_token');
+        const code = queryParams.get('code');
 
-        if (error || !session) {
-          setStatus("Sign-in failed. Redirecting...");
+        let session = null;
+
+        if (accessToken) {
+          // Hash-based flow (implicit)
+          const { data, error } = await supabaseAuth.auth.setSession({
+            access_token: accessToken,
+            refresh_token: refreshToken || '',
+          });
+          if (!error) session = data.session;
+        } else if (code) {
+          // PKCE flow
+          const { data, error } = await supabaseAuth.auth.exchangeCodeForSession(code);
+          if (!error) session = data.session;
+        } else {
+          // Try getting existing session
+          const { data } = await supabaseAuth.auth.getSession();
+          session = data.session;
+        }
+
+        if (!session?.user) {
+          setStatus("Sign-in failed. Please try again.");
           setTimeout(() => navigate("/login"), 2000);
           return;
         }
 
         const googleUser = session.user;
         const email = googleUser.email?.toLowerCase().trim();
-        const name = googleUser.user_metadata?.full_name || googleUser.user_metadata?.name || email?.split('@')[0] || 'User';
+        const name = googleUser.user_metadata?.full_name 
+          || googleUser.user_metadata?.name 
+          || email?.split('@')[0] 
+          || 'User';
         const avatar = googleUser.user_metadata?.avatar_url || null;
 
         if (!email) {
-          setStatus("Could not retrieve email. Redirecting...");
+          setStatus("Could not get email from Google. Please try again.");
           setTimeout(() => navigate("/login"), 2000);
           return;
         }
 
-        // Check if user already exists in our perksnest.users table
+        setStatus("Setting up your account...");
+
+        // Step 2: Find or create user in perksnest.users
         const { data: existing } = await db
           .from('users')
           .select('*')
@@ -47,11 +75,11 @@ export default function AuthCallback() {
         let userId: string;
 
         if (existing) {
-          // Existing user — update avatar if changed
-          if (avatar && existing.avatar !== avatar) {
-            await db.from('users').update({ avatar }).eq('id', existing.id);
-          }
           userId = existing.id;
+          // Update avatar if changed
+          if (avatar && existing.avatar !== avatar) {
+            await db.from('users').update({ avatar, email_verified: true }).eq('id', existing.id);
+          }
         } else {
           // New user — create account
           const { data: newUser, error: insertError } = await db
@@ -63,6 +91,9 @@ export default function AuthCallback() {
               password: 'google_oauth_' + googleUser.id,
               plan: 'free',
               role: 'customer',
+              roles: ['customer'],
+              status: 'active',
+              email_verified: true,
               referral_code: Math.random().toString(36).substring(2, 8).toUpperCase(),
               referral_count: 0,
               claimed_deals: [],
@@ -71,13 +102,15 @@ export default function AuthCallback() {
             .single();
 
           if (insertError || !newUser) {
-            setStatus("Account creation failed. Redirecting...");
+            console.error('Insert error:', insertError);
+            setStatus("Account creation failed. Please try again.");
             setTimeout(() => navigate("/login"), 2000);
             return;
           }
+
           userId = newUser.id;
 
-          // Send welcome email
+          // Welcome email
           fetch('https://api.perksnest.co/api/notify', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -85,14 +118,20 @@ export default function AuthCallback() {
           }).catch(() => {});
         }
 
-        // Set session in localStorage so our custom auth picks it up
+        // Step 3: Set session in our custom auth system
         localStorage.setItem('perksnest_user_id', userId);
         
-        setStatus("Signed in! Redirecting...");
-        // Reload to trigger auth context re-hydration
-        window.location.href = '/customer';
+        setStatus("Welcome! Taking you to your dashboard...");
+        
+        // Redirect based on role
+        const role = existing?.role || 'customer';
+        const dest = role === 'admin' ? '/admin' : role === 'partner' ? '/partner' : '/customer';
+        
+        // Hard redirect to force auth context re-hydration
+        window.location.replace(dest);
 
       } catch (err) {
+        console.error('Auth callback error:', err);
         setStatus("Something went wrong. Redirecting...");
         setTimeout(() => navigate("/login"), 2000);
       }
@@ -104,8 +143,9 @@ export default function AuthCallback() {
   return (
     <div className="min-h-screen bg-background flex items-center justify-center">
       <div className="text-center">
-        <div className="w-10 h-10 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4" />
-        <p className="text-muted-foreground">{status}</p>
+        <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4" />
+        <p className="text-foreground font-medium mb-1">{status}</p>
+        <p className="text-muted-foreground text-sm">Please wait...</p>
       </div>
     </div>
   );

@@ -10,6 +10,7 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
+import { toast } from 'sonner';
 import { useAuth } from "@/lib/auth";
 import { AuthModal } from "@/components/AuthModal";
 import { useState } from "react";
@@ -141,21 +142,49 @@ const Pricing = () => {
   const [authModalOpen, setAuthModalOpen] = useState(false);
   const [authModalTab, setAuthModalTab] = useState<'login' | 'register'>('login');
 
-  const handlePlanClick = (planName: string, ctaLink: string) => {
-    // If user is authenticated and clicking Pro plan, redirect to customer portal
-    if (isAuthenticated && planName === "Pro") {
-      window.location.href = '/customer';
+  const [checkoutLoading, setCheckoutLoading] = useState(false);
+
+  const handlePlanClick = async (planName: string, ctaLink: string) => {
+    if (planName === "Pro") {
+      if (!isAuthenticated || !user) {
+        window.location.href = '/login?returnUrl=/pricing';
+        return;
+      }
+      if (user.plan === 'premium') {
+        window.location.href = '/customer';
+        return;
+      }
+      // Launch Stripe checkout
+      setCheckoutLoading(true);
+      try {
+        const res = await fetch('https://api.perksnest.co/api/checkout', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            userId: user.id,
+            email: user.email,
+            name: user.name,
+            period: 'annual',
+          }),
+        });
+        const data = await res.json();
+        if (data.url) {
+          window.location.href = data.url;
+        } else {
+          toast.error('Could not start checkout. Please try again.');
+        }
+      } catch {
+        toast.error('Checkout failed. Please try again.');
+      } finally {
+        setCheckoutLoading(false);
+      }
       return;
     }
-
-    // If not authenticated and clicking Free or Pro, show auth modal
-    if (!isAuthenticated && (planName === "Free" || planName === "Pro")) {
-      window.location.href = '/login';
+    if (planName === "Free") {
+      window.location.href = isAuthenticated ? '/customer' : '/login';
       return;
     }
-
-    // For Enterprise or other cases, follow the original link behavior
-    // This will be handled by the Link component
+    // Enterprise — follow link
   };
 
   const getPlanBadge = (planName: string) => {
@@ -206,6 +235,7 @@ const Pricing = () => {
     return (
       <Button
         onClick={() => handlePlanClick(plan.name, plan.ctaLink)}
+              disabled={checkoutLoading && plan.name === "Pro"}
         className={`w-full ${
           plan.highlighted
             ? "bg-primary-foreground text-primary hover:bg-primary-foreground/90"
