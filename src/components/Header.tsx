@@ -313,6 +313,15 @@ const Header = () => {
                   Sign in
                 </button>
 
+                {/* Profile icon — always visible, goes to login */}
+                <button
+                  onClick={() => window.location.href = '/login'}
+                  className="flex items-center justify-center h-8 w-8 rounded-full bg-secondary hover:bg-primary/10 transition-colors"
+                  title="Sign in"
+                >
+                  <User className="h-4 w-4 text-muted-foreground" />
+                </button>
+
                 {/* CTA Buttons */}
                 <Button
                   variant="outline"
