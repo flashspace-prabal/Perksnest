@@ -76,7 +76,7 @@ const PartnerPortal = () => {
     <div className="min-h-screen bg-muted/30">
       {/* Header */}
       <header className="bg-card border-b sticky top-0 z-40">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between">
+        <div className="px-4 sm:px-6 h-14 flex items-center justify-between">
           <div className="flex items-center gap-4">
             <Link to="/" className="text-lg font-bold">perksnest<span className="text-primary">.</span></Link>
             <span className="text-muted-foreground">/</span>
