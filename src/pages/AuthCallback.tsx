@@ -133,8 +133,10 @@ export default function AuthCallback() {
         localStorage.setItem('perksnest_user_id', userId);
         setStatus("Welcome! Taking you to your dashboard...");
 
-        // Redirect based on role
-        const dest = userRole === 'admin' ? '/admin' : userRole === 'partner' ? '/partner' : '/customer';
+        // Redirect based on role or returnUrl
+        const returnUrl = new URLSearchParams(window.location.search).get('returnUrl');
+        const defaultDest = userRole === 'admin' ? '/admin' : userRole === 'partner' ? '/partner' : '/customer';
+        const dest = returnUrl && returnUrl.startsWith('/') ? returnUrl : defaultDest;
         window.location.replace(dest);
 
       } catch (err: any) {

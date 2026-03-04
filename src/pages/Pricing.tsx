@@ -13,7 +13,7 @@ import {
 import { toast } from 'sonner';
 import { useAuth } from "@/lib/auth";
 import { AuthModal } from "@/components/AuthModal";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 async function startCheckout(userId: string, email: string, name: string, period: 'monthly' | 'annual') {
   const res = await fetch('https://api.perksnest.co/api/checkout', {
@@ -144,9 +144,31 @@ const Pricing = () => {
 
   const [checkoutLoading, setCheckoutLoading] = useState(false);
 
+  // Auto-trigger checkout if user just logged in from pricing page
+  useEffect(() => {
+    const action = sessionStorage.getItem('perksnest_post_login_action');
+    if (action === 'checkout_annual' && isAuthenticated && user) {
+      sessionStorage.removeItem('perksnest_post_login_action');
+      // Small delay to let auth settle
+      setTimeout(async () => {
+        setCheckoutLoading(true);
+        try {
+          const res = await fetch('https://api.perksnest.co/api/checkout', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ userId: user.id, email: user.email, name: user.name, period: 'annual' }),
+          });
+          const data = await res.json();
+          if (data.url) window.location.href = data.url;
+        } catch { /* silent */ } finally { setCheckoutLoading(false); }
+      }, 500);
+    }
+  }, [isAuthenticated, user]);
+
   const handlePlanClick = async (planName: string, ctaLink: string) => {
     if (planName === "Pro") {
       if (!isAuthenticated || !user) {
+        sessionStorage.setItem('perksnest_post_login_action', 'checkout_annual');
         window.location.href = '/login?returnUrl=/pricing';
         return;
       }
