@@ -282,6 +282,10 @@ const CustomerPortal = () => {
               <Share2 className="h-4 w-4" />
               Referrals
             </TabsTrigger>
+            <TabsTrigger value="billing" className="gap-2">
+              <CreditCard className="h-4 w-4" />
+              Billing
+            </TabsTrigger>
             <TabsTrigger id="settings-tab" value="settings" className="gap-2">
               <Settings className="h-4 w-4" />
               Settings
@@ -471,6 +475,120 @@ const CustomerPortal = () => {
           </TabsContent>
 
           {/* Settings Tab */}
+
+          {/* Billing Tab */}
+          <TabsContent value="billing">
+            <div className="space-y-4">
+              {/* Current Plan Card */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <CreditCard className="h-5 w-5 text-primary" />
+                    Subscription & Billing
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid sm:grid-cols-2 gap-4 mb-6">
+                    <div className="bg-secondary/40 rounded-xl p-4">
+                      <p className="text-xs text-muted-foreground mb-1">Current Plan</p>
+                      <p className="text-xl font-bold text-foreground capitalize">{getPlanLabel()}</p>
+                      {user.plan === 'premium' && (
+                        <span className="inline-flex items-center gap-1 mt-1 px-2 py-0.5 bg-primary/10 text-primary text-xs rounded-full font-medium">
+                          ✓ Active
+                        </span>
+                      )}
+                    </div>
+                    <div className="bg-secondary/40 rounded-xl p-4">
+                      <p className="text-xs text-muted-foreground mb-1">Member Since</p>
+                      <p className="text-lg font-semibold">{new Date(user.createdAt).toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}</p>
+                    </div>
+                  </div>
+
+                  {user.plan === 'premium' ? (
+                    <div className="space-y-3">
+                      <div className="flex items-center justify-between p-3 bg-green-50 border border-green-200 rounded-xl">
+                        <div>
+                          <p className="font-medium text-green-800">Premium Plan — Active</p>
+                          <p className="text-sm text-green-600">Access to all 563+ deals</p>
+                        </div>
+                        <span className="text-green-600 text-xl">✓</span>
+                      </div>
+                      <Button
+                        variant="outline"
+                        className="w-full"
+                        onClick={async () => {
+                          try {
+                            const res = await fetch('https://api.perksnest.co/api/billing/portal', {
+                              method: 'POST',
+                              headers: { 'Content-Type': 'application/json' },
+                              body: JSON.stringify({ userId: user.id, email: user.email }),
+                            });
+                            const data = await res.json();
+                            if (data.url) window.location.href = data.url;
+                            else toast.error('Could not open billing portal');
+                          } catch { toast.error('Billing portal unavailable'); }
+                        }}
+                      >
+                        <CreditCard className="h-4 w-4 mr-2" />
+                        Manage Billing / Cancel
+                      </Button>
+                    </div>
+                  ) : (
+                    <div className="space-y-3">
+                      <div className="p-4 bg-secondary/30 rounded-xl border border-border">
+                        <p className="font-medium mb-1">Free Plan</p>
+                        <p className="text-sm text-muted-foreground mb-3">Access to 50 free deals. Upgrade to unlock all 563+ deals.</p>
+                        <Button
+                          className="w-full"
+                          onClick={async () => {
+                            try {
+                              const res = await fetch('https://api.perksnest.co/api/checkout', {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({ userId: user.id, email: user.email, name: user.name, period: 'annual' }),
+                              });
+                              const data = await res.json();
+                              if (data.url) window.location.href = data.url;
+                              else toast.error('Could not start checkout');
+                            } catch { toast.error('Checkout unavailable'); }
+                          }}
+                        >
+                          Upgrade to Premium — $2/mo
+                        </Button>
+                      </div>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+
+              {/* What's included */}
+              <Card>
+                <CardHeader><CardTitle className="text-base">What's included in your plan</CardTitle></CardHeader>
+                <CardContent>
+                  <div className="grid sm:grid-cols-2 gap-2">
+                    {(user.plan === 'premium' ? [
+                      '✓ All 563+ deals unlocked',
+                      '✓ New premium deals weekly',
+                      '✓ Deal comparison tools',
+                      '✓ Priority support',
+                      '✓ Private Slack community',
+                      '✓ Advanced analytics',
+                    ] : [
+                      '✓ 50 free deals',
+                      '✓ Basic deal search',
+                      '✓ Bookmarks & saves',
+                      '✗ Premium deals locked',
+                      '✗ No community access',
+                      '✗ No priority support',
+                    ]).map((f, i) => (
+                      <div key={i} className={`text-sm py-1 ${f.startsWith('✗') ? 'text-muted-foreground' : 'text-foreground'}`}>{f}</div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          </TabsContent>
+
           <TabsContent value="settings">
             <Card>
               <CardHeader>

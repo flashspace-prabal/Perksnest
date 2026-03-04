@@ -323,7 +323,7 @@ const MegaMenuHeader = () => {
               <Link to="/blog" className="nav-link px-3 py-2 rounded-md hover:bg-secondary" onClick={() => setMobileMenuOpen(false)}>Blog</Link>
               <Link to="/invite" className="nav-link px-3 py-2 rounded-md hover:bg-secondary" onClick={() => setMobileMenuOpen(false)}>Invite & Earn</Link>
               <div className="pt-3 border-t border-border mt-2 space-y-2">
-                <Button variant="outline" className="w-full border-primary text-primary">Sign in</Button>
+                <Button variant="outline" className="w-full border-primary text-primary" onClick={() => window.location.href='/login'}>Sign in</Button>
                 <Link to="/deals" className="block" onClick={() => setMobileMenuOpen(false)}>
                   <Button className="w-full">Get started</Button>
                 </Link>
