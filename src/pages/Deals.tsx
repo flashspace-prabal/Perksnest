@@ -6,7 +6,7 @@ import Footer from "@/components/Footer";
 import DealCardNew from "@/components/DealCardNew";
 import CategorySidebar from "@/components/CategorySidebar";
 import { dealsData, getExpiryLabel } from "@/data/deals";
-import { getUpvoteCount } from "@/lib/store";
+import { getUpvoteCount, getPartnerDeals, PartnerDeal } from "@/lib/store";
 
 const DEALS_PER_PAGE = 9;
 const filterOptions = ["Most popular", "Most upvoted", "Expiring soon", "Premium", "Free", "Recently added"];
@@ -19,6 +19,29 @@ const Deals = () => {
   const [activeFilter, setActiveFilter] = useState(searchParams.get("sort") || "Most popular");
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
   const [currentPage, setCurrentPage] = useState(1);
+  const [partnerDeals, setPartnerDeals] = useState<PartnerDeal[]>([]);
+
+  useEffect(() => {
+    getPartnerDeals().then(deals => setPartnerDeals(deals.filter(d => d.status === "approved")));
+  }, []);
+
+  // Merge partner deals into deals list
+  const partnerDealsMapped = partnerDeals.map(d => ({
+    id: d.id,
+    name: d.name,
+    company: d.partnerName,
+    logoUrl: d.logoUrl || "",
+    description: d.description,
+    dealText: d.dealText,
+    savings: d.savings,
+    memberCount: d.claims || 0,
+    isFree: true,
+    category: d.category,
+    promoCode: d.promoCode,
+    isPartnerDeal: true,
+  }));
+
+  const allDeals = [...partnerDealsMapped, ...dealsData];
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -36,7 +59,7 @@ const Deals = () => {
     setSearchParams(params, { replace: true });
   }, [searchQuery, activeCategory, activeFilter, setSearchParams]);
 
-  const filteredDeals = dealsData
+  const filteredDeals = allDeals
     .filter((deal) => {
       const matchesSearch =
         searchQuery === "" ||
