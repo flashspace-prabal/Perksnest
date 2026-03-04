@@ -47,9 +47,9 @@ const plans = [
   {
     name: "Pro",
     description: "For growing startups ready to scale faster",
-    price: "$149",
-    period: "/year",
-    originalPrice: "$213",
+    price: "$2",
+    period: "/month",
+    originalPrice: "$5/yr",
     icon: Crown,
     features: [
       "Everything in Free, plus:",
