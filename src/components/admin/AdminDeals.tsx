@@ -28,7 +28,7 @@ export const AdminDeals = () => {
   const [saving, setSaving] = useState(false);
 
   // Approved partner deals
-  const approvedPartnerDeals = useMemo(() => allPartnerDeals.filter(d => d.status === "approved"), []);
+  const approvedPartnerDeals = useMemo(() => allPartnerDeals.filter(d => d.status === "approved"), [allPartnerDeals]);
 
   const allDeals = useMemo(() => [
     ...dealsData.map(d => ({ id: d.id, name: d.name, description: d.description, dealText: d.dealText, savings: d.savings, category: d.category || "other", isFree: d.isFree, source: "platform" as const })),

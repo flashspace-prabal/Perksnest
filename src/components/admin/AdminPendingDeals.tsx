@@ -7,78 +7,58 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { CheckCircle, XCircle, Eye, ExternalLink, Clock } from "lucide-react";
 import { toast } from "sonner";
-import { getPartnerDeals, updatePartnerDeal, addNotification, sendEmail } from "@/lib/store";
-import { PartnerDeal , getPartnerDeals} from '@/lib/store';
+import { getPartnerDeals, updatePartnerDealStatus, addNotification, PartnerDeal } from "@/lib/store";
 import { getAllUsers } from "@/lib/auth";
 
 export const AdminPendingDeals = () => {
-  const [allPartnerDeals, setAllPartnerDeals] = useState<PartnerDeal[]>([]);
-  useEffect(() => { getPartnerDeals().then(setAllPartnerDeals); }, []);
-  const [allUsers, setAllUsers] = useState<ReturnType<typeof Array>[0][]>([]);
-  useEffect(() => { getAllUsers().then(setAllUsers); }, []);
   const [deals, setDeals] = useState<PartnerDeal[]>([]);
+  const [allUsers, setAllUsers] = useState<any[]>([]);
   const [previewDeal, setPreviewDeal] = useState<PartnerDeal | null>(null);
   const [rejectDialog, setRejectDialog] = useState<PartnerDeal | null>(null);
   const [rejectReason, setRejectReason] = useState("");
+  const [loading, setLoading] = useState(true);
 
-  const load = () => setDeals(allPartnerDeals.filter(d => d.status === "pending"));
-  useEffect(() => { load(); }, []);
+  const load = async () => {
+    setLoading(true);
+    const all = await getPartnerDeals();
+    setDeals(all.filter(d => d.status === "pending"));
+    setLoading(false);
+  };
 
-  const handleApprove = (deal: PartnerDeal) => {
-    updatePartnerDeal(deal.id, { status: "approved", approvedAt: new Date().toISOString() });
-    addNotification({
-      id: `notif_${Date.now()}`,
-      userId: deal.partnerId,
-      title: "Deal Approved! 🎉",
-      message: `Your deal "${deal.name}" has been approved and is now live on the marketplace.`,
-      type: "deal_approved",
-      read: false,
-      createdAt: new Date().toISOString(),
-      dealId: deal.id,
-    });
-    // Send approval email to partner
-    const users = allUsers;
-    const partner = users.find(u => u.id === deal.partnerId);
-    if (partner?.email) {
-      sendEmail({ type: 'deal_approved', to: partner.email, name: partner.name, dealName: deal.name, dealCategory: deal.category });
+  useEffect(() => {
+    load();
+    getAllUsers().then(setAllUsers);
+  }, []);
+
+  const handleApprove = async (deal: PartnerDeal) => {
+    await updatePartnerDealStatus(deal.id, 'approved');
+    const partner = allUsers.find(u => u.id === deal.partnerId);
+    if (partner) {
+      await addNotification({ id: `notif_${Date.now()}`, userId: deal.partnerId, title: "Deal Approved! 🎉", message: `Your deal "${deal.name}" is now live on the marketplace.`, type: "deal_approved", read: false, createdAt: new Date().toISOString(), dealId: deal.id });
     }
-    toast.success(`"${deal.name}" approved and now live!`);
+    toast.success(`"${deal.name}" approved and live!`);
     load();
   };
 
-  const handleReject = () => {
+  const handleReject = async () => {
     if (!rejectDialog) return;
-    updatePartnerDeal(rejectDialog.id, { status: "rejected", rejectionReason: rejectReason || "Does not meet requirements" });
-    addNotification({
-      id: `notif_${Date.now()}`,
-      userId: rejectDialog.partnerId,
-      title: "Deal Not Approved",
-      message: `Your deal "${rejectDialog.name}" was not approved. Reason: ${rejectReason || "Does not meet requirements"}`,
-      type: "deal_rejected",
-      read: false,
-      createdAt: new Date().toISOString(),
-      dealId: rejectDialog.id,
-    });
-    // Send rejection email to partner
-    const users = allUsers;
-    const partner = users.find(u => u.id === rejectDialog.id || u.id === rejectDialog.partnerId);
-    if (partner?.email) {
-      sendEmail({ type: 'deal_rejected', to: partner.email, name: partner.name, dealName: rejectDialog.name, reason: rejectReason || undefined });
+    await updatePartnerDealStatus(rejectDialog.id, 'rejected', rejectReason || "Does not meet requirements");
+    const partner = allUsers.find(u => u.id === rejectDialog.partnerId);
+    if (partner) {
+      await addNotification({ id: `notif_${Date.now()}`, userId: rejectDialog.partnerId, title: "Deal Not Approved", message: `Your deal "${rejectDialog.name}" was not approved. Reason: ${rejectReason || "Does not meet requirements"}`, type: "deal_rejected", read: false, createdAt: new Date().toISOString(), dealId: rejectDialog.id });
     }
     toast.success(`"${rejectDialog.name}" rejected.`);
-    setRejectDialog(null);
-    setRejectReason("");
-    load();
+    setRejectDialog(null); setRejectReason(""); load();
   };
 
-  if (deals.length === 0) {
-    return (
-      <Card className="mb-6">
-        <CardHeader><CardTitle className="flex items-center gap-2"><Clock className="h-5 w-5 text-muted-foreground" />Pending Reviews</CardTitle></CardHeader>
-        <CardContent><p className="text-sm text-muted-foreground">No deals pending review. ✓</p></CardContent>
-      </Card>
-    );
-  }
+  if (loading) return <Card className="mb-6"><CardContent className="py-6 text-center text-sm text-muted-foreground">Loading pending deals...</CardContent></Card>;
+
+  if (deals.length === 0) return (
+    <Card className="mb-6">
+      <CardHeader><CardTitle className="flex items-center gap-2"><Clock className="h-5 w-5 text-muted-foreground" />Pending Reviews</CardTitle></CardHeader>
+      <CardContent><p className="text-sm text-muted-foreground">No deals pending review. ✓</p></CardContent>
+    </Card>
+  );
 
   return (
     <>
@@ -107,21 +87,11 @@ export const AdminPendingDeals = () => {
                     {deal.promoCode && <span>Code: <span className="font-mono font-medium text-foreground">{deal.promoCode}</span></span>}
                   </div>
                 </div>
-                <div className="flex items-center gap-2 shrink-0">
-                  <Button size="sm" variant="outline" className="gap-1" onClick={() => setPreviewDeal(deal)}>
-                    <Eye className="h-3.5 w-3.5" />Preview
-                  </Button>
-                  {deal.websiteUrl && (
-                    <Button size="sm" variant="ghost" asChild>
-                      <a href={deal.websiteUrl} target="_blank" rel="noopener noreferrer"><ExternalLink className="h-3.5 w-3.5" /></a>
-                    </Button>
-                  )}
-                  <Button size="sm" className="gap-1 bg-green-600 hover:bg-green-700 text-white" onClick={() => handleApprove(deal)}>
-                    <CheckCircle className="h-3.5 w-3.5" />Approve
-                  </Button>
-                  <Button size="sm" variant="destructive" className="gap-1" onClick={() => setRejectDialog(deal)}>
-                    <XCircle className="h-3.5 w-3.5" />Reject
-                  </Button>
+                <div className="flex items-center gap-2 shrink-0 flex-wrap justify-end">
+                  <Button size="sm" variant="outline" className="gap-1" onClick={() => setPreviewDeal(deal)}><Eye className="h-3.5 w-3.5" />Preview</Button>
+                  {deal.websiteUrl && <Button size="sm" variant="ghost" asChild><a href={deal.websiteUrl} target="_blank" rel="noopener noreferrer"><ExternalLink className="h-3.5 w-3.5" /></a></Button>}
+                  <Button size="sm" className="gap-1 bg-green-600 hover:bg-green-700 text-white" onClick={() => handleApprove(deal)}><CheckCircle className="h-3.5 w-3.5" />Approve</Button>
+                  <Button size="sm" variant="destructive" className="gap-1" onClick={() => setRejectDialog(deal)}><XCircle className="h-3.5 w-3.5" />Reject</Button>
                 </div>
               </div>
             </div>
@@ -129,7 +99,6 @@ export const AdminPendingDeals = () => {
         </CardContent>
       </Card>
 
-      {/* Preview Dialog */}
       <Dialog open={!!previewDeal} onOpenChange={() => setPreviewDeal(null)}>
         <DialogContent className="max-w-lg">
           <DialogHeader><DialogTitle>Deal Preview — {previewDeal?.name}</DialogTitle></DialogHeader>
@@ -145,25 +114,20 @@ export const AdminPendingDeals = () => {
                 {previewDeal.websiteUrl && <div className="col-span-2"><p className="text-muted-foreground">Website</p><a href={previewDeal.websiteUrl} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">{previewDeal.websiteUrl}</a></div>}
               </div>
               <div className="pt-2 border-t flex gap-3">
-                <Button className="flex-1 bg-green-600 hover:bg-green-700 text-white" onClick={() => { handleApprove(previewDeal); setPreviewDeal(null); }}>
-                  <CheckCircle className="h-4 w-4 mr-2" />Approve
-                </Button>
-                <Button variant="destructive" className="flex-1" onClick={() => { setPreviewDeal(null); setRejectDialog(previewDeal); }}>
-                  <XCircle className="h-4 w-4 mr-2" />Reject
-                </Button>
+                <Button className="flex-1 bg-green-600 hover:bg-green-700 text-white" onClick={() => { handleApprove(previewDeal); setPreviewDeal(null); }}><CheckCircle className="h-4 w-4 mr-2" />Approve</Button>
+                <Button variant="destructive" className="flex-1" onClick={() => { setPreviewDeal(null); setRejectDialog(previewDeal); }}><XCircle className="h-4 w-4 mr-2" />Reject</Button>
               </div>
             </div>
           )}
         </DialogContent>
       </Dialog>
 
-      {/* Reject Dialog */}
       <Dialog open={!!rejectDialog} onOpenChange={() => { setRejectDialog(null); setRejectReason(""); }}>
         <DialogContent>
           <DialogHeader><DialogTitle>Reject Deal — {rejectDialog?.name}</DialogTitle></DialogHeader>
           <div className="space-y-3">
-            <Label>Rejection reason (optional — sent to partner)</Label>
-            <Textarea value={rejectReason} onChange={e => setRejectReason(e.target.value)} placeholder="e.g. Deal terms need clarification, logo is missing..." rows={3} />
+            <Label>Rejection reason (optional)</Label>
+            <Textarea value={rejectReason} onChange={e => setRejectReason(e.target.value)} placeholder="e.g. Deal terms need clarification..." rows={3} />
           </div>
           <DialogFooter className="gap-2">
             <Button variant="outline" onClick={() => { setRejectDialog(null); setRejectReason(""); }}>Cancel</Button>
