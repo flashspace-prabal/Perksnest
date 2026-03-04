@@ -21,6 +21,8 @@ export default function OAuthHandler() {
     if (location.pathname === '/auth/callback') return;
     
     // Skip if already logged into perksnest
+    // Don't auto-login if user explicitly signed out
+    if (localStorage.getItem('perksnest_logged_out') === 'true') return;
     if (localStorage.getItem('perksnest_user_id')) return;
 
     const processOAuth = async () => {
@@ -92,7 +94,7 @@ export default function OAuthHandler() {
 
     // Also listen for auth state changes
     const { data: { subscription } } = supabaseAuth.auth.onAuthStateChange((event, session) => {
-      if (event === 'SIGNED_IN' && session?.user && !localStorage.getItem('perksnest_user_id')) {
+      if (event === 'SIGNED_IN' && session?.user && !localStorage.getItem('perksnest_user_id') && localStorage.getItem('perksnest_logged_out') !== 'true') {
         processOAuth();
       }
     });

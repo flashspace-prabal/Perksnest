@@ -97,6 +97,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const u = rowToUser(data);
     setUser(u);
     localStorage.setItem(STORAGE_KEY, u.id);
+    localStorage.removeItem('perksnest_logged_out');
     return true;
   };
 
@@ -136,6 +137,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const u = rowToUser(data);
     setUser(u);
     localStorage.setItem(STORAGE_KEY, u.id);
+    localStorage.removeItem('perksnest_logged_out');
 
     // Track referral conversion
     if (referrerCode) {
@@ -148,6 +150,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const logout = () => {
     setUser(null);
     localStorage.removeItem(STORAGE_KEY);
+    localStorage.setItem('perksnest_logged_out', 'true'); // prevent OAuthHandler re-login
     // Also sign out from Supabase (clears Google OAuth session)
     db.auth.signOut().catch(() => {});
     window.location.href = '/';
