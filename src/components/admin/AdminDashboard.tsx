@@ -43,20 +43,29 @@ const pendingDeals = [
 ];
 
 const getRecentActivity = () => {
-    const claims = getClaimEvents().slice(0, 5).map(e => ({
-      action: `${e.userName} claimed ${e.dealName}`,
+    const claims = getClaimEvents().slice(0, 5).map((e, i) => ({
+      id: `claim-${i}`,
+      user: e.userName,
+      action: `claimed ${e.dealName}`,
       time: (() => { const d = (Date.now() - new Date(e.timestamp).getTime())/1000; return d<3600?`${Math.floor(d/60)}m ago`:`${Math.floor(d/3600)}h ago`; })(),
       type: 'claim' as const,
+      icon: ShoppingBag,
     }));
-    const partnerSubs = getPartnerDeals().slice(0, 3).map(d => ({
-      action: `${d.partnerName} submitted "${d.name}" deal`,
+    const partnerSubs = getPartnerDeals().slice(0, 3).map((d, i) => ({
+      id: `partner-${i}`,
+      user: d.partnerName,
+      action: `submitted "${d.name}" deal`,
       time: (() => { const d2 = (Date.now() - new Date(d.createdAt).getTime())/1000; return d2<3600?`${Math.floor(d2/60)}m ago`:`${Math.floor(d2/3600)}h ago`; })(),
       type: 'partner' as const,
+      icon: Package,
     }));
-    const users = getAllUsers().slice(0,3).map(u => ({
-      action: `${u.name} signed up`,
+    const users = getAllUsers().slice(0,3).map((u, i) => ({
+      id: `signup-${i}`,
+      user: u.name,
+      action: 'signed up',
       time: (() => { const d = (Date.now() - new Date(u.createdAt || Date.now()).getTime())/1000; return d<3600?`${Math.floor(d/60)}m ago`:`${Math.floor(d/3600)}h ago`; })(),
       type: 'signup' as const,
+      icon: UserPlus,
     }));
     return [...claims, ...partnerSubs, ...users].sort(() => Math.random() - 0.5).slice(0, 8);
   };

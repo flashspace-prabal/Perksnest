@@ -116,7 +116,7 @@ const PartnerPortal = () => {
         <main className="flex-1 min-w-0">
           {activeTab === "dashboard" && <PartnerDashboard partnerData={partnerData} deals={dealRows} />}
           {activeTab === "deals" && <PartnerDealsTab />}
-          {activeTab === "analytics" && <PartnerAnalytics partnerData={partnerData} />}
+          {activeTab === "analytics" && <PartnerAnalytics partnerData={partnerData} deals={dealRows} />}
           {activeTab === "messages" && <PartnerMessagesTab />}
           {activeTab === "settings" && <PartnerSettingsTab />}
         </main>
