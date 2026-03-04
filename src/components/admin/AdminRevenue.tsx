@@ -42,8 +42,7 @@ export const AdminRevenue = () => {
   useEffect(() => {
     Promise.all([
       getAllUsers().then(setAllUsers),
-      fetchStripe('/charges?limit=20&expand[]=data.customer').then(d => setCharges(d.data || [])),
-      fetchStripe('/subscriptions?limit=20&status=all').then(d => setSubscriptions(d.data || [])),
+      fetchStripe('/perksnest-charges').then(d => { setCharges(d.data || []); setSubscriptions(d.subscriptions || []); }),
     ]).finally(() => setLoading(false));
   }, []);
 
@@ -93,7 +92,7 @@ export const AdminRevenue = () => {
           <h2 className="text-2xl font-bold">Revenue & Analytics</h2>
           <p className="text-muted-foreground">Live data from Stripe</p>
         </div>
-        <Button variant="outline" size="sm" onClick={() => { setLoading(true); Promise.all([fetchStripe('/charges?limit=20').then(d => setCharges(d.data||[])), fetchStripe('/subscriptions?limit=20&status=all').then(d => setSubscriptions(d.data||[]))]).finally(()=>setLoading(false)); }} disabled={loading}>
+        <Button variant="outline" size="sm" onClick={() => { setLoading(true); Promise.all([fetchStripe('/perksnest-charges').then(d => { setCharges(d.data||[]); setSubscriptions(d.subscriptions||[]); })]).finally(()=>setLoading(false)); }} disabled={loading}>
           <RefreshCw className={`h-4 w-4 mr-2 ${loading ? 'animate-spin' : ''}`} />Refresh
         </Button>
       </div>
