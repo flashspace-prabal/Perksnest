@@ -1,7 +1,9 @@
 import { Crown, Sparkles, Users } from "lucide-react";
+import { Link } from "react-router-dom";
 import SafeImage from "./SafeImage";
 
 interface DealCardNewProps {
+  id?: string;
   name: string;
   logo: string;
   description: string;
@@ -11,9 +13,11 @@ interface DealCardNewProps {
   isPremium?: boolean;
   isFree?: boolean;
   isPick?: boolean;
+  slug?: string;
 }
 
 const DealCardNew = ({
+  id,
   name,
   logo,
   description,
@@ -22,58 +26,65 @@ const DealCardNew = ({
   memberCount,
   isPremium = false,
   isPick = false,
+  slug,
 }: DealCardNewProps) => {
-  return (
-    <div className={`relative bg-card rounded-xl border transition-all hover:shadow-lg hover:border-primary/30 h-full flex flex-col ${isPick ? 'border-primary ring-1 ring-primary/20' : 'border-border'}`}> 
-      {/* PerksNest Pick Badge - keep fully inside card to avoid clipping */}
-      {isPick && (
-        <div className="absolute top-4 right-4 z-10">
-          <span className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-semibold bg-primary text-primary-foreground shadow-md whitespace-nowrap">
-            <Sparkles className="h-3 w-3" />
-            PerksNest Pick
-          </span>
-        </div>
-      )}
+  const href = slug ? `/deals/${slug}` : id ? `/deals/${id}` : '#';
 
-      <div className={`p-5 flex flex-col flex-1 ${isPick ? 'pt-14' : ''}`}>
-        {/* Header with Logo and Info */}
-        <div className="flex items-start gap-4 mb-4">
-          <div className="w-12 h-12 rounded-lg bg-secondary flex items-center justify-center overflow-hidden shrink-0 border border-border">
-            <SafeImage src={logo} alt={name} className="w-8 h-8 object-contain" />
-          </div>
-          <div className="flex-1 min-w-0">
-            <div className="flex items-center gap-2 mb-0.5">
-              <h3 className="font-semibold text-foreground truncate">{name}</h3>
-              {isPremium && (
-                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-medium bg-secondary text-muted-foreground shrink-0">
-                  <Crown className="h-3 w-3" />
-                  Premium
-                </span>
-              )}
+  return (
+    <Link to={href} className="block h-full">
+      <div className="relative bg-white rounded-xl border border-gray-200 hover:shadow-md hover:border-gray-300 transition-all h-full flex flex-col cursor-pointer group">
+        {/* Badges row — top left */}
+        <div className="absolute top-3 left-3 z-10 flex items-center gap-1.5 flex-wrap">
+          {isPick && (
+            <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold bg-primary text-white shadow-sm whitespace-nowrap">
+              <Sparkles className="h-3 w-3" />
+              PerksNest Pick
+            </span>
+          )}
+          {isPremium && (
+            <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-600 border border-gray-200 whitespace-nowrap">
+              <Crown className="h-3 w-3" />
+              Premium
+            </span>
+          )}
+        </div>
+
+        <div className={`p-5 flex flex-col flex-1 ${isPick || isPremium ? 'pt-12' : 'pt-5'}`}>
+          {/* Logo + Company name */}
+          <div className="flex items-center gap-3 mb-3">
+            <div className="w-11 h-11 rounded-xl bg-gray-50 flex items-center justify-center overflow-hidden shrink-0 border border-gray-100">
+              <SafeImage src={logo} alt={name} className="w-8 h-8 object-contain" />
             </div>
-            <p className="text-sm text-muted-foreground flex items-center gap-1">
-              <Users className="h-3.5 w-3.5 shrink-0" />
-              Used by {memberCount.toLocaleString()} members
+            <div className="min-w-0">
+              <h3 className="font-semibold text-gray-900 text-base leading-tight truncate group-hover:text-primary transition-colors">
+                {name}
+              </h3>
+              <p className="text-xs text-gray-500 flex items-center gap-1 mt-0.5">
+                <Users className="h-3 w-3 shrink-0" />
+                Used by {memberCount.toLocaleString()} members
+              </p>
+            </div>
+          </div>
+
+          {/* Description */}
+          <p className="text-sm text-gray-500 mb-2 line-clamp-1">
+            {description}
+          </p>
+
+          {/* Deal text */}
+          <p className="text-sm font-medium text-gray-800 line-clamp-2 flex-1 mb-3">
+            {dealText}
+          </p>
+
+          {/* Savings — teal/green, always at bottom */}
+          <div className="pt-2 border-t border-gray-100 mt-auto">
+            <p className="text-sm font-semibold text-emerald-600">
+              Save up to {savings}
             </p>
           </div>
         </div>
-
-        {/* Description */}
-        <p className="text-sm text-muted-foreground mb-3 line-clamp-1">
-          {description}
-        </p>
-
-        {/* Deal Text */}
-        <p className="text-sm font-medium text-foreground mb-3 line-clamp-2 flex-1">
-          {dealText}
-        </p>
-
-        {/* Savings - always at bottom */}
-        <p className="text-sm text-success font-semibold mt-auto pt-2">
-          Save up to {savings}
-        </p>
       </div>
-    </div>
+    </Link>
   );
 };
 
