@@ -7,7 +7,7 @@ import { db } from "@/lib/supabase";
 const supabaseAuth = createClient(
   'https://supabase.stirringminds.com',
   'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoiYW5vbiIsImlzcyI6InN1cGFiYXNlIiwiaWF0IjoxNjQxNzY5MjAwLCJleHAiOjE3OTk1MzU2MDB9.flEXaRV1Ku-LEeKUiTTXvjlekdwZvGY8oOFiNDPMgkA',
-  { auth: { persistSession: true, autoRefreshToken: true } }
+  { auth: { flowType: 'implicit', persistSession: true, autoRefreshToken: true } }
 );
 
 export default function AuthCallback() {

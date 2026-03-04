@@ -80,13 +80,15 @@ const Login = () => {
       const { createClient } = await import('@supabase/supabase-js');
       const supabaseAuth = createClient(
         'https://supabase.stirringminds.com',
-        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoiYW5vbiIsImlzcyI6InN1cGFiYXNlIiwiaWF0IjoxNjQxNzY5MjAwLCJleHAiOjE3OTk1MzU2MDB9.flEXaRV1Ku-LEeKUiTTXvjlekdwZvGY8oOFiNDPMgkA'
+        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoiYW5vbiIsImlzcyI6InN1cGFiYXNlIiwiaWF0IjoxNjQxNzY5MjAwLCJleHAiOjE3OTk1MzU2MDB9.flEXaRV1Ku-LEeKUiTTXvjlekdwZvGY8oOFiNDPMgkA',
+        { auth: { flowType: 'implicit', persistSession: false } }
       );
+      const callbackUrl = `https://perksnest.co/auth/callback${returnUrl ? '?returnUrl=' + encodeURIComponent(returnUrl) : ''}`;
       const { error } = await supabaseAuth.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          redirectTo: `https://perksnest.co/auth/callback${returnUrl ? '?returnUrl=' + encodeURIComponent(returnUrl) : ''}`,
-          queryParams: { access_type: 'offline', prompt: 'consent' },
+          redirectTo: callbackUrl,
+          skipBrowserRedirect: false,
         },
       });
       if (error) toast.error('Google sign-in failed: ' + error.message);
