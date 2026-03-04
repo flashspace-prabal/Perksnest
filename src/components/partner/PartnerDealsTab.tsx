@@ -26,7 +26,7 @@ export const PartnerDealsTab = () => {
     setDeals(allPartnerDeals.filter(d => d.partnerId === user.id));
   };
 
-  useEffect(() => { load(); }, [user]);
+  useEffect(() => { load(); }, [user, allPartnerDeals]);
 
   const handleEdit = (deal: PartnerDeal) => { setEditDeal(deal); setShowForm(true); };
   const handleNew = () => { setEditDeal(null); setShowForm(true); };
