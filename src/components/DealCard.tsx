@@ -1,3 +1,4 @@
+import { useState, useEffect } from "react";
 import { ArrowUpRight, Crown, Sparkles, Users } from "lucide-react";
 import UpvoteButton from "@/components/UpvoteButton";
 import ExpiryBadge from "@/components/ExpiryBadge";
