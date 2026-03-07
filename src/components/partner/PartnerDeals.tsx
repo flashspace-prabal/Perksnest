@@ -25,6 +25,9 @@ import {
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { getPartnerDeals, PartnerDeal } from "@/lib/store";
+import { useAuth } from "@/lib/auth";
+import { useEffect } from "react";
 
 const deals = [
   { 
@@ -82,8 +85,32 @@ const deals = [
 ];
 
 export const PartnerDeals = () => {
+  const { user } = useAuth();
+  const [allDeals, setAllDeals] = useState<PartnerDeal[]>([]);
   const [statusFilter, setStatusFilter] = useState("all");
   const [searchQuery, setSearchQuery] = useState("");
+
+  useEffect(() => {
+    getPartnerDeals().then(all => {
+      if (user) setAllDeals(all.filter(d => d.partnerId === user.id));
+      else setAllDeals(all);
+    });
+  }, [user]);
+
+  // Map PartnerDeal to display format
+  const deals = allDeals.map(d => ({
+    id: d.id,
+    name: d.name,
+    status: d.status === "approved" ? "active" : d.status === "pending" ? "paused" : "expired",
+    views: d.views || 0,
+    claims: d.claims || 0,
+    redemptions: Math.floor((d.claims || 0) * 0.7),
+    redemptionRate: d.views ? parseFloat(((d.claims / d.views) * 100).toFixed(1)) : 0,
+    revenue: (d.claims || 0) * 25,
+    createdAt: d.createdAt || new Date().toISOString().split('T')[0],
+    expiresAt: d.expiresAt || "2025-12-31",
+    category: d.category || "Other",
+  }));
 
   const getStatusBadge = (status: string) => {
     switch (status) {

@@ -124,6 +124,23 @@ const conversationDetails: Record<number, { id: number; messages: Array<{ id: nu
 export const PartnerMessages = () => {
   const [selectedChat, setSelectedChat] = useState(1);
   const [message, setMessage] = useState("");
+  const [localMessages, setLocalMessages] = useState<Record<number, Array<{id: number; sender: string; text: string; time: string; read: boolean}>>>({});
+
+  const handleSend = () => {
+    if (!message.trim() || !selectedChat) return;
+    const newMsg = {
+      id: Date.now(),
+      sender: "user",
+      text: message.trim(),
+      time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+      read: false,
+    };
+    setLocalMessages(prev => ({
+      ...prev,
+      [selectedChat]: [...(prev[selectedChat] || conversationDetails[selectedChat]?.messages || []), newMsg],
+    }));
+    setMessage("");
+  };
 
   const selectedConversation = conversationDetails[selectedChat];
   const selectedInfo = conversations.find(c => c.id === selectedChat);
@@ -253,8 +270,9 @@ export const PartnerMessages = () => {
                 className="flex-1"
                 value={message}
                 onChange={(e) => setMessage(e.target.value)}
+                onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSend(); } }}
               />
-              <Button disabled={!message.trim()}>
+              <Button disabled={!message.trim()} onClick={handleSend}>
                 <Send className="h-4 w-4" />
               </Button>
             </div>

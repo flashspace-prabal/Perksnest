@@ -73,7 +73,7 @@ const DealCard = ({
       {/* Logo and Header */}
       <div className="flex items-start gap-4 mb-5">
         <div className="w-14 h-14 rounded-xl bg-secondary flex items-center justify-center overflow-hidden shrink-0 border border-border">
-          <img src={logo} alt={name} className="w-9 h-9 object-contain" />
+          <img src={logo} alt={name} className="w-9 h-9 object-contain" onError={(e) => { (e.target as HTMLImageElement).src = "/placeholder.svg"; }} />
         </div>
         <div className="flex-1 min-w-0 pr-20">
           <div className="flex items-center gap-2">
