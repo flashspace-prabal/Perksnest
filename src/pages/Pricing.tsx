@@ -16,6 +16,9 @@ import { AuthModal } from "@/components/AuthModal";
 import { useState, useEffect } from "react";
 
 async function startCheckout(userId: string, email: string, name: string, period: 'monthly' | 'annual') {
+  // SEO: unique page title
+  document.title = "Pricing Plans | PerksNest";
+
   const res = await fetch('https://api.perksnest.co/api/checkout', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -147,7 +150,7 @@ const Pricing = () => {
   // Auto-trigger checkout if user just logged in from pricing page
   useEffect(() => {
     const action = sessionStorage.getItem('perksnest_post_login_action');
-    if (action === 'checkout_annual' && isAuthenticated && user) {
+    if (action === 'checkout_monthly' && isAuthenticated && user) {
       sessionStorage.removeItem('perksnest_post_login_action');
       // Small delay to let auth settle
       setTimeout(async () => {
@@ -156,7 +159,7 @@ const Pricing = () => {
           const res = await fetch('https://api.perksnest.co/api/checkout', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ userId: user.id, email: user.email, name: user.name, period: 'annual' }),
+            body: JSON.stringify({ userId: user.id, email: user.email, name: user.name, period: 'monthly' }),
           });
           const data = await res.json();
           if (data.url) window.location.href = data.url;
@@ -168,7 +171,7 @@ const Pricing = () => {
   const handlePlanClick = async (planName: string, ctaLink: string) => {
     if (planName === "Pro") {
       if (!isAuthenticated || !user) {
-        sessionStorage.setItem('perksnest_post_login_action', 'checkout_annual');
+        sessionStorage.setItem('perksnest_post_login_action', 'checkout_monthly');
         window.location.href = '/login?returnUrl=/pricing';
         return;
       }
@@ -186,7 +189,7 @@ const Pricing = () => {
             userId: user.id,
             email: user.email,
             name: user.name,
-            period: 'annual',
+            period: 'monthly',
           }),
         });
         const data = await res.json();

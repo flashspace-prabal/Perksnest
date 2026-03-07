@@ -24,6 +24,9 @@ const TABS = [
 ];
 
 const PartnerPortal = () => {
+  // SEO: unique page title
+  document.title = "Partner Portal | PerksNest";
+
   const [allPartnerDeals, setAllPartnerDeals] = useState<PartnerDeal[]>([]);
   useEffect(() => { getPartnerDeals().then(setAllPartnerDeals); }, []);
   const { user, isPartner, isAuthenticated, logout } = useAuth();
@@ -33,10 +36,27 @@ const PartnerPortal = () => {
 
   useEffect(() => {
     if (!isAuthenticated) navigate("/login?returnUrl=/partner");
-    else if (!isPartner) navigate("/login?returnUrl=/partner");
-  }, [isAuthenticated, isPartner, navigate]);
+  }, [isAuthenticated, navigate]);
 
-  if (!user || !isPartner) return null;
+  // Show apply page for authenticated non-partners
+  if (isAuthenticated && !isPartner) {
+    return (
+      <div className="min-h-screen bg-muted/30 flex items-center justify-center p-8">
+        <div className="max-w-md w-full text-center">
+          <div className="text-5xl mb-6">🤝</div>
+          <h1 className="text-2xl font-bold mb-3">Become a PerksNest Partner</h1>
+          <p className="text-muted-foreground mb-6">Join 500+ companies offering exclusive deals to startups worldwide. Apply to list your product on PerksNest.</p>
+          <a href="mailto:partners@perksnest.co?subject=Partner Application"
+            className="inline-flex items-center justify-center gap-2 bg-primary text-primary-foreground font-semibold px-6 py-3 rounded-xl hover:opacity-90 transition-opacity">
+            Apply to become a partner →
+          </a>
+          <p className="text-xs text-muted-foreground mt-4">We review applications within 2 business days.</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!user) return null;
 
   const myDeals = allPartnerDeals.filter(d => d.partnerId === user.id);
   const approvedDeals = myDeals.filter(d => d.status === "approved");

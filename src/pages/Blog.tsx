@@ -6,6 +6,9 @@ import Footer from "@/components/Footer";
 import { blogPosts, categories, getBlogPostById, getRelatedPosts } from "@/data/blog";
 
 const Blog = () => {
+  // SEO: unique page title
+  document.title = "Blog | PerksNest";
+
   const [blogEmail, setBlogEmail] = useState("");
   const [blogSubscribed, setBlogSubscribed] = useState(false);
 

@@ -12,6 +12,9 @@ import { AdminSettings } from "@/components/admin/AdminSettings";
 import { useAuth } from "@/lib/auth";
 
 const AdminPortal = () => {
+  // SEO: unique page title
+  document.title = "Admin Portal | PerksNest";
+
   const { user, logout, isAdmin } = useAuth();
   const [activeTab, setActiveTab] = useState("dashboard");
 

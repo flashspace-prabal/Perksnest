@@ -12,6 +12,9 @@ const DEALS_PER_PAGE = 9;
 const filterOptions = ["Most popular", "Most upvoted", "Expiring soon", "Premium", "Free", "Recently added"];
 
 const Deals = () => {
+  // SEO: unique page title
+  document.title = "Browse SaaS Deals | PerksNest";
+
   const [searchParams, setSearchParams] = useSearchParams();
   const [searchQuery, setSearchQuery] = useState(searchParams.get("q") || "");
   const [searchInput, setSearchInput] = useState(searchParams.get("q") || "");
@@ -74,9 +77,11 @@ const Deals = () => {
     .sort((a, b) => {
       if (activeFilter === "Most upvoted") return getUpvoteCount(b.id) - getUpvoteCount(a.id);
       if (activeFilter === "Expiring soon") {
-        const aExpiry = getExpiryLabel(a.expiresAt);
-        const bExpiry = getExpiryLabel(b.expiresAt);
-        return aExpiry.localeCompare(bExpiry);
+        // Sort by soonest expiry first; treat no expiry as far future
+        const MAX_DATE = new Date('2099-12-31').getTime();
+        const aTime = a.expiresAt ? new Date(a.expiresAt).getTime() : MAX_DATE;
+        const bTime = b.expiresAt ? new Date(b.expiresAt).getTime() : MAX_DATE;
+        return aTime - bTime;
       }
       if (activeFilter === "Recently added") return b.id.localeCompare(a.id);
       return b.memberCount - a.memberCount;

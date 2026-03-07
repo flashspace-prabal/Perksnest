@@ -216,7 +216,7 @@ const Header = () => {
                   <Link to="/invite">
                     <DropdownMenuItem className="cursor-pointer">Invite & Earn</DropdownMenuItem>
                   </Link>
-                  <DropdownMenuItem className="cursor-pointer">Help Center</DropdownMenuItem>
+                  <DropdownMenuItem className="cursor-pointer" onClick={() => window.location.href = "mailto:support@perksnest.co?subject=Help Center"}>Help Center</DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu><Link to="/pricing" className="nav-link px-3 py-2 rounded-md hover:bg-secondary transition-colors">
                 Pricing
@@ -361,56 +361,25 @@ const Header = () => {
               <Link to="/blog" className="nav-link px-3 py-2 rounded-md hover:bg-secondary" onClick={() => setMobileMenuOpen(false)}>Blog</Link>
               <Link to="/invite" className="nav-link px-3 py-2 rounded-md hover:bg-secondary" onClick={() => setMobileMenuOpen(false)}>Invite & Earn</Link>
               <div className="pt-3 border-t border-border mt-2 space-y-2">
-                {/* Login/Profile icon — always visible on all screen sizes */}
-            <Link
-              to={isAuthenticated && user ? '/customer' : '/login'}
-              className="relative z-20 flex items-center justify-center h-9 w-9 rounded-full bg-primary/10 hover:bg-primary/20 border border-primary/20 transition-colors shrink-0 cursor-pointer"
-              title={isAuthenticated && user ? `Signed in as ${user.name}` : 'Sign in to your account'}
-            >
-              {isAuthenticated && user
-                ? <span className="text-xs font-bold text-primary">{getUserInitials()}</span>
-                : <User className="h-4 w-4 text-primary" />
-              }
-            </Link>
-
-            {isAuthenticated && user ? (
+                {isAuthenticated && user ? (
                   <>
                     <Link to="/customer" className="block" onClick={() => setMobileMenuOpen(false)}>
-                      <Button variant="outline" className="w-full">
-                        My Account
-                      </Button>
+                      <Button variant="outline" className="w-full">My Account</Button>
                     </Link>
-                    <Button
-                      variant="outline"
-                      className="w-full border-red-500 text-red-500"
-                      onClick={() => {
-                        handleLogout();
-                        setMobileMenuOpen(false);
-                      }}
-                    >
+                    <Button variant="outline" className="w-full border-red-500 text-red-500"
+                      onClick={() => { handleLogout(); setMobileMenuOpen(false); }}>
                       Sign Out
                     </Button>
                   </>
                 ) : (
                   <>
-                    <Button
-                      variant="outline"
-                      className="w-full border-primary text-primary"
-                      onClick={() => {
-                        setShowAuthModal(true);
-                        setMobileMenuOpen(false);
-                      }}
-                    >
+                    <Button variant="outline" className="w-full border-primary text-primary"
+                      onClick={() => { setShowAuthModal(true); setMobileMenuOpen(false); }}>
                       Sign in
                     </Button>
-                    <Button
-                      className="w-full"
-                      onClick={() => {
-                        setShowAuthModal(true);
-                        setMobileMenuOpen(false);
-                      }}
-                    >
-                      Get started
+                    <Button className="w-full"
+                      onClick={() => { setShowAuthModal(true); setMobileMenuOpen(false); }}>
+                      Get started free
                     </Button>
                   </>
                 )}

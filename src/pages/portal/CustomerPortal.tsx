@@ -19,6 +19,9 @@ import { dealsData } from "@/data/deals";
 import { toast } from "sonner";
 
 const CustomerPortal = () => {
+  // SEO: unique page title
+  document.title = "My Account | PerksNest";
+
   const navigate = useNavigate();
   const { user, isAuthenticated, updateUser } = useAuth();
   const [copiedCode, setCopiedCode] = useState<string | null>(null);

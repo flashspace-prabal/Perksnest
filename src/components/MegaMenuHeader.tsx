@@ -162,6 +162,7 @@ const MegaMenuHeader = () => {
                           return (
                             <button
                               key={category.id}
+                              onClick={() => window.location.href = `/deals?category=${category.id}`}
                               onMouseEnter={() => setActiveCategory(category)}
                               className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-colors text-left ${
                                 activeCategory.id === category.id

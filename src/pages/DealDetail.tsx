@@ -337,7 +337,82 @@ const DealDetail = () => {
                   <h2 className="text-2xl font-bold text-foreground mb-6">
                     {deal.name} Promo Code: {deal.dealText}
                   </h2>
-                  {/* More deal content would go here */}
+                  <p className="text-muted-foreground">{deal.description}</p>
+                </TabsContent>
+                <TabsContent value="general" className="pt-8">
+                  <h2 className="text-2xl font-bold mb-4">About {deal.name}</h2>
+                  <p className="text-muted-foreground mb-4">{deal.description}</p>
+                  <p className="text-muted-foreground">Visit <a href={`https://${(deal.company || deal.name).toLowerCase().replace(/\s+/g, '')}.com`} target="_blank" rel="noopener" className="text-primary underline">{deal.company || deal.name}</a> to learn more about this product.</p>
+                </TabsContent>
+                <TabsContent value="faq" className="pt-8">
+                  <h2 className="text-2xl font-bold mb-6">Frequently Asked Questions</h2>
+                  <div className="space-y-6">
+                    {[
+                      { q: `How do I claim the ${deal.name} deal?`, a: `Click "Get Deal" above, copy the promo code, and apply it at checkout on the ${deal.company || deal.name} website.` },
+                      { q: "Is this deal exclusive to PerksNest?", a: "Yes! This deal is exclusively available through PerksNest members. You won't find it publicly." },
+                      { q: "How long is this deal valid?", a: deal.expiresAt ? `This deal expires on ${new Date(deal.expiresAt).toLocaleDateString()}.` : "This deal is available while stocks last." },
+                      { q: "Can I use this deal more than once?", a: "Each promo code is typically valid for one use per account unless stated otherwise." },
+                    ].map((item, i) => (
+                      <div key={i} className="border border-border rounded-xl p-5">
+                        <h3 className="font-semibold mb-2">{item.q}</h3>
+                        <p className="text-muted-foreground text-sm">{item.a}</p>
+                      </div>
+                    ))}
+                  </div>
+                </TabsContent>
+                <TabsContent value="pricing" className="pt-8">
+                  <h2 className="text-2xl font-bold mb-6">{deal.name} Pricing</h2>
+                  <div className="bg-primary/5 border border-primary/20 rounded-2xl p-6 mb-6">
+                    <div className="flex items-center gap-3 mb-2">
+                      <span className="text-3xl font-bold text-primary">{deal.savings}</span>
+                      <span className="text-muted-foreground">savings with PerksNest</span>
+                    </div>
+                    <p className="text-sm text-muted-foreground">Deal: {deal.dealText}</p>
+                  </div>
+                  <p className="text-muted-foreground">For full pricing details, visit the {deal.company || deal.name} website directly.</p>
+                </TabsContent>
+                <TabsContent value="features" className="pt-8">
+                  <h2 className="text-2xl font-bold mb-6">{deal.name} Features</h2>
+                  <div className="grid sm:grid-cols-2 gap-4">
+                    {(deal.features || ["Collaboration tools", "Advanced analytics", "Priority support", "API access", "Custom integrations", "Team management"]).map((f: string, i: number) => (
+                      <div key={i} className="flex items-center gap-3 p-4 border border-border rounded-xl">
+                        <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
+                          <span className="text-primary text-sm">✓</span>
+                        </div>
+                        <span className="text-sm font-medium">{f}</span>
+                      </div>
+                    ))}
+                  </div>
+                </TabsContent>
+                <TabsContent value="reviews" className="pt-8">
+                  <DealReviews dealId={deal.id} dealName={deal.name} />
+                </TabsContent>
+                <TabsContent value="alternatives-vs" className="pt-8">
+                  <h2 className="text-2xl font-bold mb-6">Alternatives & Comparisons</h2>
+                  <p className="text-muted-foreground mb-6">Looking for alternatives to {deal.name}? Here are similar tools available on PerksNest.</p>
+                  <Link to="/deals" className="inline-flex items-center gap-2 text-primary font-medium hover:underline">
+                    Browse all deals <ArrowUpRight className="h-4 w-4" />
+                  </Link>
+                </TabsContent>
+                <TabsContent value="also-likes" className="pt-8">
+                  <h2 className="text-2xl font-bold mb-6">You Might Also Like</h2>
+                  <p className="text-muted-foreground mb-6">Members who viewed this deal also looked at:</p>
+                  <Link to="/deals" className="inline-flex items-center gap-2 text-primary font-medium hover:underline">
+                    Explore more deals <ArrowUpRight className="h-4 w-4" />
+                  </Link>
+                </TabsContent>
+                <TabsContent value="resources" className="pt-8">
+                  <h2 className="text-2xl font-bold mb-6">Resources</h2>
+                  <div className="space-y-4">
+                    <a href={`mailto:support@perksnest.co?subject=Help with ${deal.name} deal`} className="flex items-center gap-3 p-4 border border-border rounded-xl hover:border-primary transition-colors">
+                      <span className="text-2xl">📧</span>
+                      <div><p className="font-medium">Contact Support</p><p className="text-sm text-muted-foreground">Get help with this deal</p></div>
+                    </a>
+                    <Link to="/docs" className="flex items-center gap-3 p-4 border border-border rounded-xl hover:border-primary transition-colors">
+                      <span className="text-2xl">📚</span>
+                      <div><p className="font-medium">Documentation</p><p className="text-sm text-muted-foreground">How to use PerksNest deals</p></div>
+                    </Link>
+                  </div>
                 </TabsContent>
               </Tabs>
             </div>

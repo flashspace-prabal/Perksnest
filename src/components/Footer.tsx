@@ -3,20 +3,20 @@ import { Mail, Twitter, Linkedin, Github } from "lucide-react";
 
 const footerLinks = {
   product: [
-    { name: "Features", href: "#" },
+    { name: "Features", href: "/deals" },
     { name: "Pricing", href: "/pricing" },
     { name: "Deals", href: "/deals" },
 ],
   company: [
-    { name: "About", href: "/" },
+    { name: "About", href: "mailto:hello@perksnest.co?subject=About PerksNest" },
     { name: "Blog", href: "/blog" },
-    { name: "Careers", href: "#" },
-    { name: "Press", href: "#" },
+    { name: "Careers", href: "mailto:jobs@perksnest.co?subject=Careers" },
+    { name: "Press", href: "mailto:press@perksnest.co?subject=Press Inquiry" },
   ],
   resources: [
-    { name: "Help Center", href: "#" },
-    { name: "Community", href: "#" },
-    { name: "Partners", href: "#" },
+    { name: "Help Center", href: "mailto:support@perksnest.co" },
+    { name: "Community", href: "/deals" },
+    { name: "Become a Partner", href: "/partner" },
 ],
   portals: [
     { name: "Customer Portal", href: "/customer" },
@@ -25,17 +25,17 @@ const footerLinks = {
     { name: "Login", href: "/login" },
   ],
   legal: [
-    { name: "Privacy", href: "/" },
-    { name: "Terms", href: "/" },
+    { name: "Privacy Policy", href: "/privacy" },
+    { name: "Terms of Service", href: "/terms" },
     { name: "Security", href: "/" },
   ],
 };
 
 const socialLinks = [
-  { name: "Twitter", icon: Twitter, href: "#" },
-  { name: "LinkedIn", icon: Linkedin, href: "#" },
-  { name: "GitHub", icon: Github, href: "#" },
-  { name: "Email", icon: Mail, href: "#" },
+  { name: "Twitter", icon: Twitter, href: "https://twitter.com/perksnest" },
+  { name: "LinkedIn", icon: Linkedin, href: "https://linkedin.com/company/perksnest" },
+  { name: "GitHub", icon: Github, href: "https://github.com/perksnest" },
+  { name: "Email", icon: Mail, href: "mailto:hello@perksnest.co" },
 ];
 
 const Footer = () => {
