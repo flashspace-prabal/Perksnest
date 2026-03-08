@@ -169,7 +169,7 @@ const Header = () => {
                             </div>
                             <div className="text-center pt-6 border-t border-border">
                               <p className="text-sm text-muted-foreground mb-1">Upgrade to Premium</p>
-                              <p className="text-sm font-semibold text-foreground mb-3">For $149/year</p>
+                              <p className="text-sm font-semibold text-foreground mb-3">From $2/month</p>
                               <Link to="/pricing">
                                 <Button variant="outline" className="w-full">
                                   Upgrade

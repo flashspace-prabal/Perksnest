@@ -1,4 +1,6 @@
 import { ArrowRight } from "lucide-react";
+import { Link } from "react-router-dom";
+import { useAuth } from "@/lib/auth";
 import { Button } from "@/components/ui/button";
 
 const trustedLogos = [
@@ -10,6 +12,8 @@ const trustedLogos = [
 ];
 
 const Hero = () => {
+  const { isAuthenticated } = useAuth();
+  const getStartedHref = isAuthenticated ? "/deals" : "/login";
   return (
     <section className="relative overflow-hidden gradient-hero">
       <div className="container-wide relative">
@@ -30,10 +34,12 @@ const Hero = () => {
 
           {/* CTA Buttons */}
           <div className="flex flex-col sm:flex-row gap-4 justify-center mb-12 animate-fade-in animation-delay-200">
-            <Button size="lg" className="text-base gap-2 px-8">
-              Get started
-              <ArrowRight className="h-4 w-4" />
-            </Button>
+            <Link to={getStartedHref}>
+              <Button size="lg" className="text-base gap-2 px-8">
+                Get started
+                <ArrowRight className="h-4 w-4" />
+              </Button>
+            </Link>
             <Button 
               size="lg" 
               variant="outline" 

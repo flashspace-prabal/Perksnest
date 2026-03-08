@@ -124,6 +124,24 @@ const Invite = () => {
             </div>
           )}
 
+          {/* Public CTA for logged-out users */}
+          {!isAuthenticated && (
+            <div className="bg-primary/5 border-2 border-primary/20 rounded-2xl p-8 text-center space-y-4">
+              <div className="text-5xl">🎁</div>
+              <h2 className="text-2xl font-bold text-foreground">Earn $20 for every friend you refer</h2>
+              <p className="text-muted-foreground max-w-md mx-auto">Sign up for PerksNest and get a unique referral link. When your friends upgrade to Pro, you both earn $20 credit — no limits.</p>
+              <div className="flex flex-col sm:flex-row gap-3 justify-center pt-2">
+                <a href="/signup" className="inline-flex items-center justify-center gap-2 bg-primary text-primary-foreground font-semibold px-6 py-3 rounded-xl hover:opacity-90 transition-opacity">
+                  Get your referral link →
+                </a>
+                <a href="/login" className="inline-flex items-center justify-center gap-2 border border-primary text-primary font-medium px-6 py-3 rounded-xl hover:bg-primary/5 transition-colors">
+                  Already a member? Sign in
+                </a>
+              </div>
+              <p className="text-xs text-muted-foreground">Join 1,200+ members already earning referral credits</p>
+            </div>
+          )}
+
           {/* Referral link */}
           <div className="bg-card border border-border rounded-xl p-6 space-y-4">
             <h2 className="text-lg font-semibold text-foreground">Your referral link</h2>

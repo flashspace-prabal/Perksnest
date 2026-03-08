@@ -260,14 +260,13 @@ const Pricing = () => {
     return (
       <Button
         onClick={() => handlePlanClick(plan.name, plan.ctaLink)}
-              disabled={checkoutLoading && plan.name === "Pro"}
-        className={`w-full ${
+              className={`w-full ${
           plan.highlighted
             ? "bg-primary-foreground text-primary hover:bg-primary-foreground/90"
             : "bg-primary text-primary-foreground hover:bg-primary/90"
         }`}
         size="lg"
-        disabled={badge !== null}
+        disabled={(checkoutLoading && plan.name === "Pro") || badge !== null}
       >
         {badge ? "Current Plan" : plan.cta}
       </Button>
