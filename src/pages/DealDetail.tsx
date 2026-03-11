@@ -124,11 +124,11 @@ const DealDetail = () => {
   } : null);
   const extendedInfo = dealId ? dealExtendedInfo[dealId] : null;
 
-  // Combine base deal with extended info
-  const deal = baseDeal ? {
-    ...baseDeal,
-    tagline: extendedInfo?.tagline || baseDeal.description,
-    longDescription: extendedInfo?.longDescription || baseDeal.description,
+  // Combine base deal with extended info, fallback to effectiveDeal (including partner deals)
+  const deal = effectiveDeal ? {
+    ...effectiveDeal,
+    tagline: extendedInfo?.tagline || effectiveDeal.description,
+    longDescription: extendedInfo?.longDescription || effectiveDeal.description,
     subcategory: extendedInfo?.subcategory || "Software",
     rating: extendedInfo?.rating || 4.5,
     reviewCount: extendedInfo?.reviewCount || 50,
