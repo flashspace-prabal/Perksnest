@@ -96,7 +96,7 @@ const DealDetail = () => {
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
 
   const [partnerDeal, setPartnerDeal] = useState<PartnerDeal | null>(null);
-  
+
   useEffect(() => {
     if (dealId) {
       getPartnerDeals().then(deals => {
@@ -105,6 +105,16 @@ const DealDetail = () => {
       });
     }
   }, [dealId]);
+
+  useEffect(() => {
+    if (dealId) {
+      const baseDeal = dealsData.find(d => d.id === dealId);
+      const dealName = baseDeal?.name || partnerDeal?.name;
+      if (dealName) {
+        document.title = `${dealName} Deal | PerksNest`;
+      }
+    }
+  }, [dealId, partnerDeal]);
 
   const baseDeal = dealId ? dealsData.find(d => d.id === dealId) : null;
   
@@ -494,9 +504,6 @@ const DealDetail = () => {
               handleClaimDeal();
             }}
           />
-
-          {/* Reviews Section */}
-          <DealReviews dealId={dealId || ''} dealName={deal?.name || ''} />
 
           {/* Related Deals */}
           <section className="mt-16">

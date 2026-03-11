@@ -19,8 +19,9 @@ const TIERS = [
 ];
 
 const Invite = () => {
-  // SEO: unique page title
-  document.title = "Refer & Earn $20 Credit | PerksNest";
+  useEffect(() => {
+    document.title = "Refer & Earn $20 Credit | PerksNest";
+  }, []);
 
   const { user, isAuthenticated } = useAuth();
   useEffect(() => { if (user) getReferralsByUser(user.id).then(setMyReferrals); }, [user?.id]);

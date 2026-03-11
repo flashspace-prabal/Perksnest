@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { Link } from "react-router-dom";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
@@ -5,6 +6,10 @@ import { getAllCategories } from "./Category";
 import { ArrowRight } from "lucide-react";
 
 const Categories = () => {
+  useEffect(() => {
+    document.title = "All Categories | PerksNest";
+  }, []);
+
   const categories = getAllCategories();
   return (
     <div className="min-h-screen bg-background flex flex-col">

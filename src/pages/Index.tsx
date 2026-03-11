@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import PromoBanner from "@/components/PromoBanner";
@@ -10,12 +11,16 @@ import CompareToolsSection from "@/components/CompareToolsSection";
 import PricingSection from "@/components/PricingSection";
 import CTASection from "@/components/CTASection";
 import {
-  getMostPopularDeals, 
-  getFreeDeals, 
+  getMostPopularDeals,
+  getFreeDeals,
   getRecentlyAddedDeals,
 } from "@/data/deals";
 
 const Index = () => {
+  useEffect(() => {
+    document.title = "PerksNest - Exclusive SaaS Deals for Startups";
+  }, []);
+
   const mostPopularDeals = getMostPopularDeals();
   const recentlyAddedDeals = getRecentlyAddedDeals();
   const freeDeals = getFreeDeals();

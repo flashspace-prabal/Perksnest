@@ -22,8 +22,9 @@ const subcategoryToParent: Record<string, string> = {
 };
 
 const Deals = () => {
-  // SEO: unique page title
-  document.title = "Browse SaaS Deals | PerksNest";
+  useEffect(() => {
+    document.title = "Browse SaaS Deals | PerksNest";
+  }, []);
 
   const [searchParams, setSearchParams] = useSearchParams();
   const [searchQuery, setSearchQuery] = useState(searchParams.get("q") || "");

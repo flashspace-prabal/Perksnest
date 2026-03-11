@@ -104,7 +104,7 @@ const PartnerPortal = () => {
           </div>
           <div className="flex items-center gap-1 sm:gap-2">
             <PartnerNotifications />
-            <Button variant="ghost" size="sm" className="gap-1.5 text-sm" onClick={handleDownloadReport}>
+            <Button variant="outline" size="sm" className="gap-1.5 text-sm" onClick={handleDownloadReport}>
               <Download className="h-4 w-4" /><span className="hidden sm:inline">Report</span>
             </Button>
             <Button variant="ghost" size="sm" className="gap-1.5 text-sm" asChild>

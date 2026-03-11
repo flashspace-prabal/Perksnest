@@ -1,8 +1,13 @@
+import { useEffect } from "react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { Link } from "react-router-dom";
 
 export default function TermsOfService() {
+  useEffect(() => {
+    document.title = "Terms of Service | PerksNest";
+  }, []);
+
   return (
     <div className="min-h-screen bg-background flex flex-col">
       <Header />

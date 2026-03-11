@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
 import { Star, ArrowRight, ExternalLink } from "lucide-react";
 import Header from "@/components/Header";
@@ -7,6 +8,10 @@ import { Button } from "@/components/ui/button";
 import { getComparisonBySlug, comparisons } from "@/data/comparisons";
 
 const Compare = () => {
+  useEffect(() => {
+    document.title = "Compare SaaS Tools | PerksNest";
+  }, []);
+
   const { slug } = useParams<{ slug: string }>();
   const comparison = getComparisonBySlug(slug || "");
 

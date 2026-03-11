@@ -9,8 +9,9 @@ import { toast } from "sonner";
 import { Eye, EyeOff, Loader2 } from "lucide-react";
 
 const Login = () => {
-  // SEO: unique page title
-  document.title = "Sign In | PerksNest";
+  useEffect(() => {
+    document.title = "Sign In | PerksNest";
+  }, []);
 
   const { login, register, isAuthenticated, user } = useAuth();
   const navigate = useNavigate();

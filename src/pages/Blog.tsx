@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link, useParams, Navigate } from "react-router-dom";
 import { Clock, ArrowRight, Search, Calendar, Tag, ArrowLeft } from "lucide-react";
 import Header from "@/components/Header";
@@ -6,8 +6,9 @@ import Footer from "@/components/Footer";
 import { blogPosts, categories, getBlogPostById, getRelatedPosts } from "@/data/blog";
 
 const Blog = () => {
-  // SEO: unique page title
-  document.title = "Blog | PerksNest";
+  useEffect(() => {
+    document.title = "Blog | PerksNest";
+  }, []);
 
   const [blogEmail, setBlogEmail] = useState("");
   const [blogSubscribed, setBlogSubscribed] = useState(false);

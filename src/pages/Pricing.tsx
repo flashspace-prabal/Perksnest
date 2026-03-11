@@ -16,9 +16,6 @@ import { AuthModal } from "@/components/AuthModal";
 import { useState, useEffect } from "react";
 
 async function startCheckout(userId: string, email: string, name: string, period: 'monthly' | 'annual') {
-  // SEO: unique page title
-  document.title = "Pricing Plans | PerksNest";
-
   const res = await fetch('https://api.perksnest.co/api/checkout', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -141,6 +138,10 @@ const comparisonFeatures = [
 ];
 
 const Pricing = () => {
+  useEffect(() => {
+    document.title = "Pricing Plans | PerksNest";
+  }, []);
+
   const { user, isAuthenticated } = useAuth();
   const [authModalOpen, setAuthModalOpen] = useState(false);
   const [authModalTab, setAuthModalTab] = useState<'login' | 'register'>('login');

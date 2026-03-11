@@ -164,8 +164,11 @@ const Header = () => {
                               <a href="mailto:sales@perksnest.com" className="text-sm font-medium text-foreground hover:text-primary">
                                 sales@perksnest.com
                               </a>
-                              <Button className="w-full mt-4">
-                                <span onClick={() => window.open('mailto:hello@perksnest.co?subject=Demo Request', '_blank')}>Book a demo</span>
+                              <Button
+                                className="w-full mt-4"
+                                onClick={() => window.location.href = 'mailto:sales@perksnest.co?subject=Book a Demo'}
+                              >
+                                Book a demo
                               </Button>
                             </div>
                             <div className="text-center pt-6 border-t border-border">
@@ -233,18 +236,6 @@ const Header = () => {
                 <Search className="h-5 w-5" />
               </Link>
             )}
-
-            {/* Login/Profile icon — always visible on all screen sizes */}
-            <Link
-              to={isAuthenticated && user ? '/customer' : '/login'}
-              className="relative z-20 flex items-center justify-center h-9 w-9 rounded-full bg-primary/10 hover:bg-primary/20 border border-primary/20 transition-colors shrink-0 cursor-pointer"
-              title={isAuthenticated && user ? `Signed in as ${user.name}` : 'Sign in to your account'}
-            >
-              {isAuthenticated && user
-                ? <span className="text-xs font-bold text-primary">{getUserInitials()}</span>
-                : <User className="h-4 w-4 text-primary" />
-              }
-            </Link>
 
             {isAuthenticated && user ? (
               <>
