@@ -196,7 +196,7 @@ const Header = () => {
                       <div className="w-[900px] p-0">
                         <div className="flex">
                           {/* Left: Categories */}
-                          <div className="w-[220px] py-3 border-r border-border bg-muted/30 max-h-[480px] overflow-y-auto">
+                          <div className="w-[220px] py-3 border-r border-border bg-muted/30">
                             {megaCategories.map((cat, i) => {
                               const Icon = cat.icon;
                               return (
@@ -262,7 +262,7 @@ const Header = () => {
                           </div>
 
                           {/* Right: Featured Deals */}
-                          <div className="flex-1 p-5 max-h-[480px] overflow-y-auto">
+                          <div className="flex-1 p-5 ">
                             <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">
                               Featured Deals
                             </p>
