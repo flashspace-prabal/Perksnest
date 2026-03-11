@@ -4,7 +4,7 @@ import {
   User, Mail, Building, MapPin, Settings, Bell, CreditCard, Gift,
   Wallet, Calendar, Download, Share2, Copy, TrendingUp, Users,
   DollarSign, Award, CheckCircle, Clock, Bookmark, Star, Tag,
-  Search, ChevronRight, ExternalLink
+  Search, ChevronRight, ExternalLink, MessageSquare, Send
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -17,6 +17,7 @@ import { useAuth } from "@/lib/auth";
 import { getBookmarkedDealIds, toggleBookmark } from '@/lib/store';
 import { dealsData } from "@/data/deals";
 import { toast } from "sonner";
+import { getTickets, createTicket, claimDeal as apiClaimDeal } from "@/lib/api";
 
 const CustomerPortal = () => {
   // SEO: unique page title
@@ -29,6 +30,10 @@ const CustomerPortal = () => {
   const [editedEmail, setEditedEmail] = useState("");
   const [isSaving, setIsSaving] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
+  const [tickets, setTickets] = useState<any[]>([]);
+  const [newTicketSubject, setNewTicketSubject] = useState("");
+  const [newTicketMessage, setNewTicketMessage] = useState("");
+  const [isCreatingTicket, setIsCreatingTicket] = useState(false);
 
   // Redirect to home if not authenticated
   useEffect(() => {
@@ -43,6 +48,15 @@ const CustomerPortal = () => {
     if (user) {
       setEditedName(user.name);
       setEditedEmail(user.email);
+    }
+  }, [user]);
+
+  // Fetch tickets from API
+  useEffect(() => {
+    if (user) {
+      getTickets()
+        .then(data => setTickets(data.tickets || []))
+        .catch(err => console.error('Failed to fetch tickets:', err));
     }
   }, [user]);
 
@@ -147,6 +161,47 @@ const CustomerPortal = () => {
       toast.error("Failed to update settings");
     } finally {
       setIsSaving(false);
+    }
+  };
+
+  const handleCreateTicket = async () => {
+    if (!newTicketSubject.trim() || !newTicketMessage.trim()) {
+      toast.error("Please fill in both subject and message");
+      return;
+    }
+
+    setIsCreatingTicket(true);
+    try {
+      const result = await createTicket({
+        subject: newTicketSubject,
+        message: newTicketMessage,
+        priority: 'medium'
+      });
+
+      toast.success("Ticket created successfully!");
+      setNewTicketSubject("");
+      setNewTicketMessage("");
+
+      // Refresh tickets
+      const data = await getTickets();
+      setTickets(data.tickets || []);
+    } catch (error) {
+      toast.error("Failed to create ticket");
+    } finally {
+      setIsCreatingTicket(false);
+    }
+  };
+
+  const handleClaimDeal = async (dealId: string) => {
+    try {
+      await apiClaimDeal(dealId);
+      toast.success("Deal claimed successfully!");
+
+      // Also update local state via auth context
+      await claimDeal(dealId);
+    } catch (error) {
+      console.error('Failed to claim deal:', error);
+      toast.error("Failed to claim deal");
     }
   };
 
@@ -322,6 +377,10 @@ const CustomerPortal = () => {
             <TabsTrigger value="referrals" className="gap-2">
               <Share2 className="h-4 w-4" />
               Referrals
+            </TabsTrigger>
+            <TabsTrigger value="tickets" className="gap-2">
+              <MessageSquare className="h-4 w-4" />
+              My Tickets
             </TabsTrigger>
             <TabsTrigger value="billing" className="gap-2">
               <CreditCard className="h-4 w-4" />
@@ -514,6 +573,83 @@ const CustomerPortal = () => {
                       Share
                     </Button>
                   </div>
+                </CardContent>
+              </Card>
+            </div>
+          </TabsContent>
+
+          {/* Tickets Tab */}
+          <TabsContent value="tickets">
+            <div className="space-y-6">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Create New Ticket</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-4">
+                    <div>
+                      <label className="text-sm font-medium mb-2 block">Subject</label>
+                      <Input
+                        placeholder="Brief description of your issue"
+                        value={newTicketSubject}
+                        onChange={(e) => setNewTicketSubject(e.target.value)}
+                      />
+                    </div>
+                    <div>
+                      <label className="text-sm font-medium mb-2 block">Message</label>
+                      <textarea
+                        className="w-full min-h-[120px] px-3 py-2 border border-border rounded-lg resize-none"
+                        placeholder="Provide details about your issue or question..."
+                        value={newTicketMessage}
+                        onChange={(e) => setNewTicketMessage(e.target.value)}
+                      />
+                    </div>
+                    <Button
+                      onClick={handleCreateTicket}
+                      disabled={isCreatingTicket}
+                      className="gap-2"
+                    >
+                      <Send className="h-4 w-4" />
+                      {isCreatingTicket ? "Creating..." : "Submit Ticket"}
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle>My Tickets</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  {tickets.length === 0 ? (
+                    <div className="text-center py-12">
+                      <MessageSquare className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+                      <p className="text-lg font-medium mb-2">No tickets yet</p>
+                      <p className="text-muted-foreground">Create a ticket above if you need help</p>
+                    </div>
+                  ) : (
+                    <div className="space-y-4">
+                      {tickets.map((ticket) => (
+                        <div key={ticket.id} className="p-4 bg-muted/50 rounded-lg">
+                          <div className="flex items-start justify-between mb-2">
+                            <div>
+                              <p className="font-medium">{ticket.subject}</p>
+                              <p className="text-sm text-muted-foreground">
+                                Created {new Date(ticket.createdAt).toLocaleDateString()}
+                              </p>
+                            </div>
+                            <Badge variant={
+                              ticket.status === 'open' ? 'default' :
+                              ticket.status === 'closed' ? 'secondary' : 'outline'
+                            }>
+                              {ticket.status}
+                            </Badge>
+                          </div>
+                          <p className="text-sm text-muted-foreground">{ticket.message}</p>
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </CardContent>
               </Card>
             </div>

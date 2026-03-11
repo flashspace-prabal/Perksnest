@@ -10,15 +10,20 @@ import { PartnerNotifications } from "@/components/partner/PartnerNotifications"
 import { getPartnerDeals } from "@/lib/store";
 import {
   LayoutDashboard, Package, BarChart3, MessageSquare, Settings,
-  LogOut, ExternalLink, Download,
+  LogOut, ExternalLink, Download, Headset, Send,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
+import { getTickets, createTicket } from "@/lib/api";
 
 const TABS = [
   { id: "dashboard", label: "Dashboard", icon: LayoutDashboard },
   { id: "deals", label: "My Deals", icon: Package },
   { id: "analytics", label: "Analytics", icon: BarChart3 },
+  { id: "tickets", label: "Tickets", icon: Headset },
   { id: "messages", label: "Messages", icon: MessageSquare },
   { id: "settings", label: "Settings", icon: Settings },
 ];
@@ -33,10 +38,23 @@ const PartnerPortal = () => {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState("dashboard");
   const [profileOpen, setProfileOpen] = useState(false);
+  const [tickets, setTickets] = useState<any[]>([]);
+  const [newTicketSubject, setNewTicketSubject] = useState("");
+  const [newTicketMessage, setNewTicketMessage] = useState("");
+  const [isCreatingTicket, setIsCreatingTicket] = useState(false);
 
   useEffect(() => {
     if (!isAuthenticated) navigate("/login?returnUrl=/partner");
   }, [isAuthenticated, navigate]);
+
+  // Fetch tickets from API
+  useEffect(() => {
+    if (user) {
+      getTickets()
+        .then(data => setTickets(data.tickets || []))
+        .catch(err => console.error('Failed to fetch tickets:', err));
+    }
+  }, [user]);
 
   // Show apply page for authenticated non-partners
   if (isAuthenticated && !isPartner) {
@@ -90,6 +108,34 @@ const PartnerPortal = () => {
     const a = document.createElement("a"); a.href = url; a.download = `perksnest-partner-report-${Date.now()}.json`; a.click();
     URL.revokeObjectURL(url);
     toast.success("Report downloaded!");
+  };
+
+  const handleCreateTicket = async () => {
+    if (!newTicketSubject.trim() || !newTicketMessage.trim()) {
+      toast.error("Please fill in both subject and message");
+      return;
+    }
+
+    setIsCreatingTicket(true);
+    try {
+      await createTicket({
+        subject: newTicketSubject,
+        message: newTicketMessage,
+        priority: 'medium'
+      });
+
+      toast.success("Ticket created successfully!");
+      setNewTicketSubject("");
+      setNewTicketMessage("");
+
+      // Refresh tickets
+      const data = await getTickets();
+      setTickets(data.tickets || []);
+    } catch (error) {
+      toast.error("Failed to create ticket");
+    } finally {
+      setIsCreatingTicket(false);
+    }
   };
 
   return (
@@ -159,6 +205,81 @@ const PartnerPortal = () => {
           {activeTab === "dashboard" && <PartnerDashboard partnerData={partnerData} deals={dealRows} />}
           {activeTab === "deals" && <PartnerDealsTab />}
           {activeTab === "analytics" && <PartnerAnalytics partnerData={partnerData} deals={dealRows} />}
+          {activeTab === "tickets" && (
+            <div className="space-y-6">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Create New Ticket</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-4">
+                    <div>
+                      <label className="text-sm font-medium mb-2 block">Subject</label>
+                      <Input
+                        placeholder="Brief description of your issue"
+                        value={newTicketSubject}
+                        onChange={(e) => setNewTicketSubject(e.target.value)}
+                      />
+                    </div>
+                    <div>
+                      <label className="text-sm font-medium mb-2 block">Message</label>
+                      <textarea
+                        className="w-full min-h-[120px] px-3 py-2 border border-border rounded-lg resize-none"
+                        placeholder="Provide details about your issue or question..."
+                        value={newTicketMessage}
+                        onChange={(e) => setNewTicketMessage(e.target.value)}
+                      />
+                    </div>
+                    <Button
+                      onClick={handleCreateTicket}
+                      disabled={isCreatingTicket}
+                      className="gap-2"
+                    >
+                      <Send className="h-4 w-4" />
+                      {isCreatingTicket ? "Creating..." : "Submit Ticket"}
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle>My Tickets</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  {tickets.length === 0 ? (
+                    <div className="text-center py-12">
+                      <Headset className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+                      <p className="text-lg font-medium mb-2">No tickets yet</p>
+                      <p className="text-muted-foreground">Create a ticket above if you need help</p>
+                    </div>
+                  ) : (
+                    <div className="space-y-4">
+                      {tickets.map((ticket) => (
+                        <div key={ticket.id} className="p-4 bg-muted/50 rounded-lg">
+                          <div className="flex items-start justify-between mb-2">
+                            <div>
+                              <p className="font-medium">{ticket.subject}</p>
+                              <p className="text-sm text-muted-foreground">
+                                Created {new Date(ticket.createdAt).toLocaleDateString()}
+                              </p>
+                            </div>
+                            <Badge variant={
+                              ticket.status === 'open' ? 'default' :
+                              ticket.status === 'closed' ? 'secondary' : 'outline'
+                            }>
+                              {ticket.status}
+                            </Badge>
+                          </div>
+                          <p className="text-sm text-muted-foreground">{ticket.message}</p>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            </div>
+          )}
           {activeTab === "messages" && <MessagingTab portalRole="partner" />}
           {activeTab === "settings" && <PartnerSettingsTab />}
         </main>

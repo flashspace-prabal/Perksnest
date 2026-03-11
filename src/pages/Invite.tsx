@@ -9,6 +9,7 @@ import { AuthModal } from "@/components/AuthModal";
 import { useAuth } from "@/lib/auth";
 import { getReferralsByUser, trackReferral } from "@/lib/store";
 import { toast } from "sonner";
+import { getReferralStats, trackReferralClick } from "@/lib/api";
 
 const REWARD_PER_REFERRAL = 20;
 
@@ -24,7 +25,24 @@ const Invite = () => {
   }, []);
 
   const { user, isAuthenticated } = useAuth();
-  useEffect(() => { if (user) getReferralsByUser(user.id).then(setMyReferrals); }, [user?.id]);
+  const [apiStats, setApiStats] = useState<any>(null);
+
+  // Fetch referral stats from backend API
+  useEffect(() => {
+    if (user) {
+      getReferralStats()
+        .then(data => setApiStats(data))
+        .catch(err => {
+          console.error('Failed to fetch referral stats:', err);
+          // Fallback to local data
+          getReferralsByUser(user.id).then(setMyReferrals);
+        });
+    }
+  }, [user?.id]);
+
+  // Also fetch from local store as fallback
+  useEffect(() => { if (user && !apiStats) getReferralsByUser(user.id).then(setMyReferrals); }, [user?.id, apiStats]);
+
   const [copied, setCopied] = useState(false);
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [inviteEmail, setInviteEmail] = useState("");
@@ -33,28 +51,50 @@ const Invite = () => {
   const referralCode = user?.referralCode || "";
   const referralLink = user ? `${window.location.origin}/login?ref=${referralCode}` : "";
   const [myReferrals, setMyReferrals] = useState<import("@/lib/store").ReferralEntry[]>([]);
-  const converted = myReferrals.filter(r => r.status === "converted" || r.status === "paid");
-  const pending = myReferrals.filter(r => r.status === "pending");
-  const totalEarned = converted.length * REWARD_PER_REFERRAL;
+
+  // Use API stats if available, otherwise local data
+  const referralsSource = apiStats?.referrals || myReferrals;
+  const converted = referralsSource.filter(r => r.status === "converted" || r.status === "paid");
+  const pending = referralsSource.filter(r => r.status === "pending");
+  const totalEarned = apiStats?.totalEarned ?? (converted.length * REWARD_PER_REFERRAL);
   const currentTier = TIERS.find(t => converted.length >= t.min && converted.length <= t.max) || TIERS[0];
   const nextTier = TIERS[TIERS.indexOf(currentTier) + 1];
 
-  const handleCopy = () => {
+  const handleCopy = async () => {
     if (!isAuthenticated) { setShowAuthModal(true); return; }
     navigator.clipboard.writeText(referralLink);
     setCopied(true);
     toast.success("Referral link copied!");
     setTimeout(() => setCopied(false), 2000);
+
+    // Track copy event via API
+    try {
+      await trackReferralClick({ code: referralCode, source: 'link_copy' });
+    } catch (error) {
+      console.error('Failed to track referral click:', error);
+    }
   };
 
   const handleSendInvite = async () => {
     if (!isAuthenticated || !user) { setShowAuthModal(true); return; }
     if (!inviteEmail.includes("@")) { toast.error("Enter a valid email"); return; }
     setSending(true);
-    trackReferral(referralCode, user.id, user.name, inviteEmail);
-    toast.success(`Invite tracked for ${inviteEmail}!`);
-    setInviteEmail("");
-    setSending(false);
+
+    try {
+      // Track via API
+      await trackReferralClick({ code: referralCode, source: 'email_invite' });
+
+      // Also track locally
+      trackReferral(referralCode, user.id, user.name, inviteEmail);
+
+      toast.success(`Invite tracked for ${inviteEmail}!`);
+      setInviteEmail("");
+    } catch (error) {
+      console.error('Failed to track referral:', error);
+      toast.error('Failed to send invite');
+    } finally {
+      setSending(false);
+    }
   };
 
   const handleShare = (platform: string) => {

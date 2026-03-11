@@ -16,6 +16,7 @@ import { useAuth } from "@/lib/auth";
 import { toast } from "sonner";
 import { dealsData } from "@/data/deals";
 import { getPartnerDeals, PartnerDeal } from "@/lib/store";
+import { claimDeal as apiClaimDeal } from "@/lib/api";
 
 import notionLogo from "@/assets/logos/notion.png";
 import stripeLogo from "@/assets/logos/stripe.svg";
@@ -168,7 +169,7 @@ const DealDetail = () => {
   const isPremiumDeal = deal?.isPremium;
   const canClaim = isAuthenticated && (!isPremiumDeal || isPro);
 
-  const handleClaimDeal = () => {
+  const handleClaimDeal = async () => {
     if (!isAuthenticated) {
       setShowAuthModal(true);
       return;
@@ -179,15 +180,32 @@ const DealDetail = () => {
       return;
     }
 
-    if (dealId && claimDeal(dealId)) {
-      toast.success(`${deal?.name} deal claimed successfully!`);
-      // Send confirmation email
-      if (user?.email) {
-        sendEmail({ type: 'deal_claimed', to: user.email, name: user.name, dealName: deal?.name || dealId || '', promoCode: undefined });
+    if (dealId) {
+      // Check if already claimed locally
+      if (user?.claimedDeals.includes(dealId)) {
+        toast.error('Deal already claimed');
+        return;
       }
-      navigate(`/deals/${dealId}/redeem`);
-    } else {
-      toast.error('Deal already claimed');
+
+      try {
+        // Call backend API to track claim
+        await apiClaimDeal(dealId);
+
+        // Also update local state
+        claimDeal(dealId);
+
+        toast.success(`${deal?.name} deal claimed successfully!`);
+
+        // Send confirmation email
+        if (user?.email) {
+          sendEmail({ type: 'deal_claimed', to: user.email, name: user.name, dealName: deal?.name || dealId || '', promoCode: undefined });
+        }
+
+        navigate(`/deals/${dealId}/redeem`);
+      } catch (error) {
+        console.error('Failed to claim deal:', error);
+        toast.error('Failed to claim deal. Please try again.');
+      }
     }
   };
 

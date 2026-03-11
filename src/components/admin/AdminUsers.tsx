@@ -25,23 +25,42 @@ import {
 import { Checkbox } from "@/components/ui/checkbox";
 import { getAllUsers } from "@/lib/auth";
 import { dealsData } from "@/data/deals";
+import { getAdminUsers } from "@/lib/api";
 
 export const AdminUsers = () => {
   const [allUsers, setAllUsers] = useState<any[]>([]);
+  const [apiUsers, setApiUsers] = useState<any>(null);
 
-  // TODO: Backend API needed - GET /api/admin/users - Fetch all users with full details (email, plan, signup date, activity)
+  // Fetch from local storage (fallback)
   useEffect(() => { getAllUsers().then(setAllUsers); }, []);
+
   const [selectedUsers, setSelectedUsers] = useState<string[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [planFilter, setPlanFilter] = useState("all");
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
 
-  // Get real users from localStorage
-  // allUsers loaded via useEffect+setState (see above)
+  // Fetch users from backend API
+  useEffect(() => {
+    getAdminUsers(currentPage, itemsPerPage, searchQuery)
+      .then(data => setApiUsers(data))
+      .catch(err => {
+        console.error('Failed to fetch users from API:', err);
+        // Fallback to local data
+      });
+  }, [currentPage, searchQuery]);
+
+  // Use API users if available, otherwise fallback to local users
+  const usersSource = apiUsers?.users || allUsers;
 
   // Calculate user stats
   const userStats = useMemo(() => {
+    // Use API stats if available
+    if (apiUsers?.stats) {
+      return apiUsers.stats;
+    }
+
+    // Fallback to local calculation
     const total = allUsers.length;
     const premium = allUsers.filter(u => u.plan === 'premium' || u.plan === 'enterprise').length;
     const free = allUsers.filter(u => u.plan === 'free').length;
@@ -56,11 +75,11 @@ export const AdminUsers = () => {
       newThisMonth: Math.floor(total * 0.15), // ~15% new this month
       pendingVerification: 0
     };
-  }, [allUsers]);
+  }, [allUsers, apiUsers]);
 
   // Transform users for display
   const displayUsers = useMemo(() => {
-    return allUsers.map(user => {
+    return usersSource.map(user => {
       // Calculate total savings from claimed deals
       const totalSavings = user.claimedDeals.reduce((sum, dealId) => {
         const deal = dealsData.find(d => d.id === dealId);
@@ -84,7 +103,7 @@ export const AdminUsers = () => {
         company: user.name + ' Corp' // Mock company name
       };
     });
-  }, [allUsers]);
+  }, [usersSource]);
 
   // Filter users
   const filteredUsers = useMemo(() => {

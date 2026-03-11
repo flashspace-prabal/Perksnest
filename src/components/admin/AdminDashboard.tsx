@@ -11,6 +11,7 @@ import { Progress } from "@/components/ui/progress";
 import { getClaimEvents, getPartnerDeals } from '@/lib/store';
 import { dealsData } from "@/data/deals";
 import { getAllUsers } from "@/lib/auth";
+import { getAdminStats } from "@/lib/api";
 
 // pendingDeals now comes from allPartnerDeals state
 const getRecentActivity = (allPartnerDeals: any[] = [], allUsers: any[] = []) => {
@@ -38,25 +39,33 @@ export const AdminDashboard = ({ onTabChange }: { onTabChange?: (tab: string) =>
   const [allPartnerDeals, setAllPartnerDeals] = useState<any[]>([]);
   const [allUsers, setAllUsers] = useState<any[]>([]);
   const [stripeData, setStripeData] = useState<{charges: any[], subscriptions: any[]}>({charges: [], subscriptions: []});
+  const [apiStats, setApiStats] = useState<any>(null);
 
-  // TODO: Backend API needed - GET /api/admin/partner-deals - Fetch all partner deals with status, metrics
+  // Fetch partner deals from local store
   useEffect(() => { getPartnerDeals().then(setAllPartnerDeals); }, []);
 
-  // TODO: Backend API needed - GET /api/admin/users - Fetch all users with plan info, signup dates
+  // Fetch users from local store
   useEffect(() => { getAllUsers().then(setAllUsers); }, []);
 
-  // TODO: Backend API needed - GET /api/admin/stripe/charges - Fetch Stripe transaction data
+  // Fetch Stripe transaction data
   useEffect(() => { fetch('https://api.perksnest.co/api/stripe/perksnest-charges').then(r=>r.json()).then(d=>setStripeData({charges:d.data||[],subscriptions:d.subscriptions||[]})).catch(()=>{}); }, []);
+
+  // Fetch admin stats from backend API
+  useEffect(() => {
+    getAdminStats()
+      .then(data => setApiStats(data))
+      .catch(err => console.error('Failed to fetch admin stats:', err));
+  }, []);
 
   const recentActivity = getRecentActivity(allPartnerDeals, allUsers);
 
-  // Calculate real stats from deals data and localStorage users
+  // Calculate real stats from deals data and localStorage users, merged with API stats
   const stats = useMemo(() => {
-    // allUsers from state (loaded async)
-    const totalUsers = allUsers.length;
-    const premiumUsers = allUsers.filter(u => u.plan === 'premium' || u.plan === 'enterprise').length;
-    const enterpriseUsers = allUsers.filter(u => u.plan === 'enterprise').length;
-    const freeUsers = allUsers.filter(u => u.plan === 'free').length;
+    // Prefer API stats if available, otherwise fallback to local calculation
+    const totalUsers = apiStats?.totalUsers ?? allUsers.length;
+    const premiumUsers = apiStats?.premiumUsers ?? allUsers.filter(u => u.plan === 'premium' || u.plan === 'enterprise').length;
+    const enterpriseUsers = apiStats?.enterpriseUsers ?? allUsers.filter(u => u.plan === 'enterprise').length;
+    const freeUsers = apiStats?.freeUsers ?? allUsers.filter(u => u.plan === 'free').length;
 
     // Calculate total members from deals
     const totalMembers = dealsData.reduce((sum, deal) => sum + deal.memberCount, 0);
@@ -75,36 +84,36 @@ export const AdminDashboard = ({ onTabChange }: { onTabChange?: (tab: string) =>
 
     return {
       totalUsers,
-      activeUsers: Math.floor(totalUsers * 0.73), // ~73% active
+      activeUsers: apiStats?.activeUsers ?? Math.floor(totalUsers * 0.73), // ~73% active
       premiumUsers,
       freeUsers,
-      totalDeals: dealsData.length,
-      activeDeals: dealsData.length, // All deals in data are active
-      pendingApproval: allPartnerDeals.filter(d => d.status === "pending").length,
-      // Real MRR from Stripe subscriptions
-      mrr: stripeData.subscriptions.filter(s=>s.status==='active').reduce((sum,s)=>{
+      totalDeals: apiStats?.totalDeals ?? dealsData.length,
+      activeDeals: apiStats?.activeDeals ?? dealsData.length, // All deals in data are active
+      pendingApproval: apiStats?.pendingApproval ?? allPartnerDeals.filter(d => d.status === "pending").length,
+      // Real MRR from Stripe subscriptions or API stats
+      mrr: apiStats?.mrr ?? (stripeData.subscriptions.filter(s=>s.status==='active').reduce((sum,s)=>{
         const price = s.items?.data?.[0]?.price;
         if(!price) return sum;
         const amt = price.unit_amount/100;
         return sum + (price.recurring?.interval==='year' ? amt/12 : amt);
-      }, 0) || (premiumUsers * 12),
-      arr: (stripeData.subscriptions.filter(s=>s.status==='active').reduce((sum,s)=>{
+      }, 0) || (premiumUsers * 12)),
+      arr: apiStats?.arr ?? ((stripeData.subscriptions.filter(s=>s.status==='active').reduce((sum,s)=>{
         const price = s.items?.data?.[0]?.price;
         if(!price) return sum;
         const amt = price.unit_amount/100;
         return sum + (price.recurring?.interval==='year' ? amt : amt*12);
-      }, 0)) || (premiumUsers * 144),
-      totalRevenue: stripeData.charges.filter(c=>c.status==='succeeded').reduce((sum,c)=>sum+c.amount/100,0) || (premiumUsers * 12),
-      partners: 975,
-      totalSavings,
-      totalMembers,
-      conversionRate: totalUsers > 0 ? (premiumUsers / totalUsers * 100) : 0,
-      churnRate: 2.8,
-      nps: 72,
-      avgSessionDuration: "8m 34s",
-      categories: Array.from(categoryMap.entries()).map(([name, count]) => ({ name, count }))
+      }, 0)) || (premiumUsers * 144)),
+      totalRevenue: apiStats?.totalRevenue ?? (stripeData.charges.filter(c=>c.status==='succeeded').reduce((sum,c)=>sum+c.amount/100,0) || (premiumUsers * 12)),
+      partners: apiStats?.partners ?? 975,
+      totalSavings: apiStats?.totalSavings ?? totalSavings,
+      totalMembers: apiStats?.totalMembers ?? totalMembers,
+      conversionRate: apiStats?.conversionRate ?? (totalUsers > 0 ? (premiumUsers / totalUsers * 100) : 0),
+      churnRate: apiStats?.churnRate ?? 2.8,
+      nps: apiStats?.nps ?? 72,
+      avgSessionDuration: apiStats?.avgSessionDuration ?? "8m 34s",
+      categories: apiStats?.categories ?? Array.from(categoryMap.entries()).map(([name, count]) => ({ name, count }))
     };
-  }, [allUsers, allPartnerDeals, stripeData]);
+  }, [allUsers, allPartnerDeals, stripeData, apiStats]);
 
   // Get top performing deals (by member count)
   const topDeals = useMemo(() => {
