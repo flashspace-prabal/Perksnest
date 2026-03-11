@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
-import PromoBanner from "@/components/PromoBanner";
+
 import HeroBanner from "@/components/HeroBanner";
 import TestimonialsCarousel from "@/components/TestimonialsCarousel";
 import TestimonialCards from "@/components/TestimonialCards";
@@ -27,7 +27,7 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <PromoBanner />
+      
       <Header />
       
       <main>

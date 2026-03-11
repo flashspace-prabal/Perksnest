@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import {
-  Search, Bell, User, ChevronDown, Menu, X, Gift, Package,
+  Search, Bell, User, ChevronDown, Menu, X, Package,
   Crown, Sparkles, ArrowUpRight, LogOut, Settings, LayoutGrid,
   Brain, FolderKanban, Database, Users, Code2, Megaphone,
   DollarSign, MessageSquare, ShoppingCart, Briefcase, Monitor, UserCog
@@ -122,7 +122,7 @@ const Header = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [hoveredCat, setHoveredCat] = useState(0);
-  const [promoBannerVisible, setPromoBannerVisible] = useState(true);
+  
   const [searchQuery, setSearchQuery] = useState("");
   const { user, isAuthenticated, logout } = useAuth();
   const navigate = useNavigate();
@@ -159,25 +159,7 @@ const Header = () => {
 
   return (
     <header className="sticky top-0 z-50 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b border-border">
-      {/* Promo Banner */}
-      {promoBannerVisible && (
-        <div className="bg-gradient-to-r from-primary/90 to-primary py-2.5 px-4 text-primary-foreground">
-          <div className="container mx-auto flex items-center justify-center gap-2 text-sm">
-            <Gift className="h-4 w-4" />
-            <span className="font-medium">
-              Get 30% off on our Premium membership! Promo code:{" "}
-              <span className="font-bold">30SECRET</span> — offer ends in{" "}
-              <span className="font-bold">6d 23h 59m</span>
-            </span>
-            <button
-              className="ml-4 hover:opacity-80 transition-opacity"
-              onClick={() => setPromoBannerVisible(false)}
-            >
-              <X className="h-4 w-4" />
-            </button>
-          </div>
-        </div>
-      )}
+      {/* Promo Banner removed */}
 
       {/* Main Header */}
       <div className="container mx-auto px-4">
@@ -185,10 +167,17 @@ const Header = () => {
           {/* Logo + Nav */}
           <div className="flex items-center gap-8">
             <Link to="/" className="flex items-center gap-2 relative z-10">
-              <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center">
-                <span className="text-primary-foreground font-bold text-lg">P</span>
-              </div>
-              <span className="font-bold text-xl text-foreground">PerksNest</span>
+              <svg width="28" height="28" viewBox="0 0 54 54" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M19.712 35.746c0 3.218-2.61 5.828-5.828 5.828-3.219 0-5.829-2.61-5.829-5.828 0-3.219 2.61-5.829 5.829-5.829h5.828v5.829z" fill="#E01E5A"/>
+                <path d="M22.608 35.746c0-3.219 2.61-5.829 5.828-5.829 3.219 0 5.829 2.61 5.829 5.829v14.571c0 3.218-2.61 5.828-5.829 5.828-3.218 0-5.828-2.61-5.828-5.828V35.746z" fill="#E01E5A"/>
+                <path d="M28.436 19.712c-3.218 0-5.828-2.61-5.828-5.828 0-3.219 2.61-5.829 5.828-5.829 3.219 0 5.829 2.61 5.829 5.829v5.828h-5.829z" fill="#36C5F0"/>
+                <path d="M28.436 22.608c3.219 0 5.829 2.61 5.829 5.828 0 3.219-2.61 5.829-5.829 5.829H13.884c-3.218 0-5.828-2.61-5.828-5.829 0-3.218 2.61-5.828 5.828-5.828h14.552z" fill="#36C5F0"/>
+                <path d="M44.471 28.436c0-3.218 2.61-5.828 5.828-5.828 3.219 0 5.829 2.61 5.829 5.828 0 3.219-2.61 5.829-5.829 5.829h-5.828v-5.829z" fill="#2EB67D"/>
+                <path d="M41.575 28.436c0 3.219-2.61 5.829-5.829 5.829-3.218 0-5.828-2.61-5.828-5.829V13.884c0-3.218 2.61-5.828 5.828-5.828 3.219 0 5.829 2.61 5.829 5.828v14.552z" fill="#2EB67D"/>
+                <path d="M35.746 44.471c3.219 0 5.829 2.61 5.829 5.828 0 3.219-2.61 5.829-5.829 5.829-3.218 0-5.828-2.61-5.828-5.829v-5.828h5.828z" fill="#ECB22E"/>
+                <path d="M35.746 41.575c-3.218 0-5.828-2.61-5.828-5.829 0-3.218 2.61-5.828 5.828-5.828h14.571c3.218 0 5.828 2.61 5.828 5.828 0 3.219-2.61 5.829-5.828 5.829H35.746z" fill="#ECB22E"/>
+              </svg>
+              <span className="font-bold text-xl text-foreground">perksnest.</span>
             </Link>
 
             {/* Desktop Navigation */}
