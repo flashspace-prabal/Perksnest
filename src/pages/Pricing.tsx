@@ -15,7 +15,7 @@ import { useAuth } from "@/lib/auth";
 import { AuthModal } from "@/components/AuthModal";
 import { useState, useEffect } from "react";
 
-async function startCheckout(userId: string, email: string, name: string, period: 'monthly' | 'annual') {
+async function startCheckout(userId: string, email: string, name: string, period: 'annual') {
   const res = await fetch('https://api.perksnest.co/api/checkout', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -47,9 +47,8 @@ const plans = [
   {
     name: "Pro",
     description: "For growing startups ready to scale faster",
-    price: "$2",
-    period: "/month",
-    originalPrice: "$5/yr",
+    price: "$20",
+    period: "/year",
     icon: Crown,
     features: [
       "Everything in Free, plus:",
@@ -151,7 +150,7 @@ const Pricing = () => {
   // Auto-trigger checkout if user just logged in from pricing page
   useEffect(() => {
     const action = sessionStorage.getItem('perksnest_post_login_action');
-    if (action === 'checkout_monthly' && isAuthenticated && user) {
+    if (action === 'checkout_annual' && isAuthenticated && user) {
       sessionStorage.removeItem('perksnest_post_login_action');
       // Small delay to let auth settle
       setTimeout(async () => {
@@ -160,7 +159,7 @@ const Pricing = () => {
           const res = await fetch('https://api.perksnest.co/api/checkout', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ userId: user.id, email: user.email, name: user.name, period: 'monthly' }),
+            body: JSON.stringify({ userId: user.id, email: user.email, name: user.name, period: 'annual' }),
           });
           const data = await res.json();
           if (data.url) window.location.href = data.url;
@@ -172,7 +171,7 @@ const Pricing = () => {
   const handlePlanClick = async (planName: string, ctaLink: string) => {
     if (planName === "Pro") {
       if (!isAuthenticated || !user) {
-        sessionStorage.setItem('perksnest_post_login_action', 'checkout_monthly');
+        sessionStorage.setItem('perksnest_post_login_action', 'checkout_annual');
         window.location.href = '/login?returnUrl=/pricing';
         return;
       }
@@ -190,7 +189,7 @@ const Pricing = () => {
             userId: user.id,
             email: user.email,
             name: user.name,
-            period: 'monthly',
+            period: 'annual',
           }),
         });
         const data = await res.json();
@@ -340,9 +339,9 @@ const Pricing = () => {
                           {plan.period}
                         </span>
                       </div>
-                      {plan.originalPrice && (
+                      {null && (
                         <div className={`text-sm mt-1 ${plan.highlighted ? "text-primary-foreground/70" : "text-muted-foreground"}`}>
-                          <span className="line-through">{plan.originalPrice}</span> – save 30%
+                          <span className="line-through">{null}</span> – save 30%
                         </div>
                       )}
                     </div>

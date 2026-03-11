@@ -360,9 +360,9 @@ const StripeTestimonials = () => {
 // Pricing Section
 const StripePricing = () => {
   const plans = [
-    { name: "Free", price: "$0", period: "/month", features: ["Access to 300+ free deals", "Basic support", "Community access"], cta: "Get started", highlight: false },
-    { name: "Premium", price: "$49", period: "/month", features: ["All 400+ deals", "Priority support", "Exclusive perks", "Early access"], cta: "Start free trial", highlight: true },
-    { name: "Team", price: "$199", period: "/month", features: ["Everything in Premium", "Team management", "Custom deals", "Dedicated manager"], cta: "Contact sales", highlight: false },
+    { name: "Free", price: "$0", period: "/forever", features: ["Access to 300+ free deals", "Basic support", "Community access"], cta: "Get started", highlight: false },
+    { name: "Pro", price: "$20", period: "/year", features: ["All 500+ deals", "Priority support", "Exclusive perks", "Early access", "Deal comparison tools"], cta: "Upgrade to Pro", highlight: true },
+    { name: "Enterprise", price: "Custom", period: "", features: ["Everything in Pro", "Team management", "Custom deals", "Dedicated manager"], cta: "Contact sales", highlight: false },
   ];
 
   return (
