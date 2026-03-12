@@ -24,6 +24,8 @@ import Communities from "./pages/Communities";
 import AdminPortal from "./pages/portal/AdminPortal";
 import PartnerPortal from "./pages/portal/PartnerPortal";
 import CustomerPortal from "./pages/portal/CustomerPortal";
+import Tickets from "./pages/customer/Tickets";
+import TicketDetail from "./pages/customer/TicketDetail";
 import BrandProfile from "./pages/BrandProfile";
 import WhiteLabel from "./pages/WhiteLabel";
 import Docs from "./pages/Docs";
@@ -75,6 +77,8 @@ const App = () => (
             <Route path="/admin" element={<AdminPortal />} />
             <Route path="/partner" element={<PartnerPortal />} />
             <Route path="/customer" element={<CustomerPortal />} />
+            <Route path="/customer/tickets" element={<Tickets />} />
+            <Route path="/customer/tickets/:ticketId" element={<TicketDetail />} />
             {/* Partner public profiles */}
             <Route path="/brand/:brandId" element={<BrandProfile />} />
             {/* Legacy redirects */}
