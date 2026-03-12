@@ -24,6 +24,14 @@ export async function claimDeal(dealId: string) {
   return apiCall('/api/deals/claim', 'POST', { dealId });
 }
 
+export async function getDealClaims(dealId: string) {
+  return apiCall(`/api/deals/${dealId}/claims`);
+}
+
+export async function getUserClaims() {
+  return apiCall('/api/user/claims');
+}
+
 export async function getReferralStats() {
   return apiCall('/api/referrals/me');
 }

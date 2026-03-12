@@ -16,7 +16,7 @@ import { useAuth } from "@/lib/auth";
 import { toast } from "sonner";
 import { dealsData } from "@/data/deals";
 import { getPartnerDeals, PartnerDeal } from "@/lib/store";
-import { claimDeal as apiClaimDeal } from "@/lib/api";
+import { claimDeal as apiClaimDeal, getDealClaims, getUserClaims } from "@/lib/api";
 
 import notionLogo from "@/assets/logos/notion.png";
 import stripeLogo from "@/assets/logos/stripe.svg";
@@ -95,6 +95,7 @@ const DealDetail = () => {
   const { user, isAuthenticated, isPro, claimDeal } = useAuth();
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
+  const [claimCount, setClaimCount] = useState<number>(0);
 
   const [partnerDeal, setPartnerDeal] = useState<PartnerDeal | null>(null);
 
@@ -104,6 +105,17 @@ const DealDetail = () => {
         const found = deals.find(d => d.id === dealId && d.status === 'approved');
         setPartnerDeal(found || null);
       });
+
+      // Fetch claim count for this deal
+      getDealClaims(dealId)
+        .then(data => {
+          if (data.count !== undefined) {
+            setClaimCount(data.count);
+          }
+        })
+        .catch(err => {
+          console.error('Failed to fetch claim count:', err);
+        });
     }
   }, [dealId]);
 
@@ -194,6 +206,9 @@ const DealDetail = () => {
         // Also update local state
         claimDeal(dealId);
 
+        // Increment local claim count
+        setClaimCount(prev => prev + 1);
+
         toast.success(`${deal?.name} deal claimed successfully!`);
 
         // Send confirmation email
@@ -282,24 +297,24 @@ const DealDetail = () => {
               {/* Redeemed Count */}
               <div className="flex items-center gap-3 mb-8">
                 <div className="flex -space-x-2">
-                  <img 
-                    src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=40&h=40&fit=crop&crop=face" 
+                  <img
+                    src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=40&h=40&fit=crop&crop=face"
                     className="w-8 h-8 rounded-full border-2 border-background"
                     alt=""
                   />
-                  <img 
-                    src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=40&h=40&fit=crop&crop=face" 
+                  <img
+                    src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=40&h=40&fit=crop&crop=face"
                     className="w-8 h-8 rounded-full border-2 border-background"
                     alt=""
                   />
-                  <img 
-                    src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=40&h=40&fit=crop&crop=face" 
+                  <img
+                    src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=40&h=40&fit=crop&crop=face"
                     className="w-8 h-8 rounded-full border-2 border-background"
                     alt=""
                   />
                 </div>
                 <span className="text-sm text-foreground">
-                  Redeemed <span className="font-semibold">{deal.memberCount.toLocaleString()}</span> times
+                  🔥 <span className="font-semibold">{claimCount > 0 ? claimCount : deal.memberCount}</span> {claimCount > 0 ? 'startups claimed' : 'times redeemed'}
                 </span>
               </div>
 
