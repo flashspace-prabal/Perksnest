@@ -120,6 +120,7 @@ const solutionsTestimonials = [
 
 const Header = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [showSearch, setShowSearch] = useState(false);
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [hoveredCat, setHoveredCat] = useState(0);
   
@@ -474,18 +475,12 @@ const Header = () => {
           {/* Right Side */}
           <div className="flex items-center gap-3">
             {/* Search bar */}
-            <form onSubmit={handleSearch} className="hidden md:flex items-center">
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                <input
-                  type="text"
-                  placeholder="Search for deals"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-56 pl-10 pr-4 py-2 rounded-lg border border-input bg-background text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
-                />
-              </div>
-            </form>
+            <button 
+              onClick={() => setShowSearch(!showSearch)}
+              className="p-2 rounded-lg hover:bg-secondary text-muted-foreground hover:text-foreground transition-colors"
+            >
+              <Search className="h-5 w-5" />
+            </button>
 
             {/* Explore Marketplace */}
             <Link to="/deals" className="hidden xl:flex">
@@ -582,24 +577,7 @@ const Header = () => {
                 >
                   Sign in
                 </button>
-                <Button
-                  variant="outline"
-                  className="hidden sm:flex border-primary text-primary hover:bg-primary hover:text-primary-foreground"
-                  onClick={() =>
-                    window.open(
-                      "mailto:hello@perksnest.co?subject=Demo Request",
-                      "_blank"
-                    )
-                  }
-                >
-                  Request a demo
-                </Button>
-                <Button
-                  className="hidden md:flex"
-                  onClick={() => (window.location.href = "/login")}
-                >
-                  Get started
-                </Button>
+                
               </>
             )}
 
@@ -616,6 +594,24 @@ const Header = () => {
             </button>
           </div>
         </div>
+
+
+        {/* Expandable Search Bar */}
+        {showSearch && (
+          <div className="border-t border-border py-3 px-4 animate-in slide-in-from-top-2">
+            <form onSubmit={(e) => { e.preventDefault(); setShowSearch(false); handleSearch(e); }} className="w-full max-w-3xl mx-auto relative">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+              <input
+                autoFocus
+                type="text"
+                placeholder="Search for deals, companies, categories..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full pl-10 pr-4 py-3 rounded-xl border border-input bg-secondary/50 text-base placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
+              />
+            </form>
+          </div>
+        )}
 
         {/* Mobile Menu */}
         {mobileMenuOpen && (
@@ -674,25 +670,7 @@ const Header = () => {
                   </>
                 ) : (
                   <>
-                    <Button
-                      variant="outline"
-                      className="w-full border-primary text-primary"
-                      onClick={() => {
-                        setShowAuthModal(true);
-                        setMobileMenuOpen(false);
-                      }}
-                    >
-                      Sign in
-                    </Button>
-                    <Button
-                      className="w-full"
-                      onClick={() => {
-                        setShowAuthModal(true);
-                        setMobileMenuOpen(false);
-                      }}
-                    >
-                      Get started free
-                    </Button>
+                    
                   </>
                 )}
               </div>
