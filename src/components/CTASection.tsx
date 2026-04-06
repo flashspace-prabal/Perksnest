@@ -9,11 +9,8 @@ const CTASection = () => {
 
   return (
     <section className="py-12 md:py-20 relative overflow-hidden bg-primary">
-      {/* Decorative Elements */}
-      <div className="absolute inset-0 opacity-10">
-        <div className="absolute top-0 left-1/4 w-96 h-96 bg-slack-blue rounded-full blur-3xl" />
-        <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-slack-green rounded-full blur-3xl" />
-      </div>
+      {/* Subtle overlay */}
+      <div className="absolute inset-0 bg-black/5" />
 
       <div className="container-wide relative">
         <div className="max-w-3xl mx-auto text-center">

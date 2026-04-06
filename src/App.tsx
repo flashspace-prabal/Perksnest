@@ -50,8 +50,7 @@ const App = () => (
           <ScrollToTop />
           <OAuthHandler />
           <Routes>
-            <Route path="/" element={<Index />} />
-            <Route path="/h1" element={<HomeStripe />} />
+            <Route path="/" element={<HomeStripe />} />
             <Route path="/deals" element={<Deals />} />
             <Route path="/deals/:dealId" element={<DealDetail />} />
             <Route path="/deals/:dealId/redeem" element={<DealRedeem />} />
