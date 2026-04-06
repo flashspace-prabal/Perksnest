@@ -572,7 +572,7 @@ const Header = () => {
             ) : (
               <>
                 <button
-                  onClick={() => (window.location.href = "/login")}
+                  onClick={() => navigate("/login")}
                   className="hidden sm:block nav-link font-medium"
                 >
                   Sign in
@@ -675,7 +675,7 @@ const Header = () => {
                       variant="outline"
                       className="w-full border-primary text-primary hover:bg-primary hover:text-primary-foreground"
                       onClick={() => {
-                        window.location.href = "/login";
+                        navigate("/login");
                         setMobileMenuOpen(false);
                       }}
                     >

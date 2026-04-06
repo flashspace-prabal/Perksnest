@@ -1,6 +1,6 @@
 import { Check, Crown, ArrowUpRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import SafeImage from "@/components/SafeImage";
 
 import notionLogo from "@/assets/logos/notion.png";
@@ -133,8 +133,9 @@ const plans: PricingPlan[] = [
 ];
 
 const PricingSection = () => {
+  const navigate = useNavigate();
   return (
-    <section id="pricing" className="py-20 bg-background">
+    <section id="pricing" className="py-12 md:py-20 bg-background">
       <div className="container-wide">
         {/* Section Header */}
         <div className="text-center mb-12">
@@ -197,6 +198,7 @@ const PricingSection = () => {
                         src={software.logo}
                         alt={software.name}
                         className="w-full h-full object-contain"
+                        loading="lazy"
                       />
                     </div>
                   ))}
@@ -239,6 +241,7 @@ const PricingSection = () => {
                       : 'bg-foreground text-background hover:bg-foreground/90'
                 }`}
                 size="lg"
+                onClick={() => navigate(plan.cta === "Contact sales" ? "/help" : "/signup")}
               >
                 {plan.isPremium && <Crown className="h-4 w-4 mr-2" />}
                 {plan.cta}

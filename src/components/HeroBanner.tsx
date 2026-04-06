@@ -2,6 +2,7 @@ import { ArrowRight, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/lib/auth";
 import { useNavigate } from "react-router-dom";
+import SafeImage from "./SafeImage";
 
 const HeroBanner = () => {
   const { isAuthenticated } = useAuth();
@@ -65,34 +66,34 @@ const HeroBanner = () => {
       />
 
       {/* Main Hero Content */}
-      <div className="container-wide relative z-20 py-20 lg:py-28">
-        <div className="max-w-xl">
+      <div className="container-wide relative z-20 py-12 md:py-20 lg:py-28">
+        <div className="max-w-3xl">
           {/* Top badge */}
           <p className="text-muted-foreground text-sm mb-6 animate-fade-in">
             Global founders using PerksNest: <span className="text-primary font-semibold">100,000+</span>
           </p>
 
           {/* Main headline with solid colors */}
-          <h1 className="text-4xl md:text-5xl lg:text-[3.5rem] font-bold leading-[1.1] mb-6 animate-fade-in animation-delay-100">
-            Perks infrastructure to{" "}
+          <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight mb-6 animate-fade-in animation-delay-100 text-left text-balance text-foreground">
+            Save $50K+ on SaaS{" "}
             <br className="hidden sm:block" />
-            <span className="text-primary">grow your </span>
-            <span className="text-slack-red">startup.</span>
+            <span className="text-primary">Exclusive Deals for Startups</span>
+            
           </h1>
 
           {/* Subtitle */}
-          <p className="text-muted-foreground text-lg md:text-xl mb-8 leading-relaxed animate-fade-in animation-delay-200">
-            Your startup deserves better pricing. Discover the software perks that compound over time.
+          <p className="text-muted-foreground text-lg md:text-xl mb-8 leading-relaxed animate-fade-in animation-delay-200 text-left max-w-2xl">
+            Stop overpaying for essential software. Access hundreds of exclusive discounts and credits instantly, no credit card required.
           </p>
 
           {/* CTA Buttons */}
-          <div className="flex flex-wrap items-center gap-4 mb-8 animate-fade-in animation-delay-300">
+          <div className="flex flex-col sm:flex-row items-center gap-4 mb-8 animate-fade-in animation-delay-300">
             <Button
               size="lg"
-              className="h-12 px-6 text-base font-semibold gap-2 rounded-full"
+              className="w-full sm:w-auto h-12 px-8 text-base font-semibold gap-2 rounded-full"
               onClick={() => navigate(isAuthenticated ? '/deals' : '/signup')}
             >
-              Get started
+              Claim Free Deals
               <ArrowRight className="h-4 w-4" />
             </Button>
 
@@ -100,8 +101,8 @@ const HeroBanner = () => {
               <Button
                 variant="outline"
                 size="lg"
-                className="h-12 px-6 text-base font-medium gap-2 rounded-full border-border hover:bg-secondary"
-                onClick={() => window.location.href = 'https://auth.perksnest.co/auth/v1/authorize?provider=google&redirect_to=https://perksnest.co/auth/callback'}
+                className="w-full sm:w-auto h-12 px-8 text-base font-medium gap-2 rounded-full border-border hover:bg-secondary"
+                onClick={() => navigate('/signup')}
               >
                 <svg className="h-5 w-5" viewBox="0 0 24 24">
                   <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
@@ -110,6 +111,16 @@ const HeroBanner = () => {
                   <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
                 </svg>
                 Sign up with Google
+              </Button>
+            )}
+            {isAuthenticated && (
+                <Button
+                variant="outline"
+                size="lg"
+                className="w-full sm:w-auto h-12 px-8 text-base font-medium gap-2 rounded-full border-border hover:bg-secondary"
+                onClick={() => navigate('/deals')}
+              >
+                Browse 100+ Deals
               </Button>
             )}
           </div>
@@ -135,15 +146,24 @@ const HeroBanner = () => {
       {/* Trusted By Section */}
       <div className="border-t border-border bg-background py-8">
         <div className="container-wide">
-          <div className="flex flex-wrap items-center justify-center gap-8 md:gap-12">
-            {trustedLogos.map((logo) => (
-              <span 
-                key={logo}
-                className="text-muted-foreground font-medium text-sm md:text-base tracking-wide hover:text-foreground transition-colors cursor-default"
-              >
-                {logo}
-              </span>
-            ))}
+          <p className="text-center text-sm font-medium text-muted-foreground mb-6">Deals from brands you already use</p>
+          <div className="flex overflow-hidden">
+             <div className="flex animate-scroll whitespace-nowrap min-w-full items-center justify-around gap-8 md:gap-16 px-4">
+               {/* Primary partners from user request */}
+               <SafeImage src="https://upload.wikimedia.org/wikipedia/commons/9/93/Amazon_Web_Services_Logo.svg" alt="AWS" className="h-8 md:h-12 w-auto object-contain shrink-0 grayscale hover:grayscale-0 transition-all opacity-70 hover:opacity-100" />
+               <SafeImage src="https://upload.wikimedia.org/wikipedia/commons/4/45/Notion_app_logo.png" alt="Notion" className="h-8 md:h-12 w-auto object-contain shrink-0 grayscale hover:grayscale-0 transition-all opacity-70 hover:opacity-100" />
+               <SafeImage src="https://www.hubspot.com/hubfs/HubSpot_Logos/HubSpot-Inversed-Favicon.png" alt="HubSpot" className="h-8 md:h-12 w-auto object-contain shrink-0 grayscale hover:grayscale-0 transition-all opacity-70 hover:opacity-100" />
+               <SafeImage src="https://upload.wikimedia.org/wikipedia/commons/b/ba/Stripe_Logo%2C_revised_2016.svg" alt="Stripe" className="h-8 md:h-12 w-auto object-contain shrink-0 grayscale hover:grayscale-0 transition-all opacity-70 hover:opacity-100" />
+               <SafeImage src="https://upload.wikimedia.org/wikipedia/commons/3/33/Figma-logo.svg" alt="Figma" className="h-8 md:h-12 w-auto object-contain shrink-0 grayscale hover:grayscale-0 transition-all opacity-70 hover:opacity-100" />
+             </div>
+             <div className="flex animate-scroll whitespace-nowrap min-w-full items-center justify-around gap-8 md:gap-16 px-4" aria-hidden="true">
+               {/* Duplicated for seamless scrolling */}
+               <SafeImage src="https://upload.wikimedia.org/wikipedia/commons/9/93/Amazon_Web_Services_Logo.svg" alt="AWS" className="h-8 md:h-12 w-auto object-contain shrink-0 grayscale hover:grayscale-0 transition-all opacity-70 hover:opacity-100" />
+               <SafeImage src="https://upload.wikimedia.org/wikipedia/commons/4/45/Notion_app_logo.png" alt="Notion" className="h-8 md:h-12 w-auto object-contain shrink-0 grayscale hover:grayscale-0 transition-all opacity-70 hover:opacity-100" />
+               <SafeImage src="https://www.hubspot.com/hubfs/HubSpot_Logos/HubSpot-Inversed-Favicon.png" alt="HubSpot" className="h-8 md:h-12 w-auto object-contain shrink-0 grayscale hover:grayscale-0 transition-all opacity-70 hover:opacity-100" />
+               <SafeImage src="https://upload.wikimedia.org/wikipedia/commons/b/ba/Stripe_Logo%2C_revised_2016.svg" alt="Stripe" className="h-8 md:h-12 w-auto object-contain shrink-0 grayscale hover:grayscale-0 transition-all opacity-70 hover:opacity-100" />
+               <SafeImage src="https://upload.wikimedia.org/wikipedia/commons/3/33/Figma-logo.svg" alt="Figma" className="h-8 md:h-12 w-auto object-contain shrink-0 grayscale hover:grayscale-0 transition-all opacity-70 hover:opacity-100" />
+             </div>
           </div>
         </div>
       </div>

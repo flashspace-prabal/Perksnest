@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { ArrowRight, Check, Star, ChevronDown, Menu, X } from "lucide-react";
 import { useAuth } from "@/lib/auth";
 import {
@@ -93,6 +93,7 @@ const StripeHeader = () => {
 
 // Stripe Hero Component
 const StripeHero = ({ isAuthenticated }: { isAuthenticated: boolean }) => {
+  const navigate = useNavigate();
   const [email, setEmail] = useState("");
 
   return (
@@ -151,8 +152,11 @@ const StripeHero = ({ isAuthenticated }: { isAuthenticated: boolean }) => {
               Get started
               <ArrowRight className="h-4 w-4" />
             </Link>
-            {!isAuthenticated && (
-              <button className="inline-flex items-center gap-2 px-5 py-3 bg-white border border-gray-200 hover:border-gray-300 text-gray-700 font-medium rounded-full transition-colors">
+             {!isAuthenticated && (
+              <button 
+                className="inline-flex items-center gap-2 px-5 py-3 bg-white border border-gray-200 hover:border-gray-300 text-gray-700 font-medium rounded-full transition-colors"
+                onClick={() => navigate('/signup')}
+              >
                 <svg className="h-5 w-5" viewBox="0 0 24 24">
                   <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
                   <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
@@ -224,36 +228,39 @@ const cardColors = [
 ];
 
 // Deal Card Component (Stripe style)
-const StripeDealCard = ({ deal, index = 0 }: { deal: any; index?: number }) => (
-  <Link 
-    to={`/deals/${deal.id}`}
-    className={`group rounded-2xl border p-6 hover:shadow-xl hover:-translate-y-1 transition-all duration-300 ${cardColors[index % cardColors.length]}`}
-  >
-    <div className="flex items-start gap-4 mb-4">
-      <img 
-        src={deal.logo} 
-        alt={deal.name}
-        className="w-12 h-12 rounded-xl object-contain bg-white p-2 shadow-sm"
-        onError={(e) => {
-          e.currentTarget.style.display = 'none';
-        }}
-      />
-      <div className="flex-1">
-        <h3 className="font-semibold text-gray-900 group-hover:text-[#635bff] transition-colors">
-          {deal.name}
-        </h3>
-        <p className="text-sm text-gray-500">{deal.category}</p>
+const StripeDealCard = ({ deal, index = 0 }: { deal: any; index?: number }) => {
+  const navigate = useNavigate();
+  return (
+    <Link 
+      to={`/deals/${deal.id}`}
+      className={`group rounded-2xl border p-6 hover:shadow-xl hover:-translate-y-1 transition-all duration-300 ${cardColors[index % cardColors.length]}`}
+    >
+      <div className="flex items-start gap-4 mb-4">
+        <img 
+          src={deal.logo} 
+          alt={deal.name}
+          className="w-12 h-12 rounded-xl object-contain bg-white p-2 shadow-sm"
+          onError={(e) => {
+            e.currentTarget.style.display = 'none';
+          }}
+        />
+        <div className="flex-1">
+          <h3 className="font-semibold text-gray-900 group-hover:text-[#635bff] transition-colors">
+            {deal.name}
+          </h3>
+          <p className="text-sm text-gray-500">{deal.category}</p>
+        </div>
+        {deal.isPremium && (
+          <span className="text-xs bg-[#635bff] text-white px-2 py-1 rounded-full font-medium">
+            Premium
+          </span>
+        )}
       </div>
-      {deal.isPremium && (
-        <span className="text-xs bg-[#635bff] text-white px-2 py-1 rounded-full font-medium">
-          Premium
-        </span>
-      )}
-    </div>
-    <p className="text-[#635bff] font-medium mb-2">{deal.dealText}</p>
-    <p className="text-sm text-gray-500">Save up to {deal.savings}</p>
-  </Link>
-);
+      <p className="text-[#635bff] font-medium mb-2">{deal.dealText}</p>
+      <p className="text-sm text-gray-500">Save up to {deal.savings}</p>
+    </Link>
+  );
+};
 
 // Deal Carousel Section
 const StripeDealSection = ({ title, subtitle, deals, darkBg = false }: { title: string; subtitle: string; deals: any[]; darkBg?: boolean }) => (
@@ -488,6 +495,7 @@ const StripeFooter = () => (
 // Main Page Component
 const HomeStripe = () => {
   const { isAuthenticated } = useAuth();
+  const navigate = useNavigate();
   const mostPopularDeals = getMostPopularDeals();
   const recentlyAddedDeals = getRecentlyAddedDeals();
   const freeDeals = getFreeDeals();

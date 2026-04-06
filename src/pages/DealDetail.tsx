@@ -102,46 +102,53 @@ const DealDetail = () => {
   const [relatedDeals, setRelatedDeals] = useState<Deal[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
-  // Fetch deal details from API
+  // Fetch deal details
   useEffect(() => {
-    if (dealId) {
-      setIsLoading(true);
+    if (!dealId) return;
+    
+    setIsLoading(true);
+    
+    // Core deal data — must succeed for page to render well
+    getDeal(dealId)
+      .then(deal => {
+        setBaseDeal(deal);
+        if (deal?.category) {
+          getDealsByCategory(deal.category)
+            .then(categoryDeals => {
+              setRelatedDeals(categoryDeals.filter(d => d.id !== dealId).slice(0, 3));
+            })
+            .catch(err => console.error('Failed to fetch related deals:', err));
+        }
+      })
+      .catch(err => {
+        console.error('Failed to fetch core deal data:', err);
+      })
+      .finally(() => {
+        setIsLoading(false);
+      });
 
-      Promise.all([
-        getDeal(dealId),
-        getPartnerDeals(),
-        getDealClaims(dealId)
-      ])
-        .then(([deal, partnerDealsData, claimData]) => {
-          setBaseDeal(deal);
+    // Secondary metadata — non-blocking
+    getPartnerDeals()
+      .then(partnerDealsData => {
+        const found = partnerDealsData.find(d => d.id === dealId && d.status === 'approved');
+        setPartnerDeal(found || null);
+      })
+      .catch(err => console.warn('Failed to fetch partner deals metadata:', err));
 
-          const found = partnerDealsData.find(d => d.id === dealId && d.status === 'approved');
-          setPartnerDeal(found || null);
+    getDealClaims(dealId)
+      .then(claimData => {
+        if (claimData?.count !== undefined) {
+          setClaimCount(claimData.count);
+        }
+      })
+      .catch(err => console.warn('Failed to fetch deal claims metadata:', err));
 
-          if (claimData.count !== undefined) {
-            setClaimCount(claimData.count);
-          }
-
-          // Fetch related deals by category
-          if (deal?.category) {
-            getDealsByCategory(deal.category)
-              .then(categoryDeals => {
-                const filtered = categoryDeals
-                  .filter(d => d.id !== dealId)
-                  .slice(0, 3);
-                setRelatedDeals(filtered);
-              })
-              .catch(err => console.error('Failed to fetch related deals:', err));
-          }
-        })
-        .catch(err => {
-          console.error('Failed to fetch deal details:', err);
-        })
-        .finally(() => {
-          setIsLoading(false);
-        });
+    if (isAuthenticated) {
+      getUserClaims()
+        .then(claims => setServerClaimedDeals(claims.map((c: any) => c.deal_id)))
+        .catch(err => console.warn('Failed to fetch user claims metadata:', err));
     }
-  }, [dealId]);
+  }, [dealId, isAuthenticated]);
 
   // Fetch user's claimed deals from server
   useEffect(() => {

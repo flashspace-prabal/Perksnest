@@ -121,7 +121,7 @@ const featuredDeals = dealsData.slice(0, 8);
 
 const MegaMenuHeader = () => {
   const navigate = useNavigate();
-  const { user, isAuthenticated } = useAuth();
+  const { user, isAuthenticated, logout } = useAuth();
   const getUserInitials = () => user?.name ? user.name.split(' ').map(n=>n[0]).join('').toUpperCase().slice(0,2) : 'U';
   const [headerSearch, setHeaderSearch] = useState("");
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -336,7 +336,7 @@ const MegaMenuHeader = () => {
               <Link to="/invite" className="nav-link px-3 py-2 rounded-md hover:bg-secondary" onClick={() => setMobileMenuOpen(false)}>Invite & Earn</Link>
               <div className="pt-3 border-t border-border mt-2 space-y-2">
                 {!isAuthenticated && (
-                  <Button variant="outline" className="w-full border-primary text-primary" onClick={() => window.location.href='/login'}>Sign in</Button>
+                  <Button variant="outline" className="w-full border-primary text-primary" onClick={() => { navigate('/login'); setMobileMenuOpen(false); }}>Sign in</Button>
                 )}
                 <Link to={isAuthenticated ? "/deals" : "/deals"} className="block" onClick={() => setMobileMenuOpen(false)}>
                   <Button className="w-full">{isAuthenticated ? "Browse Deals" : "Get started"}</Button>

@@ -22,42 +22,55 @@ const testimonials = [
 ];
 
 const TestimonialsCarousel = () => {
-  const [currentIndex, setCurrentIndex] = useState(0);
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setCurrentIndex((prev) => (prev + 1) % testimonials.length);
-    }, 5000);
-    return () => clearInterval(interval);
-  }, []);
-
   return (
-    <section className="py-8 bg-secondary/50">
+    <section className="py-12 md:py-20 bg-background">
       <div className="container-wide">
-        <h2 className="text-xl md:text-2xl font-bold text-foreground text-center mb-6">
-          They're growing more and spending less with PerksNest
-        </h2>
         
-        <div className="flex items-center justify-center gap-8 overflow-hidden">
+        {/* Stats Strip */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-20">
+          <div className="flex flex-col items-center justify-center p-8 bg-primary/5 rounded-2xl border border-primary/10">
+            <span className="text-4xl md:text-5xl font-bold text-primary mb-2">100+</span>
+            <span className="text-muted-foreground font-medium">Exclusive Deals</span>
+          </div>
+          <div className="flex flex-col items-center justify-center p-8 bg-success/5 rounded-2xl border border-success/10">
+            <span className="text-4xl md:text-5xl font-bold text-success mb-2">$2M+</span>
+            <span className="text-muted-foreground font-medium">Savings Unlocked</span>
+          </div>
+          <div className="flex flex-col items-center justify-center p-8 bg-accent/5 rounded-2xl border border-accent/10">
+            <span className="text-4xl md:text-5xl font-bold text-accent mb-2">5,000+</span>
+            <span className="text-muted-foreground font-medium">Startups Joined</span>
+          </div>
+        </div>
+
+        <div className="text-center mb-16 max-w-2xl mx-auto">
+          <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
+            Why should I trust this?
+          </h2>
+          <p className="text-muted-foreground text-lg">
+            Don't just take our word for it. Hear from founders who are growing faster and spending less with PerksNest.
+          </p>
+        </div>
+        
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           {testimonials.map((testimonial, index) => (
             <div
               key={index}
-              className={`flex items-center gap-4 transition-all duration-300 ${
-                index === currentIndex ? "opacity-100" : "opacity-50"
-              }`}
+              className="bg-card p-8 rounded-2xl border border-border shadow-sm flex flex-col h-full"
             >
-              <img
-                src={testimonial.avatar}
-                alt={testimonial.name}
-                className="w-10 h-10 rounded-full object-cover"
-              />
-              <div className="max-w-xs">
-                <div className="flex items-center gap-2 mb-1">
-                  <span className="font-semibold text-sm text-foreground">{testimonial.name}</span>
-                  <span className="text-xs text-muted-foreground">{testimonial.role}</span>
+              <div className="flex items-center gap-4 mb-6">
+                <img
+                  src={testimonial.avatar}
+                  alt={testimonial.name}
+                  className="w-14 h-14 rounded-full object-cover border-2 border-primary/10"
+                />
+                <div>
+                  <h4 className="font-semibold text-foreground text-lg">{testimonial.name}</h4>
+                  <p className="text-sm text-muted-foreground">{testimonial.role}</p>
                 </div>
-                <p className="text-sm text-muted-foreground line-clamp-2">{testimonial.quote}</p>
               </div>
+              <blockquote className="text-muted-foreground leading-relaxed italic flex-1">
+                "{testimonial.quote}"
+              </blockquote>
             </div>
           ))}
         </div>

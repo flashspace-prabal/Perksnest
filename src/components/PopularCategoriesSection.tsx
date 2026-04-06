@@ -50,6 +50,7 @@ const DealCard = ({ deal }: DealCardProps) => (
         src={deal.logo}
         alt={deal.name}
         className="w-12 h-12 rounded-lg object-contain bg-white p-1.5 border border-border"
+        loading="lazy"
       />
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-2 flex-wrap">
@@ -86,13 +87,16 @@ const PopularCategoriesSection = () => {
   const activeTabName = categoryTabs.find(t => t.id === activeTab)?.name || activeTab;
 
   return (
-    <section className="py-16 bg-background">
+    <section className="py-12 md:py-20 bg-background">
       <div className="container-wide">
         {/* Header */}
-        <div className="flex items-center justify-between mb-10">
-          <h2 className="text-2xl md:text-3xl font-bold text-foreground">
-            Most popular categories
-          </h2>
+        <div className="flex flex-col md:flex-row items-start md:items-center justify-between mb-10 gap-4">
+          <div>
+            <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-2">
+              What deals are available?
+            </h2>
+            <p className="text-lg text-muted-foreground font-medium">Most popular categories</p>
+          </div>
           <Link 
             to={`/deals?category=${activeTab}`}
             className="hidden md:flex items-center gap-1 text-primary font-medium hover:underline"
@@ -102,21 +106,20 @@ const PopularCategoriesSection = () => {
           </Link>
         </div>
 
-        <div className="flex gap-8">
+        <div className="flex flex-col md:flex-row gap-8">
           {/* Category Tabs Sidebar */}
-          <div className="w-64 shrink-0">
-            <nav className="space-y-1">
+          <div className="w-full md:w-64 shrink-0 overflow-x-auto pb-4 md:pb-0">
+            <nav className="flex md:flex-col gap-1 min-w-max md:min-w-0">
               {categoryTabs.map((tab) => (
                 <button
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id)}
-                  className={`w-full text-left px-4 py-2.5 rounded-lg text-sm transition-colors ${
+                  className={`whitespace-nowrap px-4 py-2.5 rounded-lg text-sm transition-colors ${
                     activeTab === tab.id
-                      ? "font-medium text-foreground"
+                      ? "font-medium text-foreground bg-secondary/80"
                       : "text-muted-foreground hover:text-foreground hover:bg-secondary/50"
                   }`}
                 >
-                  {activeTab === tab.id && <span className="mr-2">•</span>}
                   {tab.name}
                 </button>
               ))}
