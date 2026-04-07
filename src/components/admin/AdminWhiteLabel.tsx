@@ -37,7 +37,8 @@ import {
 import { Users, DollarSign, CheckCircle, Building2, MoreVertical } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
-interface WhiteLabelClient {
+// White label data structure
+type WhiteLabelClient = {
   id: string;
   company: string;
   domain: string;
@@ -46,73 +47,18 @@ interface WhiteLabelClient {
   monthlyFee: number;
   status: "Active" | "Pending";
   contactEmail: string;
-}
+};
 
-const mockClients: WhiteLabelClient[] = [
-  {
-    id: "1",
-    company: "TechStartup Inc",
-    domain: "perks.techstartup.io",
-    plan: "Enterprise",
-    members: 850,
-    monthlyFee: 4999,
-    status: "Active",
-    contactEmail: "admin@techstartup.io",
-  },
-  {
-    id: "2",
-    company: "Y Combinator",
-    domain: "deals.ycombinator.com",
-    plan: "Enterprise",
-    members: 1200,
-    monthlyFee: 7999,
-    status: "Active",
-    contactEmail: "deals@ycombinator.com",
-  },
-  {
-    id: "3",
-    company: "Techstars Austin",
-    domain: "perks.techstars.com/austin",
-    plan: "Growth",
-    members: 450,
-    monthlyFee: 1999,
-    status: "Active",
-    contactEmail: "austin@techstars.com",
-  },
-  {
-    id: "4",
-    company: "500 Global",
-    domain: "benefits.500.co",
-    plan: "Enterprise",
-    members: 890,
-    monthlyFee: 5499,
-    status: "Active",
-    contactEmail: "ops@500.co",
-  },
-  {
-    id: "5",
-    company: "Acme Ventures",
-    domain: "perks.acmevc.com",
-    plan: "Growth",
-    members: 320,
-    monthlyFee: 1999,
-    status: "Active",
-    contactEmail: "team@acmevc.com",
-  },
-  {
-    id: "6",
-    company: "Innovation Hub",
-    domain: "deals.innovationhub.io",
-    plan: "Starter",
-    members: 150,
-    monthlyFee: 799,
-    status: "Pending",
-    contactEmail: "admin@innovationhub.io",
-  },
-];
+// Note: MockClients removed - using real API integration only
+// When API endpoints are available:
+// GET /api/admin/whitelabel/clients
+// POST /api/admin/whitelabel/clients
+// PATCH /api/admin/whitelabel/clients/:id
+// DELETE /api/admin/whitelabel/clients/:id
 
 export const AdminWhiteLabel = () => {
   const [clients, setClients] = useState<WhiteLabelClient[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [newClient, setNewClient] = useState({
     company: "",
@@ -122,20 +68,62 @@ export const AdminWhiteLabel = () => {
   });
   const { toast } = useToast();
 
+  // Load clients from API when available, with localStorage fallback
   useEffect(() => {
-    // Load from localStorage and merge with mock data
-    const stored = localStorage.getItem("pn_wl_clients");
-    const storedClients = stored ? JSON.parse(stored) : [];
-    const merged = [...mockClients, ...storedClients];
-    setClients(merged);
+    const loadClients = async () => {
+      try {
+        setIsLoading(true);
+        // Attempt to fetch from API
+        const response = await fetch('https://api.perksnest.co/api/admin/whitelabel/clients', {
+          headers: {
+            'Authorization': `Bearer ${JSON.parse(localStorage.getItem('pn_session') || '{}').access_token}`,
+          },
+        });
+        
+        if (response.ok) {
+          const data = await response.json();
+          setClients(Array.isArray(data.clients) ? data.clients : []);
+        } else {
+          // Fallback to localStorage
+          const stored = localStorage.getItem("pn_wl_clients");
+          const storedClients = stored ? JSON.parse(stored) : [];
+          setClients(storedClients);
+        }
+      } catch (error) {
+        console.warn('White label API not available, using localStorage:', error);
+        // Fallback to localStorage
+        const stored = localStorage.getItem("pn_wl_clients");
+        const storedClients = stored ? JSON.parse(stored) : [];
+        setClients(storedClients);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    loadClients();
   }, []);
 
-  const saveClients = (updatedClients: WhiteLabelClient[]) => {
-    const customClients = updatedClients.filter(
-      (c) => !mockClients.find((m) => m.id === c.id)
-    );
-    localStorage.setItem("pn_wl_clients", JSON.stringify(customClients));
+  const saveClients = async (updatedClients: WhiteLabelClient[], isNew = false) => {
+    const newAddedClients = updatedClients.filter(c => c.id.startsWith('temp_'));
+    localStorage.setItem("pn_wl_clients", JSON.stringify(newAddedClients));
     setClients(updatedClients);
+
+    // Attempt to sync to API if available
+    if (isNew) {
+      try {
+        const lastClient = updatedClients[updatedClients.length - 1];
+        await fetch('https://api.perksnest.co/api/admin/whitelabel/clients', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${JSON.parse(localStorage.getItem('pn_session') || '{}').access_token}`,
+          },
+          body: JSON.stringify(lastClient),
+        });
+      } catch (error) {
+        console.warn('Could not sync to API:', error);
+      }
+    }
   };
 
   const handleAddClient = () => {
@@ -149,7 +137,7 @@ export const AdminWhiteLabel = () => {
     }
 
     const client: WhiteLabelClient = {
-      id: Date.now().toString(),
+      id: `temp_${Date.now()}`, // Temporary ID until API confirms
       company: newClient.company,
       domain: newClient.domain,
       plan: newClient.plan,
@@ -159,7 +147,7 @@ export const AdminWhiteLabel = () => {
       contactEmail: newClient.contactEmail,
     };
 
-    saveClients([...clients, client]);
+    saveClients([...clients, client], true);
 
     toast({
       title: "Client added",
@@ -342,62 +330,73 @@ export const AdminWhiteLabel = () => {
           <CardDescription>All white label instances and their details</CardDescription>
         </CardHeader>
         <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Company</TableHead>
-                <TableHead>Domain</TableHead>
-                <TableHead>Plan</TableHead>
-                <TableHead className="text-right">Members</TableHead>
-                <TableHead className="text-right">Monthly Fee</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead className="text-right">Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {clients.map((client) => (
-                <TableRow key={client.id}>
-                  <TableCell className="font-medium">{client.company}</TableCell>
-                  <TableCell className="text-muted-foreground">{client.domain}</TableCell>
-                  <TableCell>
-                    <Badge variant={getPlanBadgeVariant(client.plan)}>{client.plan}</Badge>
-                  </TableCell>
-                  <TableCell className="text-right">{client.members.toLocaleString()}</TableCell>
-                  <TableCell className="text-right">
-                    ${client.monthlyFee.toLocaleString()}
-                  </TableCell>
-                  <TableCell>
-                    <Badge variant={client.status === "Active" ? "default" : "secondary"}>
-                      {client.status}
-                    </Badge>
-                  </TableCell>
-                  <TableCell className="text-right">
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="icon">
-                          <MoreVertical className="h-4 w-4" />
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end">
-                        <DropdownMenuItem onClick={() => handleClientAction(client.id, "view")}>
-                          View
-                        </DropdownMenuItem>
-                        <DropdownMenuItem onClick={() => handleClientAction(client.id, "edit")}>
-                          Edit
-                        </DropdownMenuItem>
-                        <DropdownMenuItem
-                          onClick={() => handleClientAction(client.id, "suspend")}
-                          className="text-destructive"
-                        >
-                          Suspend
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  </TableCell>
+          {isLoading ? (
+            <div className="p-8 text-center text-muted-foreground">
+              <p>Loading white label clients...</p>
+            </div>
+          ) : clients.length === 0 ? (
+            <div className="p-8 text-center text-muted-foreground space-y-4">
+              <p className="text-sm">No white label clients yet</p>
+              <p className="text-xs">Start by adding your first white label client using the "Add Client" button above</p>
+            </div>
+          ) : (
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Company</TableHead>
+                  <TableHead>Domain</TableHead>
+                  <TableHead>Plan</TableHead>
+                  <TableHead className="text-right">Members</TableHead>
+                  <TableHead className="text-right">Monthly Fee</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead className="text-right">Actions</TableHead>
                 </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+              </TableHeader>
+              <TableBody>
+                {clients.map((client) => (
+                  <TableRow key={client.id}>
+                    <TableCell className="font-medium">{client.company}</TableCell>
+                    <TableCell className="text-muted-foreground">{client.domain}</TableCell>
+                    <TableCell>
+                      <Badge variant={getPlanBadgeVariant(client.plan)}>{client.plan}</Badge>
+                    </TableCell>
+                    <TableCell className="text-right">{client.members.toLocaleString()}</TableCell>
+                    <TableCell className="text-right">
+                      ${client.monthlyFee.toLocaleString()}
+                    </TableCell>
+                    <TableCell>
+                      <Badge variant={client.status === "Active" ? "default" : "secondary"}>
+                        {client.status}
+                      </Badge>
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button variant="ghost" size="icon">
+                            <MoreVertical className="h-4 w-4" />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                          <DropdownMenuItem onClick={() => handleClientAction(client.id, "view")}>
+                            View
+                          </DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => handleClientAction(client.id, "edit")}>
+                            Edit
+                          </DropdownMenuItem>
+                          <DropdownMenuItem
+                            onClick={() => handleClientAction(client.id, "suspend")}
+                            className="text-destructive"
+                          >
+                            Suspend
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          )}
         </CardContent>
       </Card>
     </div>
