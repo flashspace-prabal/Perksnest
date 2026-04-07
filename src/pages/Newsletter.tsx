@@ -3,8 +3,6 @@ import { Mail, Zap, TrendingUp, Gift, Check, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import Header from "@/components/Header";
-import Footer from "@/components/Footer";
 import { subscribeToDigest, getDigestSubscribers } from "@/lib/store";
 import { useAuth } from "@/lib/auth";
 import { toast } from "sonner";
@@ -62,8 +60,7 @@ const Newsletter = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background flex flex-col">
-      <Header />
+    <div className="min-h-screen bg-white flex flex-col">
       <main className="flex-1">
         {/* Hero */}
         <section className="bg-primary text-primary-foreground py-16 px-4">
@@ -162,7 +159,6 @@ const Newsletter = () => {
           </div>
         </div>
       </main>
-      <Footer />
     </div>
   );
 };

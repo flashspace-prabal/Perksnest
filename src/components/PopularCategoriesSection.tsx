@@ -107,9 +107,9 @@ const PopularCategoriesSection = () => {
         </div>
 
         <div className="flex flex-col md:flex-row gap-8">
-          {/* Category Tabs Sidebar */}
-          <div className="w-full md:w-64 shrink-0 overflow-x-auto pb-4 md:pb-0">
-            <nav className="flex md:flex-col gap-1 min-w-max md:min-w-0">
+          {/* Category Tabs - Horizontal Scroll on Mobile */}
+          <div className="w-full md:w-64 shrink-0 overflow-x-auto pb-4 md:pb-0 scrollbar-hide">
+            <nav className="flex md:flex-col gap-1.5 md:gap-1 min-w-max md:min-w-0 px-1">
               {categoryTabs.map((tab) => (
                 <button
                   key={tab.id}

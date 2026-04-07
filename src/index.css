@@ -1,9 +1,9 @@
+/* Slack-inspired SaaS Deals Marketplace Design System */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-
-/* Slack-inspired SaaS Deals Marketplace Design System */
-@import url('https://fonts.googleapis.com/css2?family=Larsseit:wght@400;500;600;700&family=Inter:wght@400;500;600;700;800&display=swap');
 
 @layer base {
   :root {
@@ -18,7 +18,7 @@
     --popover-foreground: 270 30% 15%;
 
     /* Primary: Slack Aubergine/Purple */
-    --primary: 289 52% 27%;
+    --primary: 288 56% 27%;
     --primary-foreground: 0 0% 100%;
 
     /* Secondary: Warm cream */
@@ -37,7 +37,7 @@
 
     --border: 45 20% 88%;
     --input: 45 20% 88%;
-    --ring: 289 52% 27%;
+    --ring: 288 56% 27%;
 
     --radius: 0.5rem;
 
@@ -46,7 +46,7 @@
     --success-foreground: 0 0% 100%;
     --warning: 38 92% 50%;
     --warning-foreground: 0 0% 100%;
-    --premium: 289 52% 27%;
+    --premium: 288 56% 27%;
     --premium-foreground: 0 0% 100%;
     
     /* Slack Brand Colors */

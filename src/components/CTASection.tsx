@@ -14,21 +14,16 @@ const CTASection = () => {
 
       <div className="container-wide relative">
         <div className="max-w-3xl mx-auto text-center">
-          {/* Heading */}
-          <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-primary-foreground mb-6">
-            Ready to save on your stack?
-          </h2>
-
           {/* Subheading */}
           <p className="text-lg md:text-xl text-primary-foreground/80 mb-10 max-w-xl mx-auto">
             Join 100,000+ startups already saving millions with PerksNest. Start free today.
           </p>
 
-          {/* CTAs */}
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+          {/* CTAs - Responsive Stacking */}
+          <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center">
             <Button
               size="lg"
-              className="bg-primary-foreground text-primary hover:bg-primary-foreground/90 gap-2 text-base px-8 h-14"
+              className="bg-primary-foreground text-primary hover:bg-primary-foreground/90 gap-2 text-base px-8 h-12 sm:h-14 w-full sm:w-auto"
               onClick={() => navigate('/signup')}
             >
               Sign Up Free
@@ -37,7 +32,7 @@ const CTASection = () => {
             <Button
               size="lg"
               variant="outline"
-              className="border-primary-foreground bg-transparent text-primary-foreground hover:bg-primary-foreground hover:text-primary gap-2 text-base px-8 h-14"
+              className="border-primary-foreground bg-transparent text-primary-foreground hover:bg-primary-foreground hover:text-primary gap-2 text-base px-8 h-12 sm:h-14 w-full sm:w-auto"
               onClick={() => navigate('/deals')}
             >
               Browse 100+ Deals

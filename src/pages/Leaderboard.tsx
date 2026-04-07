@@ -24,8 +24,7 @@ const Leaderboard = () => {
   const rest = ranked.slice(3);
 
   return (
-    <div className="min-h-screen bg-background flex flex-col">
-      <Header />
+    <div className="min-h-screen bg-white">
       <main className="flex-1">
         <section className="bg-primary text-primary-foreground py-14 px-4">
           <div className="max-w-3xl mx-auto text-center">
@@ -83,7 +82,6 @@ const Leaderboard = () => {
           </div>
         </div>
       </main>
-      <Footer />
     </div>
   );
 };

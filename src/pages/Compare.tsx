@@ -1,9 +1,6 @@
 import { useEffect } from "react";
-import { useParams, Link } from "react-router-dom";
+import { useParams, Link, useLocation } from "react-router-dom";
 import { Star, ArrowRight, ExternalLink } from "lucide-react";
-import Header from "@/components/Header";
-import Footer from "@/components/Footer";
-import SafeImage from "@/components/SafeImage";
 import { Button } from "@/components/ui/button";
 import { getComparisonBySlug, comparisons } from "@/data/comparisons";
 
@@ -56,9 +53,8 @@ const Compare = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background">
-      <Header />
-      
+    <div className="min-h-screen bg-white">
+
       {/* Breadcrumbs */}
       <div className="border-b">
         <div className="container-wide py-4">
@@ -82,16 +78,16 @@ const Compare = () => {
             <div className="lg:col-span-2">
               <div className="flex items-center gap-4 mb-6">
                 <div className="w-16 h-16 rounded-xl bg-white border p-2 flex items-center justify-center">
-                  <SafeImage 
-                    src={comparison.tool1.logo} 
+                  <SafeImage
+                    src={comparison.tool1.logo}
                     alt={comparison.tool1.name}
                     className="w-full h-full object-contain"
                   />
                 </div>
                 <span className="text-2xl text-muted-foreground">⚡</span>
                 <div className="w-16 h-16 rounded-xl bg-white border p-2 flex items-center justify-center">
-                  <SafeImage 
-                    src={comparison.tool2.logo} 
+                  <SafeImage
+                    src={comparison.tool2.logo}
                     alt={comparison.tool2.name}
                     className="w-full h-full object-contain"
                   />
@@ -132,13 +128,13 @@ const Compare = () => {
               <h3 className="font-semibold text-lg">
                 Discounts on {comparison.tool1.name} & {comparison.tool2.name}
               </h3>
-              
+
               {/* Tool 1 Card */}
               <div className="p-4 bg-card border rounded-xl">
                 <div className="flex items-start gap-3 mb-3">
                   <div className="w-10 h-10 rounded-lg bg-white border p-1.5 flex items-center justify-center">
-                    <SafeImage 
-                      src={comparison.tool1.logo} 
+                    <SafeImage
+                      src={comparison.tool1.logo}
                       alt={comparison.tool1.name}
                       className="w-full h-full object-contain"
                     />
@@ -156,8 +152,8 @@ const Compare = () => {
               <div className="p-4 bg-card border rounded-xl">
                 <div className="flex items-start gap-3 mb-3">
                   <div className="w-10 h-10 rounded-lg bg-white border p-1.5 flex items-center justify-center">
-                    <SafeImage 
-                      src={comparison.tool2.logo} 
+                    <SafeImage
+                      src={comparison.tool2.logo}
                       alt={comparison.tool2.name}
                       className="w-full h-full object-contain"
                     />
@@ -194,8 +190,8 @@ const Compare = () => {
                 <p className="text-muted-foreground">
                   Some of the best <strong>{comparison.subcategory.toLowerCase()}</strong> includes{" "}
                   <Link to="#" className="text-primary hover:underline">{comparison.tool1.name}</Link> and{" "}
-                  <Link to="#" className="text-primary hover:underline">{comparison.tool2.name}</Link>. 
-                  In this guide, we compare the differences and features of the two solutions to help you 
+                  <Link to="#" className="text-primary hover:underline">{comparison.tool2.name}</Link>.
+                  In this guide, we compare the differences and features of the two solutions to help you
                   find the best software for your business.
                 </p>
               </div>
@@ -204,7 +200,7 @@ const Compare = () => {
               <div className="bg-background p-6 rounded-xl border">
                 <nav className="space-y-2">
                   {tableOfContents.map((item, index) => (
-                    <a 
+                    <a
                       key={item.id}
                       href={`#${item.id}`}
                       className="flex items-baseline gap-3 text-muted-foreground hover:text-foreground transition-colors"
@@ -223,8 +219,8 @@ const Compare = () => {
                 </h2>
                 <p className="text-muted-foreground mb-6">{comparison.overviewIntro}</p>
                 <p className="text-muted-foreground mb-8">
-                  To help you choose the software solution best suited to your business needs, we've put together a 
-                  comparison table of the key features of each platform. Each criterion is rated by a star system 
+                  To help you choose the software solution best suited to your business needs, we've put together a
+                  comparison table of the key features of each platform. Each criterion is rated by a star system
                   and accompanied by a commentary to make it easier for you to read the table below.
                 </p>
 
@@ -234,8 +230,8 @@ const Compare = () => {
                     <div></div>
                     <div className="text-center">
                       <div className="w-12 h-12 mx-auto mb-2 bg-white border rounded-lg p-2">
-                        <SafeImage 
-                          src={comparison.tool1.logo} 
+                        <SafeImage
+                          src={comparison.tool1.logo}
                           alt={comparison.tool1.name}
                           className="w-full h-full object-contain"
                         />
@@ -245,8 +241,8 @@ const Compare = () => {
                     </div>
                     <div className="text-center">
                       <div className="w-12 h-12 mx-auto mb-2 bg-white border rounded-lg p-2">
-                        <SafeImage 
-                          src={comparison.tool2.logo} 
+                        <SafeImage
+                          src={comparison.tool2.logo}
                           alt={comparison.tool2.name}
                           className="w-full h-full object-contain"
                         />
@@ -256,9 +252,9 @@ const Compare = () => {
                     </div>
                     <div></div>
                   </div>
-                  
+
                   {comparison.ratings.map((rating, index) => (
-                    <div 
+                    <div
                       key={rating.category}
                       className={`grid grid-cols-4 gap-4 p-4 items-center ${index % 2 === 0 ? 'bg-muted/20' : ''}`}
                     >
@@ -276,7 +272,7 @@ const Compare = () => {
                 <h2 className="text-2xl font-bold mb-6">
                   02 What's the difference between {comparison.tool1.name} and {comparison.tool2.name}?
                 </h2>
-                
+
                 <div className="space-y-8">
                   <div className="bg-background p-6 rounded-xl border">
                     <h3 className="text-xl font-bold mb-2">{comparison.tool1.name}</h3>
@@ -297,7 +293,7 @@ const Compare = () => {
                 <h2 className="text-2xl font-bold mb-6">
                   03 {comparison.tool1.name} pros and cons
                 </h2>
-                
+
                 <div className="grid md:grid-cols-2 gap-6">
                   <div className="bg-primary/5 p-6 rounded-xl border border-primary/20">
                     <h4 className="font-semibold text-primary mb-4">Pros</h4>
@@ -327,7 +323,7 @@ const Compare = () => {
                 <h3 className="text-xl font-bold mt-8 mb-4">Compare {comparison.tool1.name} to other tools</h3>
                 <div className="grid sm:grid-cols-2 gap-3">
                   {comparison.relatedTool1.map((related, i) => (
-                    <Link 
+                    <Link
                       key={i}
                       to={`/compare/${related.slug}`}
                       className="flex items-center gap-3 p-3 bg-background border rounded-lg hover:border-primary/50 transition-colors"
@@ -351,7 +347,7 @@ const Compare = () => {
                 <h2 className="text-2xl font-bold mb-6">
                   04 {comparison.tool2.name} pros and cons
                 </h2>
-                
+
                 <div className="grid md:grid-cols-2 gap-6">
                   <div className="bg-primary/5 p-6 rounded-xl border border-primary/20">
                     <h4 className="font-semibold text-primary mb-4">Pros</h4>
@@ -381,7 +377,7 @@ const Compare = () => {
                 <h3 className="text-xl font-bold mt-8 mb-4">Compare {comparison.tool2.name} to other tools</h3>
                 <div className="grid sm:grid-cols-2 gap-3">
                   {comparison.relatedTool2.map((related, i) => (
-                    <Link 
+                    <Link
                       key={i}
                       to={`/compare/${related.slug}`}
                       className="flex items-center gap-3 p-3 bg-background border rounded-lg hover:border-primary/50 transition-colors"
@@ -409,8 +405,8 @@ const Compare = () => {
 
                 <h3 className="text-lg font-semibold mb-2">❖ Is {comparison.tool1.name} better than {comparison.tool2.name}?</h3>
                 <p className="text-muted-foreground mb-6">
-                  The choice between two SaaS tools always depends on many factors, such as the size of the company, 
-                  the skills of its technical team, its budget and its specific needs. {comparison.tool1.name} may 
+                  The choice between two SaaS tools always depends on many factors, such as the size of the company,
+                  the skills of its technical team, its budget and its specific needs. {comparison.tool1.name} may
                   be better for certain use cases while {comparison.tool2.name} excels in others.
                 </p>
 
@@ -427,8 +423,8 @@ const Compare = () => {
 
                 <h3 className="text-lg font-semibold mb-2">❖ Is {comparison.tool2.name} better than {comparison.tool1.name}?</h3>
                 <p className="text-muted-foreground mb-6">
-                  Each tool has its strengths. {comparison.tool2.name} offers advantages in specific scenarios 
-                  while {comparison.tool1.name} might be preferable in others. Consider your specific requirements 
+                  Each tool has its strengths. {comparison.tool2.name} offers advantages in specific scenarios
+                  while {comparison.tool1.name} might be preferable in others. Consider your specific requirements
                   when making your decision.
                 </p>
 
@@ -499,7 +495,7 @@ const Compare = () => {
                 <h2 className="text-2xl font-bold mb-4">09 Alternatives to {comparison.tool1.name}</h2>
                 <div className="grid sm:grid-cols-2 gap-3">
                   {comparison.relatedTool1.map((related, i) => (
-                    <Link 
+                    <Link
                       key={i}
                       to={`/compare/${related.slug}`}
                       className="flex items-center gap-3 p-3 bg-background border rounded-lg hover:border-primary/50 transition-colors"
@@ -514,7 +510,7 @@ const Compare = () => {
                 <h2 className="text-2xl font-bold mb-4">10 Alternatives to {comparison.tool2.name}</h2>
                 <div className="grid sm:grid-cols-2 gap-3">
                   {comparison.relatedTool2.map((related, i) => (
-                    <Link 
+                    <Link
                       key={i}
                       to={`/compare/${related.slug}`}
                       className="flex items-center gap-3 p-3 bg-background border rounded-lg hover:border-primary/50 transition-colors"
@@ -533,7 +529,7 @@ const Compare = () => {
                   <h4 className="font-semibold mb-4">On this page</h4>
                   <nav className="space-y-2 text-sm">
                     {tableOfContents.map((item, index) => (
-                      <a 
+                      <a
                         key={item.id}
                         href={`#${item.id}`}
                         className="block text-muted-foreground hover:text-foreground transition-colors py-1"
@@ -568,7 +564,6 @@ const Compare = () => {
         </div>
       </section>
 
-      <Footer />
     </div>
   );
 };

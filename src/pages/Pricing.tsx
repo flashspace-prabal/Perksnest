@@ -2,28 +2,45 @@ import { Check, Zap, Crown, Building2, HelpCircle, ArrowRight } from "lucide-rea
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import Header from "@/components/Header";
-import Footer from "@/components/Footer";
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from "@/components/ui/accordion";
 import { toast } from 'sonner';
 import { useAuth } from "@/lib/auth";
 import { AuthModal } from "@/components/AuthModal";
 import { useState, useEffect } from "react";
+import {
+  Accordion,
+  AccordionItem,
+  AccordionTrigger,
+  AccordionContent,
+} from "@/components/ui/accordion";
 
 async function startCheckout(userId: string, email: string, name: string, period: 'annual') {
-  const res = await fetch('https://api.perksnest.co/api/checkout', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ userId, email, name, period }),
-  });
-  const data = await res.json();
-  if (data.url) window.location.href = data.url;
-  else throw new Error(data.error || 'Checkout failed');
+  try {
+    const res = await fetch('https://api.perksnest.co/api/checkout', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ userId, email, name, period }),
+    });
+    
+    if (!res.ok) {
+      throw new Error(`Checkout service error: ${res.status} ${res.statusText}`);
+    }
+    
+    const data = await res.json();
+    if (!data) {
+      throw new Error('Invalid checkout response');
+    }
+    
+    if (data.url) {
+      window.location.href = data.url;
+    } else if (data.error) {
+      throw new Error(data.error);
+    } else {
+      throw new Error('No checkout URL returned');
+    }
+  } catch (error) {
+    console.error('Checkout error:', error);
+    throw error;
+  }
 }
 
 const plans = [
@@ -274,19 +291,18 @@ const Pricing = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background">
-      <Header />
+    <div className="min-h-screen bg-white">
       
       <main>
         {/* Hero */}
-        <section className="py-16 md:py-24 gradient-hero">
+        <section className="py-20 md:py-32 bg-gray-50/30">
           <div className="container-wide">
-            <div className="text-center max-w-3xl mx-auto">
-              <h1 className="text-4xl md:text-5xl font-bold text-foreground mb-6">
+            <div className="text-center max-w-3xl mx-auto px-6">
+              <h1 className="text-4xl md:text-6xl font-bold text-gray-900 mb-8 tracking-tighter">
                 Simple, transparent pricing
               </h1>
-              <p className="text-lg md:text-xl text-muted-foreground">
-                Start for free, upgrade when you're ready. Save thousands on the tools your startup needs.
+              <p className="text-lg md:text-xl text-gray-600 leading-relaxed">
+                Start for free, upgrade when you're ready. Save thousands on the tools your startup needs to scale faster.
               </p>
             </div>
           </div>
@@ -480,13 +496,6 @@ const Pricing = () => {
         </section>
       </main>
 
-      <Footer />
-
-      <AuthModal
-        open={authModalOpen}
-        onOpenChange={setAuthModalOpen}
-        defaultTab={authModalTab}
-      />
     </div>
   );
 };

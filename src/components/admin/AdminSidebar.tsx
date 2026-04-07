@@ -31,29 +31,29 @@ export const AdminHeader = () => {
   const initial = user?.name?.charAt(0)?.toUpperCase() || 'A';
   return (
   <header className="bg-background border-b sticky top-0 z-50">
-    <div className="px-6 py-4">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-6">
-          <Link to="/" className="font-bold text-xl">perksnest.</Link>
-          <Badge variant="secondary" className="bg-primary/10 text-primary">Admin Portal</Badge>
+    <div className="px-4 sm:px-6 py-4">
+      <div className="flex items-center justify-between gap-4">
+        <div className="flex items-center gap-3 sm:gap-6 min-w-0">
+          <Link to="/" className="font-bold text-lg sm:text-xl flex-shrink-0">perksnest.</Link>
+          <Badge variant="secondary" className="bg-primary/10 text-primary text-xs sm:text-sm flex-shrink-0">Admin Portal</Badge>
         </div>
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-2 sm:gap-4">
           <div className="relative hidden md:block">
             <Search className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
-            <Input placeholder="Search users, deals, partners..." className="pl-10 w-80" />
+            <Input placeholder="Search..." className="pl-10 w-64 md:w-80 text-sm" />
           </div>
-          <Button variant="ghost" size="icon">
-            <Bell className="h-5 w-5" />
+          <Button variant="ghost" size="icon" className="h-9 w-9 sm:h-10 sm:w-10">
+            <Bell className="h-4 w-4 sm:h-5 sm:w-5" />
           </Button>
           <div className="relative">
             <button
               onClick={() => setOpen(!open)}
-              className="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-primary-foreground font-semibold hover:opacity-90"
+              className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-primary flex items-center justify-center text-primary-foreground font-semibold hover:opacity-90 flex-shrink-0"
             >
-              {user?.avatar ? <img src={user.avatar} alt={initial} className="w-8 h-8 rounded-full object-cover" /> : initial}
+              {user?.avatar ? <img src={user.avatar} alt={initial} className="w-full h-full rounded-full object-cover" /> : initial}
             </button>
             {open && (
-              <div className="absolute right-0 top-10 w-52 bg-background border border-border rounded-xl shadow-lg z-50">
+              <div className="absolute right-0 top-10 w-48 sm:w-52 bg-background border border-border rounded-xl shadow-lg z-50">
                 <div className="p-3 border-b border-border">
                   <p className="font-medium text-sm truncate">{user?.name || 'Admin'}</p>
                   <p className="text-xs text-muted-foreground truncate">{user?.email}</p>
@@ -78,7 +78,7 @@ export const AdminHeader = () => {
 
 export const AdminSidebar = ({ activeTab, onTabChange }: AdminSidebarProps) => {
   return (
-    <aside className="w-64 bg-background border-r min-h-[calc(100vh-73px)] p-4">
+    <aside className="hidden md:block w-48 lg:w-64 bg-background border-r min-h-[calc(100vh-73px)] p-3 sm:p-4">
       <nav className="space-y-1">
         {sidebarItems.map((item) => {
           const Icon = item.icon;
@@ -86,7 +86,7 @@ export const AdminSidebar = ({ activeTab, onTabChange }: AdminSidebarProps) => {
             <button
               key={item.id}
               onClick={() => onTabChange(item.id)}
-              className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+              className={`w-full flex items-center gap-2 sm:gap-3 px-2 sm:px-3 py-2 rounded-lg text-xs sm:text-sm font-medium transition-colors ${
                 activeTab === item.id
                   ? "bg-primary text-primary-foreground"
                   : "text-muted-foreground hover:bg-muted hover:text-foreground"

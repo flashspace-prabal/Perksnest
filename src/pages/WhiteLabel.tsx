@@ -1,8 +1,6 @@
 import { Globe, Shield, BarChart3, Users, Palette, Settings, Check, ChevronDown, Rocket, Building2, Heart, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import Header from "@/components/Header";
-import Footer from "@/components/Footer";
 import { useState } from "react";
 
 const stats = [
@@ -95,9 +93,20 @@ const faqs = [
 const WhiteLabel = () => {
   const [openFaq, setOpenFaq] = useState<number | null>(null);
 
+  const handleBookDemo = () => {
+    window.location.href = 'mailto:sales@perksnest.co?subject=White-Label%20Platform%20Demo%20Request&body=I%20am%20interested%20in%20learning%20more%20about%20the%20PerksNest%20white-label%20platform.';
+  };
+
+  const handleSeeHowWorks = () => {
+    document.getElementById('how-it-works')?.scrollIntoView({ behavior: 'smooth' });
+  };
+
+  const handleContactSales = () => {
+    window.location.href = '/contact';
+  };
+
   return (
-    <div className="min-h-screen bg-background">
-      <Header />
+    <div className="min-h-screen bg-white">
 
       {/* Hero — clean, flat, text-focused */}
       <section className="bg-primary">
@@ -115,11 +124,11 @@ const WhiteLabel = () => {
           </p>
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center mb-14 animate-fade-in animation-delay-200">
-            <Button size="lg" className="bg-primary-foreground text-primary hover:bg-primary-foreground/90 font-semibold px-8 py-6 text-base gap-2">
+            <Button size="lg" onClick={handleBookDemo} className="bg-primary-foreground text-primary hover:bg-primary-foreground/90 font-semibold px-8 py-6 text-base gap-2">
               Book a Demo
               <ArrowRight className="h-4 w-4" />
             </Button>
-            <Button size="lg" variant="outline" className="border-2 border-primary-foreground/30 text-primary-foreground bg-transparent hover:bg-primary-foreground/10 font-semibold px-8 py-6 text-base">
+            <Button size="lg" onClick={handleSeeHowWorks} variant="outline" className="border-2 border-primary-foreground/30 text-primary-foreground bg-transparent hover:bg-primary-foreground/10 font-semibold px-8 py-6 text-base">
               See How It Works
             </Button>
           </div>
@@ -245,7 +254,7 @@ const WhiteLabel = () => {
                     </li>
                   ))}
                 </ul>
-                <Button size="lg" className="w-full py-6 text-base font-semibold gap-2">
+                <Button size="lg" onClick={handleBookDemo} className="w-full py-6 text-base font-semibold gap-2">
                   Book a Demo
                   <ArrowRight className="w-4 h-4" />
                 </Button>
@@ -290,18 +299,17 @@ const WhiteLabel = () => {
             Join 500+ organizations delivering value to their communities with our white-label platform.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Button size="lg" className="bg-primary-foreground text-primary hover:bg-primary-foreground/90 font-semibold px-8 py-6 text-base gap-2">
+            <Button size="lg" onClick={handleBookDemo} className="bg-primary-foreground text-primary hover:bg-primary-foreground/90 font-semibold px-8 py-6 text-base gap-2">
               Book a Demo
               <ArrowRight className="w-4 h-4" />
             </Button>
-            <Button size="lg" variant="outline" className="border-2 border-primary-foreground/30 text-primary-foreground bg-transparent hover:bg-primary-foreground/10 font-semibold px-8 py-6 text-base">
+            <Button size="lg" onClick={handleContactSales} variant="outline" className="border-2 border-primary-foreground/30 text-primary-foreground bg-transparent hover:bg-primary-foreground/10 font-semibold px-8 py-6 text-base">
               Contact Sales
             </Button>
           </div>
         </div>
       </section>
 
-      <Footer />
     </div>
   );
 };

@@ -1,6 +1,5 @@
 import { useEffect } from "react";
-import Header from "@/components/Header";
-import Footer from "@/components/Footer";
+import { FileText, Shield, Lock, ArrowLeft } from "lucide-react";
 import { Link } from "react-router-dom";
 
 export default function TermsOfService() {
@@ -9,8 +8,7 @@ export default function TermsOfService() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-background flex flex-col">
-      <Header />
+    <div className="min-h-screen bg-white">
       <main className="flex-1 max-w-3xl mx-auto px-4 py-12 w-full">
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-foreground mb-2">Terms of Service</h1>
@@ -67,7 +65,6 @@ export default function TermsOfService() {
           <Link to="/" className="hover:text-primary transition-colors">← Back to Home</Link>
         </div>
       </main>
-      <Footer />
     </div>
   );
 }

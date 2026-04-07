@@ -6,6 +6,7 @@ PerksNest is a SaaS deals marketplace platform connecting startups with exclusiv
 
 **Live URL:** https://perksnest.co
 **API Backend:** https://api.perksnest.co
+**Dev Server:** http://localhost:8080
 
 ## Tech Stack
 
@@ -25,79 +26,177 @@ PerksNest is a SaaS deals marketplace platform connecting startups with exclusiv
 ## Folder Structure
 
 ```
-/tmp/perksnest/
+c:\Prabal\Projects\perksnest-v2\
 ├── src/
-│   ├── components/           # Reusable UI components
-│   │   ├── ui/              # shadcn/ui components (Button, Input, Dialog, etc.)
-│   │   ├── admin/           # Admin portal components (Dashboard, Analytics, etc.)
-│   │   ├── partner/         # Partner portal components (Analytics, DealsList)
-│   │   ├── customer/        # Customer portal components (SavedDeals, Settings)
-│   │   ├── Header.tsx       # Main navigation header
-│   │   ├── Footer.tsx       # Site footer
-│   │   ├── DealCard.tsx     # Deal card component with reviews & featured badge
-│   │   └── DealReviews.tsx  # Deal reviews & ratings component
-│   ├── pages/               # Page components
-│   │   ├── Index.tsx        # Homepage with weekly digest subscribe
-│   │   ├── Deals.tsx        # Deals marketplace with featured section
-│   │   ├── DealDetail.tsx   # Individual deal page with reviews
-│   │   ├── Pricing.tsx      # Pricing page with "Your Plan" badge
-│   │   ├── WhiteLabel.tsx   # White-label sales page with demo booking
-│   │   ├── Docs.tsx         # Developer documentation
-│   │   ├── PartnerProfile.tsx # Public partner profile pages
-│   │   ├── portal/          # Portal pages
-│   │   │   ├── AdminPortal.tsx
-│   │   │   ├── PartnerPortal.tsx
-│   │   │   └── CustomerPortal.tsx
-│   │   └── ...              # Other pages
-│   ├── lib/                 # Utility libraries
-│   │   ├── auth.ts          # Authentication context & helpers
-│   │   ├── store.ts         # LocalStorage data management
-│   │   ├── reviews.ts       # Deal reviews system
-│   │   └── utils.ts         # Utility functions
-│   ├── data/                # Static data
-│   │   └── deals.ts         # Deals data with featured flag
-│   ├── assets/              # Static assets (logos, images)
-│   └── App.tsx              # Root component with routing
-├── public/                  # Public assets
-├── dist/                    # Production build output
-├── package.json             # Dependencies & scripts
-└── vite.config.ts          # Vite configuration
+│   ├── components/                    # Reusable UI components (107 total)
+│   │   ├── ui/                       # shadcn/ui components (Button, Input, Dialog, etc.)
+│   │   ├── admin/                    # Admin portal components (Dashboard, Users, Deals, etc.)
+│   │   ├── Header.tsx                # Main navigation header with search
+│   │   ├── MainNavbar.tsx            # Alternative navbar component
+│   │   ├── MegaMenuHeader.tsx        # Mega menu for categories
+│   │   ├── Footer.tsx                # Site footer
+│   │   ├── DealCard.tsx              # Deal card with reviews & featured badge
+│   │   ├── DealCardNew.tsx           # Enhanced deal card with descriptions
+│   │   ├── DealReviews.tsx           # Reviews system with ratings
+│   │   ├── SafeImage.tsx             # Image component with fallback
+│   │   ├── SkeletonLoader.tsx        # Loading skeleton states
+│   │   ├── FeaturedDeals.tsx         # Featured deals section
+│   │   └── ...                       # Other components
+│   ├── pages/                        # Page components (34 pages)
+│   │   ├── HomeStripe.tsx            # Homepage with hero banner
+│   │   ├── Deals.tsx                 # Deals marketplace with filters
+│   │   ├── DealDetail.tsx            # Individual deal page with claim button
+│   │   ├── DealRedeem.tsx            # Redeem deal page
+│   │   ├── Pricing.tsx               # Pricing page
+│   │   ├── Blog.tsx                  # Blog posts listing & detail
+│   │   ├── Categories.tsx            # Category listing
+│   │   ├── Collections.tsx           # Deals collections
+│   │   ├── Leaderboard.tsx           # Leaderboard page
+│   │   ├── Communities.tsx           # Communities & accelerators
+│   │   ├── Compare.tsx               # Deal comparison page
+│   │   ├── Contact.tsx               # Contact form page
+│   │   ├── WhiteLabel.tsx            # White-label sales page
+│   │   ├── Docs.tsx                  # Developer API documentation
+│   │   ├── HelpCenter.tsx            # Help & support center
+│   │   ├── BrandProfile.tsx          # Partner brand profiles
+│   │   ├── PartnerProfile.tsx        # Partner public profile
+│   │   ├── Newsletter.tsx            # Newsletter signup
+│   │   ├── Invite.tsx                # Referral program
+│   │   ├── Login.tsx                 # Authentication page
+│   │   ├── ForgotPassword.tsx        # Password recovery
+│   │   ├── AuthCallback.tsx          # OAuth callback page
+│   │   ├── Leaderboard.tsx           # User leaderboard
+│   │   ├── TermsOfService.tsx        # Terms page
+│   │   ├── PrivacyPolicy.tsx         # Privacy policy
+│   │   ├── NotFound.tsx              # 404 page
+│   │   ├── ComingSoon.tsx            # Placeholder page
+│   │   ├── portal/                   # Portal pages
+│   │   │   ├── AdminPortal.tsx       # Admin dashboard
+│   │   │   ├── PartnerPortal.tsx     # Partner portal
+│   │   │   └── CustomerPortal.tsx    # Customer portal
+│   │   └── customer/                 # Customer pages
+│   │       ├── Tickets.tsx           # Support tickets
+│   │       └── TicketDetail.tsx      # Ticket detail page
+│   ├── lib/                          # Utility libraries
+│   │   ├── auth.tsx                  # Authentication context & hooks
+│   │   ├── api.ts                    # API client with retry & timeout
+│   │   ├── deals.ts                  # Deal management & fetching
+│   │   ├── store.ts                  # LocalStorage management
+│   │   ├── reviews.ts                # Deal reviews & ratings
+│   │   ├── supabase.ts               # Supabase initialization
+│   │   └── utils.ts                  # Utility functions
+│   ├── data/                         # Static data
+│   │   ├── deals.ts                  # Mock deals data (100+ deals)
+│   │   ├── comparisons.ts            # Comparison data
+│   │   └── blog.ts                   # Blog posts data
+│   ├── assets/                       # Static assets
+│   │   ├── logos/                    # Company logos
+│   │   └── illustrations/            # SVG illustrations
+│   ├── index.css                     # Global styles & Tailwind
+│   ├── main.tsx                      # React entry point
+│   └── App.tsx                       # Root component with routing
+├── public/                           # Public static assets
+├── dist/                             # Production build output
+├── API_TESTING_GUIDE.md              # API testing instructions
+├── BUILD_VERIFICATION_REPORT.md      # Build audit report
+├── package.json                      # Dependencies & scripts
+├── tsconfig.json                     # TypeScript configuration
+├── vite.config.ts                    # Vite build configuration
+├── tailwind.config.ts                # Tailwind CSS config
+└── README.md                         # Project README
 ```
 
 ## Pages & Routes
 
 | Path | Component | Description | Auth Required |
 |------|-----------|-------------|---------------|
-| `/` | Index.tsx | Homepage with hero, deals carousel, pricing | No |
-| `/deals` | Deals.tsx | Deals marketplace with search, filters, featured section | No |
-| `/deals/:dealId` | DealDetail.tsx | Individual deal page with reviews | No |
-| `/deals/:dealId/redeem` | DealRedeem.tsx | Redeem deal page | Yes |
-| `/pricing` | Pricing.tsx | Pricing tiers with "Your Plan" badge | No |
+| `/` | HomeStripe.tsx | Homepage with hero banner, featured deals, testimonials | No |
+| `/deals` | Deals.tsx | Deals marketplace with search, filters, sorting, featured section | No |
+| `/deals/:dealId` | DealDetail.tsx | Individual deal page with reviews, claim button, tabs | No |
+| `/deals/:dealId/redeem` | DealRedeem.tsx | Redeem deal with promo code | Yes |
+| `/pricing` | Pricing.tsx | Pricing tiers with plan badge | No |
+| `/contact` | Contact.tsx | Contact form page | No |
+| `/blog` | Blog.tsx | Blog posts listing & detail pages | No |
+| `/blog/:postId` | Blog.tsx | Individual blog post | No |
+| `/invite` | Invite.tsx | Referral program page | No |
+| `/newsletter` | Newsletter.tsx | Newsletter subscription | No |
+| `/collections` | Collections.tsx | Deals collections listing | No |
+| `/collections/:id` | CollectionDetail.tsx | Collection detail with deals | No |
+| `/categories` | Categories.tsx | All categories | No |
+| `/category/:slug` | Category.tsx | Category deals listing | No |
+| `/leaderboard` | Leaderboard.tsx | User rankings | No |
+| `/compare/:slug` | Compare.tsx | Deal comparison page | No |
+| `/login` | Login.tsx | Login/authentication page | No |
+| `/signup` | Login.tsx | Signup (same component) | No |
+| `/communities` | Communities.tsx | Communities & accelerators | No |
+| `/accelerators` | Communities.tsx | Accelerators (alias) | No |
 | `/white-label` | WhiteLabel.tsx | White-label sales page with demo booking | No |
 | `/docs` | Docs.tsx | Developer API documentation | No |
-| `/brand/:slug` | PartnerProfile.tsx | Public partner profile with deals | No |
-| `/login` | Login.tsx | Login page with auth modal | No |
-| `/admin` | AdminPortal.tsx | Admin dashboard with white-label tab | Yes (Admin) |
-| `/partner` | PartnerPortal.tsx | Partner analytics & deal management | Yes (Partner) |
-| `/customer` | CustomerPortal.tsx | Customer portal with saved deals | Yes (Customer) |
-| `/blog` | Blog.tsx | Blog posts | No |
-| `/communities` | Communities.tsx | Communities & accelerators | No |
-| `/invite` | Invite.tsx | Referral program | No |
+| `/help` | HelpCenter.tsx | Help & support center | No |
+| `/brand/:brandId` | BrandProfile.tsx | Public partner brand profile | No |
+| `/admin` | AdminPortal.tsx | Admin dashboard with stats, users, deals, white-label | Yes (Admin) |
+| `/customer` | CustomerPortal.tsx | Customer portal with profile | Yes (Customer) |
+| `/customer/tickets` | Tickets.tsx | Support tickets listing | Yes |
+| `/customer/tickets/:ticketId` | TicketDetail.tsx | Ticket detail page | Yes |
+| `/partner` | ComingSoon.tsx | Partner portal (coming soon) | Coming Soon |
+| `/solutions` | ComingSoon.tsx | Solutions page (coming soon) | Coming Soon |
+| `/developers` | ComingSoon.tsx | Developers page (coming soon) | Coming Soon |
+| `/resources` | ComingSoon.tsx | Resources page (coming soon) | Coming Soon |
+| `/about` | ComingSoon.tsx | About page (coming soon) | Coming Soon |
+| `/press` | ComingSoon.tsx | Press page (coming soon) | Coming Soon |
+| `/careers` | ComingSoon.tsx | Careers page (coming soon) | Coming Soon |
+| `/terms` | TermsOfService.tsx | Terms of service | No |
+| `/privacy` | PrivacyPolicy.tsx | Privacy policy | No |
+| `/auth/callback` | AuthCallback.tsx | OAuth callback handler | No |
 
 ## Components Reference
 
-### Core Components
-- **Header.tsx**: Main navigation with auth state, "For Communities" link
-- **Footer.tsx**: Site footer with White Label and API Docs links
-- **DealCard.tsx**: Deal display card with rating stars, featured badge, company profile link
-- **DealReviews.tsx**: Reviews system with star ratings, helpful votes, write review form
-- **CategorySidebar.tsx**: Category filtering sidebar
+### Core Navigation & Layout
+- **MainNavbar.tsx**: Main navigation bar with logo, category menu, search, auth
+- **MegaMenuHeader.tsx**: Mega menu for category navigation and search
+- **Header.tsx**: Alternative header component with menu
+- **MainFooter.tsx**: Site footer with links and branding
+- **ScrollToTop.tsx**: Scroll-to-top functionality component
+
+### Deal Display Components
+- **DealCard.tsx**: Classic deal card with rating, featured badge, expiry
+- **DealCardNew.tsx**: Enhanced deal card with description, member count, filters
+- **DealReviews.tsx**: Reviews system with ratings, reviews list, write review form
+- **FeaturedDeals.tsx**: Featured deals carousel with descriptions
+- **DealCarousel.tsx**: Horizontal deals carousel slider
+- **DealsGrid.tsx**: Grid layout for deals with filtering
+
+### Utility Components
+- **SafeImage.tsx**: Image component with fallback for broken images
+- **SkeletonLoader.tsx**: Loading skeleton states for cards and pages
+- **ExpiryBadge.tsx**: Deal expiration status badge
+- **UpvoteButton.tsx**: Upvote functionality for deals
+- **AuthModal.tsx**: Authentication modal dialog
+- **OAuthHandler.tsx**: OAuth event handler
 
 ### Admin Components
-- **AdminDashboard.tsx**: Overview with stats, pending deals, activity feed
-- **AdminAnalytics.tsx**: Platform analytics with charts
-- **AdminWhiteLabel.tsx**: White-label client management with stats & table
-- **AdminSidebar.tsx**: Admin navigation with White Label tab
+- **AdminPortal.tsx**: Admin dashboard main page
+- **AdminDashboard.tsx**: Dashboard with stats cards
+- **AdminAnalytics.tsx**: Analytics charts and graphs
+- **AdminWhiteLabel.tsx**: White-label client management
+- **AdminUsers.tsx**: User management and editing
+- **AdminDeals.tsx**: Deal CRUD operations
+- **AdminPartners.tsx**: Partner management
+- **AdminPendingDeals.tsx**: Pending deal approval queue
+- **AdminTickets.tsx**: Support ticket management
+- **AdminRevenue.tsx**: Revenue analytics
+- **AdminSettings.tsx**: Platform settings
+- **AdminSidebar.tsx**: Admin navigation menu
+- **AdminRoleManager.tsx**: User role assignment
+
+### Section Components
+- **HeroBanner.tsx**: Homepage hero section
+- **HowItWorks.tsx**: How PerksNest works section
+- **PricingSection.tsx**: Pricing plans display
+- **CTASection.tsx**: Call-to-action section
+- **FeatureCategoriesSection.tsx**: Feature categories showcase
+- **CategoryDealsSection.tsx**: Category-based deals display
+- **TrustedBySection.tsx**: Marquee of trusted companies
 
 ### Partner Components
 - **PartnerAnalytics.tsx**: Partner-specific analytics (NaN% bug fixed)
@@ -110,51 +209,72 @@ PerksNest is a SaaS deals marketplace platform connecting startups with exclusiv
 ### UI Components (shadcn/ui)
 All components in `src/components/ui/` including: Button, Input, Dialog, Select, Accordion, Card, Badge, Avatar, Dropdown, Tabs, Toast, and more.
 
-## Data Layer — localStorage Keys
+## Data Layer — localStorage & Supabase
+
+### localStorage Keys
 
 | Key | Type | What it Stores | Set By |
 |-----|------|----------------|--------|
-| `pn_users` | Array<User> | All registered users | auth.ts (register) |
-| `pn_current_user` | string | Current user ID | auth.ts (login) |
-| `pn_deals` | Array<Deal> | All deals data | deals.ts |
-| `pn_claim_events` | Array<ClaimEvent> | Deal claim history | store.ts (claimDeal) |
-| `pn_partner_deals` | Array<PartnerDeal> | Partner-submitted deals | store.ts (submitDeal) |
-| `pn_bookmarks_{userId}` | Array<dealId> | User's saved deals | store.ts (toggleBookmark) |
-| `pn_user_settings_{userId}` | UserSettings | User preferences | CustomerSettings.tsx |
+| `pn_session` | Object | User session token & ID | auth.tsx (login) |
+| `pn_current_user` | string | Current user ID | auth.tsx (login) |
+| `pn_claimed_deals` | Array<dealId> | User claimed deals (fallback) | api.ts (claimDeal fallback) |
+| `pn_bookmarks_{userId}` | Array<dealId> | User's saved/bookmarked deals | store.ts (toggleBookmark) |
 | `pn_reviews` | Array<Review> | Deal reviews & ratings | reviews.ts |
-| `pn_digest_subscribers` | Array<{email, subscribedAt}> | Weekly digest subscribers | Index.tsx |
-| `pn_wl_clients` | Array<WhiteLabelClient> | White-label clients | AdminWhiteLabel.tsx |
+| `pn_digest_subscribers` | Set<email> | Weekly digest subscribers | HomeStripe.tsx |
 | `notificationsEnabled` | boolean | Notification preference | Deals.tsx |
+
+### Supabase Integration
+
+- **Database**: Perksnest schema in Supabase
+- **Authentication**: Supabase Auth for user management
+- **Tables**: Users, deals, reviews, claims, white_label_clients
+- **Config**: `src/lib/supabase.ts`
 
 ## API Integration — api.perksnest.co
 
-All API endpoints use `https://api.perksnest.co/api/notify` for email notifications:
+### API Client Features (`src/lib/api.ts`)
 
-### Email Notification Types
+**Enhanced with:**
+- ✅ **5-second timeout** per request (AbortController)
+- ✅ **Automatic retry logic** with exponential backoff (2 retries)
+- ✅ **Fallback to localStorage** for critical operations (claimDeal)
+- ✅ **Enhanced error logging** with specific error types
+- ✅ **Bearer token authentication** from localStorage (`pn_session`)
 
-| Type | To | Purpose | Triggered By |
-|------|----|---------|--------------|
-| `welcome` | User email | Welcome email on signup | auth.ts (register) |
-| `deal_approved` | Partner email | Deal approval notification | AdminPendingDeals.tsx |
-| `deal_rejected` | Partner email | Deal rejection notification | AdminPendingDeals.tsx |
-| `deal_claimed` | User email | Deal claim confirmation | DealDetail.tsx, DealRedeem.tsx |
-| `white_label_inquiry` | pranav@stirringminds.com | WL demo booking | WhiteLabel.tsx |
-| `digest_subscribe` | Subscriber email | Digest subscription confirm | Index.tsx |
+### API Endpoints
 
-### Request Format
+| Method | Endpoint | Purpose | Retry | Fallback |
+|--------|----------|---------|-------|----------|
+| POST | `/api/deals/claim` | Claim a deal | 2x | localStorage |
+| GET | `/api/deals` | Get all deals | 2x | Static deals data |
+| GET | `/api/deals/:id` | Get single deal | 2x | Static deals data |
+| GET | `/api/deals/:id/claims` | Get claim count | 2x | 0 |
+| GET | `/api/user/claims` | Get user's claimed deals | 2x | localStorage |
+| GET | `/api/referrals/me` | Get referral stats | 2x | {} |
+| POST | `/api/referrals/click` | Track referral click | 2x | Logged |
+| POST | `/api/referrals/convert` | Convert referral | 2x | Logged |
+| GET | `/api/tickets` | Get support tickets | 2x | [] |
+| POST | `/api/tickets` | Create support ticket | 2x | Error logged |
+| GET | `/api/admin/stats` | Get admin statistics | 2x | {} |
+| GET | `/api/admin/users` | Get admin users list | 2x | [] |
+
+### Error Handling
+
+API client handles these error types:
+- **Timeout**: Network error after 5 seconds
+- **401 Unauthorized**: Session expired, user needs to re-login
+- **403 Forbidden**: User not eligible (e.g., premium deal without pro tier)
+- **Network Errors**: Automatically retried 2x with backoff
+- **API Errors**: Status code 4xx/5xx with descriptive messages
+
+### Authentication
+
+All endpoints require Bearer token:
 ```typescript
-POST /api/notify
-Content-Type: application/json
-
-{
-  type: string,
-  to: string,
-  name?: string,
-  dealName?: string,
-  promoCode?: string,
-  reason?: string
-}
+Authorization: Bearer {access_token}
 ```
+
+Token stored in `localStorage.getItem('pn_session')`
 
 ## Authentication
 
@@ -247,36 +367,28 @@ Fixed percentage calculations in `PartnerAnalytics.tsx` to prevent division by z
 
 ### Production Build
 ```bash
-cd /tmp/perksnest
+cd c:\Prabal\Projects\perksnest-v2
 npm run build
 ```
 
-Build outputs to `/tmp/perksnest/dist/`
+Build outputs to `dist/` directory with optimized bundles.
 
-### Deploy to Production
-```bash
-rsync -az --delete -e "ssh -o ConnectTimeout=30 -i /Users/aibot/.openclaw/workspace/.ssh/kvm8_key" \
-  /tmp/perksnest/dist/ pranav@72.60.219.115:/var/www/perksnest.co/
-
-ssh -o ConnectTimeout=15 -i /Users/aibot/.openclaw/workspace/.ssh/kvm8_key \
-  pranav@72.60.219.115 \
-  "echo 'Amelie2026KVM8!' | sudo -S nginx -s reload 2>/dev/null && echo DEPLOYED"
-```
-
-Server: VPS at 72.60.219.115
-Web root: `/var/www/perksnest.co/`
-Web server: Nginx
+### Build Output
+- `dist/index.html` - Main HTML file
+- `dist/assets/index-*.css` - Compiled Tailwind + component styles
+- `dist/assets/index-*.js` - Bundled React + dependencies
+- `dist/assets/*.{svg,png,ico}` - Optimized images and logos
 
 ## Local Setup
 
 ### Prerequisites
 - Node.js 18+
-- npm or yarn
+- npm 9+
 
 ### Installation
 ```bash
-# Clone repository
-cd /tmp/perksnest
+# Navigate to project directory
+cd c:\Prabal\Projects\perksnest-v2
 
 # Install dependencies
 npm install
@@ -285,14 +397,16 @@ npm install
 npm run dev
 ```
 
-Dev server runs at `http://localhost:5173`
+Dev server runs at `http://localhost:8080`
 
 ### Available Scripts
-- `npm run dev` - Start development server
-- `npm run build` - Production build
-- `npm run preview` - Preview production build
+- `npm run dev` - Start development server (Vite)
+- `npm run build` - Production build (Vite)
+- `npm run build:dev` - Development build mode
+- `npm run preview` - Preview production build locally
 - `npm run lint` - Run ESLint
-- `npm run test` - Run tests
+- `npm run test` - Run tests (Vitest)
+- `npm run test:watch` - Watch mode tests (Vitest)
 
 ## Design System
 
@@ -304,10 +418,34 @@ Dev server runs at `http://localhost:5173`
 ## File Count
 Total TypeScript files: 128
 
-## Version
-PerksNest v3.1 — Full-featured SaaS deals marketplace with reviews, featured deals, partner profiles, white-label, and API documentation.
+## Latest Updates (v3.2)
+
+### Recent Features Added
+- ✅ **API Timeout & Retry Logic**: 5-second timeout with 2 automatic retries
+- ✅ **Offline Fallback**: Claims saved to localStorage when API fails
+- ✅ **Enhanced Claim UI**: Loading state, better error messages
+- ✅ **Skeleton Loaders**: Improved perceived performance
+- ✅ **Filtering & Sorting**: Multiple sort options with icons
+- ✅ **Rich Product Content**: Descriptions, features, use cases
+- ✅ **Featured Deals**: Highlighted deals with special badges
+- ✅ **Responsive Design**: Mobile-optimized all pages
+- ✅ **Error Handling**: Comprehensive error messages for all user actions
+
+### Build Status
+- **TypeScript**: 0 errors
+- **Production Build**: 15.59 seconds
+- **Bundle Size**: 1,325 KB (gzipped: 354 KB)
+- **Modules**: 1,873 transformed
+
+### Documentation Files
+- `DOCUMENTATION.md` - This file (project overview)
+- `API_TESTING_GUIDE.md` - Step-by-step API testing instructions
+- `BUILD_VERIFICATION_REPORT.md` - Complete build audit report
+- `README.md` - Quick start guide
 
 ---
 
-**Last Updated**: March 4, 2026
-**Maintained By**: PerksNest Team
+**Version**: 3.2  
+**Project Name**: PerksNest — Full-featured SaaS deals marketplace  
+**Last Updated**: April 7, 2026  
+**Status**: Production Ready ✅

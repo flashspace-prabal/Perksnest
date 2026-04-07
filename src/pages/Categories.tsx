@@ -1,7 +1,5 @@
 import { useEffect } from "react";
 import { Link } from "react-router-dom";
-import Header from "@/components/Header";
-import Footer from "@/components/Footer";
 import { getAllCategories } from "./Category";
 import { ArrowRight } from "lucide-react";
 
@@ -12,8 +10,7 @@ const Categories = () => {
 
   const categories = getAllCategories();
   return (
-    <div className="min-h-screen bg-background flex flex-col">
-      <Header />
+    <div className="min-h-screen bg-white">
       <main className="flex-1">
         <section className="bg-primary text-primary-foreground py-14 px-4">
           <div className="max-w-3xl mx-auto text-center">
@@ -41,7 +38,6 @@ const Categories = () => {
           </div>
         </div>
       </main>
-      <Footer />
     </div>
   );
 };

@@ -3,8 +3,6 @@ import { useParams, Link, Navigate } from "react-router-dom";
 import { ArrowLeft, Check, Copy, ExternalLink, Clock, Shield, Star, Gift, ChevronRight, Lock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import Header from "@/components/Header";
-import Footer from "@/components/Footer";
 import SafeImage from "@/components/SafeImage";
 import { AuthModal } from "@/components/AuthModal";
 import { useAuth } from "@/lib/auth";
@@ -222,8 +220,6 @@ const DealRedeem = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <Header />
-      
       <main className="py-8">
         <div className="container-wide max-w-4xl">
           {/* Back Link */}
@@ -420,8 +416,6 @@ const DealRedeem = () => {
           </div>
         </div>
       </main>
-
-      <Footer />
 
       <AuthModal
         open={showAuthModal}

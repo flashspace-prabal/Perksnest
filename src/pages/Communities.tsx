@@ -1,8 +1,6 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { useLocation } from "react-router-dom";
-import Header from "@/components/Header";
-import Footer from "@/components/Footer";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -49,8 +47,7 @@ const Communities = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-background">
-      <Header />
+    <div className="min-h-screen bg-white">
       <main className="py-20">
         <div className="container max-w-4xl mx-auto px-6">
           <div className="text-center mb-16">
@@ -118,7 +115,6 @@ const Communities = () => {
           </div>
         </div>
         </main>
-      <Footer />
     </div>
   );
 };

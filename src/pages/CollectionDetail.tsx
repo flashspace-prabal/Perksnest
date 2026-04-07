@@ -1,7 +1,5 @@
 import { useParams, Link } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
-import Header from "@/components/Header";
-import Footer from "@/components/Footer";
 import DealCard from "@/components/DealCard";
 import { getCollections, getDealsByCollection } from "@/data/deals";
 
@@ -12,8 +10,7 @@ const CollectionDetail = () => {
   const deals = getDealsByCollection(id || "");
 
   return (
-    <div className="min-h-screen bg-background flex flex-col">
-      <Header />
+    <div className="min-h-screen bg-white">
       <main className="flex-1">
         <section className="bg-primary text-primary-foreground py-12 px-4">
           <div className="max-w-6xl mx-auto">
@@ -37,7 +34,6 @@ const CollectionDetail = () => {
           )}
         </div>
       </main>
-      <Footer />
     </div>
   );
 };

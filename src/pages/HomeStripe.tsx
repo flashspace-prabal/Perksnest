@@ -25,7 +25,7 @@ const StripeHeader = () => {
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
           <div className="flex items-center gap-8">
-            <Link to="/" className="text-[#635bff] font-bold text-2xl tracking-tight">
+            <Link to="/" className="text-[#5c2169] font-bold text-2xl tracking-tight">
               perksnest
             </Link>
 
@@ -54,38 +54,43 @@ const StripeHeader = () => {
           </div>
 
           {/* Right Side */}
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2 sm:gap-3">
             <Link 
-              to="/deals" 
+              to="/login" 
               className="hidden md:block px-4 py-2 text-[15px] text-gray-600 hover:text-gray-900 transition-colors"
             >
               Sign in
             </Link>
             <Link 
-              to="/deals"
-              className="hidden md:flex items-center gap-1 px-4 py-2 bg-[#635bff] hover:bg-[#5851ea] text-white text-[15px] font-medium rounded-full transition-colors"
+              to="/signup"
+              className="hidden sm:flex items-center gap-1 px-4 py-2 bg-[#5c2169] hover:bg-[#4a1a52] text-white text-[15px] font-medium rounded-full transition-colors"
             >
-              Contact sales
+              Get started
               <ArrowRight className="h-4 w-4" />
             </Link>
 
             {/* Mobile Menu Toggle */}
             <button
-              className="lg:hidden p-2"
+              className="lg:hidden p-2 text-gray-600 hover:text-gray-900"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              aria-label="Toggle mobile menu"
             >
               {mobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
             </button>
           </div>
         </div>
 
-        {/* Mobile Menu */}
+        {/* Mobile Menu Content */}
         {mobileMenuOpen && (
-          <div className="lg:hidden border-t py-4">
-            <div className="flex flex-col gap-2">
-              <Link to="/deals" className="px-3 py-2 text-gray-600 hover:text-gray-900">Products</Link>
-              <Link to="/deals" className="px-3 py-2 text-gray-600 hover:text-gray-900">Solutions</Link>
-              <Link to="/pricing" className="px-3 py-2 text-gray-600 hover:text-gray-900">Pricing</Link>
+          <div className="lg:hidden border-t py-6 space-y-4">
+            <nav className="flex flex-col gap-1">
+              <Link to="/deals" className="px-3 py-2.5 text-[15px] font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-lg">Products</Link>
+              <Link to="/deals" className="px-3 py-2.5 text-[15px] font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-lg">Solutions</Link>
+              <Link to="/pricing" className="px-3 py-2.5 text-[15px] font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-lg">Pricing</Link>
+            </nav>
+            <div className="flex flex-col gap-3 pt-4 border-t px-3">
+              <Link to="/login" className="flex items-center justify-center py-2.5 text-[15px] font-medium text-gray-600 hover:text-gray-900 border rounded-full">Sign in</Link>
+              <Link to="/signup" className="flex items-center justify-center py-2.5 text-[15px] font-medium bg-[#5c2169] text-white rounded-full">Get started</Link>
             </div>
           </div>
         )}
@@ -103,12 +108,12 @@ const StripeHero = ({ isAuthenticated }: { isAuthenticated: boolean }) => {
         <div className="max-w-3xl mx-auto">
           {/* Stats Badge */}
           <p className="text-sm text-gray-500 mb-6">
-            Global founders using PerksNest: <span className="text-[#635bff] font-medium">100,000+</span>
+            Global founders using PerksNest: <span className="text-[#5c2169] font-medium">100,000+</span>
           </p>
 
-          {/* Main Headline - Solid Color, Minimal */}
-          <h1 className="text-5xl md:text-6xl lg:text-[68px] font-semibold leading-[1.1] tracking-tight mb-6 text-gray-900">
-            Perks infrastructure to <span className="text-[#635bff]">grow your startup.</span>
+          {/* Main Headline - Responsive Scaling */}
+          <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-[68px] font-semibold leading-[1.1] tracking-tight mb-6 text-gray-900">
+            Perks infrastructure to <span className="text-[#5c2169]">grow your startup.</span>
           </h1>
 
           {/* Subheadline */}
@@ -116,18 +121,18 @@ const StripeHero = ({ isAuthenticated }: { isAuthenticated: boolean }) => {
             Your startup deserves better pricing. Discover the software perks that compound over time.
           </p>
 
-          {/* CTA Buttons */}
-          <div className="flex flex-wrap items-center justify-center gap-3 mb-8">
+          {/* CTA Buttons - Responsive Stacking */}
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-3 mb-10">
             <Link
               to="/deals"
-              className="inline-flex items-center gap-2 px-6 py-3 bg-[#635bff] hover:bg-[#5851ea] text-white font-medium rounded-full transition-colors"
+              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-8 py-3.5 bg-[#5c2169] hover:bg-[#4a1a52] text-white font-medium rounded-full transition-colors shadow-lg shadow-[#5c2169]/20"
             >
-              Get started
+              Get started for free
               <ArrowRight className="h-4 w-4" />
             </Link>
              {!isAuthenticated && (
               <button 
-                className="inline-flex items-center gap-2 px-6 py-3 bg-white border border-gray-200 hover:border-gray-300 text-gray-700 font-medium rounded-full transition-colors"
+                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-8 py-3.5 bg-white border border-gray-200 hover:border-gray-300 text-gray-700 font-medium rounded-full transition-colors"
                 onClick={() => navigate('/signup')}
               >
                 Sign up with Google
@@ -138,15 +143,15 @@ const StripeHero = ({ isAuthenticated }: { isAuthenticated: boolean }) => {
           {/* Trust Badges */}
           <div className="flex flex-wrap items-center justify-center gap-6">
             <div className="flex items-center gap-2 text-sm text-gray-600">
-              <Check className="h-4 w-4 text-[#635bff]" />
+              <Check className="h-4 w-4 text-[#5c2169]" />
               <span>350+ exclusive perks</span>
             </div>
             <div className="flex items-center gap-2 text-sm text-gray-600">
-              <Check className="h-4 w-4 text-[#635bff]" />
+              <Check className="h-4 w-4 text-[#5c2169]" />
               <span>All directly negotiated</span>
             </div>
             <div className="flex items-center gap-2 text-sm text-gray-600">
-              <Check className="h-4 w-4 text-[#635bff]" />
+              <Check className="h-4 w-4 text-[#5c2169]" />
               <span>Trusted globally</span>
             </div>
           </div>
@@ -163,9 +168,9 @@ const StripeTrustedBy = () => {
   return (
     <section className="py-8 bg-white border-t border-gray-100">
       <div className="max-w-7xl mx-auto px-6 lg:px-8">
-        <div className="flex flex-wrap items-center justify-center gap-8 lg:gap-12">
+        <div className="flex flex-wrap items-center justify-center gap-6 sm:gap-8 md:gap-10 lg:gap-12 opacity-60">
           {logos.map((logo) => (
-            <span key={logo} className="text-lg font-semibold text-gray-400 hover:text-gray-500 transition-colors">
+            <span key={logo} className="text-base sm:text-lg font-semibold text-gray-400 hover:text-gray-600 transition-colors decoration-gray-400/30">
               {logo}
             </span>
           ))}
@@ -186,8 +191,8 @@ const StripeTestimonials = () => {
   return (
     <section className="py-16 lg:py-24 bg-gray-50">
       <div className="max-w-7xl mx-auto px-6 lg:px-8">
-        <div className="mb-12">
-          <h2 className="text-3xl md:text-4xl font-semibold text-gray-900 mb-4 leading-tight">
+        <div className="mb-10 sm:mb-12">
+          <h2 className="text-3xl sm:text-4xl font-semibold text-gray-900 mb-4 leading-tight text-center md:text-left">
             What our members are saying
           </h2>
         </div>
@@ -201,7 +206,7 @@ const StripeTestimonials = () => {
               </div>
               <p className="text-gray-700 mb-6 leading-relaxed">"{t.quote}"</p>
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-[#635bff]/10 flex items-center justify-center text-[#635bff] font-semibold">
+                <div className="w-10 h-10 rounded-full bg-[#5c2169]/10 flex items-center justify-center text-[#5c2169] font-semibold">
                   {t.avatar}
                 </div>
                 <div>
@@ -224,7 +229,6 @@ const HomeStripe = () => {
 
   return (
     <div className="min-h-screen bg-white font-[-apple-system,BlinkMacSystemFont,'Segoe_UI',Roboto,sans-serif]">
-      <StripeHeader />
 
       <main>
         {/* Minimal Hero */}
@@ -254,7 +258,6 @@ const HomeStripe = () => {
         <CTASection />
       </main>
 
-      <Footer />
     </div>
   );
 };

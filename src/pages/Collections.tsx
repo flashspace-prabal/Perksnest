@@ -1,7 +1,5 @@
 import { Link } from "react-router-dom";
 import { ArrowRight, Sparkles } from "lucide-react";
-import Header from "@/components/Header";
-import Footer from "@/components/Footer";
 import DealCard from "@/components/DealCard";
 import { getCollections, getDealsByCollection } from "@/data/deals";
 
@@ -9,8 +7,7 @@ const Collections = () => {
   const collections = getCollections();
 
   return (
-    <div className="min-h-screen bg-background flex flex-col">
-      <Header />
+    <div className="min-h-screen bg-gray-50 flex flex-col">
       <main className="flex-1">
         <section className="bg-primary text-primary-foreground py-14 px-4">
           <div className="max-w-3xl mx-auto text-center">
@@ -60,7 +57,6 @@ const Collections = () => {
           })}
         </div>
       </main>
-      <Footer />
     </div>
   );
 };

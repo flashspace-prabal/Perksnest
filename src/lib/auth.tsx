@@ -156,30 +156,69 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const logout = () => {
-    setUser(null);
-    localStorage.removeItem(STORAGE_KEY);
-    localStorage.setItem('perksnest_logged_out', 'true'); // prevent OAuthHandler re-login
-    // Also sign out from Supabase (clears Google OAuth session)
-    db.auth.signOut().catch(() => {});
-    window.location.href = '/';
+    try {
+      setUser(null);
+      localStorage.removeItem(STORAGE_KEY);
+      localStorage.setItem('perksnest_logged_out', 'true');
+      // Also sign out from Supabase (clears Google OAuth session)
+      db.auth.signOut().catch(err => {
+        console.error('Supabase sign out error:', err);
+      });
+    } catch (err) {
+      console.error('Logout error:', err);
+    } finally {
+      window.location.href = '/';
+    }
   };
 
   const updatePlan = async (plan: UserPlan) => {
-    if (!user) return;
-    await db.from('users').update({ plan }).eq('id', user.id);
-    setUser({ ...user, plan });
+    if (!user) {
+      console.warn('Cannot update plan: no user');
+      throw new Error('User not authenticated');
+    }
+    try {
+      const { error } = await db.from('users').update({ plan }).eq('id', user.id);
+      if (error) throw error;
+      setUser({ ...user, plan });
+    } catch (err) {
+      console.error('Plan update error:', err);
+      throw err;
+    }
   };
 
   const claimDeal = async (dealId: string) => {
-    if (!user || user.claimedDeals.includes(dealId)) return;
-    const updated = [...user.claimedDeals, dealId];
-    await db.from('users').update({ claimed_deals: updated }).eq('id', user.id);
-    setUser({ ...user, claimedDeals: updated });
-    // Record claim event
-    await db.from('claim_events').upsert(
-      { user_id: user.id, deal_id: dealId },
-      { onConflict: 'user_id,deal_id' }
-    );
+    if (!user) {
+      console.warn('Cannot claim deal: no user');
+      throw new Error('User not authenticated');
+    }
+    if (user.claimedDeals.includes(dealId)) {
+      console.log('Deal already claimed:', dealId);
+      return;
+    }
+    
+    try {
+      const updated = [...user.claimedDeals, dealId];
+      const { error: updateError } = await db.from('users')
+        .update({ claimed_deals: updated })
+        .eq('id', user.id);
+      
+      if (updateError) throw updateError;
+      setUser({ ...user, claimedDeals: updated });
+      
+      // Record claim event
+      const { error: eventError } = await db.from('claim_events').upsert(
+        { user_id: user.id, deal_id: dealId },
+        { onConflict: 'user_id,deal_id' }
+      );
+      
+      if (eventError) {
+        console.error('Failed to record claim event:', eventError);
+        // Still succeed since the claim itself worked
+      }
+    } catch (err) {
+      console.error('Deal claim error:', err);
+      throw err;
+    }
   };
 
   return (

@@ -1,13 +1,12 @@
 import { useState, useEffect } from "react";
 import { Link, useSearchParams } from "react-router-dom";
-import { Grid, List, Star, Search, X, Loader2 } from "lucide-react";
-import Header from "@/components/Header";
-import Footer from "@/components/Footer";
+import { Grid, List, Star, Search, X, Loader2, TrendingUp, Clock, Zap } from "lucide-react";
 import DealCardNew from "@/components/DealCardNew";
 import CategorySidebar from "@/components/CategorySidebar";
 import { Deal, getExpiryLabel } from "@/data/deals";
 import { getUpvoteCount, getPartnerDeals, PartnerDeal } from "@/lib/store";
 import { getDeals } from "@/lib/deals";
+import { SkeletonDealCard, SkeletonLoader } from "@/components/SkeletonLoader";
 
 const DEALS_PER_PAGE = 9;
 const filterOptions = ["Most popular", "Most upvoted", "Expiring soon", "Premium", "Free", "Recently added"];
@@ -128,12 +127,15 @@ const Deals = () => {
   // Fetch deals from API
   useEffect(() => {
     setIsLoading(true);
+    console.log('Deals.tsx: Starting to fetch deals...');
     getDeals()
       .then(deals => {
+        console.log(`Deals.tsx: Received ${deals.length} deals from getDeals()`, deals);
         setDealsData(deals);
       })
       .catch(err => {
-        console.error('Failed to fetch deals:', err);
+        console.error('Deals.tsx: Failed to fetch deals:', err);
+        setDealsData([]);
       })
       .finally(() => {
         setIsLoading(false);
@@ -141,22 +143,29 @@ const Deals = () => {
   }, []);
 
   // Merge partner deals into deals list
-  const partnerDealsMapped = partnerDeals.map(d => ({
+  const partnerDealsMapped: Deal[] = partnerDeals.map(d => ({
     id: d.id,
     name: d.name,
     company: d.partnerName,
-    logoUrl: d.logoUrl || "",
+    logo: d.logoUrl || "",
     description: d.description,
     dealText: d.dealText,
     savings: d.savings,
     memberCount: d.claims || 0,
     isFree: true,
+    isPremium: false,
+    isPick: false,
     category: d.category,
+    subcategory: "",
     promoCode: d.promoCode,
-    isPartnerDeal: true,
   }));
 
   const allDeals = [...partnerDealsMapped, ...dealsData];
+  
+  // Log deal stats
+  useEffect(() => {
+    console.log(`Deals.tsx: Partner deals: ${partnerDealsMapped.length}, Regular deals: ${dealsData.length}, Total: ${allDeals.length}`);
+  }, [allDeals.length, partnerDealsMapped.length, dealsData.length]);
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -217,13 +226,13 @@ const Deals = () => {
   const endResult = Math.min(currentPage * DEALS_PER_PAGE, filteredDeals.length);
 
   return (
-    <div className="min-h-screen bg-[#fafafa]">
-      <Header />
-
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="flex gap-8">
+    <div className="min-h-screen bg-white">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
+        <div className="flex flex-col lg:flex-row gap-6 lg:gap-8">
           {/* Left Sidebar */}
-          <CategorySidebar activeCategory={activeCategory} onCategoryChange={(cat) => { setActiveCategory(cat); setCurrentPage(1); }} />
+          <div className="hidden lg:block lg:w-64 flex-shrink-0">
+            <CategorySidebar activeCategory={activeCategory} onCategoryChange={(cat) => { setActiveCategory(cat); setCurrentPage(1); }} />
+          </div>
 
           {/* Main Content */}
           <div className="flex-1 min-w-0">
@@ -246,27 +255,48 @@ const Deals = () => {
             </div>
 
             {/* Filter pills + view toggle */}
-            <div className="flex items-center justify-between mb-6 gap-3">
+            <div className="flex items-center justify-between mb-6 gap-3 flex-wrap">
               <div className="flex items-center gap-2 flex-wrap">
-                {filterOptions.map((filter) => (
-                  <button
-                    key={filter}
-                    onClick={() => { setActiveFilter(filter); setCurrentPage(1); }}
-                    className={`px-3.5 py-1.5 rounded-full text-sm font-medium transition-colors border ${
-                      activeFilter === filter
-                        ? "bg-primary text-white border-primary"
-                        : "bg-white text-gray-700 border-gray-200 hover:border-gray-300 hover:bg-gray-50"
-                    }`}
-                  >
-                    {filter}
-                  </button>
-                ))}
+                {filterOptions.map((filter) => {
+                  const getFilterIcon = () => {
+                    switch(filter) {
+                      case "Most upvoted": return <TrendingUp className="h-3.5 w-3.5" />;
+                      case "Expiring soon": return <Clock className="h-3.5 w-3.5" />;
+                      case "Recently added": return <Zap className="h-3.5 w-3.5" />;
+                      default: return null;
+                    }
+                  };
+                  
+                  return (
+                    <button
+                      key={filter}
+                      onClick={() => { setActiveFilter(filter); setCurrentPage(1); }}
+                      className={`inline-flex items-center gap-1.5 px-3.5 py-2 rounded-full text-sm font-medium transition-all border active:scale-95 ${
+                        activeFilter === filter
+                          ? "bg-primary text-white border-primary shadow-sm shadow-primary/30"
+                          : "bg-white text-gray-700 border-gray-200 hover:border-primary/30 hover:bg-primary/5"
+                      }`}
+                      title={`Sort by ${filter.toLowerCase()}`}
+                    >
+                      {getFilterIcon()}
+                      {filter}
+                    </button>
+                  );
+                })}
               </div>
-              <div className="flex items-center gap-1.5 shrink-0">
-                <button onClick={() => setViewMode("grid")} className={`p-1.5 rounded-lg transition-colors ${viewMode === "grid" ? "bg-primary/10 text-primary" : "text-gray-400 hover:text-gray-600"}`}>
+              <div className="flex items-center gap-1.5 shrink-0 bg-gray-100 p-1 rounded-lg">
+                <button 
+                  onClick={() => setViewMode("grid")} 
+                  className={`p-2 rounded transition-all active:scale-95 ${viewMode === "grid" ? "bg-white text-primary shadow-sm" : "text-gray-500 hover:text-gray-700"}`}
+                  title="Grid view"
+                >
                   <Grid className="h-4 w-4" />
                 </button>
-                <button onClick={() => setViewMode("list")} className={`p-1.5 rounded-lg transition-colors ${viewMode === "list" ? "bg-primary/10 text-primary" : "text-gray-400 hover:text-gray-600"}`}>
+                <button 
+                  onClick={() => setViewMode("list")} 
+                  className={`p-2 rounded transition-all active:scale-95 ${viewMode === "list" ? "bg-white text-primary shadow-sm" : "text-gray-500 hover:text-gray-700"}`}
+                  title="List view"
+                >
                   <List className="h-4 w-4" />
                 </button>
               </div>
@@ -284,7 +314,7 @@ const Deals = () => {
               <div className="mb-8">
                 <div className="flex items-center gap-2 mb-4">
                   <Star className="h-5 w-5 text-yellow-500 fill-yellow-400" />
-                  <h2 className="text-lg font-bold text-gray-900">Featured Deals</h2>
+                  <h2 className="text-xl font-bold text-gray-900">Featured Deals</h2>
                 </div>
                 <div className={`grid gap-4 ${viewMode === "grid" ? "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3" : "grid-cols-1"}`}>
                   {featuredDeals.map((deal) => (
@@ -313,25 +343,30 @@ const Deals = () => {
               )}
 
               {isLoading ? (
-                <div className={`grid gap-4 ${viewMode === "grid" ? "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3" : "grid-cols-1"}`}>
-                  {[...Array(9)].map((_, i) => (
-                    <div key={i} className="bg-white border border-gray-200 rounded-xl p-5 animate-pulse">
-                      <div className="flex items-start gap-4 mb-4">
-                        <div className="w-12 h-12 bg-gray-200 rounded-lg"></div>
-                        <div className="flex-1">
-                          <div className="h-4 bg-gray-200 rounded w-3/4 mb-2"></div>
-                          <div className="h-3 bg-gray-200 rounded w-1/2"></div>
-                        </div>
-                      </div>
-                      <div className="h-3 bg-gray-200 rounded w-full mb-2"></div>
-                      <div className="h-3 bg-gray-200 rounded w-5/6"></div>
-                    </div>
-                  ))}
-                </div>
+                <SkeletonLoader 
+                  count={viewMode === "grid" ? 9 : 5} 
+                  variant={viewMode === "grid" ? "card" : "row"}
+                  className={viewMode === "grid" ? "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3" : ""}
+                />
               ) : filteredDeals.length === 0 ? (
-                <div className="text-center py-16">
-                  <p className="text-gray-500 text-lg mb-2">No deals found</p>
-                  <p className="text-gray-400 text-sm">Try a different search or category</p>
+                <div className="text-center py-16 bg-gray-50 rounded-2xl border border-gray-200">
+                  <Zap className="h-12 w-12 text-gray-300 mx-auto mb-4" />
+                  <p className="text-gray-600 text-lg font-semibold mb-2">No deals found</p>
+                  <p className="text-gray-500 text-sm mb-6">
+                    {searchQuery && !activeCategory ? "No results for your search" : "Try adjusting your filters or category"}
+                  </p>
+                  <button
+                    onClick={() => {
+                      setSearchInput("");
+                      setSearchQuery("");
+                      setActiveCategory("all");
+                      setActiveFilter("Most popular");
+                      setCurrentPage(1);
+                    }}
+                    className="inline-block px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors text-sm font-medium"
+                  >
+                    Reset filters
+                  </button>
                 </div>
               ) : (
                 <div className={`grid gap-4 ${viewMode === "grid" ? "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3" : "grid-cols-1"}`}>
@@ -390,7 +425,6 @@ const Deals = () => {
         </div>
       </div>
 
-      <Footer />
     </div>
   );
 };

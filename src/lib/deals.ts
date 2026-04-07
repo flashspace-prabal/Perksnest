@@ -20,7 +20,8 @@ export async function getDeals(): Promise<Deal[]> {
   try {
     const response = await getAllDeals();
 
-    if (response.deals && Array.isArray(response.deals)) {
+    // Check if response has deals array AND it's not empty
+    if (response && response.deals && Array.isArray(response.deals) && response.deals.length > 0) {
       // Transform API response to Deal format if needed
       const apiDeals = response.deals.map((d: any) => ({
         id: d.id,
@@ -42,11 +43,12 @@ export async function getDeals(): Promise<Deal[]> {
         collection: d.collection,
       }));
 
+      console.log(`Loaded ${apiDeals.length} deals from API`);
       return apiDeals;
     }
 
-    // Fallback to static data if API response is malformed
-    console.warn('API returned unexpected format, falling back to static data');
+    // Fallback to static data if API response is malformed or empty
+    console.warn('API returned empty or unexpected format, falling back to static data');
     return dealsData;
   } catch (error) {
     console.error('Failed to fetch deals from API, using static data:', error);
@@ -65,8 +67,9 @@ export async function getDeal(dealId: string): Promise<Deal | null> {
   try {
     const response = await getDealById(dealId);
 
-    if (response.deal) {
+    if (response && response.deal) {
       const d = response.deal;
+      console.log(`Loaded deal ${dealId} from API`);
       return {
         id: d.id,
         name: d.name,

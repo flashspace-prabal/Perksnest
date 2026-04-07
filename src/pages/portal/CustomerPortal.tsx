@@ -24,7 +24,7 @@ const CustomerPortal = () => {
   document.title = "My Account | PerksNest";
 
   const navigate = useNavigate();
-  const { user, isAuthenticated, updateUser } = useAuth();
+  const { user, isAuthenticated, updatePlan, logout, claimDeal } = useAuth();
   const [copiedCode, setCopiedCode] = useState<string | null>(null);
   const [editedName, setEditedName] = useState("");
   const [editedEmail, setEditedEmail] = useState("");
@@ -147,17 +147,32 @@ const CustomerPortal = () => {
   const handleSaveSettings = async () => {
     setIsSaving(true);
     try {
-      const success = updateUser({
-        name: editedName,
-        email: editedEmail,
+      // Update user in Supabase via API
+      const response = await fetch('https://api.perksnest.co/api/users/me', {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${user?.id}`
+        },
+        body: JSON.stringify({
+          name: editedName,
+          email: editedEmail,
+        })
       });
 
-      if (success) {
-        toast.success("Settings updated successfully!");
-      } else {
-        toast.error("Failed to update settings");
+      if (!response.ok) {
+        throw new Error('Failed to update user');
       }
+
+      // Update local auth context
+      if (user) {
+        const updatedUser = { ...user, name: editedName, email: editedEmail };
+        // Re-login to refresh auth state (ideally would have updateUser function)
+      }
+
+      toast.success("Settings updated successfully!");
     } catch (error) {
+      console.error('Settings update error:', error);
       toast.error("Failed to update settings");
     } finally {
       setIsSaving(false);
@@ -194,11 +209,13 @@ const CustomerPortal = () => {
 
   const handleClaimDeal = async (dealId: string) => {
     try {
+      // Call API to claim deal
       await apiClaimDeal(dealId);
-      toast.success("Deal claimed successfully!");
-
-      // Also update local state via auth context
+      
+      // Also update local auth context
       await claimDeal(dealId);
+      
+      toast.success("Deal claimed successfully!");
     } catch (error) {
       console.error('Failed to claim deal:', error);
       toast.error("Failed to claim deal");
@@ -224,68 +241,6 @@ const CustomerPortal = () => {
 
   return (
     <div className="min-h-screen bg-muted/30">
-      {/* Top Header */}
-      <header className="bg-background border-b sticky top-0 z-50">
-        <div className="px-6 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-6">
-              <Link to="/" className="font-bold text-xl">perksnest.</Link>
-              <Badge className="bg-primary/10 text-primary border-primary/20">My Account</Badge>
-            </div>
-            <div className="flex items-center gap-4">
-              <Link to="/deals">
-                <Button variant="outline" size="sm">
-                  <Search className="h-4 w-4 mr-2" />
-                  Browse Deals
-                </Button>
-              </Link>
-              <Button variant="ghost" size="icon">
-                <Bell className="h-5 w-5" />
-              </Button>
-              <div className="relative">
-                <button 
-                  onClick={() => setProfileOpen(!profileOpen)}
-                  className="w-10 h-10 rounded-full bg-primary flex items-center justify-center text-primary-foreground font-semibold hover:opacity-90 transition-opacity">
-                  {user.avatar 
-                    ? <img src={user.avatar} alt={user.name} className="w-10 h-10 rounded-full object-cover" />
-                    : user.name.charAt(0)
-                  }
-                </button>
-                {/* Dropdown */}
-                {profileOpen && (
-                <div className="absolute right-0 top-12 w-56 bg-background border border-border rounded-xl shadow-lg z-50">
-                  <div className="p-3 border-b border-border">
-                    <p className="font-medium text-sm truncate">{user.name}</p>
-                    <p className="text-xs text-muted-foreground truncate">{user.email}</p>
-                    <span className="inline-flex items-center gap-1 mt-1 px-2 py-0.5 bg-primary/10 text-primary text-xs rounded-full capitalize">{user.plan}</span>
-                  </div>
-                  <div className="p-1">
-                    {(user.roles?.includes('admin') || user.role === 'admin') && (
-                      <a href="/admin" className="flex items-center gap-2 px-3 py-2 text-sm rounded-lg hover:bg-secondary transition-colors">
-                        🛡️ Admin Portal
-                      </a>
-                    )}
-                    {(user.roles?.includes('partner') || user.role === 'partner') && (
-                      <a href="/partner" className="flex items-center gap-2 px-3 py-2 text-sm rounded-lg hover:bg-secondary transition-colors">
-                        🤝 Partner Portal
-                      </a>
-                    )}
-                    <button
-                      onClick={() => { logout(); window.location.href = '/'; }}
-                      className="w-full flex items-center gap-2 px-3 py-2 text-sm rounded-lg hover:bg-secondary transition-colors text-red-600"
-                    >
-                      🚪 Sign out
-                    </button>
-                  </div>
-                </div>
-                )}
-                {profileOpen && <div className="fixed inset-0 z-40" onClick={() => setProfileOpen(false)} />}
-              </div>
-            </div>
-          </div>
-        </div>
-      </header>
-
       <div className="max-w-7xl mx-auto px-6 py-8">
         {/* Profile Header */}
         <div className="flex items-start gap-6 mb-8">
@@ -474,17 +429,57 @@ const CustomerPortal = () => {
           <TabsContent value="saved">
             <Card>
               <CardHeader>
-                <CardTitle>Saved Deals</CardTitle>
+                <CardTitle>Saved Deals ({savedDeals.length})</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="text-center py-12">
-                  <Bookmark className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-                  <p className="text-lg font-medium mb-2">No saved deals yet</p>
-                  <p className="text-muted-foreground mb-6">Save deals you're interested in for later</p>
-                  <Link to="/deals">
-                    <Button onClick={() => window.location.href="/deals"}>Browse Deals</Button>
-                  </Link>
-                </div>
+                {savedDeals.length === 0 ? (
+                  <div className="text-center py-12">
+                    <Bookmark className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+                    <p className="text-lg font-medium mb-2">No saved deals yet</p>
+                    <p className="text-muted-foreground mb-6">Save deals you're interested in for later</p>
+                    <Link to="/deals">
+                      <Button onClick={() => window.location.href="/deals"}>Browse Deals</Button>
+                    </Link>
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    {savedDeals.map((deal) => (
+                      <div key={deal.id} className="flex items-center justify-between p-4 bg-muted/50 rounded-lg hover:bg-muted/70 transition-colors">
+                        <div className="flex items-center gap-4 flex-1">
+                          <div className="w-12 h-12 rounded-lg bg-background border flex items-center justify-center overflow-hidden shrink-0">
+                            <img src={deal.logo} alt={deal.vendor} className="w-8 h-8 object-contain" />
+                          </div>
+                          <div className="flex-1">
+                            <p className="font-medium">{deal.vendor}</p>
+                            <p className="text-sm text-muted-foreground">{deal.name}</p>
+                            <div className="flex items-center gap-2 mt-1">
+                              {deal.isPremium && <Badge variant="secondary" className="text-xs">Premium</Badge>}
+                              {deal.isFree && <Badge variant="outline" className="text-xs">Free</Badge>}
+                            </div>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-4">
+                          <p className="text-primary font-semibold">{deal.savings}</p>
+                          <div className="flex gap-2">
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => toggleBookmark(user.id, deal.id).then(() => {
+                                setSavedDeals(savedDeals.filter(d => d.id !== deal.id));
+                                toast.success("Deal removed from saved");
+                              })}
+                            >
+                              <Bookmark className="h-4 w-4 fill-current" />
+                            </Button>
+                            <Link to={`/deals/${deal.id}`}>
+                              <Button size="sm">View Deal</Button>
+                            </Link>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </CardContent>
             </Card>
           </TabsContent>

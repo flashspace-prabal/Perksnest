@@ -1,13 +1,13 @@
-import Header from "@/components/Header";
-import Footer from "@/components/Footer";
+import { useState, useEffect } from "react";
+import { Search, Info, HelpCircle, ArrowRight, MessageCircle, Mail, FileText } from "lucide-react";
+import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Mail, MessageCircle, FileText, HelpCircle } from "lucide-react";
 
 const HelpCenter = () => {
   return (
-    <div className="min-h-screen bg-background">
-      <Header />
+    <div className="min-h-screen bg-white">
 
       <main className="container-wide py-16">
         {/* Header */}
@@ -131,7 +131,6 @@ const HelpCenter = () => {
         </div>
       </main>
 
-      <Footer />
     </div>
   );
 };

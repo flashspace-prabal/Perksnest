@@ -3,8 +3,6 @@ import { Gift, Copy, Check, Twitter, Linkedin, Mail, DollarSign, Users, Trending
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import Header from "@/components/Header";
-import Footer from "@/components/Footer";
 import { AuthModal } from "@/components/AuthModal";
 import { useAuth } from "@/lib/auth";
 import { getReferralsByUser, trackReferral } from "@/lib/store";
@@ -117,8 +115,7 @@ const Invite = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background flex flex-col">
-      <Header />
+    <div className="min-h-screen bg-white">
       <main className="flex-1">
         {/* Hero */}
         <section className="bg-primary text-primary-foreground py-14 px-4">
@@ -315,7 +312,6 @@ const Invite = () => {
           </div>
         </div>
       </main>
-      <Footer />
       {showAuthModal && <AuthModal onClose={() => setShowAuthModal(false)} />}
     </div>
   );

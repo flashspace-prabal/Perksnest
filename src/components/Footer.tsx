@@ -78,7 +78,7 @@ const Footer = () => {
             </div>
         </div>
         
-        <div className="flex flex-col md:flex-row justify-between items-center gap-4 text-xs text-background/50">
+        <div className="flex flex-col md:flex-row justify-between items-center gap-6 text-center md:text-left text-xs text-background/50">
            <p>© 2026 PerksNest by Stirring Minds LLC. All rights reserved.</p>
            <div className="flex items-center gap-2">
               <span>Made with</span>

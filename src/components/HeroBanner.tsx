@@ -1,4 +1,4 @@
-import { ArrowRight, Check } from "lucide-react";
+import { ArrowRight, Check, Cloud, Lock, Zap, BarChart3, Share2, Smartphone } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/lib/auth";
 import { useNavigate } from "react-router-dom";
@@ -143,27 +143,96 @@ const HeroBanner = () => {
         </div>
       </div>
 
-      {/* Trusted By Section */}
-      <div className="border-t border-border bg-background py-8">
-        <div className="container-wide">
-          <p className="text-center text-sm font-medium text-muted-foreground mb-6">Deals from brands you already use</p>
-          <div className="flex overflow-hidden">
-             <div className="flex animate-scroll whitespace-nowrap min-w-full items-center justify-around gap-8 md:gap-16 px-4">
-               {/* Primary partners from user request */}
-               <SafeImage src="https://upload.wikimedia.org/wikipedia/commons/9/93/Amazon_Web_Services_Logo.svg" alt="AWS" className="h-8 md:h-12 w-auto object-contain shrink-0 grayscale hover:grayscale-0 transition-all opacity-70 hover:opacity-100" />
-               <SafeImage src="https://upload.wikimedia.org/wikipedia/commons/4/45/Notion_app_logo.png" alt="Notion" className="h-8 md:h-12 w-auto object-contain shrink-0 grayscale hover:grayscale-0 transition-all opacity-70 hover:opacity-100" />
-               <SafeImage src="https://www.hubspot.com/hubfs/HubSpot_Logos/HubSpot-Inversed-Favicon.png" alt="HubSpot" className="h-8 md:h-12 w-auto object-contain shrink-0 grayscale hover:grayscale-0 transition-all opacity-70 hover:opacity-100" />
-               <SafeImage src="https://upload.wikimedia.org/wikipedia/commons/b/ba/Stripe_Logo%2C_revised_2016.svg" alt="Stripe" className="h-8 md:h-12 w-auto object-contain shrink-0 grayscale hover:grayscale-0 transition-all opacity-70 hover:opacity-100" />
-               <SafeImage src="https://upload.wikimedia.org/wikipedia/commons/3/33/Figma-logo.svg" alt="Figma" className="h-8 md:h-12 w-auto object-contain shrink-0 grayscale hover:grayscale-0 transition-all opacity-70 hover:opacity-100" />
-             </div>
-             <div className="flex animate-scroll whitespace-nowrap min-w-full items-center justify-around gap-8 md:gap-16 px-4" aria-hidden="true">
-               {/* Duplicated for seamless scrolling */}
-               <SafeImage src="https://upload.wikimedia.org/wikipedia/commons/9/93/Amazon_Web_Services_Logo.svg" alt="AWS" className="h-8 md:h-12 w-auto object-contain shrink-0 grayscale hover:grayscale-0 transition-all opacity-70 hover:opacity-100" />
-               <SafeImage src="https://upload.wikimedia.org/wikipedia/commons/4/45/Notion_app_logo.png" alt="Notion" className="h-8 md:h-12 w-auto object-contain shrink-0 grayscale hover:grayscale-0 transition-all opacity-70 hover:opacity-100" />
-               <SafeImage src="https://www.hubspot.com/hubfs/HubSpot_Logos/HubSpot-Inversed-Favicon.png" alt="HubSpot" className="h-8 md:h-12 w-auto object-contain shrink-0 grayscale hover:grayscale-0 transition-all opacity-70 hover:opacity-100" />
-               <SafeImage src="https://upload.wikimedia.org/wikipedia/commons/b/ba/Stripe_Logo%2C_revised_2016.svg" alt="Stripe" className="h-8 md:h-12 w-auto object-contain shrink-0 grayscale hover:grayscale-0 transition-all opacity-70 hover:opacity-100" />
-               <SafeImage src="https://upload.wikimedia.org/wikipedia/commons/3/33/Figma-logo.svg" alt="Figma" className="h-8 md:h-12 w-auto object-contain shrink-0 grayscale hover:grayscale-0 transition-all opacity-70 hover:opacity-100" />
-             </div>
+      {/* Trusted By Section with Marquee */}
+      <div className="border-t border-border bg-gradient-to-b from-background to-secondary/30 py-12 overflow-hidden">
+        <div className="container-wide mb-8">
+          <div className="text-center">
+            <p className="text-sm font-semibold text-primary tracking-widest uppercase mb-2">TRUSTED BY 5000+ BUSINESSES</p>
+            <p className="text-center text-sm text-muted-foreground">Deals from brands you already use</p>
+          </div>
+        </div>
+
+        {/* Marquee Container */}
+        <div className="relative overflow-hidden bg-white/40 backdrop-blur-sm py-6 rounded-2xl mx-auto max-w-6xl">
+          {/* Gradient masks for fade effect */}
+          <div className="absolute left-0 top-0 bottom-0 w-12 bg-gradient-to-r from-background to-transparent z-10 pointer-events-none" />
+          <div className="absolute right-0 top-0 bottom-0 w-12 bg-gradient-to-l from-background to-transparent z-10 pointer-events-none" />
+
+          {/* Animated Marquee */}
+          <style>{`
+            @keyframes marquee {
+              0% { transform: translateX(0); }
+              100% { transform: translateX(-50%); }
+            }
+            
+            .marquee-container {
+              display: flex;
+              animation: marquee 30s linear infinite;
+              will-change: transform;
+            }
+            
+            .marquee-container:hover {
+              animation-play-state: paused;
+            }
+          `}</style>
+
+          <div className="marquee-container">
+            {/* First set of companies */}
+            {[
+              { name: "AWS", icon: Cloud, logo: "https://upload.wikimedia.org/wikipedia/commons/9/93/Amazon_Web_Services_Logo.svg" },
+              { name: "Notion", icon: Lock, logo: "https://upload.wikimedia.org/wikipedia/commons/4/45/Notion_app_logo.png" },
+              { name: "HubSpot", icon: BarChart3, logo: "https://www.hubspot.com/hubfs/HubSpot_Logos/HubSpot-Inversed-Favicon.png" },
+              { name: "Stripe", icon: Zap, logo: "https://upload.wikimedia.org/wikipedia/commons/b/ba/Stripe_Logo%2C_revised_2016.svg" },
+              { name: "Figma", icon: Share2, logo: "https://upload.wikimedia.org/wikipedia/commons/3/33/Figma-logo.svg" },
+              { name: "GitHub", icon: Smartphone, logo: "https://upload.wikimedia.org/wikipedia/commons/9/91/Octicons-mark-github.svg" },
+            ].map((item, idx) => {
+              const IconComponent = item.icon;
+              return (
+                <div
+                  key={idx}
+                  className="flex items-center gap-3 px-6 md:px-8 py-3 rounded-xl hover:bg-white/60 transition-all whitespace-nowrap group cursor-pointer"
+                >
+                  <div className="flex items-center justify-center h-8 w-8 rounded-lg bg-primary/10 group-hover:bg-primary/20 transition-colors">
+                    <IconComponent className="h-4 w-4 text-primary group-hover:scale-110 transition-transform" />
+                  </div>
+                  <SafeImage 
+                    src={item.logo} 
+                    alt={item.name} 
+                    className="h-5 md:h-6 w-auto object-contain grayscale group-hover:grayscale-0 transition-all opacity-70 group-hover:opacity-100"
+                  />
+                  <span className="text-xs md:text-sm font-medium text-foreground hidden sm:inline ml-1">{item.name}</span>
+                </div>
+              );
+            })}
+
+            {/* Duplicate set for seamless loop */}
+            {[
+              { name: "AWS", icon: Cloud, logo: "https://upload.wikimedia.org/wikipedia/commons/9/93/Amazon_Web_Services_Logo.svg" },
+              { name: "Notion", icon: Lock, logo: "https://upload.wikimedia.org/wikipedia/commons/4/45/Notion_app_logo.png" },
+              { name: "HubSpot", icon: BarChart3, logo: "https://www.hubspot.com/hubfs/HubSpot_Logos/HubSpot-Inversed-Favicon.png" },
+              { name: "Stripe", icon: Zap, logo: "https://upload.wikimedia.org/wikipedia/commons/b/ba/Stripe_Logo%2C_revised_2016.svg" },
+              { name: "Figma", icon: Share2, logo: "https://upload.wikimedia.org/wikipedia/commons/3/33/Figma-logo.svg" },
+              { name: "GitHub", icon: Smartphone, logo: "https://upload.wikimedia.org/wikipedia/commons/9/91/Octicons-mark-github.svg" },
+            ].map((item, idx) => {
+              const IconComponent = item.icon;
+              return (
+                <div
+                  key={`duplicate-${idx}`}
+                  className="flex items-center gap-3 px-6 md:px-8 py-3 rounded-xl hover:bg-white/60 transition-all whitespace-nowrap group cursor-pointer"
+                  aria-hidden="true"
+                >
+                  <div className="flex items-center justify-center h-8 w-8 rounded-lg bg-primary/10 group-hover:bg-primary/20 transition-colors">
+                    <IconComponent className="h-4 w-4 text-primary group-hover:scale-110 transition-transform" />
+                  </div>
+                  <SafeImage 
+                    src={item.logo} 
+                    alt={item.name} 
+                    className="h-5 md:h-6 w-auto object-contain grayscale group-hover:grayscale-0 transition-all opacity-70 group-hover:opacity-100"
+                  />
+                  <span className="text-xs md:text-sm font-medium text-foreground hidden sm:inline ml-1">{item.name}</span>
+                </div>
+              );
+            })}
           </div>
         </div>
       </div>

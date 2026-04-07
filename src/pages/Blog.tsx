@@ -1,8 +1,8 @@
 import { useState, useEffect } from "react";
-import { Link, useParams, Navigate } from "react-router-dom";
-import { Clock, ArrowRight, Search, Calendar, Tag, ArrowLeft } from "lucide-react";
-import Header from "@/components/Header";
-import Footer from "@/components/Footer";
+import { Link, useParams } from "react-router-dom";
+import { BookOpen, Clock, User, Calendar, Search, ArrowRight, Tag } from "lucide-react";
+import { Card, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import { blogPosts, categories, getBlogPostById, getRelatedPosts } from "@/data/blog";
 
 const Blog = () => {
@@ -249,8 +249,7 @@ const Blog = () => {
   const regularPosts = filteredPosts.filter((post) => !post.featured);
 
   return (
-    <div className="min-h-screen bg-background">
-      <Header />
+    <div className="min-h-screen bg-white">
       
       <main>
         {/* Hero */}
@@ -441,7 +440,6 @@ const Blog = () => {
         </div>
       </main>
 
-      <Footer />
     </div>
   );
 };

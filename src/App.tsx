@@ -31,12 +31,16 @@ import WhiteLabel from "./pages/WhiteLabel";
 import Docs from "./pages/Docs";
 import TermsOfService from "./pages/TermsOfService";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
+import Contact from "./pages/Contact";
 import ForgotPassword from "./pages/ForgotPassword";
 import AuthCallback from "./pages/AuthCallback";
 import NotFound from "./pages/NotFound";
 import OAuthHandler from "./components/OAuthHandler";
 import ScrollToTop from "./components/ScrollToTop";
 import HelpCenter from "./pages/HelpCenter";
+import MainNavbar from "./components/MainNavbar";
+import MainFooter from "./components/MainFooter";
+import ComingSoon from "./pages/ComingSoon";
 
 const queryClient = new QueryClient();
 
@@ -49,47 +53,63 @@ const App = () => (
         <BrowserRouter>
           <ScrollToTop />
           <OAuthHandler />
-          <Routes>
-            <Route path="/" element={<HomeStripe />} />
-            <Route path="/deals" element={<Deals />} />
-            <Route path="/deals/:dealId" element={<DealDetail />} />
-            <Route path="/deals/:dealId/redeem" element={<DealRedeem />} />
-            <Route path="/pricing" element={<Pricing />} />
-            <Route path="/blog" element={<Blog />} />
-            <Route path="/blog/:postId" element={<Blog />} />
-            <Route path="/invite" element={<Invite />} />
-            <Route path="/newsletter" element={<Newsletter />} />
-            <Route path="/collections" element={<Collections />} />
-            <Route path="/collections/:id" element={<CollectionDetail />} />
-            <Route path="/categories" element={<Categories />} />
-            <Route path="/category/:slug" element={<Category />} />
-            <Route path="/leaderboard" element={<Leaderboard />} />
-            <Route path="/compare/:slug" element={<Compare />} />
-            <Route path="/login" element={<Login />} />
-            <Route path="/signup" element={<Login />} />
-            <Route path="/communities" element={<Communities />} />
-            <Route path="/accelerators" element={<Communities />} />
-            <Route path="/white-label" element={<WhiteLabel />} />
-            <Route path="/docs" element={<Docs />} />
-            <Route path="/help" element={<HelpCenter />} />
-            {/* Clean portal URLs */}
-            <Route path="/admin" element={<AdminPortal />} />
-            <Route path="/partner" element={<PartnerPortal />} />
-            <Route path="/customer" element={<CustomerPortal />} />
-            <Route path="/customer/tickets" element={<Tickets />} />
-            <Route path="/customer/tickets/:ticketId" element={<TicketDetail />} />
-            {/* Partner public profiles */}
-            <Route path="/brand/:brandId" element={<BrandProfile />} />
-            {/* Legacy redirects */}
-            <Route path="/portal/admin" element={<Navigate to="/admin" replace />} />
-            <Route path="/portal/partner" element={<Navigate to="/partner" replace />} />
-            <Route path="/portal/customer" element={<Navigate to="/customer" replace />} />
-            <Route path="/terms" element={<TermsOfService />} />
-            <Route path="/privacy" element={<PrivacyPolicy />} />
-            <Route path="/auth/callback" element={<AuthCallback />} />
-            <Route path="/forgot-password" element={<ForgotPassword />} />
-            <Route path="*" element={<NotFound />} />
-          </Routes>
+          <div className="flex flex-col min-h-screen">
+            <MainNavbar />
+            <main className="flex-grow">
+              <Routes>
+                <Route path="/" element={<HomeStripe />} />
+                <Route path="/deals" element={<Deals />} />
+                <Route path="/deals/:dealId" element={<DealDetail />} />
+                <Route path="/deals/:dealId/redeem" element={<DealRedeem />} />
+                <Route path="/pricing" element={<Pricing />} />
+                <Route path="/contact" element={<Contact />} />
+                <Route path="/blog" element={<Blog />} />
+                <Route path="/blog/:postId" element={<Blog />} />
+                <Route path="/invite" element={<Invite />} />
+                <Route path="/newsletter" element={<Newsletter />} />
+                <Route path="/collections" element={<Collections />} />
+                <Route path="/collections/:id" element={<CollectionDetail />} />
+                <Route path="/categories" element={<Categories />} />
+                <Route path="/category/:slug" element={<Category />} />
+                <Route path="/leaderboard" element={<Leaderboard />} />
+                <Route path="/compare/:slug" element={<Compare />} />
+                <Route path="/login" element={<Login />} />
+                <Route path="/signup" element={<Login />} />
+                <Route path="/communities" element={<Communities />} />
+                <Route path="/accelerators" element={<Communities />} />
+                <Route path="/white-label" element={<WhiteLabel />} />
+                <Route path="/docs" element={<Docs />} />
+                <Route path="/help" element={<HelpCenter />} />
+                
+                {/* Coming Soon / Placeholder Routes */}
+                <Route path="/solutions" element={<ComingSoon />} />
+                <Route path="/developers" element={<ComingSoon />} />
+                <Route path="/resources" element={<ComingSoon />} />
+                <Route path="/about" element={<ComingSoon />} />
+                <Route path="/press" element={<ComingSoon />} />
+                <Route path="/careers" element={<ComingSoon />} />
+                <Route path="/partner" element={<ComingSoon />} />
+
+                {/* Clean portal URLs */}
+                <Route path="/admin" element={<AdminPortal />} />
+                <Route path="/customer" element={<CustomerPortal />} />
+                <Route path="/customer/tickets" element={<Tickets />} />
+                <Route path="/customer/tickets/:ticketId" element={<TicketDetail />} />
+                {/* Partner public profiles */}
+                <Route path="/brand/:brandId" element={<BrandProfile />} />
+                {/* Legacy redirects */}
+                <Route path="/portal/admin" element={<Navigate to="/admin" replace />} />
+                <Route path="/portal/partner" element={<Navigate to="/partner" replace />} />
+                <Route path="/portal/customer" element={<Navigate to="/customer" replace />} />
+                <Route path="/terms" element={<TermsOfService />} />
+                <Route path="/privacy" element={<PrivacyPolicy />} />
+                <Route path="/auth/callback" element={<AuthCallback />} />
+                <Route path="/forgot-password" element={<ForgotPassword />} />
+                <Route path="*" element={<ComingSoon />} />
+              </Routes>
+            </main>
+            <MainFooter />
+          </div>
         </BrowserRouter>
       </TooltipProvider>
     </AuthProvider>

@@ -1,5 +1,6 @@
 import { Crown, Sparkles, Users } from "lucide-react";
 import { Link } from "react-router-dom";
+import { useState } from "react";
 import SafeImage from "./SafeImage";
 
 interface DealCardNewProps {
@@ -28,15 +29,27 @@ const DealCardNew = ({
   isPick = false,
   slug,
 }: DealCardNewProps) => {
+  const [isPressed, setIsPressed] = useState(false);
   const href = slug ? `/deals/${slug}` : id ? `/deals/${id}` : '#';
+
+  const handleMouseDown = () => setIsPressed(true);
+  const handleMouseUp = () => setIsPressed(false);
+  const handleMouseLeave = () => setIsPressed(false);
 
   return (
     <Link to={href} className="block h-full">
-      <div className="relative bg-white rounded-xl border border-gray-200 hover:shadow-md hover:border-gray-300 transition-all h-full flex flex-col cursor-pointer group">
+      <div 
+        className={`relative bg-white rounded-xl border border-gray-200 hover:shadow-md hover:border-primary/30 transition-all h-full flex flex-col cursor-pointer group ${
+          isPressed ? "scale-95" : "scale-100"
+        } transition-transform duration-150`}
+        onMouseDown={handleMouseDown}
+        onMouseUp={handleMouseUp}
+        onMouseLeave={handleMouseLeave}
+      >
         {/* Badges row — top left */}
         <div className="absolute top-3 left-3 z-10 flex items-center gap-1.5 flex-wrap">
           {isPick && (
-            <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold bg-primary text-white shadow-sm whitespace-nowrap">
+            <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold bg-primary text-white shadow-sm whitespace-nowrap animate-pulse">
               <Sparkles className="h-3 w-3" />
               PerksNest Pick
             </span>
@@ -52,7 +65,7 @@ const DealCardNew = ({
         <div className={`p-5 flex flex-col flex-1 ${isPick || isPremium ? 'pt-12' : 'pt-5'}`}>
           {/* Logo + Company name */}
           <div className="flex items-center gap-3 mb-3">
-            <div className="w-11 h-11 rounded-xl bg-gray-50 flex items-center justify-center overflow-hidden shrink-0 border border-gray-100">
+            <div className="w-11 h-11 rounded-xl bg-gray-50 flex items-center justify-center overflow-hidden shrink-0 border border-gray-100 group-hover:bg-primary/5 transition-colors">
               <SafeImage src={logo} alt={name} className="w-8 h-8 object-contain" />
             </div>
             <div className="min-w-0">

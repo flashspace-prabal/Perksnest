@@ -3,8 +3,6 @@ import { Book, Key, ShoppingBag, Handshake, Globe, Webhook, Gauge, AlertTriangle
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import Header from "@/components/Header";
-import Footer from "@/components/Footer";
 
 const sections = [
   { id: "overview", label: "Overview", icon: Book },
@@ -62,8 +60,7 @@ const Docs = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background">
-      <Header />
+    <div className="min-h-screen bg-white">
 
       <div className="container-wide py-10 md:py-16">
         <div className="flex gap-10">
@@ -399,7 +396,6 @@ const Docs = () => {
         </div>
       </div>
 
-      <Footer />
     </div>
   );
 };
