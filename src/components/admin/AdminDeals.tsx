@@ -24,6 +24,8 @@ export const AdminDeals = () => {
   useEffect(() => { getPartnerDeals().then(setAllPartnerDeals); }, []);
   const [search, setSearch] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("all");
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
   const [editDeal, setEditDeal] = useState<DealEdit | null>(null);
   const [editForm, setEditForm] = useState<DealEdit | null>(null);
   const [saving, setSaving] = useState(false);
@@ -48,6 +50,14 @@ export const AdminDeals = () => {
     const matchesCat = categoryFilter === "all" || d.category === categoryFilter;
     return matchesSearch && matchesCat;
   });
+
+  // Reset page when searching
+  useEffect(() => { setCurrentPage(1); }, [search, categoryFilter]);
+
+  // Add pagination
+  const totalPages = Math.ceil(filtered.length / itemsPerPage);
+  const startIdx = (currentPage - 1) * itemsPerPage;
+  const paginatedDeals = filtered.slice(startIdx, startIdx + itemsPerPage);
 
   const handleEdit = (deal: typeof filtered[0]) => {
     const d: DealEdit = {
@@ -189,7 +199,7 @@ export const AdminDeals = () => {
                 </tr>
               </thead>
               <tbody>
-                {filtered.map(deal => (
+                {paginatedDeals.map(deal => (
                   <tr key={deal.id} className="border-b last:border-0 hover:bg-muted/30 transition-colors">
                     <td className="py-3 pr-4">
                       <div className="flex items-center gap-2">
@@ -240,6 +250,16 @@ export const AdminDeals = () => {
               </tbody>
             </table>
           </div>
+          {totalPages > 1 && (
+            <div className="flex items-center justify-between p-4 border-t">
+              <p className="text-sm text-muted-foreground">Page {currentPage} of {totalPages} ({filtered.length} total deals)</p>
+              <div className="flex gap-2">
+                <Button size="sm" variant="outline" onClick={() => setCurrentPage(p => Math.max(1, p - 1))} disabled={currentPage === 1}>Previous</Button>
+                {Array.from({ length: Math.min(5, totalPages) }, (_, i) => { const p = currentPage > 3 ? currentPage - 2 + i : i + 1; return p <= totalPages ? <Button key={p} size="sm" variant={currentPage === p ? "default" : "outline"} onClick={() => setCurrentPage(p)}>{p}</Button> : null; })}
+                <Button size="sm" variant="outline" onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))} disabled={currentPage === totalPages}>Next</Button>
+              </div>
+            </div>
+          )}
         </CardContent>
       </Card>
 

@@ -177,7 +177,7 @@ export async function getMessages(threadId: string): Promise<Message[]> {
 export async function sendMessage(args: {threadId: string; senderId: string; senderName: string; senderRole: string; recipientId?: string; content: string; subject?: string} | string, senderId?: string, senderName?: string, senderRole?: string, content?: string): Promise<void> {
   // Support both object and positional arg forms
   const a = typeof args === 'object' ? args : {threadId: args, senderId: senderId!, senderName: senderName!, senderRole: senderRole!, content: content!};
-  await db.from('messages').insert({ thread_id: threadId, sender_id: senderId, sender_name: senderName, sender_role: senderRole, content });
+  await db.from('messages').insert({ thread_id: a.threadId, sender_id: a.senderId, sender_name: a.senderName, sender_role: a.senderRole, content: a.content });
 }
 
 // ─── REFERRALS ────────────────────────────────────────────────────────────────
