@@ -36,19 +36,30 @@ export const AdminUsers = () => {
 
   const [selectedUsers, setSelectedUsers] = useState<string[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
   const [planFilter, setPlanFilter] = useState("all");
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
 
-  // Fetch users from backend API
+  // Debounce search query (300ms delay)
   useEffect(() => {
-    getAdminUsers(currentPage, itemsPerPage, searchQuery)
+    const timer = setTimeout(() => {
+      setDebouncedSearch(searchQuery);
+      setCurrentPage(1); // Reset to page 1 on new search
+    }, 300);
+
+    return () => clearTimeout(timer);
+  }, [searchQuery]);
+
+  // Fetch users from backend API (using debounced search)
+  useEffect(() => {
+    getAdminUsers(currentPage, itemsPerPage, debouncedSearch)
       .then(data => setApiUsers(data))
       .catch(err => {
         console.error('Failed to fetch users from API:', err);
         // Fallback to local data
       });
-  }, [currentPage, searchQuery]);
+  }, [currentPage, debouncedSearch]);
 
   // Use API users if available, otherwise fallback to local users
   const usersSource = apiUsers?.users || allUsers;
