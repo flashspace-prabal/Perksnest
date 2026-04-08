@@ -5,9 +5,10 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { AuthModal } from "@/components/AuthModal";
 import { useAuth } from "@/lib/auth";
-import { getReferralsByUser, trackReferral } from "@/lib/store";
+import { getReferralSummary, trackReferral } from "@/lib/store";
 import { toast } from "sonner";
 import { getReferralStats, trackReferralClick } from "@/lib/api";
+import { buildReferralLink } from "@/lib/referrals";
 
 const REWARD_PER_REFERRAL = 20;
 
@@ -23,29 +24,22 @@ const Invite = () => {
   }, []);
 
   const { user, isAuthenticated } = useAuth();
-  const [apiStats, setApiStats] = useState<any>(null);
+  const [apiStats, setApiStats] = useState<{ totalEarned?: number } | null>(null);
+  const [myReferrals, setMyReferrals] = useState<import("@/lib/store").ReferralEntry[]>([]);
 
   // Fetch referral stats from backend API (/api/referrals/me)
   useEffect(() => {
     if (user) {
-      getReferralStats()
-        .then(data => {
-          setApiStats(data);
-          // Also populate myReferrals from API data
-          if (data.referrals) {
-            setMyReferrals(data.referrals);
-          }
+      Promise.all([getReferralSummary(user.id), getReferralStats().catch(() => null)])
+        .then(([summary, stats]) => {
+          setMyReferrals(summary.referrals);
+          setApiStats(stats);
         })
         .catch(err => {
           console.error('Failed to fetch referral stats:', err);
-          // Fallback to local data
-          getReferralsByUser(user.id).then(setMyReferrals);
         });
     }
-  }, [user?.id]);
-
-  // Also fetch from local store as fallback
-  useEffect(() => { if (user && !apiStats) getReferralsByUser(user.id).then(setMyReferrals); }, [user?.id, apiStats]);
+  }, [user]);
 
   const [copied, setCopied] = useState(false);
   const [showAuthModal, setShowAuthModal] = useState(false);
@@ -53,11 +47,10 @@ const Invite = () => {
   const [sending, setSending] = useState(false);
 
   const referralCode = user?.referralCode || "";
-  const referralLink = user ? `${window.location.origin}/login?ref=${referralCode}` : "";
-  const [myReferrals, setMyReferrals] = useState<import("@/lib/store").ReferralEntry[]>([]);
+  const referralLink = user ? buildReferralLink(referralCode) : "";
 
   // Use API stats if available, otherwise local data
-  const referralsSource = apiStats?.referrals || myReferrals;
+  const referralsSource = myReferrals;
   const converted = referralsSource.filter(r => r.status === "converted" || r.status === "paid");
   const pending = referralsSource.filter(r => r.status === "pending");
   const totalEarned = apiStats?.totalEarned ?? (converted.length * REWARD_PER_REFERRAL);
@@ -89,7 +82,7 @@ const Invite = () => {
       await trackReferralClick({ code: referralCode, source: 'email_invite' });
 
       // Also track locally
-      trackReferral(referralCode, user.id, user.name, inviteEmail);
+      await trackReferral(referralCode, user.id, user.name, inviteEmail);
 
       toast.success(`Invite tracked for ${inviteEmail}!`);
       setInviteEmail("");

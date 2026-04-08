@@ -7,6 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
 import { Eye, EyeOff, Loader2 } from "lucide-react";
+import { storeReferralCode } from "@/lib/referrals";
 
 const Login = () => {
   useEffect(() => {
@@ -31,6 +32,12 @@ const Login = () => {
   const [verifyName, setVerifyName] = useState("");
   const [verifyCode, setVerifyCode] = useState("");
   const [verifyError, setVerifyError] = useState("");
+
+  useEffect(() => {
+    if (refCode) {
+      storeReferralCode(refCode);
+    }
+  }, [refCode]);
 
   useEffect(() => {
     if (isAuthenticated && user) {
@@ -105,9 +112,6 @@ const Login = () => {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center px-4">
         <div className="w-full max-w-md">
-          <div className="text-center mb-8">
-            <a href="/" className="text-2xl font-bold text-primary">perksnest.</a>
-          </div>
           <div className="bg-card border border-border rounded-2xl p-8 shadow-sm">
             <div className="text-center mb-6">
               <div className="text-4xl mb-3">📧</div>
@@ -149,13 +153,6 @@ const Login = () => {
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
-      {/* Header */}
-      <div className="p-6 border-b">
-        <Link to="/" className="text-xl font-bold">
-          perksnest<span className="text-primary">.</span>
-        </Link>
-      </div>
-
       <div className="flex-1 flex items-center justify-center p-6">
         <div className="w-full max-w-md">
           <div className="text-center mb-8">
@@ -243,8 +240,8 @@ const Login = () => {
                 </Button>
                 <p className="text-xs text-muted-foreground text-center">
                   By signing up, you agree to our{" "}
-                  <Link to="/" className="underline hover:text-foreground">Terms</Link> and{" "}
-                  <Link to="/" className="underline hover:text-foreground">Privacy Policy</Link>
+                  <Link to="/terms" className="underline hover:text-foreground">Terms</Link> and{" "}
+                  <Link to="/privacy" className="underline hover:text-foreground">Privacy Policy</Link>
                 </p>
               </form>
             </TabsContent>

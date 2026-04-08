@@ -1,7 +1,7 @@
 import { createContext, useContext, useEffect, useState, ReactNode } from "react";
 import db from "./supabase";
-import { convertReferral } from "@/lib/store";
-import { convertReferral as apiConvertReferral } from "@/lib/api";
+import { convertReferralForUser, generateUniqueReferralCode, registerReferralSignup } from "@/lib/store";
+import { clearStoredReferralCode, getStoredReferralCode } from "@/lib/referrals";
 
 // Simple deterministic hash for password storage
 // In production this would be bcrypt server-side — for now use SHA-256 via Web Crypto
@@ -45,11 +45,6 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | null>(null);
 
 const STORAGE_KEY = 'perksnest_user_id';
-
-const generateReferralCode = (name: string): string => {
-  const base = name.toUpperCase().replace(/[^A-Z]/g, '').substring(0, 4) || 'USER';
-  return `${base}${Math.floor(1000 + Math.random() * 9000)}`;
-};
 
 const rowToUser = (row: Record<string, unknown>): User => ({
   id: row.id as string,
@@ -118,6 +113,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (existing) return false;
 
     const hashedPw = await hashPassword(password);
+    const normalizedReferrerCode = referrerCode || getStoredReferralCode();
+    const referralCode = await generateUniqueReferralCode(name);
     const { data, error } = await db
       .from('users')
       .insert({
@@ -126,7 +123,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         name,
         plan: 'free',
         role: 'customer',
-        referral_code: generateReferralCode(name),
+        referral_code: referralCode,
         referral_count: 0,
         claimed_deals: [],
       })
@@ -141,15 +138,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     localStorage.removeItem('perksnest_logged_out');
 
     // Track referral conversion (both local and API)
-    if (referrerCode) {
-      convertReferral(email, u.id);
-      // Also call API endpoint
-      try {
-        await apiConvertReferral(referrerCode);
-      } catch (error) {
-        console.error('Failed to convert referral via API:', error);
-        // Don't fail registration if API call fails
-      }
+    if (normalizedReferrerCode) {
+      await registerReferralSignup(normalizedReferrerCode, { id: u.id, email: u.email, name: u.name });
+      clearStoredReferralCode();
     }
 
     return true;
@@ -180,6 +171,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const { error } = await db.from('users').update({ plan }).eq('id', user.id);
       if (error) throw error;
       setUser({ ...user, plan });
+      if (plan !== 'free') {
+        await convertReferralForUser({ id: user.id, email: user.email });
+      }
     } catch (err) {
       console.error('Plan update error:', err);
       throw err;
@@ -215,6 +209,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         console.error('Failed to record claim event:', eventError);
         // Still succeed since the claim itself worked
       }
+
+      await convertReferralForUser({ id: user.id, email: user.email });
     } catch (err) {
       console.error('Deal claim error:', err);
       throw err;

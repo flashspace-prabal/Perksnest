@@ -1,13 +1,11 @@
 import { Link } from "react-router-dom";
 import { Home, Search, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 
 const NotFound = () => {
   return (
     <div className="min-h-screen bg-background flex flex-col">
-      <Header />
       <main className="flex-1 flex items-center justify-center py-20">
         <div className="text-center max-w-2xl mx-auto px-4">
           <div className="mb-8">

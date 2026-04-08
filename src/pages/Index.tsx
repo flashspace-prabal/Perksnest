@@ -1,5 +1,4 @@
 import { useEffect } from "react";
-import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 
 import HeroBanner from "@/components/HeroBanner";
@@ -22,9 +21,6 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      
-      <Header />
-      
       <main>
         {/* Hero Banner */}
         <HeroBanner />

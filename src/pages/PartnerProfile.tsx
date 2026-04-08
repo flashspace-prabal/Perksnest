@@ -1,6 +1,5 @@
 import { useParams, Link } from 'react-router-dom';
 import { dealsData } from '@/data/deals';
-import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import DealCard from '@/components/DealCard';
 import { Button } from '@/components/ui/button';
@@ -21,7 +20,6 @@ const PartnerProfile = () => {
   if (companyDeals.length === 0) {
     return (
       <div className="min-h-screen bg-background">
-        <Header />
         <div className="container mx-auto px-4 py-20 text-center">
           <h1 className="text-3xl font-bold mb-4">Partner Not Found</h1>
           <p className="text-muted-foreground mb-6">
@@ -56,8 +54,6 @@ const PartnerProfile = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <Header />
-
       {/* Hero Section */}
       <div className="bg-gradient-to-br from-purple-600 to-purple-800 text-white">
         <div className="container mx-auto px-4 py-16">

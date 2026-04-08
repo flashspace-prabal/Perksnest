@@ -1,10 +1,10 @@
 import { useState } from "react";
-import { useParams, Link, Navigate } from "react-router-dom";
+import { useParams, Link } from "react-router-dom";
 import { ArrowLeft, Check, Copy, ExternalLink, Clock, Shield, Star, Gift, ChevronRight, Lock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import SafeImage from "@/components/SafeImage";
 import { AuthModal } from "@/components/AuthModal";
+import Footer from "@/components/Footer";
 import { useAuth } from "@/lib/auth";
 import { toast } from "sonner";
 import { dealsData } from "@/data/deals";
@@ -177,7 +177,7 @@ const defaultRedemptionInfo: {
 
 const DealRedeem = () => {
   const { dealId } = useParams<{ dealId: string }>();
-  const { user, isAuthenticated, isPro } = useAuth();
+  const { user, isAuthenticated } = useAuth();
   const [showAuthModal, setShowAuthModal] = useState(false);
 
   const baseDeal = dealId ? dealsData.find(d => d.id === dealId) : null;
@@ -194,7 +194,7 @@ const DealRedeem = () => {
 
   const isClaimed = dealId && user?.claimedDeals.includes(dealId);
   const isPremiumDeal = deal?.isPremium;
-  const canViewCode = isAuthenticated && isClaimed && (!isPremiumDeal || isPro);
+  const canViewCode = isAuthenticated && isClaimed && (!isPremiumDeal || user?.plan === 'premium');
 
   const handleCopyCode = () => {
     if (deal?.promoCode && canViewCode) {
@@ -206,7 +206,6 @@ const DealRedeem = () => {
   if (!deal) {
     return (
       <div className="min-h-screen bg-background">
-        <Header />
         <div className="container-wide py-20 text-center">
           <h1 className="text-2xl font-bold mb-4">Deal not found</h1>
           <Link to="/deals">
@@ -313,7 +312,7 @@ const DealRedeem = () => {
           )}
 
           {/* Premium Lock Alert */}
-          {isAuthenticated && isPremiumDeal && !isPro && (
+          {isAuthenticated && isPremiumDeal && !(user?.plan === 'premium') && (
             <Alert className="mb-8 border-primary/50 bg-primary/10">
               <Lock className="h-4 w-4" />
               <AlertDescription>

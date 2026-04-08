@@ -3,7 +3,6 @@ import { ArrowRight, TrendingUp, Users, DollarSign, Star, ExternalLink } from "l
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import SafeImage from "@/components/SafeImage";
 import { dealsData } from "@/data/deals";
@@ -20,7 +19,6 @@ const BrandProfile = () => {
   if (!brand) {
     return (
       <div className="min-h-screen bg-background">
-        <Header />
         <div className="container-wide py-32 text-center">
           <h1 className="text-3xl font-bold text-foreground mb-4">Partner Not Found</h1>
           <p className="text-muted-foreground mb-8">We couldn't find a partner with that name.</p>
@@ -38,8 +36,6 @@ const BrandProfile = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <Header />
-
       {/* Hero Banner — flat solid aubergine */}
       <section className="bg-primary">
         <div className="container-wide py-14 md:py-20">

@@ -34,10 +34,6 @@ export default function ForgotPassword() {
   return (
     <div className="min-h-screen bg-background flex items-center justify-center px-4">
       <div className="w-full max-w-md">
-        <div className="text-center mb-8">
-          <Link to="/" className="text-2xl font-bold text-primary">perksnest.</Link>
-        </div>
-        
         <div className="bg-card border border-border rounded-2xl p-8 shadow-sm">
           {submitted ? (
             <div className="text-center py-4">

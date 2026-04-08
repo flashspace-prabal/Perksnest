@@ -2,6 +2,8 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { createClient } from "@supabase/supabase-js";
 import { db } from "@/lib/supabase";
+import { generateUniqueReferralCode, registerReferralSignup } from "@/lib/store";
+import { clearStoredReferralCode, getStoredReferralCode } from "@/lib/referrals";
 
 // Supabase auth client (anon key, same instance as login page uses)
 const supabaseAuth = createClient(
@@ -91,6 +93,7 @@ export default function AuthCallback() {
             await db.from('users').update({ avatar, email_verified: true }).eq('id', existing.id);
           }
         } else {
+          const referralCode = await generateUniqueReferralCode(name);
           // Create new user
           const { data: newUser, error: insertError } = await db
             .from('users')
@@ -104,7 +107,7 @@ export default function AuthCallback() {
               roles: ['customer'],
               status: 'active',
               email_verified: true,
-              referral_code: Math.random().toString(36).substring(2, 8).toUpperCase(),
+              referral_code: referralCode,
               referral_count: 0,
               claimed_deals: [],
             })
@@ -120,6 +123,12 @@ export default function AuthCallback() {
 
           userId = newUser.id;
           userRole = 'customer';
+
+          const storedReferralCode = getStoredReferralCode();
+          if (storedReferralCode) {
+            await registerReferralSignup(storedReferralCode, { id: newUser.id, email, name });
+            clearStoredReferralCode();
+          }
 
           // Welcome email (fire and forget)
           fetch('https://api.perksnest.co/api/notify', {
@@ -139,15 +148,16 @@ export default function AuthCallback() {
         const dest = returnUrl && returnUrl.startsWith('/') ? returnUrl : defaultDest;
         window.location.replace(dest);
 
-      } catch (err: any) {
+      } catch (err: unknown) {
         console.error('Auth callback error:', err);
-        setStatus(`Error: ${err?.message || 'Something went wrong'}. Redirecting...`);
+        const message = err instanceof Error ? err.message : 'Something went wrong';
+        setStatus(`Error: ${message}. Redirecting...`);
         setTimeout(() => navigate("/login"), 3000);
       }
     };
 
     handleCallback();
-  }, []);
+  }, [navigate]);
 
   return (
     <div className="min-h-screen bg-background flex items-center justify-center">

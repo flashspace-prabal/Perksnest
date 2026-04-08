@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
-import { Star, Heart, Share2, Info, Users, ExternalLink, Lock, Check, ArrowUpRight, Loader2 } from "lucide-react";
+import { Star, Bookmark, Share2, Info, Users, ExternalLink, Lock, Check, ArrowUpRight, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import DealCardNew from "@/components/DealCardNew";
@@ -9,10 +9,13 @@ import { AuthModal } from "@/components/AuthModal";
 import { DealReviews } from "@/components/DealReviews";
 import UpvoteButton from "@/components/UpvoteButton";
 import ExpiryBadge from "@/components/ExpiryBadge";
-import { toggleBookmark, getBookmarkedDealIds, sendEmail } from '@/lib/store';
+import { sendEmail } from '@/lib/store';
 import { useAuth } from "@/lib/auth";
+import { useBookmarks } from "@/lib/bookmarks";
 import { toast } from "sonner";
 import { Deal } from "@/data/deals";
+import { getDealReview } from "@/data/reviews";
+import { getExtendedDealInfo } from "@/data/extended-deals";
 import { getPartnerDeals, PartnerDeal } from "@/lib/store";
 import { claimDeal as apiClaimDeal, getDealClaims, getUserClaims } from "@/lib/api";
 import { getDeal, getDealsByCategory } from "@/lib/deals";
@@ -24,8 +27,9 @@ import brevoLogo from "@/assets/logos/brevo.ico";
 import makeLogo from "@/assets/logos/make.ico";
 import React from "react";
 
-// Extended deal info for detail pages
-const dealExtendedInfo: Record<string, {
+interface DealDetailData extends Deal {
+  websiteUrl?: string;
+  promoCode?: string;
   tagline: string;
   longDescription: string;
   subcategory: string;
@@ -33,100 +37,40 @@ const dealExtendedInfo: Record<string, {
   reviewCount: number;
   features?: string[];
   useCases?: string[];
-  testimonial: {
+  testimonial?: {
     quote: string;
     author: string;
     role: string;
-    avatar: string;
+    avatar?: string;
   };
-}> = {
-  "notion": {
-    tagline: "The all-in-one workspace for your notes, tasks, wikis, and databases",
-    longDescription: "Notion is a unified workspace where knowledge and teamwork come together. It combines note-taking, project management, database creation, and wikis in one collaborative platform. Perfect for startups, teams, and individuals who want to organize their work, documents, and ideas in a centralized hub with powerful AI capabilities.",
-    subcategory: "Collaboration Software",
-    rating: 4.5,
-    reviewCount: 50,
-    features: [
-      "Flexible workspace with blocks and components",
-      "Database creation and powerful filtering",
-      "Team collaboration and comments",
-      "AI-powered writing assistant",
-      "Integration with 100+ apps",
-      "Version history and backups"
-    ],
-    useCases: [
-      "Project management and tracking",
-      "Team documentation and wikis",
-      "Product roadmaps",
-      "Meeting notes and action items",
-      "CRM and lead tracking",
-      "Content planning calendars"
-    ],
-    testimonial: {
-      quote: "I tried to apply for Notion's startup program on my own, but I was not accepted. After joining PerksNest, they approved my request in a matter of days, and now I can benefit from a plan that really helps my business without adding recurring costs, which is great for a startup.",
-      author: "Alejandro Goffa",
-      role: "Founder, KeySpanish",
-      avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&h=100&fit=crop&crop=face",
-    },
-  },
-  "stripe": {
-    tagline: "Payment infrastructure for the internet",
-    longDescription: "Stripe is a financial infrastructure platform that enables businesses of all sizes to accept payments, manage their finances, and scale globally. Built for developers and business teams, Stripe handles complex payment processing, fraud prevention, and compliance so you can focus on growth.",
-    subcategory: "Payment Processing",
-    rating: 4.8,
-    reviewCount: 120,
-    features: [
-      "Accept payments from customers worldwide",
-      "Support for 135+ currencies",
-      "Advanced fraud detection and prevention",
-      "Detailed analytics and reporting",
-      "Subscription and billing management",
-      "Marketplace and split payouts"
-    ],
-    useCases: [
-      "E-commerce and online stores",
-      "SaaS and subscription billing",
-      "Marketplace platforms",
-      "In-app purchases",
-      "Invoice and payment links",
-      "Global expansion with local payments"
-    ],
-    testimonial: {
-      quote: "Stripe's integration was seamless and the fee waiver through PerksNest saved us a significant amount during our early growth phase.",
-      author: "Sarah Chen",
-      role: "CTO, TechStartup",
-      avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&h=100&fit=crop&crop=face",
-    },
-  },
-  "google-cloud": {
-    tagline: "Build on the world's most reliable cloud infrastructure",
-    longDescription: "Google Cloud Platform (GCP) is a comprehensive suite of cloud computing services that powers some of the world's largest applications and businesses. Built on Google's own infrastructure, GCP offers compute, storage, databases, networking, AI/ML, and analytics solutions.",
-    subcategory: "Cloud Computing",
-    rating: 4.6,
-    reviewCount: 85,
-    features: [
-      "Compute Engine for virtual machines",
-      "Cloud Storage with 99.99% availability",
-      "BigQuery for data analytics",
-      "Cloud SQL and Firestore databases",
-      "Cloud Run for serverless containers",
-      "Vertex AI for machine learning"
-    ],
-    useCases: [
-      "Web and mobile app hosting",
-      "Data warehousing and analytics",
-      "Machine learning model training",
-      "Real-time data processing",
-      "Backup and disaster recovery",
-      "Microservices architectures"
-    ],
-    testimonial: {
-      quote: "The Google Cloud credits from PerksNest allowed us to scale our infrastructure without worrying about costs in the early stages.",
-      author: "Mike Johnson",
-      role: "Founder, CloudApp",
-      avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop&crop=face",
-    },
-  },
+}
+
+const normalizeClaimedDeals = (payload: unknown): string[] => {
+  if (Array.isArray(payload)) {
+    return payload
+      .map((item) => {
+        if (typeof item === "string") return item;
+        if (item && typeof item === "object" && "deal_id" in item && typeof item.deal_id === "string") {
+          return item.deal_id;
+        }
+        return null;
+      })
+      .filter((dealId): dealId is string => !!dealId);
+  }
+
+  if (payload && typeof payload === "object" && "claimedDeals" in payload) {
+    const claimedDeals = payload.claimedDeals;
+    if (Array.isArray(claimedDeals)) {
+      return claimedDeals.filter((dealId): dealId is string => typeof dealId === "string");
+    }
+  }
+
+  return [];
+};
+
+// Get extended deal info from the new extended-deals data file
+const getDealExtendedInfo = (dealId: string) => {
+  return getExtendedDealInfo(dealId);
 };
 
 const saasLogos = [
@@ -140,8 +84,9 @@ const saasLogos = [
 const DealDetail = () => {
   const { dealId } = useParams<{ dealId: string }>();
   const navigate = useNavigate();
-  const { user, isAuthenticated, claimDeal } = useAuth() as any;
-  const isPro = (user as any)?.plan === 'pro' || (user as any)?.plan === 'premium';
+  const { user, isAuthenticated, claimDeal } = useAuth();
+  const { isBookmarked, isBookmarkPending, toggleBookmark } = useBookmarks();
+  const isPro = user?.plan === 'premium';
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
   const [claimCount, setClaimCount] = useState<number>(0);
@@ -195,7 +140,7 @@ const DealDetail = () => {
 
     if (isAuthenticated) {
       getUserClaims()
-        .then(claims => setServerClaimedDeals(claims.map((c: any) => c.deal_id)))
+        .then(claims => setServerClaimedDeals(normalizeClaimedDeals(claims)))
         .catch(err => console.warn('Failed to fetch user claims metadata:', err));
     }
   }, [dealId, isAuthenticated]);
@@ -204,11 +149,7 @@ const DealDetail = () => {
   useEffect(() => {
     if (isAuthenticated) {
       getUserClaims()
-        .then(data => {
-          if (data.claimedDeals && Array.isArray(data.claimedDeals)) {
-            setServerClaimedDeals(data.claimedDeals);
-          }
-        })
+        .then(data => setServerClaimedDeals(normalizeClaimedDeals(data)))
         .catch(err => {
           console.error('Failed to fetch user claims:', err);
         });
@@ -229,6 +170,7 @@ const DealDetail = () => {
     id: partnerDeal.id,
     name: partnerDeal.name,
     company: partnerDeal.partnerName,
+    logo: partnerDeal.logoUrl || "",
     description: partnerDeal.description,
     dealText: partnerDeal.dealText,
     savings: partnerDeal.savings,
@@ -238,40 +180,43 @@ const DealDetail = () => {
     isFree: true,
     memberCount: partnerDeal.claims || 0,
   } : null);
-  const extendedInfo = dealId ? dealExtendedInfo[dealId] : null;
+  const extendedInfo = dealId ? getDealExtendedInfo(dealId) : null;
 
   // Combine base deal with extended info, fallback to effectiveDeal (including partner deals)
-  const deal = effectiveDeal ? {
+  const deal: DealDetailData | null = effectiveDeal ? {
     ...effectiveDeal,
     tagline: extendedInfo?.tagline || effectiveDeal.description,
     longDescription: extendedInfo?.longDescription || effectiveDeal.description,
     subcategory: extendedInfo?.subcategory || "Software",
     rating: extendedInfo?.rating || 4.5,
     reviewCount: extendedInfo?.reviewCount || 50,
+    features: extendedInfo?.features,
+    useCases: extendedInfo?.useCases,
     testimonial: extendedInfo?.testimonial || {
       quote: "This deal saved us a lot of money!",
       author: "Happy Customer",
       role: "Founder",
-      avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&h=100&fit=crop&crop=face",
     },
-  } as any : null;
-
-  const [isBookmarked, setIsBookmarked] = useState(() => {
-    if (!user || !dealId) return false;
-    return false; // loaded async below
-  });
+  } : null;
 
   const handleBookmark = async () => {
-    if (!user) { toast.info("Sign in to save deals"); return; }
+    if (!user) {
+      setShowAuthModal(true);
+      return;
+    }
     if (!dealId) return;
-    const result = await toggleBookmark(dealId, user.id);
-    setIsBookmarked(result);
-    toast.success(result ? "Deal saved!" : "Deal removed from saved");
-    window.dispatchEvent(new Event('bookmarks-updated'));
+
+    try {
+      const result = await toggleBookmark(dealId);
+      toast.success(result ? "Deal saved!" : "Deal removed from saved");
+    } catch (error) {
+      console.error("Failed to toggle bookmark:", error);
+      toast.error("Failed to update saved deals");
+    }
   };
 
-  const isClaimed = dealId && ((user as any)?.claimedDeals?.includes(dealId) || serverClaimedDeals.includes(dealId));
-  const isPremiumDeal = (deal as any)?.isPremium;
+  const isClaimed = !!dealId && (user?.claimedDeals?.includes(dealId) || serverClaimedDeals.includes(dealId));
+  const isPremiumDeal = deal?.isPremium;
   const canClaim = isAuthenticated && (!isPremiumDeal || isPro);
 
   const [isClaiming, setIsClaiming] = React.useState(false);
@@ -310,7 +255,7 @@ const DealDetail = () => {
       setClaimCount(prev => prev + 1);
 
       const dealName = deal?.name || 'Deal';
-      const isFallback = (response as any)?.fallback;
+      const isFallback = Boolean((response as { fallback?: boolean })?.fallback);
       
       if (isFallback) {
         toast.success(`${dealName} claimed! (offline mode - syncing when online)`);
@@ -327,9 +272,9 @@ const DealDetail = () => {
       setTimeout(() => {
         navigate(`/deals/${dealId}/redeem`);
       }, 800);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Failed to claim deal:', error);
-      const errorMsg = error?.message || 'Failed to claim deal';
+      const errorMsg = error instanceof Error ? error.message : 'Failed to claim deal';
       
       if (errorMsg.includes('timeout') || errorMsg.includes('AbortError')) {
         toast.error('Network timeout. Please check your connection and try again.');
@@ -433,8 +378,10 @@ const DealDetail = () => {
                 {deal.name} Promo code
               </h1>
 
-              {/* Tagline */}
-              <p className="text-lg text-muted-foreground mb-6">{deal.tagline}</p>
+              {/* Tagline - Only show if different from Long Description */}
+              {deal.tagline !== deal.longDescription && (
+                <p className="text-lg text-muted-foreground mb-6">{deal.tagline}</p>
+              )}
 
               {/* Long Description */}
               <p className="text-foreground leading-relaxed mb-8">{deal.longDescription}</p>
@@ -463,24 +410,48 @@ const DealDetail = () => {
                 </span>
               </div>
 
-              {/* Testimonial */}
-              <div className="bg-card border border-border rounded-xl p-6 mb-8">
-                <div className="text-4xl text-muted-foreground mb-4">"</div>
-                <p className="text-foreground leading-relaxed mb-6">
-                  {deal.testimonial.quote}
-                </p>
-                <div className="flex items-center gap-3">
-                  <img 
-                    src={deal.testimonial.avatar} 
-                    alt={deal.testimonial.author}
-                    className="w-10 h-10 rounded-full"
-                  />
-                  <div>
-                    <p className="font-medium text-foreground">{deal.testimonial.author}</p>
-                    <p className="text-sm text-muted-foreground">{deal.testimonial.role}</p>
+              {/* Testimonial - Unique Review for Each Deal */}
+              {(() => {
+                const review = dealId ? getDealReview(dealId) : null;
+                return review ? (
+                  <div className="bg-card border border-border rounded-xl p-6 mb-8">
+                    <div className="text-4xl text-muted-foreground mb-4">"</div>
+                    <p className="text-foreground leading-relaxed mb-6">
+                      {review.quote}
+                    </p>
+                    <div className="flex items-center gap-3">
+                      <img 
+                        src={review.avatar || "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=40&h=40&fit=crop&crop=face"} 
+                        alt={review.author}
+                        className="w-10 h-10 rounded-full object-cover"
+                      />
+                      <div>
+                        <p className="font-medium text-foreground">{review.author}</p>
+                        <p className="text-sm text-muted-foreground">{review.role}{review.company ? `, ${review.company}` : ''}</p>
+                      </div>
+                    </div>
                   </div>
-                </div>
-              </div>
+                ) : (
+                  // Fallback testimonial from extendedInfo
+                  <div className="bg-card border border-border rounded-xl p-6 mb-8">
+                    <div className="text-4xl text-muted-foreground mb-4">"</div>
+                    <p className="text-foreground leading-relaxed mb-6">
+                      {deal.testimonial.quote}
+                    </p>
+                    <div className="flex items-center gap-3">
+                      <img 
+                        src={deal.testimonial.avatar} 
+                        alt={deal.testimonial.author}
+                        className="w-10 h-10 rounded-full"
+                      />
+                      <div>
+                        <p className="font-medium text-foreground">{deal.testimonial.author}</p>
+                        <p className="text-sm text-muted-foreground">{deal.testimonial.role}</p>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })()}
 
               {/* Save Big CTA Banner */}
               <div className="bg-secondary rounded-xl p-6 mb-12">
@@ -647,8 +618,18 @@ const DealDetail = () => {
                     <button onClick={handleShare} className="p-2 hover:bg-secondary rounded-lg transition-colors">
                       <Share2 className="h-4 w-4 text-muted-foreground" />
                     </button>
-                    <button className="p-2 hover:bg-secondary rounded-lg transition-colors">
-                      <Heart className="h-4 w-4 text-muted-foreground" />
+                    <button
+                      onClick={handleBookmark}
+                      className={`p-2 hover:bg-secondary rounded-lg transition-colors ${
+                        dealId && isBookmarked(dealId) ? "text-primary" : ""
+                      }`}
+                      disabled={dealId ? isBookmarkPending(dealId) : true}
+                    >
+                      {dealId && isBookmarkPending(dealId) ? (
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                      ) : (
+                        <Bookmark className={`h-4 w-4 ${dealId && isBookmarked(dealId) ? "fill-current" : "text-muted-foreground"}`} />
+                      )}
                     </button>
                   </div>
                 </div>

@@ -1,9 +1,9 @@
 import { useState, useEffect } from "react";
-import { Link, useParams } from "react-router-dom";
-import { BookOpen, Clock, User, Calendar, Search, ArrowRight, Tag } from "lucide-react";
-import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
+import { Link, useParams, Navigate } from "react-router-dom";
+import { Clock, Calendar, Search, ArrowRight, Tag, ArrowLeft } from "lucide-react";
 import { blogPosts, categories, getBlogPostById, getRelatedPosts } from "@/data/blog";
+import Footer from "@/components/Footer";
+import { toast } from "sonner";
 
 const Blog = () => {
   useEffect(() => {
@@ -15,9 +15,9 @@ const Blog = () => {
 
   const handleBlogSubscribe = () => {
     if (!blogEmail.includes("@")) { toast.error("Enter a valid email"); return; }
-    const isNew = subscribeToDigest(blogEmail, undefined, "weekly");
+    // Newsletter subscription logic not implemented yet
     setBlogSubscribed(true);
-    toast.success(isNew ? "You're subscribed! 🎉" : "You're already subscribed!");
+    toast.success("Newsletter subscription coming soon!");
     setBlogEmail("");
   };
 
@@ -42,8 +42,6 @@ const Blog = () => {
 
     return (
       <div className="min-h-screen bg-background">
-        <Header />
-
         <main>
           {/* Back Button */}
           <div className="border-b border-border bg-card">

@@ -2,6 +2,8 @@ import { useEffect } from "react";
 import { createClient } from "@supabase/supabase-js";
 import { db } from "@/lib/supabase";
 import { useNavigate, useLocation } from "react-router-dom";
+import { generateUniqueReferralCode, registerReferralSignup } from "@/lib/store";
+import { clearStoredReferralCode, getStoredReferralCode } from "@/lib/referrals";
 
 const supabaseAuth = createClient(
   'https://auth.perksnest.co',
@@ -52,12 +54,13 @@ export default function OAuthHandler() {
             await db.from('users').update({ avatar, email_verified: true }).eq('id', existing.id);
           }
         } else {
+          const referralCode = await generateUniqueReferralCode(name);
           const { data: newUser, error } = await db.from('users').insert({
             email, name, avatar,
             password: 'google_oauth',
             plan: 'free', role: 'customer', roles: ['customer'],
             status: 'active', email_verified: true,
-            referral_code: Math.random().toString(36).substring(2, 8).toUpperCase(),
+            referral_code: referralCode,
             referral_count: 0, claimed_deals: [],
           }).select('*').single();
 
@@ -67,6 +70,12 @@ export default function OAuthHandler() {
           }
           userId = newUser.id;
           userRole = 'customer';
+
+          const storedReferralCode = getStoredReferralCode();
+          if (storedReferralCode) {
+            await registerReferralSignup(storedReferralCode, { id: newUser.id, email, name });
+            clearStoredReferralCode();
+          }
 
           fetch('https://api.perksnest.co/api/notify', {
             method: 'POST',

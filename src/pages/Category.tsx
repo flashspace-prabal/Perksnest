@@ -1,6 +1,5 @@
 import { useParams, Link } from "react-router-dom";
 import { ArrowLeft, Tag } from "lucide-react";
-import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import DealCard from "@/components/DealCard";
 import { dealsData, getDealsByCategory } from "@/data/deals";
@@ -36,7 +35,6 @@ const Category = () => {
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
-      <Header />
       <main className="flex-1">
         <section className="bg-primary text-primary-foreground py-12 px-4">
           <div className="max-w-6xl mx-auto">

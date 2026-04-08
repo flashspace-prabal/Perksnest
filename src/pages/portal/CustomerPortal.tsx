@@ -12,12 +12,23 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Progress } from "@/components/ui/progress";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { MessagingTab } from "@/components/shared/MessagingTab";
+import { RealtimeMessagingTab } from "@/components/shared/RealtimeMessagingTab";
 import { useAuth } from "@/lib/auth";
-import { getBookmarkedDealIds, toggleBookmark } from '@/lib/store';
-import { dealsData } from "@/data/deals";
+import { useBookmarks } from "@/lib/bookmarks";
+import { dealsData, type Deal } from "@/data/deals";
 import { toast } from "sonner";
 import { getTickets, createTicket, claimDeal as apiClaimDeal } from "@/lib/api";
+import { getDeals } from "@/lib/deals";
+import { getPartnerDeals, getReferralSummary, type PartnerDeal, type ReferralEntry } from "@/lib/store";
+import { buildReferralLink } from "@/lib/referrals";
+
+interface TicketSummary {
+  id: string;
+  subject: string;
+  message: string;
+  status: "open" | "closed" | "pending";
+  createdAt: string;
+}
 
 const CustomerPortal = () => {
   // SEO: unique page title
@@ -25,15 +36,27 @@ const CustomerPortal = () => {
 
   const navigate = useNavigate();
   const { user, isAuthenticated, updatePlan, logout, claimDeal } = useAuth();
+  const {
+    bookmarkedDealIds,
+    isLoading: areBookmarksLoading,
+    error: bookmarksError,
+    toggleBookmark: toggleSavedDeal,
+  } = useBookmarks();
   const [copiedCode, setCopiedCode] = useState<string | null>(null);
   const [editedName, setEditedName] = useState("");
   const [editedEmail, setEditedEmail] = useState("");
   const [isSaving, setIsSaving] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
-  const [tickets, setTickets] = useState<any[]>([]);
+  const [tickets, setTickets] = useState<TicketSummary[]>([]);
   const [newTicketSubject, setNewTicketSubject] = useState("");
   const [newTicketMessage, setNewTicketMessage] = useState("");
   const [isCreatingTicket, setIsCreatingTicket] = useState(false);
+  const [catalogDeals, setCatalogDeals] = useState<Deal[]>([]);
+  const [partnerDeals, setPartnerDeals] = useState<PartnerDeal[]>([]);
+  const [areSavedDealsLoading, setAreSavedDealsLoading] = useState(true);
+  const [referrals, setReferrals] = useState<ReferralEntry[]>([]);
+  const [isReferralLoading, setIsReferralLoading] = useState(true);
+  const [referralEarnings, setReferralEarnings] = useState(0);
 
   // Redirect to home if not authenticated
   useEffect(() => {
@@ -60,13 +83,8 @@ const CustomerPortal = () => {
     }
   }, [user]);
 
-  // If not authenticated, don't render anything (will redirect)
-  if (!user || !isAuthenticated) {
-    return null;
-  }
-
   // Get claimed deals with full details from dealsData
-  const claimedDealsWithDetails = user.claimedDeals
+  const claimedDealsWithDetails = (user?.claimedDeals ?? [])
     .map(dealId => {
       const deal = dealsData.find(d => d.id === dealId);
       if (!deal) return null;
@@ -75,11 +93,11 @@ const CustomerPortal = () => {
         vendor: deal.name,
         logo: deal.logo,
         name: deal.dealText,
-        claimedDate: user.createdAt, // Using user creation date as placeholder
+        claimedDate: user?.createdAt || new Date().toISOString(), // Using user creation date as placeholder
         status: "active" as const,
         expiresDate: new Date(Date.now() + 180 * 24 * 60 * 60 * 1000).toISOString(), // 6 months from now
         savings: parseInt(deal.savings.replace(/[$,]/g, '')) || 0,
-        redemptionCode: `${deal.id.toUpperCase()}-${user.referralCode}`
+        redemptionCode: `${deal.id.toUpperCase()}-${user?.referralCode || "PN"}`
       };
     })
     .filter(Boolean) as Array<{
@@ -97,39 +115,87 @@ const CustomerPortal = () => {
   // Calculate total savings from claimed deals
   const totalSavings = claimedDealsWithDetails.reduce((acc, deal) => acc + deal.savings, 0);
 
-  // Mock referrals data (would come from backend in real app)
-  const referrals = Array.from({ length: user.referralCount }, (_, i) => ({
-    id: i + 1,
-    name: `Referral ${i + 1}`,
-    email: `referral${i + 1}@example.com`,
-    status: "converted" as const,
-    earnedAmount: 20,
-    date: new Date(Date.now() - i * 7 * 24 * 60 * 60 * 1000).toISOString()
-  }));
-
-  const referralEarnings = referrals.reduce((acc, ref) => acc + ref.earnedAmount, 0);
-
-  // Mock saved deals (would come from backend in real app)
-  const [savedDeals, setSavedDeals] = useState<any[]>([]);
   useEffect(() => {
-    if (!user) return;
-    getBookmarkedDealIds(user.id).then(bookmarkedIds => {
-      setSavedDeals(
-        bookmarkedIds
-          .map(id => dealsData.find(d => d.id === id))
-          .filter(Boolean)
-          .map(d => ({
-            id: d!.id,
-            vendor: d!.name,
-            logo: d!.logo,
-            name: d!.dealText,
-            savings: d!.savings,
-            isPremium: d!.isPremium,
-            isFree: d!.isFree,
-          }))
-      );
-    });
+    if (!user?.id) return;
+
+    setIsReferralLoading(true);
+    getReferralSummary(user.id)
+      .then(summary => {
+        setReferrals(summary.referrals);
+        setReferralEarnings(summary.totalEarned);
+      })
+      .catch(error => {
+        console.error("Failed to load referrals:", error);
+        setReferrals([]);
+        setReferralEarnings(0);
+      })
+      .finally(() => setIsReferralLoading(false));
   }, [user?.id]);
+
+  useEffect(() => {
+    let isMounted = true;
+
+    Promise.all([getDeals(), getPartnerDeals()])
+      .then(([apiDeals, partnerDealRows]) => {
+        if (!isMounted) return;
+        setCatalogDeals(apiDeals);
+        setPartnerDeals(partnerDealRows.filter(deal => deal.status === "approved"));
+      })
+      .catch(error => {
+        console.error("Failed to load deals catalog for saved deals:", error);
+      })
+      .finally(() => {
+        if (isMounted) setAreSavedDealsLoading(false);
+      });
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
+  const savedDeals = useMemo(() => {
+    const partnerDealsMapped: Deal[] = partnerDeals.map(deal => ({
+      id: deal.id,
+      name: deal.name,
+      company: deal.partnerName,
+      logo: deal.logoUrl || "",
+      description: deal.description,
+      dealText: deal.dealText,
+      savings: deal.savings,
+      memberCount: deal.claims || 0,
+      isPremium: false,
+      isFree: true,
+      category: deal.category,
+      subcategory: "",
+    }));
+
+    const dealLookup = new Map<string, Deal>();
+    [...partnerDealsMapped, ...catalogDeals].forEach(deal => {
+      if (!dealLookup.has(deal.id)) {
+        dealLookup.set(deal.id, deal);
+      }
+    });
+
+    return bookmarkedDealIds
+      .map(dealId => dealLookup.get(dealId))
+      .filter((deal): deal is Deal => !!deal)
+      .map(deal => ({
+        id: deal.id,
+        vendor: deal.name,
+        logo: deal.logo,
+        description: deal.description,
+        name: deal.dealText,
+        savings: deal.savings,
+        expiry: deal.expiresAt ? new Date(deal.expiresAt).toLocaleDateString() : "Ongoing",
+        isPremium: deal.isPremium,
+        isFree: deal.isFree,
+      }));
+  }, [bookmarkedDealIds, catalogDeals, partnerDeals]);
+
+  // If not authenticated, don't render anything (will redirect)
+  if (!user || !isAuthenticated) {
+    return null;
+  }
 
   const copyCode = (id: string, code: string) => {
     navigator.clipboard.writeText(code);
@@ -139,7 +205,7 @@ const CustomerPortal = () => {
   };
 
   const copyReferralLink = () => {
-    const referralLink = `perksnest.com/ref/${user.referralCode}`;
+    const referralLink = buildReferralLink(user.referralCode);
     navigator.clipboard.writeText(referralLink);
     toast.success("Referral link copied!");
   };
@@ -310,7 +376,7 @@ const CustomerPortal = () => {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm text-muted-foreground">Referrals</p>
-                  <p className="text-2xl font-bold">{user.referralCount}</p>
+                  <p className="text-2xl font-bold">{referrals.length}</p>
                 </div>
                 <Share2 className="h-8 w-8 text-accent" />
               </div>
@@ -357,7 +423,7 @@ const CustomerPortal = () => {
               <CardHeader className="flex flex-row items-center justify-between">
                 <CardTitle>My Claimed Deals</CardTitle>
                 <Link to="/deals">
-                  <Button onClick={() => window.location.href="/deals"}>Browse More Deals</Button>
+                  <Button>Browse More Deals</Button>
                 </Link>
               </CardHeader>
               <CardContent>
@@ -367,7 +433,7 @@ const CustomerPortal = () => {
                     <p className="text-lg font-medium mb-2">No deals claimed yet</p>
                     <p className="text-muted-foreground mb-6">Start claiming deals to see them here</p>
                     <Link to="/deals">
-                      <Button onClick={() => window.location.href="/deals"}>Browse Deals</Button>
+                      <Button>Browse Deals</Button>
                     </Link>
                   </div>
                 ) : (
@@ -432,13 +498,28 @@ const CustomerPortal = () => {
                 <CardTitle>Saved Deals ({savedDeals.length})</CardTitle>
               </CardHeader>
               <CardContent>
-                {savedDeals.length === 0 ? (
+                {areSavedDealsLoading || areBookmarksLoading ? (
+                  <div className="text-center py-12">
+                    <Clock className="h-12 w-12 mx-auto text-muted-foreground mb-4 animate-pulse" />
+                    <p className="text-lg font-medium mb-2">Loading saved deals</p>
+                    <p className="text-muted-foreground">Fetching your latest bookmarks...</p>
+                  </div>
+                ) : bookmarksError ? (
+                  <div className="text-center py-12">
+                    <Bookmark className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+                    <p className="text-lg font-medium mb-2">Couldn't load saved deals</p>
+                    <p className="text-muted-foreground mb-6">{bookmarksError}</p>
+                    <Link to="/deals">
+                      <Button>Browse Deals</Button>
+                    </Link>
+                  </div>
+                ) : savedDeals.length === 0 ? (
                   <div className="text-center py-12">
                     <Bookmark className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
                     <p className="text-lg font-medium mb-2">No saved deals yet</p>
                     <p className="text-muted-foreground mb-6">Save deals you're interested in for later</p>
                     <Link to="/deals">
-                      <Button onClick={() => window.location.href="/deals"}>Browse Deals</Button>
+                      <Button>Browse Deals</Button>
                     </Link>
                   </div>
                 ) : (
@@ -451,10 +532,12 @@ const CustomerPortal = () => {
                           </div>
                           <div className="flex-1">
                             <p className="font-medium">{deal.vendor}</p>
-                            <p className="text-sm text-muted-foreground">{deal.name}</p>
-                            <div className="flex items-center gap-2 mt-1">
+                            <p className="text-sm text-muted-foreground">{deal.description}</p>
+                            <p className="text-sm text-foreground mt-1">{deal.name}</p>
+                            <div className="flex items-center gap-2 mt-2">
                               {deal.isPremium && <Badge variant="secondary" className="text-xs">Premium</Badge>}
                               {deal.isFree && <Badge variant="outline" className="text-xs">Free</Badge>}
+                              <Badge variant="outline" className="text-xs">Expires {deal.expiry}</Badge>
                             </div>
                           </div>
                         </div>
@@ -464,10 +547,15 @@ const CustomerPortal = () => {
                             <Button
                               size="sm"
                               variant="outline"
-                              onClick={() => toggleBookmark(user.id, deal.id).then(() => {
-                                setSavedDeals(savedDeals.filter(d => d.id !== deal.id));
-                                toast.success("Deal removed from saved");
-                              })}
+                              onClick={async () => {
+                                try {
+                                  await toggleSavedDeal(deal.id);
+                                  toast.success("Deal removed from saved");
+                                } catch (error) {
+                                  console.error("Failed to remove saved deal:", error);
+                                  toast.error("Failed to update saved deals");
+                                }
+                              }}
                             >
                               <Bookmark className="h-4 w-4 fill-current" />
                             </Button>
@@ -489,10 +577,16 @@ const CustomerPortal = () => {
             <div className="grid lg:grid-cols-3 gap-6">
               <Card className="lg:col-span-2">
                 <CardHeader>
-                  <CardTitle>Your Referrals ({user.referralCount})</CardTitle>
+                  <CardTitle>Your Referrals ({referrals.length})</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  {referrals.length === 0 ? (
+                  {isReferralLoading ? (
+                    <div className="text-center py-12">
+                      <Users className="h-12 w-12 mx-auto text-muted-foreground mb-4 animate-pulse" />
+                      <p className="text-lg font-medium mb-2">Loading referrals</p>
+                      <p className="text-muted-foreground">Fetching your referral activity...</p>
+                    </div>
+                  ) : referrals.length === 0 ? (
                     <div className="text-center py-12">
                       <Users className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
                       <p className="text-lg font-medium mb-2">No referrals yet</p>
@@ -501,25 +595,25 @@ const CustomerPortal = () => {
                   ) : (
                     <div className="space-y-4">
                       {referrals.map((referral) => (
-                        <div key={referral.id} className="flex items-center justify-between p-4 bg-muted/50 rounded-lg">
+                        <div key={`${referral.referreeEmail}-${referral.createdAt}`} className="flex items-center justify-between p-4 bg-muted/50 rounded-lg">
                           <div className="flex items-center gap-3">
                             <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary font-semibold">
-                              {referral.name.charAt(0)}
+                              {referral.referreeEmail.charAt(0).toUpperCase()}
                             </div>
                             <div>
-                              <p className="font-medium">{referral.name}</p>
-                              <p className="text-sm text-muted-foreground">{referral.email}</p>
+                              <p className="font-medium">{referral.referreeEmail}</p>
+                              <p className="text-sm text-muted-foreground">Referral code {referral.code}</p>
                               <p className="text-xs text-muted-foreground">
-                                Joined {new Date(referral.date).toLocaleDateString()}
+                                Joined {new Date(referral.createdAt).toLocaleDateString()}
                               </p>
                             </div>
                           </div>
                           <div className="flex items-center gap-4">
-                            <Badge variant={referral.status === "converted" ? "default" : "secondary"}>
+                            <Badge variant={referral.status === "converted" || referral.status === "paid" ? "default" : "secondary"}>
                               {referral.status}
                             </Badge>
-                            {referral.earnedAmount > 0 && (
-                              <p className="text-primary font-semibold">+${referral.earnedAmount}</p>
+                            {(referral.status === "converted" || referral.status === "paid") && (
+                              <p className="text-primary font-semibold">+${referral.creditAmount}</p>
                             )}
                           </div>
                         </div>
@@ -547,7 +641,7 @@ const CustomerPortal = () => {
                     </div>
                     <p className="text-sm text-muted-foreground mb-2">Your referral link</p>
                     <div className="flex gap-2">
-                      <Input value={`perksnest.com/ref/${user.referralCode}`} readOnly className="text-sm" />
+                      <Input value={buildReferralLink(user.referralCode)} readOnly className="text-sm" />
                       <Button size="icon" variant="outline" onClick={copyReferralLink}>
                         <Copy className="h-4 w-4" />
                       </Button>
@@ -559,7 +653,7 @@ const CustomerPortal = () => {
                       <p className="text-2xl font-bold text-primary">${referralEarnings}</p>
                     </div>
                     <p className="text-xs text-muted-foreground">
-                      From {user.referralCount} referral{user.referralCount !== 1 ? 's' : ''}
+                      From {referrals.length} referral{referrals.length !== 1 ? 's' : ''}
                     </p>
                   </div>
                   <div className="flex gap-2">
@@ -652,7 +746,7 @@ const CustomerPortal = () => {
 
           {/* Messages Tab */}
           <TabsContent value="messages" className="space-y-6">
-            <MessagingTab portalRole="customer" />
+            <RealtimeMessagingTab portalRole="customer" />
           </TabsContent>
 
           {/* Settings Tab */}

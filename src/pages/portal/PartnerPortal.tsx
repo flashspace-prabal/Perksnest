@@ -4,7 +4,7 @@ import { useAuth } from "@/lib/auth";
 import { PartnerDashboard } from "@/components/partner/PartnerDashboard";
 import { PartnerAnalytics } from "@/components/partner/PartnerAnalytics";
 import { PartnerDealsTab } from "@/components/partner/PartnerDealsTab";
-import { MessagingTab } from "@/components/shared/MessagingTab";
+import { RealtimeMessagingTab } from "@/components/shared/RealtimeMessagingTab";
 import { PartnerSettingsTab } from "@/components/partner/PartnerSettingsTab";
 import { PartnerNotifications } from "@/components/partner/PartnerNotifications";
 import { getPartnerDeals } from "@/lib/store";
@@ -280,7 +280,7 @@ const PartnerPortal = () => {
               </Card>
             </div>
           )}
-          {activeTab === "messages" && <MessagingTab portalRole="partner" />}
+          {activeTab === "messages" && <RealtimeMessagingTab portalRole="partner" />}
           {activeTab === "settings" && <PartnerSettingsTab />}
         </main>
       </div>

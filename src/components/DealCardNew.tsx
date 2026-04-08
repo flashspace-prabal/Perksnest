@@ -1,7 +1,10 @@
-import { Crown, Sparkles, Users } from "lucide-react";
+import { Bookmark, Crown, Loader2, Sparkles, Users } from "lucide-react";
 import { Link } from "react-router-dom";
-import { useState } from "react";
+import { type MouseEvent, useState } from "react";
 import SafeImage from "./SafeImage";
+import { useAuth } from "@/lib/auth";
+import { useBookmarks } from "@/lib/bookmarks";
+import { toast } from "sonner";
 
 interface DealCardNewProps {
   id?: string;
@@ -30,11 +33,34 @@ const DealCardNew = ({
   slug,
 }: DealCardNewProps) => {
   const [isPressed, setIsPressed] = useState(false);
+  const { isAuthenticated } = useAuth();
+  const { isBookmarked, isBookmarkPending, toggleBookmark } = useBookmarks();
   const href = slug ? `/deals/${slug}` : id ? `/deals/${id}` : '#';
+  const saved = id ? isBookmarked(id) : false;
+  const isSaving = id ? isBookmarkPending(id) : false;
 
   const handleMouseDown = () => setIsPressed(true);
   const handleMouseUp = () => setIsPressed(false);
   const handleMouseLeave = () => setIsPressed(false);
+  const handleBookmarkClick = async (event: MouseEvent<HTMLButtonElement>) => {
+    event.preventDefault();
+    event.stopPropagation();
+
+    if (!id) return;
+
+    if (!isAuthenticated) {
+      toast.info("Sign in to save deals");
+      return;
+    }
+
+    try {
+      const nowSaved = await toggleBookmark(id);
+      toast.success(nowSaved ? "Deal saved" : "Deal removed from saved");
+    } catch (error) {
+      console.error("Failed to toggle bookmark:", error);
+      toast.error("Failed to update saved deals");
+    }
+  };
 
   return (
     <Link to={href} className="block h-full">
@@ -61,6 +87,22 @@ const DealCardNew = ({
             </span>
           )}
         </div>
+
+        <button
+          type="button"
+          aria-label={saved ? `Remove ${name} from saved deals` : `Save ${name} deal`}
+          className={`absolute top-3 right-3 z-10 inline-flex h-9 w-9 items-center justify-center rounded-full border bg-white/95 shadow-sm transition-colors ${
+            saved ? "border-primary/30 text-primary" : "border-gray-200 text-gray-500 hover:border-primary/30 hover:text-primary"
+          }`}
+          onClick={handleBookmarkClick}
+          disabled={!id || isSaving}
+        >
+          {isSaving ? (
+            <Loader2 className="h-4 w-4 animate-spin" />
+          ) : (
+            <Bookmark className={`h-4 w-4 ${saved ? "fill-current" : ""}`} />
+          )}
+        </button>
 
         <div className={`p-5 flex flex-col flex-1 ${isPick || isPremium ? 'pt-12' : 'pt-5'}`}>
           {/* Logo + Company name */}

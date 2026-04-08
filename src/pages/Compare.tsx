@@ -1,7 +1,9 @@
 import { useEffect } from "react";
-import { useParams, Link, useLocation } from "react-router-dom";
+import { useParams, Link } from "react-router-dom";
 import { Star, ArrowRight, ExternalLink } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import SafeImage from "@/components/SafeImage";
+import Footer from "@/components/Footer";
 import { getComparisonBySlug, comparisons } from "@/data/comparisons";
 
 const Compare = () => {
@@ -15,7 +17,6 @@ const Compare = () => {
   if (!comparison) {
     return (
       <div className="min-h-screen bg-background">
-        <Header />
         <div className="container-wide py-20 text-center">
           <h1 className="text-3xl font-bold mb-4">Comparison Not Found</h1>
           <p className="text-muted-foreground mb-8">
@@ -54,7 +55,6 @@ const Compare = () => {
 
   return (
     <div className="min-h-screen bg-white">
-
       {/* Breadcrumbs */}
       <div className="border-b">
         <div className="container-wide py-4">
@@ -189,8 +189,8 @@ const Compare = () => {
                 </p>
                 <p className="text-muted-foreground">
                   Some of the best <strong>{comparison.subcategory.toLowerCase()}</strong> includes{" "}
-                  <Link to="#" className="text-primary hover:underline">{comparison.tool1.name}</Link> and{" "}
-                  <Link to="#" className="text-primary hover:underline">{comparison.tool2.name}</Link>.
+                  <a href="#tool1-pros-cons" className="text-primary hover:underline">{comparison.tool1.name}</a> and{" "}
+                  <a href="#tool2-pros-cons" className="text-primary hover:underline">{comparison.tool2.name}</a>.
                   In this guide, we compare the differences and features of the two solutions to help you
                   find the best software for your business.
                 </p>
@@ -237,7 +237,9 @@ const Compare = () => {
                         />
                       </div>
                       <p className="font-semibold">{comparison.tool1.name}</p>
-                      <Button variant="outline" size="sm" className="mt-2">View Reviews</Button>
+                      <a href="#tool1-pros-cons" className="inline-block mt-2">
+                        <Button variant="outline" size="sm">See pros & cons</Button>
+                      </a>
                     </div>
                     <div className="text-center">
                       <div className="w-12 h-12 mx-auto mb-2 bg-white border rounded-lg p-2">
@@ -248,7 +250,9 @@ const Compare = () => {
                         />
                       </div>
                       <p className="font-semibold">{comparison.tool2.name}</p>
-                      <Button variant="outline" size="sm" className="mt-2">View Reviews</Button>
+                      <a href="#tool2-pros-cons" className="inline-block mt-2">
+                        <Button variant="outline" size="sm">See pros & cons</Button>
+                      </a>
                     </div>
                     <div></div>
                   </div>

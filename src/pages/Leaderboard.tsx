@@ -1,7 +1,6 @@
 import { useMemo } from "react";
 import { Link } from "react-router-dom";
 import { Trophy, ArrowRight, TrendingUp } from "lucide-react";
-import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import SafeImage from "@/components/SafeImage";
 import UpvoteButton from "@/components/UpvoteButton";
@@ -25,7 +24,7 @@ const Leaderboard = () => {
 
   return (
     <div className="min-h-screen bg-white">
-      <main className="flex-1">
+      <main>
         <section className="bg-primary text-primary-foreground py-14 px-4">
           <div className="max-w-3xl mx-auto text-center">
             <div className="inline-flex items-center gap-2 bg-white/10 text-white text-sm px-4 py-1.5 rounded-full mb-4">

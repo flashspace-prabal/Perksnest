@@ -141,9 +141,10 @@ export async function getReferralStats() {
   }
 }
 
-export async function trackReferralClick(referralCode: string) {
+export async function trackReferralClick(referral: string | { code: string; source?: string }) {
+  const payload = typeof referral === 'string' ? { referralCode: referral } : { referralCode: referral.code, source: referral.source };
   try {
-    return await apiCall('/api/referrals/click', 'POST', { referralCode }, 2);
+    return await apiCall('/api/referrals/click', 'POST', payload, 2);
   } catch (error) {
     console.warn('Track referral API failed', error);
     return { tracked: true };
@@ -174,5 +175,24 @@ export async function createTicket(ticket: any) {
   } catch (error) {
     console.warn('Create ticket API failed', error);
     return { success: false, message: 'Failed to create ticket' };
+  }
+}
+
+// Reviews API - Fetches customer reviews from Supabase
+export async function getDealReviews(dealId: string) {
+  try {
+    return await apiCall(`/api/deals/${dealId}/reviews`, 'GET', undefined, 2);
+  } catch (error) {
+    console.warn(`Get reviews API failed for ${dealId}`, error);
+    return { reviews: [], fallback: true };
+  }
+}
+
+export async function getAllReviews() {
+  try {
+    return await apiCall('/api/deals/reviews', 'GET', undefined, 2);
+  } catch (error) {
+    console.warn('Get all reviews API failed', error);
+    return { reviews: [], fallback: true };
   }
 }

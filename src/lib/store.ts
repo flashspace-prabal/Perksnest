@@ -19,7 +19,24 @@ export interface Notification {
 }
 export interface Message {
   id: string; threadId: string; senderId: string; senderName: string;
-  senderRole: string; content: string; createdAt: string;
+  senderRole: string; content: string; createdAt: string; read?: boolean;
+}
+export interface ThreadSummary {
+  threadId: string;
+  lastMessage: string;
+  senderName: string;
+  unread: number;
+  updatedAt: string;
+}
+export interface ConversationSummary {
+  id: string;
+  userId: string;
+  adminId?: string;
+  createdAt: string;
+  updatedAt: string;
+  unread: number;
+  lastMessage: string;
+  senderName: string;
 }
 export interface ClaimEvent {
   id: string; userId: string; dealId: string;
@@ -30,6 +47,12 @@ export interface ReferralEntry {
   referreeEmail: string; referreeId?: string;
   status: 'pending' | 'converted' | 'paid';
   creditAmount: number; createdAt: string; convertedAt?: string;
+}
+export interface ReferralSummary {
+  referrals: ReferralEntry[];
+  totalEarned: number;
+  convertedCount: number;
+  pendingCount: number;
 }
 export interface DigestSubscriber {
   email: string; name?: string; subscribedAt: string;
@@ -42,22 +65,108 @@ export interface WLClient {
 }
 
 // ─── BOOKMARKS ────────────────────────────────────────────────────────────────
-export async function getBookmarkedDealIds(userId: string): Promise<string[]> {
-  const { data } = await db.from('bookmarks').select('deal_id').eq('user_id', userId);
-  return (data || []).map((r: { deal_id: string }) => r.deal_id);
+export const BOOKMARKS_UPDATED_EVENT = 'bookmarks-updated';
+
+const getBookmarkStorageKey = (userId: string) => `pn_bookmarks_${userId}`;
+
+function readCachedBookmarkedDealIds(userId: string): string[] {
+  if (!userId) return [];
+
+  try {
+    const scoped = JSON.parse(localStorage.getItem(getBookmarkStorageKey(userId)) || '[]');
+    if (Array.isArray(scoped)) return scoped;
+
+    const legacy = JSON.parse(localStorage.getItem('pn_bookmarks') || '{"userId":"","dealIds":[]}');
+    if (legacy?.userId === userId && Array.isArray(legacy.dealIds)) return legacy.dealIds;
+  } catch {
+    return [];
+  }
 }
 
-export async function toggleBookmark(dealId: string, userId: string): Promise<boolean> {
-  const { data: existing } = await db
-    .from('bookmarks').select('id').eq('user_id', userId).eq('deal_id', dealId).single();
+function cacheBookmarkedDealIds(userId: string, dealIds: string[]): void {
+  if (!userId) return;
+
+  const uniqueDealIds = Array.from(new Set(dealIds));
+  localStorage.setItem(getBookmarkStorageKey(userId), JSON.stringify(uniqueDealIds));
+  localStorage.setItem('pn_bookmarks', JSON.stringify({ userId, dealIds: uniqueDealIds }));
+}
+
+function emitBookmarksUpdated(): void {
+  window.dispatchEvent(new Event(BOOKMARKS_UPDATED_EVENT));
+}
+
+export async function getBookmarkedDealIds(userId: string): Promise<string[]> {
+  if (!userId) return [];
+
+  try {
+    const { data, error } = await db
+      .from('bookmarks')
+      .select('deal_id')
+      .eq('user_id', userId)
+      .order('created_at', { ascending: false });
+
+    if (error) throw error;
+
+    const dealIds = (data || []).map((r: { deal_id: string }) => r.deal_id);
+    cacheBookmarkedDealIds(userId, dealIds);
+    return dealIds;
+  } catch {
+    return readCachedBookmarkedDealIds(userId);
+  }
+}
+
+export async function saveBookmark(userId: string, dealId: string): Promise<void> {
+  if (!userId) throw new Error('User must be authenticated to save deals');
+  if (!dealId) throw new Error('Invalid deal ID');
+
+  const { error } = await db
+    .from('bookmarks')
+    .upsert({ user_id: userId, deal_id: dealId }, { onConflict: 'user_id,deal_id', ignoreDuplicates: true });
+
+  if (error) throw error;
+
+  const cachedIds = readCachedBookmarkedDealIds(userId);
+  cacheBookmarkedDealIds(userId, [dealId, ...cachedIds]);
+  emitBookmarksUpdated();
+}
+
+export async function removeBookmark(userId: string, dealId: string): Promise<void> {
+  if (!userId) throw new Error('User must be authenticated to remove saved deals');
+  if (!dealId) throw new Error('Invalid deal ID');
+
+  const { error } = await db
+    .from('bookmarks')
+    .delete()
+    .eq('user_id', userId)
+    .eq('deal_id', dealId);
+
+  if (error) throw error;
+
+  const cachedIds = readCachedBookmarkedDealIds(userId).filter(id => id !== dealId);
+  cacheBookmarkedDealIds(userId, cachedIds);
+  emitBookmarksUpdated();
+}
+
+export async function toggleBookmark(userId: string, dealId: string): Promise<boolean> {
+  if (!userId) throw new Error('User must be authenticated to save deals');
+  if (!dealId) throw new Error('Invalid deal ID');
+
+  const { data: existing, error } = await db
+    .from('bookmarks')
+    .select('id')
+    .eq('user_id', userId)
+    .eq('deal_id', dealId)
+    .maybeSingle();
+
+  if (error) throw error;
 
   if (existing) {
-    await db.from('bookmarks').delete().eq('user_id', userId).eq('deal_id', dealId);
+    await removeBookmark(userId, dealId);
     return false;
-  } else {
-    await db.from('bookmarks').insert({ user_id: userId, deal_id: dealId });
-    return true;
   }
+
+  await saveBookmark(userId, dealId);
+  return true;
 }
 
 // Sync helper: returns bookmarks for non-async contexts (falls back to localStorage)
@@ -170,14 +279,61 @@ export async function getMessages(threadId: string): Promise<Message[]> {
     id: r.id as string, threadId: r.thread_id as string,
     senderId: r.sender_id as string, senderName: r.sender_name as string,
     senderRole: r.sender_role as string, content: r.content as string,
+    read: r.read as boolean | undefined,
     createdAt: r.created_at as string,
   }));
 }
 
-export async function sendMessage(args: {threadId: string; senderId: string; senderName: string; senderRole: string; recipientId?: string; content: string; subject?: string} | string, senderId?: string, senderName?: string, senderRole?: string, content?: string): Promise<void> {
+export function createSupportThreadId(role: "partner" | "customer" | "admin", userId: string): string {
+  return `${role}_${userId}_admin`;
+}
+
+export async function createConversation(userId: string, role: "partner" | "customer"): Promise<{ id: string }> {
+  return { id: createSupportThreadId(role, userId) };
+}
+
+export async function getConversations(userId: string, role: string): Promise<ConversationSummary[]> {
+  const threads = await getThreadList(userId, role);
+  return threads.map((thread) => {
+    const parts = thread.threadId.split("_");
+    const threadRole = parts[0] || role;
+    const threadUserId = parts[1] || userId;
+
+    return {
+      id: thread.threadId,
+      userId: threadUserId,
+      adminId: "admin",
+      createdAt: thread.updatedAt,
+      updatedAt: thread.updatedAt,
+      unread: thread.unread,
+      lastMessage: thread.lastMessage,
+      senderName: thread.senderName,
+    };
+  });
+}
+
+export async function getConversationMessages(conversationId: string): Promise<Message[]> {
+  return getMessages(conversationId);
+}
+
+export async function sendMessage(args: {threadId: string; senderId: string; senderName: string; senderRole: string; recipientId?: string; content: string; subject?: string} | string, senderId?: string, senderName?: string, senderRole?: string, content?: string): Promise<Message> {
   // Support both object and positional arg forms
   const a = typeof args === 'object' ? args : {threadId: args, senderId: senderId!, senderName: senderName!, senderRole: senderRole!, content: content!};
-  await db.from('messages').insert({ thread_id: a.threadId, sender_id: a.senderId, sender_name: a.senderName, sender_role: a.senderRole, content: a.content });
+  const { data, error } = await db
+    .from('messages')
+    .insert({
+      thread_id: a.threadId,
+      sender_id: a.senderId,
+      sender_name: a.senderName,
+      sender_role: a.senderRole,
+      content: a.content,
+      read: false,
+    })
+    .select('*')
+    .single();
+
+  if (error || !data) throw error || new Error('Failed to send message');
+  return rowToMessage(data as RealtimeMessageRow);
 }
 
 // ─── REFERRALS ────────────────────────────────────────────────────────────────
@@ -193,17 +349,123 @@ export async function getReferralsByUser(userId: string): Promise<ReferralEntry[
   }));
 }
 
-export async function trackReferral(code: string, referrerId: string, referrerName: string, referreeEmail: string): Promise<void> {
+export async function getReferralSummary(userId: string): Promise<ReferralSummary> {
+  const referrals = await getReferralsByUser(userId);
+  const converted = referrals.filter(ref => ref.status === 'converted' || ref.status === 'paid');
+  const pending = referrals.filter(ref => ref.status === 'pending');
+
+  return {
+    referrals,
+    totalEarned: converted.reduce((sum, ref) => sum + ref.creditAmount, 0),
+    convertedCount: converted.length,
+    pendingCount: pending.length,
+  };
+}
+
+export async function getUserByReferralCode(code: string): Promise<{ id: string; name: string; email: string; referralCode: string } | null> {
+  const normalizedCode = code.trim().toUpperCase();
+  if (!normalizedCode) return null;
+
+  const { data } = await db
+    .from('users')
+    .select('id, name, email, referral_code')
+    .eq('referral_code', normalizedCode)
+    .maybeSingle();
+
+  if (!data) return null;
+
+  return {
+    id: data.id as string,
+    name: (data.name as string) || 'User',
+    email: data.email as string,
+    referralCode: data.referral_code as string,
+  };
+}
+
+export async function generateUniqueReferralCode(name: string): Promise<string> {
+  const base = name.toUpperCase().replace(/[^A-Z]/g, '').substring(0, 4) || 'USER';
+
+  for (let attempt = 0; attempt < 10; attempt++) {
+    const candidate = `${base}${Math.floor(1000 + Math.random() * 9000)}`;
+    const { data } = await db.from('users').select('id').eq('referral_code', candidate).maybeSingle();
+    if (!data) return candidate;
+  }
+
+  return `${base}${Date.now().toString().slice(-6)}`;
+}
+
+export async function trackReferral(code: string, referrerId: string, referrerName: string, referreeEmail: string, referreeId?: string): Promise<void> {
   await db.from('referrals').upsert(
-    { code, referrer_id: referrerId, referrer_name: referrerName, referree_email: referreeEmail, status: 'pending', credit_amount: 20 },
+    {
+      code,
+      referrer_id: referrerId,
+      referrer_name: referrerName,
+      referree_email: referreeEmail.toLowerCase().trim(),
+      referree_id: referreeId,
+      status: 'pending',
+      credit_amount: 20,
+    },
     { onConflict: 'referree_email' }
   );
+}
+
+export async function registerReferralSignup(referralCode: string, referredUser: { id: string; email: string; name: string }): Promise<void> {
+  const normalizedCode = referralCode.trim().toUpperCase();
+  if (!normalizedCode) return;
+
+  const referrer = await getUserByReferralCode(normalizedCode);
+  if (!referrer) return;
+  if (referrer.id === referredUser.id) return;
+  if (referrer.email.toLowerCase() === referredUser.email.toLowerCase()) return;
+
+  await trackReferral(normalizedCode, referrer.id, referrer.name, referredUser.email, referredUser.id);
+
+  try {
+    await db.from('users').update({ referred_by: referrer.id }).eq('id', referredUser.id);
+  } catch {
+    return;
+  }
 }
 
 export async function convertReferral(referreeEmail: string, referreeId: string): Promise<void> {
   await db.from('referrals').update({
     status: 'converted', referree_id: referreeId, converted_at: new Date().toISOString()
   }).eq('referree_email', referreeEmail);
+}
+
+export async function convertReferralForUser(referredUser: { id: string; email: string }): Promise<boolean> {
+  const normalizedEmail = referredUser.email.toLowerCase().trim();
+  const { data } = await db
+    .from('referrals')
+    .select('*')
+    .or(`referree_id.eq.${referredUser.id},referree_email.eq.${normalizedEmail}`)
+    .in('status', ['pending'])
+    .maybeSingle();
+
+  if (!data) return false;
+  if ((data.referrer_id as string) === referredUser.id) return false;
+
+  await db
+    .from('referrals')
+    .update({
+      status: 'converted',
+      referree_id: referredUser.id,
+      converted_at: new Date().toISOString(),
+    })
+    .eq('id', data.id as string);
+
+  const { count } = await db
+    .from('referrals')
+    .select('*', { count: 'exact', head: true })
+    .eq('referrer_id', data.referrer_id as string)
+    .in('status', ['converted', 'paid']);
+
+  await db
+    .from('users')
+    .update({ referral_count: count || 0 })
+    .eq('id', data.referrer_id as string);
+
+  return true;
 }
 
 // Sync helper for non-async (localStorage fallback for legacy usage)
@@ -275,7 +537,9 @@ export async function sendEmail(type: string, to: string, name: string, dealName
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ type, to, name, dealName, promoCode }),
     });
-  } catch {}
+  } catch {
+    return;
+  }
 }
 
 // ─── ADMIN SETTINGS (localStorage — non-sensitive UI prefs) ──────────────────
@@ -324,12 +588,21 @@ export const saveMessageThread = async (threadId: string, msgs: Message[]) => { 
 
 export const markAllNotificationsRead = async (userId: string) => { await db.from('notifications').update({ read: true }).eq('user_id', userId); };
 
-export async function getThreadList(userId: string, role: string): Promise<{threadId: string; lastMessage: string; senderName: string; unread: number; updatedAt: string}[]> {
+interface ThreadMessageRow {
+  thread_id: string;
+  content: string;
+  sender_name: string;
+  sender_role: string;
+  created_at: string;
+  read?: boolean;
+}
+
+export async function getThreadList(userId: string, role: string): Promise<ThreadSummary[]> {
   const { data } = await db.from('messages').select('*').order('created_at', { ascending: false });
-  const msgs = (data || []) as any[];
-  const filtered = role === 'admin' ? msgs : msgs.filter((m: any) => m.thread_id === `${role}_${userId}_admin`);
-  const threads = new Map<string, any>();
-  filtered.forEach((m: any) => {
+  const msgs = (data || []) as ThreadMessageRow[];
+  const filtered = role === 'admin' ? msgs : msgs.filter((m) => m.thread_id === `${role}_${userId}_admin`);
+  const threads = new Map<string, ThreadSummary>();
+  filtered.forEach((m) => {
     if (!threads.has(m.thread_id)) {
       threads.set(m.thread_id, { threadId: m.thread_id, lastMessage: m.content, senderName: m.sender_name, unread: 0, updatedAt: m.created_at });
     }
@@ -340,4 +613,67 @@ export async function getThreadList(userId: string, role: string): Promise<{thre
 
 export async function markThreadRead(threadId: string, readerRole: string): Promise<void> {
   await db.from('messages').update({ read: true }).eq('thread_id', threadId).neq('sender_role', readerRole);
+}
+
+type RealtimeMessageRow = {
+  id: string;
+  thread_id: string;
+  sender_id: string;
+  sender_name: string;
+  sender_role: string;
+  content: string;
+  created_at: string;
+  read?: boolean;
+};
+
+function rowToMessage(row: RealtimeMessageRow): Message {
+  return {
+    id: row.id,
+    threadId: row.thread_id,
+    senderId: row.sender_id,
+    senderName: row.sender_name,
+    senderRole: row.sender_role,
+    content: row.content,
+    createdAt: row.created_at,
+    read: row.read,
+  };
+}
+
+export function subscribeToThreadMessages(threadId: string, onMessage: (message: Message) => void): () => void {
+  if (!threadId) return () => {};
+
+  const channel = db
+    .channel(`messages:${threadId}`)
+    .on(
+      'postgres_changes',
+      { event: 'INSERT', schema: 'perksnest', table: 'messages', filter: `thread_id=eq.${threadId}` },
+      (payload) => {
+        if (payload.new) {
+          onMessage(rowToMessage(payload.new as RealtimeMessageRow));
+        }
+      }
+    )
+    .subscribe();
+
+  return () => {
+    db.removeChannel(channel);
+  };
+}
+
+export function subscribeToThreadList(role: string, userId: string, onChange: () => void): () => void {
+  if (!role || !userId) return () => {};
+
+  const filter = role === 'admin' ? undefined : `thread_id=eq.${role}_${userId}_admin`;
+  const channel = db
+    .channel(`thread-list:${role}:${userId}`)
+    .on(
+      'postgres_changes',
+      { event: '*', schema: 'perksnest', table: 'messages', ...(filter ? { filter } : {}) },
+      () => onChange()
+    )
+    .subscribe();
+
+  return () => {
+    db.removeChannel(channel);
+  };
 }

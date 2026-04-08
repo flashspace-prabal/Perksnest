@@ -391,7 +391,7 @@ const Deals = () => {
 
             {/* Pagination */}
             {totalPages > 1 && (
-              <div className="flex items-center justify-center gap-2 mt-8">
+              <div className="flex items-center justify-center gap-1 mt-8 flex-wrap">
                 <button
                   onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
                   disabled={currentPage === 1}
@@ -399,19 +399,78 @@ const Deals = () => {
                 >
                   Previous
                 </button>
-                {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
-                  <button
-                    key={page}
-                    onClick={() => setCurrentPage(page)}
-                    className={`w-9 h-9 text-sm rounded-lg font-medium transition-colors ${
-                      currentPage === page
-                        ? "bg-primary text-white"
-                        : "border border-gray-200 bg-white text-gray-700 hover:bg-gray-50"
-                    }`}
-                  >
-                    {page}
-                  </button>
-                ))}
+
+                {/* Smart Pagination with Ellipsis */}
+                {(() => {
+                  const pages: (number | string)[] = [];
+                  const maxVisible = 7;
+                  const halfWindow = Math.floor(maxVisible / 2);
+
+                  if (totalPages <= maxVisible) {
+                    // Show all pages if total is small
+                    for (let i = 1; i <= totalPages; i++) {
+                      pages.push(i);
+                    }
+                  } else {
+                    // Always show first page
+                    pages.push(1);
+
+                    // Calculate range around current page
+                    let start = Math.max(2, currentPage - halfWindow);
+                    let end = Math.min(totalPages - 1, currentPage + halfWindow);
+
+                    // Adjust range if near start or end
+                    if (currentPage <= halfWindow + 1) {
+                      end = Math.min(totalPages - 1, maxVisible - 1);
+                    }
+                    if (currentPage > totalPages - halfWindow - 1) {
+                      start = Math.max(2, totalPages - maxVisible + 2);
+                    }
+
+                    // Add left ellipsis
+                    if (start > 2) {
+                      pages.push('...');
+                    }
+
+                    // Add range
+                    for (let i = start; i <= end; i++) {
+                      pages.push(i);
+                    }
+
+                    // Add right ellipsis
+                    if (end < totalPages - 1) {
+                      pages.push('...');
+                    }
+
+                    // Always show last page
+                    pages.push(totalPages);
+                  }
+
+                  return pages.map((page, idx) => {
+                    if (page === '...') {
+                      return (
+                        <span key={`ellipsis-${idx}`} className="w-9 h-9 flex items-center justify-center text-gray-400 text-sm">
+                          •••
+                        </span>
+                      );
+                    }
+
+                    return (
+                      <button
+                        key={page}
+                        onClick={() => setCurrentPage(page as number)}
+                        className={`w-9 h-9 text-sm rounded-lg font-medium transition-colors ${
+                          currentPage === page
+                            ? "bg-primary text-white shadow-sm shadow-primary/30"
+                            : "border border-gray-200 bg-white text-gray-700 hover:bg-gray-50"
+                        }`}
+                      >
+                        {page}
+                      </button>
+                    );
+                  });
+                })()}
+
                 <button
                   onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
                   disabled={currentPage === totalPages}
