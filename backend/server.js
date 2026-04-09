@@ -6,8 +6,9 @@ const { createClient } = require("@supabase/supabase-js");
 
 const app = express();
 app.use(express.json({ limit: "1mb" }));
+const PORT = Number(process.env.PORT || 3000);
 
-const allowedOrigins = (process.env.CORS_ORIGINS || "")
+const allowedOrigins = (process.env.CORS_ORIGINS || process.env.CORS_ORIGIN || "")
   .split(",")
   .map((value) => value.trim())
   .filter(Boolean);
@@ -25,13 +26,14 @@ app.use(
   })
 );
 
-const SUPABASE_URL = process.env.SUPABASE_URL || "https://auth.perksnest.co";
+const SUPABASE_URL = process.env.SUPABASE_URL || "";
 const SUPABASE_SERVICE_KEY = process.env.SUPABASE_SERVICE_KEY || "";
 const SUPABASE_ANON_KEY = process.env.SUPABASE_ANON_KEY || "";
 const supabaseKey = SUPABASE_SERVICE_KEY || SUPABASE_ANON_KEY;
 
-if (!supabaseKey) {
-  console.error("Missing SUPABASE_SERVICE_KEY or SUPABASE_ANON_KEY");
+if (!SUPABASE_URL || !supabaseKey) {
+  console.error("Missing SUPABASE_URL or SUPABASE_SERVICE_KEY/SUPABASE_ANON_KEY");
+  process.exit(1);
 }
 
 const db = createClient(SUPABASE_URL, supabaseKey, {
@@ -201,16 +203,34 @@ app.post("/api/auth/login", async (req, res) => {
     return;
   }
   try {
+    const normalizedEmail = String(email).toLowerCase().trim();
+    const plainPassword = String(password);
+    const hashedPassword = hashPassword(plainPassword);
+
     const { data, error } = await db
       .from("users")
       .select("*")
-      .eq("email", String(email).toLowerCase().trim())
-      .eq("password", hashPassword(String(password)))
-      .single();
+      .eq("email", normalizedEmail)
+      .maybeSingle();
+
     if (error || !data) {
       res.status(401).json({ success: false, error: "Invalid email or password" });
       return;
     }
+
+    const savedPassword = String(data.password || "");
+    const passwordMatches = savedPassword === hashedPassword || savedPassword === plainPassword;
+    if (!passwordMatches) {
+      res.status(401).json({ success: false, error: "Invalid email or password" });
+      return;
+    }
+
+    // Backward compatibility: migrate old plain-text passwords to hashed format on successful login.
+    if (savedPassword === plainPassword && savedPassword !== hashedPassword) {
+      await db.from("users").update({ password: hashedPassword }).eq("id", data.id);
+      data.password = hashedPassword;
+    }
+
     res.json({ success: true, user: mapUser(data) });
   } catch (error) {
     res.status(500).json({ success: false, error: "Login failed", details: error.message });
@@ -240,6 +260,7 @@ app.post("/api/auth/register", async (req, res) => {
         name: String(name).trim(),
         plan: "free",
         role: "customer",
+        roles: ["customer"],
         referral_code: referralCode,
         referral_count: 0,
         claimed_deals: [],
@@ -341,7 +362,7 @@ app.post("/api/auth/send-verification", async (req, res) => {
       .from("users")
       .update({ verification_code: code, verification_expires: expires })
       .eq("email", String(email).toLowerCase().trim());
-    await fetch(`${process.env.NOTIFY_URL || "https://api.perksnest.co"}/api/send-verification`, {
+    await fetch(`${process.env.NOTIFY_URL || `http://localhost:${PORT}`}/api/send-verification`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ email, name, code }),
@@ -960,7 +981,6 @@ app.delete("/api/admin/deals/:dealId", async (req, res) => {
   }
 });
 
-const PORT = Number(process.env.PORT || 3000);
 app.listen(PORT, () => {
   console.log(`PerksNest backend API running on port ${PORT}`);
 });

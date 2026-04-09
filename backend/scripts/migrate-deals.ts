@@ -10,13 +10,17 @@
 
 import { dealsData } from '../src/data/deals';
 
-const SUPABASE_URL = 'https://auth.perksnest.co';
-const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoiYW5vbiIsImlzcyI6InN1cGFiYXNlIiwiaWF0IjoxNjQxNzY5MjAwLCJleHAiOjE3OTk1MzU2MDB9.flEXaRV1Ku-LEeKUiTTXvjlekdwZvGY8oOFiNDPMgkA';
+const SUPABASE_URL = process.env.SUPABASE_URL || '';
+const SUPABASE_ANON_KEY = process.env.SUPABASE_ANON_KEY || process.env.SUPABASE_SERVICE_KEY || '';
 
 async function migrateDeals() {
   console.log(`Starting migration of ${dealsData.length} deals...`);
 
   try {
+    if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
+      throw new Error('Missing SUPABASE_URL or SUPABASE_ANON_KEY/SUPABASE_SERVICE_KEY environment variables');
+    }
+
     // Import Supabase client dynamically
     const { createClient } = await import('@supabase/supabase-js');
     const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
