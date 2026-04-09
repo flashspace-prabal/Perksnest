@@ -8,6 +8,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
 import { Eye, EyeOff, Loader2 } from "lucide-react";
 import { storeReferralCode } from "@/lib/referrals";
+import { supabaseAuth } from "@/lib/supabase";
 
 const Login = () => {
   useEffect(() => {
@@ -88,13 +89,8 @@ const Login = () => {
 
   const handleGoogle = async () => {
     try {
-      const { createClient } = await import('@supabase/supabase-js');
-      const supabaseAuth = createClient(
-        'https://auth.perksnest.co',
-        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoiYW5vbiIsImlzcyI6InN1cGFiYXNlIiwiaWF0IjoxNjQxNzY5MjAwLCJleHAiOjE3OTk1MzU2MDB9.flEXaRV1Ku-LEeKUiTTXvjlekdwZvGY8oOFiNDPMgkA',
-        { auth: { flowType: 'implicit', persistSession: false } }
-      );
-      const callbackUrl = `https://perksnest.co/auth/callback${returnUrl ? '?returnUrl=' + encodeURIComponent(returnUrl) : ''}`;
+      const callbackBase = `${window.location.origin}/auth/callback`;
+      const callbackUrl = `${callbackBase}${returnUrl ? '?returnUrl=' + encodeURIComponent(returnUrl) : ''}`;
       const { error } = await supabaseAuth.auth.signInWithOAuth({
         provider: 'google',
         options: {

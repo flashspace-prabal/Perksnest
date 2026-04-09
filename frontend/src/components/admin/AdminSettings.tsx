@@ -7,6 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "sonner";
 import { Save } from "lucide-react";
 import { getAdminSettings, saveAdminSettings } from "@/lib/store";
+import { API_BASE_URL } from "@/lib/runtime";
 
 export const AdminSettings = () => {
   const [form, setForm] = useState({ siteName: "", siteDescription: "", contactEmail: "", supportEmail: "", twitter: "", linkedin: "" });
@@ -19,7 +20,7 @@ export const AdminSettings = () => {
       try {
         setLoading(true);
         const session = JSON.parse(localStorage.getItem('pn_session') || '{}');
-        const response = await fetch('https://api.perksnest.co/api/admin/settings', {
+        const response = await fetch(`${API_BASE_URL}/api/admin/settings`, {
           headers: {
             'Authorization': `Bearer ${session.access_token}`,
           },
@@ -54,8 +55,8 @@ export const AdminSettings = () => {
       const session = JSON.parse(localStorage.getItem('pn_session') || '{}');
       
       // Try to save to API first
-      const response = await fetch('https://api.perksnest.co/api/admin/settings', {
-        method: 'PATCH',
+      const response = await fetch(`${API_BASE_URL}/api/admin/settings`, {
+        method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${session.access_token}`,

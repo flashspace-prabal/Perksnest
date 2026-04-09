@@ -1,5 +1,6 @@
 // store.ts — Supabase-backed data store with localStorage fallback
 import db from './supabase';
+import { API_BASE_URL } from '@/lib/runtime';
 
 // ─── TYPES ────────────────────────────────────────────────────────────────────
 export interface PartnerDeal {
@@ -532,7 +533,7 @@ export async function getWLClients(): Promise<WLClient[]> {
 // ─── EMAIL ────────────────────────────────────────────────────────────────────
 export async function sendEmail(type: string, to: string, name: string, dealName?: string, promoCode?: string): Promise<void> {
   try {
-    await fetch('https://api.perksnest.co/api/notify', {
+    await fetch(`${API_BASE_URL}/api/notify`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ type, to, name, dealName, promoCode }),

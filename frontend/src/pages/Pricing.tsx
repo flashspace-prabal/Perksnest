@@ -6,6 +6,7 @@ import { toast } from 'sonner';
 import { useAuth } from "@/lib/auth";
 import { AuthModal } from "@/components/AuthModal";
 import { useState, useEffect } from "react";
+import { API_BASE_URL } from "@/lib/runtime";
 import {
   Accordion,
   AccordionItem,
@@ -15,7 +16,7 @@ import {
 
 async function startCheckout(userId: string, email: string, name: string, period: 'annual') {
   try {
-    const res = await fetch('https://api.perksnest.co/api/checkout', {
+    const res = await fetch(`${API_BASE_URL}/api/checkout`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ userId, email, name, period }),
@@ -173,7 +174,7 @@ const Pricing = () => {
       setTimeout(async () => {
         setCheckoutLoading(true);
         try {
-          const res = await fetch('https://api.perksnest.co/api/checkout', {
+          const res = await fetch(`${API_BASE_URL}/api/checkout`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ userId: user.id, email: user.email, name: user.name, period: 'annual' }),
@@ -199,7 +200,7 @@ const Pricing = () => {
       // Launch Stripe checkout
       setCheckoutLoading(true);
       try {
-        const res = await fetch('https://api.perksnest.co/api/checkout', {
+        const res = await fetch(`${API_BASE_URL}/api/checkout`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({

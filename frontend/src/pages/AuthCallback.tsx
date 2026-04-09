@@ -1,16 +1,8 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { createClient } from "@supabase/supabase-js";
-import { db } from "@/lib/supabase";
-import { generateUniqueReferralCode, registerReferralSignup } from "@/lib/store";
+import { supabaseAuth } from "@/lib/supabase";
+import { API_BASE_URL } from "@/lib/runtime";
 import { clearStoredReferralCode, getStoredReferralCode } from "@/lib/referrals";
-
-// Supabase auth client (anon key, same instance as login page uses)
-const supabaseAuth = createClient(
-  'https://auth.perksnest.co',
-  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoiYW5vbiIsImlzcyI6InN1cGFiYXNlIiwiaWF0IjoxNjQxNzY5MjAwLCJleHAiOjE3OTk1MzU2MDB9.flEXaRV1Ku-LEeKUiTTXvjlekdwZvGY8oOFiNDPMgkA',
-  { auth: { flowType: 'implicit', persistSession: true, autoRefreshToken: true } }
-);
 
 export default function AuthCallback() {
   const navigate = useNavigate();
@@ -75,68 +67,27 @@ export default function AuthCallback() {
         setStatus("Setting up your account...");
         name = name || email.split('@')[0];
 
-        // Look up or create user in perksnest.users
-        const { data: existing } = await db
-          .from('users')
-          .select('*')
-          .eq('email', email)
-          .single();
-
-        let userId: string;
-        let userRole: string;
-
-        if (existing) {
-          userId = existing.id;
-          userRole = existing.role || 'customer';
-          // Update avatar if changed
-          if (avatar && existing.avatar !== avatar) {
-            await db.from('users').update({ avatar, email_verified: true }).eq('id', existing.id);
-          }
-        } else {
-          const referralCode = await generateUniqueReferralCode(name);
-          // Create new user
-          const { data: newUser, error: insertError } = await db
-            .from('users')
-            .insert({
-              email,
-              name,
-              avatar,
-              password: 'google_oauth',
-              plan: 'free',
-              role: 'customer',
-              roles: ['customer'],
-              status: 'active',
-              email_verified: true,
-              referral_code: referralCode,
-              referral_count: 0,
-              claimed_deals: [],
-            })
-            .select('*')
-            .single();
-
-          if (insertError || !newUser) {
-            console.error('Insert error:', insertError);
-            setStatus(`Account setup failed: ${insertError?.message || 'unknown error'}. Please try again.`);
-            setTimeout(() => navigate("/login"), 3000);
-            return;
-          }
-
-          userId = newUser.id;
-          userRole = 'customer';
-
-          const storedReferralCode = getStoredReferralCode();
-          if (storedReferralCode) {
-            await registerReferralSignup(storedReferralCode, { id: newUser.id, email, name });
-            clearStoredReferralCode();
-          }
-
-          // Welcome email (fire and forget)
-          fetch('https://api.perksnest.co/api/notify', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ type: 'welcome', to: email, name }),
-          }).catch(() => {});
+        const storedReferralCode = getStoredReferralCode();
+        const syncResponse = await fetch(`${API_BASE_URL}/api/auth/oauth-sync`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            email,
+            name,
+            avatar,
+            referralCode: storedReferralCode || undefined,
+          }),
+        });
+        const syncData = await syncResponse.json().catch(() => null);
+        if (!syncResponse.ok || !syncData?.user) {
+          setStatus(`Account setup failed. Please try again.`);
+          setTimeout(() => navigate("/login"), 3000);
+          return;
         }
+        if (storedReferralCode) clearStoredReferralCode();
+
+        const userId = syncData.user.id as string;
+        const userRole = (syncData.user.role as string) || "customer";
 
         // Set session
         localStorage.setItem('perksnest_user_id', userId);

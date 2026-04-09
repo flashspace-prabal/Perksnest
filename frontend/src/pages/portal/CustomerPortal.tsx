@@ -21,6 +21,7 @@ import { getTickets, createTicket, claimDeal as apiClaimDeal } from "@/lib/api";
 import { getDeals } from "@/lib/deals";
 import { getPartnerDeals, getReferralSummary, type PartnerDeal, type ReferralEntry } from "@/lib/store";
 import { buildReferralLink } from "@/lib/referrals";
+import { API_BASE_URL } from "@/lib/runtime";
 
 interface TicketSummary {
   id: string;
@@ -214,7 +215,7 @@ const CustomerPortal = () => {
     setIsSaving(true);
     try {
       // Update user in Supabase via API
-      const response = await fetch('https://api.perksnest.co/api/users/me', {
+      const response = await fetch(`${API_BASE_URL}/api/users/me`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
@@ -793,7 +794,7 @@ const CustomerPortal = () => {
                         className="w-full"
                         onClick={async () => {
                           try {
-                            const res = await fetch('https://api.perksnest.co/api/billing/portal', {
+                            const res = await fetch(`${API_BASE_URL}/api/billing/portal`, {
                               method: 'POST',
                               headers: { 'Content-Type': 'application/json' },
                               body: JSON.stringify({ userId: user.id, email: user.email }),
@@ -817,7 +818,7 @@ const CustomerPortal = () => {
                           className="w-full"
                           onClick={async () => {
                             try {
-                              const res = await fetch('https://api.perksnest.co/api/checkout', {
+                              const res = await fetch(`${API_BASE_URL}/api/checkout`, {
                                 method: 'POST',
                                 headers: { 'Content-Type': 'application/json' },
                                 body: JSON.stringify({ userId: user.id, email: user.email, name: user.name, period: 'annual' }),

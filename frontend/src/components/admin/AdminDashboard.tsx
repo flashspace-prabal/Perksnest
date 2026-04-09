@@ -12,6 +12,7 @@ import { getClaimEvents, getPartnerDeals } from '@/lib/store';
 import { dealsData } from "@/data/deals";
 import { getAllUsers } from "@/lib/auth";
 import { getAdminStats } from "@/lib/api";
+import { API_BASE_URL } from "@/lib/runtime";
 
 // pendingDeals now comes from allPartnerDeals state
 const getRecentActivity = (allPartnerDeals: any[] = [], allUsers: any[] = []) => {
@@ -48,7 +49,7 @@ export const AdminDashboard = ({ onTabChange }: { onTabChange?: (tab: string) =>
   useEffect(() => { getAllUsers().then(setAllUsers); }, []);
 
   // Fetch Stripe transaction data
-  useEffect(() => { fetch('https://api.perksnest.co/api/stripe/perksnest-charges').then(r=>r.json()).then(d=>setStripeData({charges:d.data||[],subscriptions:d.subscriptions||[]})).catch(()=>{}); }, []);
+  useEffect(() => { fetch(`${API_BASE_URL}/api/stripe/perksnest-charges`).then(r=>r.json()).then(d=>setStripeData({charges:d.data||[],subscriptions:d.subscriptions||[]})).catch(()=>{}); }, []);
 
   // Fetch admin stats from backend API
   useEffect(() => {

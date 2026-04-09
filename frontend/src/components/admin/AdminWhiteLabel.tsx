@@ -36,6 +36,7 @@ import {
 } from "@/components/ui/table";
 import { Users, DollarSign, CheckCircle, Building2, MoreVertical } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { API_BASE_URL } from "@/lib/runtime";
 
 // White label data structure
 type WhiteLabelClient = {
@@ -74,7 +75,7 @@ export const AdminWhiteLabel = () => {
       try {
         setIsLoading(true);
         // Attempt to fetch from API
-        const response = await fetch('https://api.perksnest.co/api/admin/whitelabel/clients', {
+        const response = await fetch(`${API_BASE_URL}/api/admin/whitelabel/clients`, {
           headers: {
             'Authorization': `Bearer ${JSON.parse(localStorage.getItem('pn_session') || '{}').access_token}`,
           },
@@ -112,7 +113,7 @@ export const AdminWhiteLabel = () => {
     if (isNew) {
       try {
         const lastClient = updatedClients[updatedClients.length - 1];
-        await fetch('https://api.perksnest.co/api/admin/whitelabel/clients', {
+        await fetch(`${API_BASE_URL}/api/admin/whitelabel/clients`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',

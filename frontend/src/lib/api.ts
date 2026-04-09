@@ -1,12 +1,15 @@
-const API = 'https://api.perksnest.co';
+import { API_BASE_URL } from "@/lib/runtime";
+
+const API = API_BASE_URL;
 const API_TIMEOUT = 5000; // 5 second timeout
 
 /**
  * Enhanced API call with timeout and retry logic
  */
-export async function apiCall(path: string, method = 'GET', body?: any, retries = 1) {
+export async function apiCall(path: string, method = 'GET', body?: unknown, retries = 1) {
   const session = JSON.parse(localStorage.getItem('pn_session') || '{}');
   const token = session.access_token || '';
+  const userId = localStorage.getItem('perksnest_user_id') || '';
   
   for (let attempt = 0; attempt <= retries; attempt++) {
     try {
@@ -18,7 +21,8 @@ export async function apiCall(path: string, method = 'GET', body?: any, retries 
         signal: controller.signal,
         headers: { 
           'Content-Type': 'application/json', 
-          ...(token ? { 'Authorization': 'Bearer ' + token } : {}) 
+          ...(token ? { 'Authorization': 'Bearer ' + token } : {}),
+          ...(userId ? { 'x-user-id': userId } : {}),
         },
         body: body ? JSON.stringify(body) : null
       });
@@ -27,15 +31,16 @@ export async function apiCall(path: string, method = 'GET', body?: any, retries 
 
       if (!res.ok) {
         const error = new Error(`API Error: ${res.status} ${res.statusText}`);
-        (error as any).status = res.status;
+        (error as Error & { status?: number }).status = res.status;
         throw error;
       }
 
       return res.json();
-    } catch (error: any) {
+    } catch (error: unknown) {
       const isLastAttempt = attempt === retries;
+      const err = error as { name?: string };
       
-      if (error.name === 'AbortError') {
+      if (err.name === 'AbortError') {
         console.warn(`API timeout: ${method} ${path} (attempt ${attempt + 1})`);
       } else {
         console.error(`API call failed: ${method} ${path}`, error);
@@ -169,7 +174,7 @@ export async function getTickets() {
   }
 }
 
-export async function createTicket(ticket: any) {
+export async function createTicket(ticket: Record<string, unknown>) {
   try {
     return await apiCall('/api/tickets', 'POST', ticket, 2);
   } catch (error) {

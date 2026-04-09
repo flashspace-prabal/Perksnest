@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { db } from "@/lib/supabase";
+import { API_BASE_URL } from "@/lib/runtime";
 import { Mail, ArrowLeft, CheckCircle } from "lucide-react";
 
 export default function ForgotPassword() {
@@ -23,7 +24,7 @@ export default function ForgotPassword() {
     
     // In production: send reset email via Resend
     if (data) {
-      await fetch("https://api.perksnest.co/api/password-reset", {
+      await fetch(`${API_BASE_URL}/api/password-reset`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email: email.toLowerCase().trim(), userId: data.id }),

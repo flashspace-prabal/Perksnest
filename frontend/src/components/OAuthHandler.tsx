@@ -1,15 +1,8 @@
 import { useEffect } from "react";
-import { createClient } from "@supabase/supabase-js";
-import { db } from "@/lib/supabase";
+import { supabaseAuth } from "@/lib/supabase";
+import { API_BASE_URL } from "@/lib/runtime";
 import { useNavigate, useLocation } from "react-router-dom";
-import { generateUniqueReferralCode, registerReferralSignup } from "@/lib/store";
 import { clearStoredReferralCode, getStoredReferralCode } from "@/lib/referrals";
-
-const supabaseAuth = createClient(
-  'https://auth.perksnest.co',
-  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoiYW5vbiIsImlzcyI6InN1cGFiYXNlIiwiaWF0IjoxNjQxNzY5MjAwLCJleHAiOjE3OTk1MzU2MDB9.flEXaRV1Ku-LEeKUiTTXvjlekdwZvGY8oOFiNDPMgkA',
-  { auth: { flowType: 'implicit', persistSession: true } }
-);
 
 // This component handles the Google OAuth callback from anywhere in the app.
 // Supabase redirects to SITE_URL (perksnest.co/) after OAuth, not to /auth/callback.
@@ -41,48 +34,26 @@ export default function OAuthHandler() {
           || email.split('@')[0];
         const avatar = googleUser.user_metadata?.avatar_url || null;
 
-        // Look up or create in perksnest.users
-        const { data: existing } = await db.from('users').select('*').eq('email', email).single();
-
-        let userId: string;
-        let userRole: string;
-
-        if (existing) {
-          userId = existing.id;
-          userRole = existing.role || 'customer';
-          if (avatar && existing.avatar !== avatar) {
-            await db.from('users').update({ avatar, email_verified: true }).eq('id', existing.id);
-          }
-        } else {
-          const referralCode = await generateUniqueReferralCode(name);
-          const { data: newUser, error } = await db.from('users').insert({
-            email, name, avatar,
-            password: 'google_oauth',
-            plan: 'free', role: 'customer', roles: ['customer'],
-            status: 'active', email_verified: true,
-            referral_code: referralCode,
-            referral_count: 0, claimed_deals: [],
-          }).select('*').single();
-
-          if (error || !newUser) {
-            console.error('OAuthHandler insert error:', error);
-            return;
-          }
-          userId = newUser.id;
-          userRole = 'customer';
-
-          const storedReferralCode = getStoredReferralCode();
-          if (storedReferralCode) {
-            await registerReferralSignup(storedReferralCode, { id: newUser.id, email, name });
-            clearStoredReferralCode();
-          }
-
-          fetch('https://api.perksnest.co/api/notify', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ type: 'welcome', to: email, name }),
-          }).catch(() => {});
+        const storedReferralCode = getStoredReferralCode();
+        const syncResponse = await fetch(`${API_BASE_URL}/api/auth/oauth-sync`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            email,
+            name,
+            avatar,
+            referralCode: storedReferralCode || undefined,
+          }),
+        });
+        const syncData = await syncResponse.json().catch(() => null);
+        if (!syncResponse.ok || !syncData?.user) {
+          console.error("OAuthHandler sync error:", syncData);
+          return;
         }
+
+        const userId = syncData.user.id as string;
+        const userRole = (syncData.user.role as string) || "customer";
+        if (storedReferralCode) clearStoredReferralCode();
 
         localStorage.setItem('perksnest_user_id', userId);
 

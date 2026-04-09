@@ -4,6 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { TrendingUp, TrendingDown, DollarSign, Users, CreditCard, AlertCircle, RefreshCw } from "lucide-react";
 import { getAllUsers } from "@/lib/auth";
+import { API_BASE_URL } from "@/lib/runtime";
 
 interface StripeCharge {
   id: string;
@@ -27,7 +28,7 @@ interface StripeSub {
 
 async function fetchStripe(path: string) {
   // Route through our API server to keep Stripe key server-side
-  const res = await fetch(`https://api.perksnest.co/api/stripe${path}`);
+  const res = await fetch(`${API_BASE_URL}/api/stripe${path}`);
   if (!res.ok) throw new Error('Stripe API error');
   return res.json();
 }
