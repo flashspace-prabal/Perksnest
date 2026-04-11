@@ -36,12 +36,43 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | null>(null);
 const STORAGE_KEY = 'perksnest_user_id';
+const SESSION_STORAGE_KEY = 'pn_session';
+
+type AppSession = {
+  access_token?: string;
+  token_type?: string;
+  expires_in?: number;
+  user_id?: string;
+  auth_user_id?: string;
+};
+
+function readStoredSession(): AppSession {
+  try {
+    return JSON.parse(localStorage.getItem(SESSION_STORAGE_KEY) || '{}') as AppSession;
+  } catch {
+    return {};
+  }
+}
+
+function storeSession(session?: AppSession | null) {
+  if (!session?.access_token) {
+    localStorage.removeItem(SESSION_STORAGE_KEY);
+    return;
+  }
+
+  localStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(session));
+}
 
 async function authApi<T>(path: string, method = "GET", body?: unknown, userId?: string): Promise<T> {
+  const session = readStoredSession();
+  const resolvedUserId = userId || localStorage.getItem(STORAGE_KEY) || session.user_id;
+
   const response = await fetch(`${API_BASE_URL}${path}`, {
     method,
     headers: {
       "Content-Type": "application/json",
+      ...(session.access_token ? { Authorization: `Bearer ${session.access_token}` } : {}),
+      ...(resolvedUserId ? { "x-user-id": resolvedUserId } : {}),
       ...(userId ? { "x-user-id": userId } : {}),
     },
     body: body ? JSON.stringify(body) : undefined,
@@ -74,8 +105,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    const userId = localStorage.getItem(STORAGE_KEY);
-    if (!userId) {
+    const session = readStoredSession();
+    const userId = localStorage.getItem(STORAGE_KEY) || session.user_id;
+    if (!userId && !session.access_token) {
       setIsLoading(false);
       return;
     }
@@ -86,11 +118,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           "/api/auth/me",
           "GET",
           undefined,
-          userId
+          userId || undefined
         );
-        if (response.user) setUser(rowToUser(response.user));
+        if (response.user) {
+          const nextUser = rowToUser(response.user);
+          setUser(nextUser);
+          localStorage.setItem(STORAGE_KEY, nextUser.id);
+        }
       } catch {
         localStorage.removeItem(STORAGE_KEY);
+        localStorage.removeItem(SESSION_STORAGE_KEY);
       } finally {
         setIsLoading(false);
       }
@@ -101,7 +138,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const login = async (email: string, password: string): Promise<boolean> => {
     try {
-      const response = await authApi<{ success: boolean; user: Record<string, unknown> }>(
+      const response = await authApi<{ success: boolean; user: Record<string, unknown>; session?: AppSession }>(
         "/api/auth/login",
         "POST",
         { email, password }
@@ -109,6 +146,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const u = rowToUser(response.user);
       setUser(u);
       localStorage.setItem(STORAGE_KEY, u.id);
+      storeSession(response.session);
       localStorage.removeItem('perksnest_logged_out');
       return true;
     } catch {
@@ -124,7 +162,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   ): Promise<boolean> => {
     const normalizedReferrerCode = referrerCode || getStoredReferralCode();
     try {
-      const response = await authApi<{ success: boolean; user: Record<string, unknown> }>(
+      const response = await authApi<{ success: boolean; user: Record<string, unknown>; session?: AppSession }>(
         "/api/auth/register",
         "POST",
         { email, password, name, referrerCode: normalizedReferrerCode }
@@ -132,6 +170,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const u = rowToUser(response.user);
       setUser(u);
       localStorage.setItem(STORAGE_KEY, u.id);
+      storeSession(response.session);
       localStorage.removeItem('perksnest_logged_out');
       if (normalizedReferrerCode) clearStoredReferralCode();
       return true;
@@ -144,6 +183,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     try {
       setUser(null);
       localStorage.removeItem(STORAGE_KEY);
+      localStorage.removeItem(SESSION_STORAGE_KEY);
       localStorage.setItem('perksnest_logged_out', 'true');
       Promise.resolve(supabaseAuth.auth.signOut()).catch((err: unknown) => {
         console.error('Supabase sign out error:', err);

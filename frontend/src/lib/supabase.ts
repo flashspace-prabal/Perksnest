@@ -9,12 +9,10 @@ function requireEnv(name: string, value: string | undefined): string {
 
 export const SUPABASE_URL = requireEnv('VITE_SUPABASE_URL', import.meta.env.VITE_SUPABASE_URL as string | undefined);
 export const SUPABASE_ANON_KEY = requireEnv('VITE_SUPABASE_ANON_KEY', import.meta.env.VITE_SUPABASE_ANON_KEY as string | undefined);
-export const SUPABASE_SERVICE_KEY = requireEnv('VITE_SUPABASE_SERVICE_KEY', import.meta.env.VITE_SUPABASE_SERVICE_KEY as string | undefined);
 
-// Use service role client (we handle auth ourselves, not Supabase Auth)
-export const db = createClient(SUPABASE_URL, SUPABASE_SERVICE_KEY, {
+export const db = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
   db: { schema: 'perksnest' },
-  auth: { persistSession: false, autoRefreshToken: false },
+  auth: { persistSession: true, autoRefreshToken: true },
 });
 
 export const supabaseAuth = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {

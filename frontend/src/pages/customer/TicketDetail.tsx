@@ -7,7 +7,8 @@ import { Badge } from "@/components/ui/badge";
 import { Textarea } from "@/components/ui/textarea";
 import { useAuth } from "@/lib/auth";
 import { toast } from "sonner";
-import { apiCall } from "@/lib/api";
+import { updateTicketStatus, getTicketById } from "@/lib/api";
+import { sendTicketSocketMessage, subscribeToTicketRoom } from "@/lib/ticket-socket";
 
 interface Message {
   id: string;
@@ -55,10 +56,34 @@ const TicketDetail = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [ticket?.messages]);
 
+  useEffect(() => {
+    if (!ticketId || !isAuthenticated) return;
+
+    return subscribeToTicketRoom(ticketId, {
+      onMessage: (payload) => {
+        if (!payload.message) return;
+        setTicket((current) => {
+          if (!current) return current;
+          const exists = current.messages?.some((message) => message.id === payload.message?.id);
+          if (exists) return current;
+          return {
+            ...current,
+            status: "open",
+            updated_at: payload.message.created_at,
+            messages: [...(current.messages || []), payload.message],
+          };
+        });
+      },
+      onError: (message) => {
+        console.error("Ticket socket error:", message);
+      },
+    });
+  }, [isAuthenticated, ticketId]);
+
   const loadTicket = async () => {
     try {
       setLoading(true);
-      const data = await apiCall(`/api/tickets/${ticketId}`);
+      const data = await getTicketById(String(ticketId));
       setTicket(data.ticket);
     } catch (error) {
       console.error("Failed to load ticket:", error);
@@ -77,13 +102,9 @@ const TicketDetail = () => {
 
     try {
       setSending(true);
-      await apiCall(`/api/tickets/${ticketId}/reply`, "POST", {
-        message: replyText.trim(),
-      });
-
-      toast.success("Reply sent successfully!");
+      sendTicketSocketMessage(String(ticketId), replyText.trim());
       setReplyText("");
-      loadTicket();
+      toast.success("Reply sent successfully!");
     } catch (error) {
       console.error("Failed to send reply:", error);
       toast.error("Failed to send reply");
@@ -95,7 +116,7 @@ const TicketDetail = () => {
   const handleCloseTicket = async () => {
     try {
       setClosing(true);
-      await apiCall(`/api/tickets/${ticketId}/close`, "PUT");
+      await updateTicketStatus(String(ticketId), "closed");
       toast.success("Ticket closed successfully!");
       loadTicket();
     } catch (error) {

@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { db } from "@/lib/supabase";
-import { API_BASE_URL } from "@/lib/runtime";
+import { requestPasswordReset } from "@/lib/api";
 import { Mail, ArrowLeft, CheckCircle } from "lucide-react";
 
 export default function ForgotPassword() {
@@ -14,21 +13,14 @@ export default function ForgotPassword() {
     e.preventDefault();
     setLoading(true);
     setError("");
-
-    // Check if email exists
-    const { data } = await db.from("users").select("id").eq("email", email.toLowerCase().trim()).single();
-    
-    // Always show success (security: don't reveal if email exists)
-    setSubmitted(true);
-    setLoading(false);
-    
-    // In production: send reset email via Resend
-    if (data) {
-      await fetch(`${API_BASE_URL}/api/password-reset`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: email.toLowerCase().trim(), userId: data.id }),
-      }).catch(() => {}); // silent fail for now
+    try {
+      await requestPasswordReset(email.toLowerCase().trim());
+      setSubmitted(true);
+    } catch (err) {
+      console.error("Failed to request password reset:", err);
+      setSubmitted(true);
+    } finally {
+      setLoading(false);
     }
   };
 

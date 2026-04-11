@@ -42,6 +42,7 @@ export default function OAuthHandler() {
             email,
             name,
             avatar,
+            authUserId: googleUser.id,
             referralCode: storedReferralCode || undefined,
           }),
         });
@@ -56,6 +57,9 @@ export default function OAuthHandler() {
         if (storedReferralCode) clearStoredReferralCode();
 
         localStorage.setItem('perksnest_user_id', userId);
+        if (syncData.session?.access_token) {
+          localStorage.setItem('pn_session', JSON.stringify(syncData.session));
+        }
 
         // Redirect to intended destination
         const returnUrl = new URLSearchParams(location.search).get('returnUrl');

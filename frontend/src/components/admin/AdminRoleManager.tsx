@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
-import { db } from "@/lib/supabase";
 import { useAuth } from "@/lib/auth";
+import { getAdminUsers, updateAdminUser } from "@/lib/api";
 import { Shield, User, Users, ChevronDown, Plus, X, Check, Search, Mail, Clock, Ban, CheckCircle } from "lucide-react";
 import { toast } from "sonner";
 
@@ -37,10 +37,16 @@ export default function AdminRoleManager() {
   const [saving, setSaving] = useState(false);
 
   const loadUsers = async () => {
-    setLoading(true);
-    const { data } = await db.from('users').select('*').order('created_at', { ascending: false });
-    setUsers((data || []) as ManagedUser[]);
-    setLoading(false);
+    try {
+      setLoading(true);
+      const response = await getAdminUsers(1, 1000);
+      setUsers((response.users || []) as ManagedUser[]);
+    } catch (error) {
+      console.error("Failed to load users:", error);
+      toast.error("Failed to load users");
+    } finally {
+      setLoading(false);
+    }
   };
 
   useEffect(() => { loadUsers(); }, []);
@@ -53,17 +59,26 @@ export default function AdminRoleManager() {
   });
 
   const updateUser = async (userId: string, updates: Partial<ManagedUser>) => {
-    setSaving(true);
-    const { error } = await db.from('users').update({
-      ...updates,
-      approved_by: currentAdmin?.email,
-      approved_at: new Date().toISOString(),
-    }).eq('id', userId);
-    setSaving(false);
-    if (error) { toast.error('Failed to update user'); return; }
-    toast.success('User updated');
-    setEditingId(null);
-    loadUsers();
+    try {
+      setSaving(true);
+      const response = await updateAdminUser(userId, {
+        ...updates,
+        approved_by: currentAdmin?.email,
+        approved_at: new Date().toISOString(),
+      });
+      if (!response.success) {
+        toast.error('Failed to update user');
+        return;
+      }
+      toast.success('User updated');
+      setEditingId(null);
+      loadUsers();
+    } catch (error) {
+      console.error("Failed to update user:", error);
+      toast.error('Failed to update user');
+    } finally {
+      setSaving(false);
+    }
   };
 
   const toggleRole = async (u: ManagedUser, role: UserRole) => {

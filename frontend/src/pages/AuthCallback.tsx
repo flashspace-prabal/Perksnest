@@ -18,12 +18,22 @@ export default function AuthCallback() {
         let email: string | null = null;
         let name: string | null = null;
         let avatar: string | null = null;
+        let authUserId: string | null = null;
+        let accessToken: string | null = null;
+        let refreshToken: string | null = null;
+        let expiresIn: number | null = null;
+        let tokenType: string | null = null;
 
         // Method 1: exchange code (PKCE flow - most common)
         const code = new URLSearchParams(window.location.search).get('code');
         if (code) {
           const { data, error } = await supabaseAuth.auth.exchangeCodeForSession(code);
           if (!error && data.session?.user) {
+            authUserId = data.session.user.id;
+            accessToken = data.session.access_token;
+            refreshToken = data.session.refresh_token;
+            expiresIn = data.session.expires_in;
+            tokenType = data.session.token_type;
             email = data.session.user.email?.toLowerCase().trim() || null;
             name = data.session.user.user_metadata?.full_name || data.session.user.user_metadata?.name || null;
             avatar = data.session.user.user_metadata?.avatar_url || null;
@@ -33,14 +43,19 @@ export default function AuthCallback() {
         // Method 2: hash fragment (implicit flow)
         if (!email) {
           const hash = new URLSearchParams(window.location.hash.replace('#', ''));
-          const accessToken = hash.get('access_token');
-          const refreshToken = hash.get('refresh_token');
-          if (accessToken) {
+          const hashAccessToken = hash.get('access_token');
+          const hashRefreshToken = hash.get('refresh_token');
+          if (hashAccessToken) {
             const { data } = await supabaseAuth.auth.setSession({
-              access_token: accessToken,
-              refresh_token: refreshToken || '',
+              access_token: hashAccessToken,
+              refresh_token: hashRefreshToken || '',
             });
             if (data.session?.user) {
+              authUserId = data.session.user.id;
+              accessToken = data.session.access_token;
+              refreshToken = data.session.refresh_token;
+              expiresIn = data.session.expires_in;
+              tokenType = data.session.token_type;
               email = data.session.user.email?.toLowerCase().trim() || null;
               name = data.session.user.user_metadata?.full_name || data.session.user.user_metadata?.name || null;
               avatar = data.session.user.user_metadata?.avatar_url || null;
@@ -52,6 +67,11 @@ export default function AuthCallback() {
         if (!email) {
           const { data } = await supabaseAuth.auth.getSession();
           if (data.session?.user) {
+            authUserId = data.session.user.id;
+            accessToken = data.session.access_token;
+            refreshToken = data.session.refresh_token;
+            expiresIn = data.session.expires_in;
+            tokenType = data.session.token_type;
             email = data.session.user.email?.toLowerCase().trim() || null;
             name = data.session.user.user_metadata?.full_name || data.session.user.user_metadata?.name || null;
             avatar = data.session.user.user_metadata?.avatar_url || null;
@@ -75,6 +95,11 @@ export default function AuthCallback() {
             email,
             name,
             avatar,
+            authUserId: authUserId || undefined,
+            accessToken: accessToken || undefined,
+            refreshToken: refreshToken || undefined,
+            expiresIn: expiresIn || undefined,
+            tokenType: tokenType || undefined,
             referralCode: storedReferralCode || undefined,
           }),
         });
@@ -91,6 +116,9 @@ export default function AuthCallback() {
 
         // Set session
         localStorage.setItem('perksnest_user_id', userId);
+        if (syncData.session?.access_token) {
+          localStorage.setItem('pn_session', JSON.stringify(syncData.session));
+        }
         setStatus("Welcome! Taking you to your dashboard...");
 
         // Redirect based on role or returnUrl

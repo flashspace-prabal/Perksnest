@@ -4,19 +4,27 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Send, MessageSquare } from "lucide-react";
 import { useAuth } from "@/lib/auth";
-import {
-  createConversation,
-  createSupportThreadId,
-  getConversationMessages,
-  getConversations,
-  sendMessage,
-  markThreadRead,
-  subscribeToThreadList,
-  subscribeToThreadMessages,
-  Message,
-  ThreadSummary,
-} from "@/lib/store";
+import { getMessages, getMessageThreads, markMessagesRead, sendMessage } from "@/lib/api";
 import { toast } from "sonner";
+
+interface Message {
+  id: string;
+  thread_id: string;
+  sender_id: string;
+  sender_name: string;
+  sender_role: string;
+  content: string;
+  created_at: string;
+  read?: boolean;
+}
+
+interface ThreadSummary {
+  threadId: string;
+  lastMessage: string;
+  senderName: string;
+  unread: number;
+  updatedAt: string;
+}
 
 interface MessagingTabProps {
   portalRole: "partner" | "customer" | "admin";
@@ -32,7 +40,7 @@ export const RealtimeMessagingTab = ({ portalRole }: MessagingTabProps) => {
   const [connectionStatus, setConnectionStatus] = useState<"live" | "syncing">("live");
   const bottomRef = useRef<HTMLDivElement>(null);
   const isAdmin = portalRole === "admin";
-  const myThreadId = user ? createSupportThreadId(portalRole, user.id) : "";
+  const myThreadId = user ? `${portalRole}_${user.id}_admin` : "";
 
   const scrollToBottom = () => {
     setTimeout(() => bottomRef.current?.scrollIntoView({ behavior: "smooth" }), 100);
@@ -40,19 +48,12 @@ export const RealtimeMessagingTab = ({ portalRole }: MessagingTabProps) => {
 
   const loadThreads = useCallback(async () => {
     if (!user) return;
-    const conversations = await getConversations(user.id, portalRole);
-    const list: ThreadSummary[] = conversations.map((conversation) => ({
-      threadId: conversation.id,
-      unread: conversation.unread,
-      updatedAt: conversation.updatedAt,
-      lastMessage: conversation.lastMessage,
-      senderName: conversation.senderName,
-    }));
+    const response = await getMessageThreads();
+    const list: ThreadSummary[] = response.threads || [];
     setThreads(list);
 
     if (!isAdmin) {
-      const conversation = await createConversation(user.id, portalRole);
-      setActiveThread(conversation.id);
+      setActiveThread(`${portalRole}_${user.id}_admin`);
     } else if (list.length > 0) {
       setActiveThread((current) => current || list[0].threadId);
     }
@@ -60,11 +61,11 @@ export const RealtimeMessagingTab = ({ portalRole }: MessagingTabProps) => {
 
   const loadMessages = useCallback(async (threadId: string) => {
     if (!threadId) return;
-    const msgs = await getConversationMessages(threadId);
-    setMessages(msgs);
-    await markThreadRead(threadId, portalRole);
+    const response = await getMessages(threadId);
+    setMessages(response.messages || []);
+    await markMessagesRead(threadId);
     scrollToBottom();
-  }, [portalRole]);
+  }, []);
 
   useEffect(() => {
     if (!user) return;
@@ -83,40 +84,13 @@ export const RealtimeMessagingTab = ({ portalRole }: MessagingTabProps) => {
   useEffect(() => {
     if (!user) return;
 
-    const unsubscribe = subscribeToThreadList(portalRole, user.id, async () => {
-      setConnectionStatus("live");
-      await loadThreads();
-      if (activeThread) {
-        await loadMessages(activeThread);
-      }
-    });
-
-    return unsubscribe;
-  }, [activeThread, portalRole, user, loadMessages, loadThreads]);
-
-  useEffect(() => {
-    if (!activeThread) return;
-
-    const unsubscribe = subscribeToThreadMessages(activeThread, async (message) => {
-      setConnectionStatus("live");
-      setMessages((prev) => prev.some((msg) => msg.id === message.id) ? prev : [...prev, message]);
-      await markThreadRead(activeThread, portalRole);
-      await loadThreads();
-      scrollToBottom();
-    });
-
-    return unsubscribe;
-  }, [activeThread, portalRole, loadThreads]);
-
-  useEffect(() => {
-    if (!user) return;
-
     const fallbackPoll = setInterval(async () => {
       setConnectionStatus("syncing");
       await loadThreads();
       if (activeThread) {
         await loadMessages(activeThread);
       }
+      setConnectionStatus("live");
     }, 30000);
 
     return () => clearInterval(fallbackPoll);
@@ -127,13 +101,8 @@ export const RealtimeMessagingTab = ({ portalRole }: MessagingTabProps) => {
 
     setSending(true);
     try {
-      const message = await sendMessage({
-        threadId: activeThread,
-        senderId: user.id,
-        senderName: user.name,
-        senderRole: portalRole,
-        content: newMsg.trim(),
-      });
+      const response = await sendMessage(activeThread, newMsg.trim());
+      const message = response.message as Message;
       setMessages((prev) => prev.some((msg) => msg.id === message.id) ? prev : [...prev, message]);
       setNewMsg("");
       await loadThreads();
@@ -227,14 +196,14 @@ export const RealtimeMessagingTab = ({ portalRole }: MessagingTabProps) => {
                 </div>
               )}
               {messages.map((message) => {
-                const isMe = message.senderRole === portalRole;
+                const isMe = message.sender_role === portalRole;
                 return (
                   <div key={message.id} className={`flex ${isMe ? "justify-end" : "justify-start"}`}>
                     <div className={`max-w-[72%] rounded-2xl px-4 py-2.5 shadow-sm ${isMe ? "bg-primary text-primary-foreground rounded-br-none" : "bg-muted rounded-bl-none"}`}>
-                      {!isMe && <p className="text-xs font-semibold mb-0.5 opacity-60">{message.senderName}</p>}
+                      {!isMe && <p className="text-xs font-semibold mb-0.5 opacity-60">{message.sender_name}</p>}
                       <p className="text-sm leading-relaxed">{message.content}</p>
                       <p className={`text-xs mt-1 ${isMe ? "opacity-60 text-right" : "opacity-40"}`}>
-                        {new Date(message.createdAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+                        {new Date(message.created_at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
                       </p>
                     </div>
                   </div>

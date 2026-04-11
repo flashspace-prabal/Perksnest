@@ -1,6 +1,8 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
 import { useAuth } from "@/lib/auth";
-import { BOOKMARKS_UPDATED_EVENT, getBookmarkedDealIds, toggleBookmark as toggleBookmarkInStore } from "@/lib/store";
+import { addBookmark, getBookmarks as getBookmarksFromApi, removeBookmark } from "@/lib/api";
+
+export const BOOKMARKS_UPDATED_EVENT = 'bookmarks-updated';
 
 interface BookmarksContextValue {
   bookmarkedDealIds: string[];
@@ -31,7 +33,8 @@ export function BookmarksProvider({ children }: { children: ReactNode }) {
 
     setIsLoading(true);
     try {
-      const ids = await getBookmarkedDealIds(user.id);
+      const response = await getBookmarksFromApi();
+      const ids = response.dealIds || [];
       setBookmarkedDealIds(ids);
       setError(null);
     } catch (err) {
@@ -66,8 +69,15 @@ export function BookmarksProvider({ children }: { children: ReactNode }) {
     ));
 
     try {
-      const isSaved = await toggleBookmarkInStore(user.id, dealId);
+      if (wasBookmarked) {
+        await removeBookmark(dealId);
+      } else {
+        await addBookmark(dealId);
+      }
+
+      const isSaved = !wasBookmarked;
       setError(null);
+      window.dispatchEvent(new Event(BOOKMARKS_UPDATED_EVENT));
       return isSaved;
     } catch (err) {
       console.error("Failed to update bookmark:", err);

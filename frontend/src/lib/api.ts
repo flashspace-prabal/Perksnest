@@ -183,6 +183,58 @@ export async function createTicket(ticket: Record<string, unknown>) {
   }
 }
 
+export async function getTicketById(ticketId: string) {
+  return apiCall(`/api/tickets/${ticketId}`, 'GET', undefined, 2);
+}
+
+export async function replyToTicket(ticketId: string, message: string) {
+  return apiCall(`/api/tickets/${ticketId}/reply`, 'POST', { message }, 2);
+}
+
+export async function closeTicket(ticketId: string) {
+  return apiCall(`/api/tickets/${ticketId}/close`, 'PUT', undefined, 2);
+}
+
+export async function updateTicketStatus(ticketId: string, status: string) {
+  return apiCall(`/api/tickets/${ticketId}/status`, 'PATCH', { status }, 2);
+}
+
+export async function updateAdminUser(userId: string, updates: Record<string, unknown>) {
+  return apiCall(`/api/admin/users/${userId}`, 'PATCH', updates, 2);
+}
+
+export async function requestPasswordReset(email: string) {
+  return apiCall('/api/password-reset', 'POST', { email }, 1);
+}
+
+export async function getBookmarks() {
+  return apiCall('/api/bookmarks', 'GET', undefined, 2);
+}
+
+export async function addBookmark(dealId: string) {
+  return apiCall('/api/bookmarks', 'POST', { dealId }, 2);
+}
+
+export async function removeBookmark(dealId: string) {
+  return apiCall(`/api/bookmarks/${dealId}`, 'DELETE', undefined, 2);
+}
+
+export async function getMessageThreads() {
+  return apiCall('/api/messages/threads', 'GET', undefined, 2);
+}
+
+export async function getMessages(threadId: string) {
+  return apiCall(`/api/messages?threadId=${encodeURIComponent(threadId)}`, 'GET', undefined, 2);
+}
+
+export async function sendMessage(threadId: string, content: string) {
+  return apiCall('/api/messages', 'POST', { threadId, content }, 2);
+}
+
+export async function markMessagesRead(threadId: string) {
+  return apiCall(`/api/messages/${encodeURIComponent(threadId)}/read`, 'PATCH', undefined, 2);
+}
+
 // Reviews API - Fetches customer reviews from Supabase
 export async function getDealReviews(dealId: string) {
   try {
