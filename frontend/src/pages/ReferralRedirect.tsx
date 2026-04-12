@@ -1,6 +1,5 @@
 import { useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { trackReferralClick } from "@/lib/api";
 import { normalizeReferralCode, storeReferralCode } from "@/lib/referrals";
 
 export default function ReferralRedirect() {
@@ -15,7 +14,6 @@ export default function ReferralRedirect() {
     }
 
     storeReferralCode(normalizedCode);
-    trackReferralClick({ code: normalizedCode, source: "link_visit" }).catch(() => {});
     navigate(`/signup?ref=${encodeURIComponent(normalizedCode)}`, { replace: true });
   }, [navigate, referralCode]);
 

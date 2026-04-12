@@ -17,9 +17,9 @@ import { useAuth } from "@/lib/auth";
 import { useBookmarks } from "@/lib/bookmarks";
 import { dealsData, type Deal } from "@/data/deals";
 import { toast } from "sonner";
-import { getTickets, createTicket, claimDeal as apiClaimDeal } from "@/lib/api";
+import { getTickets, createTicket, claimDeal as apiClaimDeal, getReferralSummary, type ReferralEntry } from "@/lib/api";
 import { getDeals } from "@/lib/deals";
-import { getPartnerDeals, getReferralSummary, type PartnerDeal, type ReferralEntry } from "@/lib/store";
+import { getPartnerDeals, type PartnerDeal } from "@/lib/store";
 import { buildReferralLink } from "@/lib/referrals";
 import { API_BASE_URL } from "@/lib/runtime";
 
@@ -120,7 +120,7 @@ const CustomerPortal = () => {
     if (!user?.id) return;
 
     setIsReferralLoading(true);
-    getReferralSummary(user.id)
+    getReferralSummary()
       .then(summary => {
         setReferrals(summary.referrals);
         setReferralEarnings(summary.totalEarned);

@@ -39,6 +39,7 @@ import AuthCallback from "./pages/AuthCallback";
 import NotFound from "./pages/NotFound";
 import OAuthHandler from "./components/OAuthHandler";
 import ScrollToTop from "./components/ScrollToTop";
+import ReferralCodeCapture from "./components/ReferralCodeCapture";
 import HelpCenter from "./pages/HelpCenter";
 import MainNavbar from "./components/MainNavbar";
 import MainFooter from "./components/MainFooter";
@@ -56,6 +57,7 @@ const App = () => (
           <BrowserRouter>
             <ScrollToTop />
             <OAuthHandler />
+            <ReferralCodeCapture />
             <div className="flex flex-col min-h-screen">
               <MainNavbar />
               <main className="flex-grow">

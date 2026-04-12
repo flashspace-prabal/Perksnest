@@ -387,6 +387,66 @@ async function registerReferralSignup(referralCode, referredUser) {
   await db.from("users").update({ referred_by: referrer.id }).eq("id", referredUser.id);
 }
 
+async function createReferralInvite(referrer, referreeEmail) {
+  const normalizedEmail = String(referreeEmail || "").toLowerCase().trim();
+  if (!normalizedEmail) {
+    throw new Error("A valid invite email is required");
+  }
+
+  if (String(referrer.email || "").toLowerCase() === normalizedEmail) {
+    throw new Error("You cannot refer yourself");
+  }
+
+  const normalizedCode = String(referrer.referral_code || "").trim().toUpperCase();
+  if (!normalizedCode) {
+    throw new Error("Referrer does not have a referral code");
+  }
+
+  const { data: existingUser } = await db
+    .from("users")
+    .select("id,email")
+    .eq("email", normalizedEmail)
+    .maybeSingle();
+
+  if (existingUser?.id === referrer.id) {
+    throw new Error("You cannot refer yourself");
+  }
+
+  const { data: existingReferral } = await db
+    .from("referrals")
+    .select("id,referrer_id,status")
+    .eq("referree_email", normalizedEmail)
+    .maybeSingle();
+
+  if (existingReferral && existingReferral.referrer_id !== referrer.id) {
+    throw new Error("This email has already been referred by another user");
+  }
+
+  const referralPayload = {
+    code: normalizedCode,
+    referrer_id: referrer.id,
+    referrer_name: referrer.name || "User",
+    referree_email: normalizedEmail,
+    referree_id: existingUser?.id || null,
+    status: existingReferral?.status === "converted" || existingReferral?.status === "paid" ? existingReferral.status : "pending",
+    credit_amount: 20,
+  };
+
+  const { data, error } = await db
+    .from("referrals")
+    .upsert(referralPayload, { onConflict: "referree_email" })
+    .select("*")
+    .single();
+
+  if (error) throw error;
+
+  if (existingUser?.id) {
+    await db.from("users").update({ referred_by: referrer.id }).eq("id", existingUser.id);
+  }
+
+  return data;
+}
+
 async function convertReferralForUser(referredUser) {
   const email = String(referredUser.email || "").toLowerCase().trim();
   const { data } = await db
@@ -423,11 +483,23 @@ async function getReferralSummaryByUserId(userId) {
   const pending = referrals.filter((ref) => ref.status === "pending");
   const earnings = converted.reduce((sum, ref) => sum + Number(ref.credit_amount || 20), 0);
 
+  // Fetch click count for this user's referral code
+  let totalClicks = 0;
+  const { data: userRow } = await db.from("users").select("referral_code").eq("id", userId).maybeSingle();
+  if (userRow?.referral_code) {
+    const { count } = await db
+      .from("referral_clicks")
+      .select("*", { count: "exact", head: true })
+      .eq("referral_code", String(userRow.referral_code).toUpperCase());
+    totalClicks = count || 0;
+  }
+
   return {
     total_referrals: referrals.length,
     converted_referrals: converted.length,
     pending_referrals: pending.length,
     referral_earnings: earnings,
+    total_clicks: totalClicks,
     referrals,
   };
 }
@@ -600,8 +672,6 @@ app.post("/api/auth/register", async (req, res) => {
       throw signInResult.error || new Error("Failed to create login session after registration");
     }
 
-    await convertReferralForUser({ id: profile.id, email: profile.email });
-
     res.status(201).json(await buildAuthResponse({ userRow: profile, session: signInResult.data.session }));
   } catch (error) {
     console.error("REGISTER ERROR:", error);
@@ -686,8 +756,6 @@ app.post("/api/auth/claim-deal", async (req, res) => {
     if (updateError) throw updateError;
 
     await db.from("claim_events").upsert({ user_id: userId, deal_id: dealId }, { onConflict: "user_id,deal_id" });
-    await convertReferralForUser({ id: userId, email: updatedUser.email });
-
     res.json({ success: true, user: mapUser(updatedUser) });
   } catch (error) {
     console.error("ERROR:", error);
@@ -1384,11 +1452,49 @@ app.get("/api/referrals/me", async (req, res) => {
       referrals: summary.total_referrals,
       conversions: summary.converted_referrals,
       rewards: summary.referral_earnings,
+      clicks: summary.total_clicks,
       referralList: summary.referrals,
     });
   } catch (error) {
     console.error("ERROR:", error);
     res.status(500).json({ referrals: 0, conversions: 0, rewards: 0, error: toErrorMessage(error) });
+  }
+});
+
+app.post("/api/referrals/invite", async (req, res) => {
+  try {
+    const context = await getAuthenticatedRequestContext(req);
+    if (!context?.userId) {
+      res.status(401).json({ success: false, error: "Authentication required" });
+      return;
+    }
+
+    const inviteEmail = String(req.body?.email || "").trim();
+    if (!inviteEmail || !inviteEmail.includes("@")) {
+      res.status(400).json({ success: false, error: "A valid email is required" });
+      return;
+    }
+
+    const { data: referrer, error: referrerError } = await db
+      .from("users")
+      .select("id,email,name,referral_code")
+      .eq("id", context.userId)
+      .single();
+
+    if (referrerError) throw referrerError;
+
+    const referral = await createReferralInvite(referrer, inviteEmail);
+
+    await db.from("referral_clicks").insert({
+      referral_code: String(referrer.referral_code || "").toUpperCase(),
+      source: "email_invite",
+      clicked_at: nowIso(),
+    });
+
+    res.json({ success: true, referral });
+  } catch (error) {
+    console.error("ERROR:", error);
+    res.status(500).json({ success: false, error: toErrorMessage(error) });
   }
 });
 

@@ -3,6 +3,41 @@ import { API_BASE_URL } from "@/lib/runtime";
 const API = API_BASE_URL;
 const API_TIMEOUT = 5000; // 5 second timeout
 
+export interface ReferralEntry {
+  code: string;
+  referrerId: string;
+  referrerName: string;
+  referreeEmail: string;
+  referreeId?: string;
+  status: 'pending' | 'converted' | 'paid';
+  creditAmount: number;
+  createdAt: string;
+  convertedAt?: string;
+}
+
+export interface ReferralSummary {
+  referrals: ReferralEntry[];
+  totalEarned: number;
+  convertedCount: number;
+  pendingCount: number;
+  totalReferrals: number;
+  totalClicks: number;
+}
+
+function mapReferralEntry(row: Record<string, unknown>): ReferralEntry {
+  return {
+    code: String(row.code || ''),
+    referrerId: String(row.referrerId || row.referrer_id || ''),
+    referrerName: String(row.referrerName || row.referrer_name || 'User'),
+    referreeEmail: String(row.referreeEmail || row.referree_email || ''),
+    referreeId: row.referreeId ? String(row.referreeId) : row.referree_id ? String(row.referree_id) : undefined,
+    status: (row.status as ReferralEntry['status']) || 'pending',
+    creditAmount: Number(row.creditAmount || row.credit_amount || 0),
+    createdAt: String(row.createdAt || row.created_at || new Date().toISOString()),
+    convertedAt: row.convertedAt ? String(row.convertedAt) : row.converted_at ? String(row.converted_at) : undefined,
+  };
+}
+
 /**
  * Enhanced API call with timeout and retry logic
  */
@@ -144,6 +179,35 @@ export async function getReferralStats() {
     console.warn('Referral stats API failed', error);
     return { referrals: 0, conversions: 0, rewards: 0 };
   }
+}
+
+export async function getReferralSummary() : Promise<ReferralSummary> {
+  try {
+    const response = await apiCall('/api/referrals', 'GET', undefined, 2);
+    const referrals = Array.isArray(response.referrals) ? response.referrals.map((entry: Record<string, unknown>) => mapReferralEntry(entry)) : [];
+    return {
+      referrals,
+      totalEarned: Number(response.referral_earnings || 0),
+      convertedCount: Number(response.converted_referrals || 0),
+      pendingCount: Number(response.pending_referrals || 0),
+      totalReferrals: Number(response.total_referrals || referrals.length),
+      totalClicks: Number(response.total_clicks || 0),
+    };
+  } catch (error) {
+    console.warn('Referral summary API failed', error);
+    return {
+      referrals: [],
+      totalEarned: 0,
+      convertedCount: 0,
+      pendingCount: 0,
+      totalReferrals: 0,
+      totalClicks: 0,
+    };
+  }
+}
+
+export async function createReferralInvite(email: string) {
+  return apiCall('/api/referrals/invite', 'POST', { email }, 2);
 }
 
 export async function trackReferralClick(referral: string | { code: string; source?: string }) {

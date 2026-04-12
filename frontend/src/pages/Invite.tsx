@@ -1,13 +1,12 @@
 import { useState, useEffect } from "react";
-import { Gift, Copy, Check, Twitter, Linkedin, Mail, DollarSign, Users, TrendingUp, LogIn, Star } from "lucide-react";
+import { Gift, Copy, Check, Twitter, Linkedin, Mail, DollarSign, Users, TrendingUp, LogIn, Star, MousePointerClick } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { AuthModal } from "@/components/AuthModal";
 import { useAuth } from "@/lib/auth";
-import { getReferralSummary, trackReferral } from "@/lib/store";
 import { toast } from "sonner";
-import { getReferralStats, trackReferralClick } from "@/lib/api";
+import { createReferralInvite, getReferralStats, getReferralSummary, type ReferralEntry } from "@/lib/api";
 import { buildReferralLink } from "@/lib/referrals";
 
 const REWARD_PER_REFERRAL = 20;
@@ -25,15 +24,17 @@ const Invite = () => {
 
   const { user, isAuthenticated } = useAuth();
   const [apiStats, setApiStats] = useState<{ totalEarned?: number } | null>(null);
-  const [myReferrals, setMyReferrals] = useState<import("@/lib/store").ReferralEntry[]>([]);
+  const [myReferrals, setMyReferrals] = useState<ReferralEntry[]>([]);
+  const [totalClicks, setTotalClicks] = useState(0);
 
   // Fetch referral stats from backend API (/api/referrals/me)
   useEffect(() => {
     if (user) {
-      Promise.all([getReferralSummary(user.id), getReferralStats().catch(() => null)])
+      Promise.all([getReferralSummary(), getReferralStats().catch(() => null)])
         .then(([summary, stats]) => {
           setMyReferrals(summary.referrals);
-          setApiStats(stats);
+          setTotalClicks(summary.totalClicks || 0);
+          setApiStats(stats ? { totalEarned: Number(stats.rewards || 0) } : null);
         })
         .catch(err => {
           console.error('Failed to fetch referral stats:', err);
@@ -63,13 +64,6 @@ const Invite = () => {
     setCopied(true);
     toast.success("Referral link copied!");
     setTimeout(() => setCopied(false), 2000);
-
-    // Track copy event via API
-    try {
-      await trackReferralClick({ code: referralCode, source: 'link_copy' });
-    } catch (error) {
-      console.error('Failed to track referral click:', error);
-    }
   };
 
   const handleSendInvite = async () => {
@@ -78,11 +72,12 @@ const Invite = () => {
     setSending(true);
 
     try {
-      // Track via API
-      await trackReferralClick({ code: referralCode, source: 'email_invite' });
+      await createReferralInvite(inviteEmail);
 
-      // Also track locally
-      await trackReferral(referralCode, user.id, user.name, inviteEmail);
+      const summary = await getReferralSummary();
+      const stats = await getReferralStats().catch(() => null);
+      setMyReferrals(summary.referrals);
+      setApiStats(stats ? { totalEarned: Number(stats.rewards || 0) } : null);
 
       toast.success(`Invite tracked for ${inviteEmail}!`);
       setInviteEmail("");
@@ -126,8 +121,9 @@ const Invite = () => {
         <div className="max-w-4xl mx-auto px-4 py-10 space-y-8">
           {/* Stats row */}
           {isAuthenticated && (
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+            <div className="grid grid-cols-2 sm:grid-cols-5 gap-4">
               {[
+                { icon: MousePointerClick, label: "Link Clicks", value: totalClicks },
                 { icon: Users, label: "Total Invited", value: myReferrals.length },
                 { icon: Check, label: "Converted", value: converted.length },
                 { icon: TrendingUp, label: "Pending", value: pending.length },
