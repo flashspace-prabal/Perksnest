@@ -169,8 +169,8 @@ export const AdminUsers = () => {
 
   const getPlanBadge = (plan: string) => {
     switch (plan) {
-      case "pro":
-        return <Badge className="bg-primary text-primary-foreground">Pro</Badge>;
+      case "premium":
+        return <Badge className="bg-primary text-primary-foreground">Premium</Badge>;
       case "enterprise":
         return <Badge className="bg-purple-600 text-white hover:bg-purple-600">Enterprise</Badge>;
       default:
@@ -261,7 +261,7 @@ export const AdminUsers = () => {
               <SelectContent>
                 <SelectItem value="all">All Plans</SelectItem>
                 <SelectItem value="free">Free</SelectItem>
-                <SelectItem value="pro">Pro</SelectItem>
+                <SelectItem value="premium">Premium</SelectItem>
                 <SelectItem value="enterprise">Enterprise</SelectItem>
               </SelectContent>
             </Select>

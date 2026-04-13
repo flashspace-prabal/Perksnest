@@ -3,8 +3,8 @@ import { Link, useNavigate } from "react-router-dom";
 import {
   User, Mail, Building, MapPin, Settings, Bell, CreditCard, Gift,
   Wallet, Calendar, Download, Share2, Copy, TrendingUp, Users,
-  DollarSign, Award, CheckCircle, Clock, Bookmark, Star, Tag,
-  Search, ChevronRight, ExternalLink, MessageSquare, Send
+  DollarSign, Clock, Bookmark, Star, Tag,
+  Search, ChevronRight, ExternalLink, MessageSquare, Send, X, Sparkles, Award, CheckCircle
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -292,7 +292,7 @@ const CustomerPortal = () => {
   // Get plan badge variant
   const getPlanBadgeClass = () => {
     switch (user.plan) {
-      case 'pro':
+      case 'premium':
         return "bg-gradient-to-r from-primary to-purple-500";
       case 'enterprise':
         return "bg-gradient-to-r from-purple-500 to-pink-500";
@@ -720,7 +720,8 @@ const CustomerPortal = () => {
                   ) : (
                     <div className="space-y-4">
                       {tickets.map((ticket) => (
-                        <div key={ticket.id} className="p-4 bg-muted/50 rounded-lg">
+                        <Link to={`/customer/tickets/${ticket.id}`} key={ticket.id} className="block p-4 bg-muted/50 rounded-lg hover:bg-border transition-colors group">
+                          
                           <div className="flex items-start justify-between mb-2">
                             <div>
                               <p className="font-medium">{ticket.subject}</p>
@@ -735,8 +736,8 @@ const CustomerPortal = () => {
                               {ticket.status}
                             </Badge>
                           </div>
-                          <p className="text-sm text-muted-foreground">{ticket.message}</p>
-                        </div>
+                          <p className="text-sm text-muted-foreground line-clamp-2">{ticket.message}</p>
+                        </Link>
                       ))}
                     </div>
                   )}
@@ -753,47 +754,59 @@ const CustomerPortal = () => {
           {/* Settings Tab */}
 
           {/* Billing Tab */}
-          <TabsContent value="billing">
-            <div className="space-y-4">
-              {/* Current Plan Card */}
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <CreditCard className="h-5 w-5 text-primary" />
-                    Subscription & Billing
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="grid sm:grid-cols-2 gap-4 mb-6">
-                    <div className="bg-secondary/40 rounded-xl p-4">
-                      <p className="text-xs text-muted-foreground mb-1">Current Plan</p>
-                      <p className="text-xl font-bold text-foreground capitalize">{getPlanLabel()}</p>
-                      {user.plan === 'premium' && (
-                        <span className="inline-flex items-center gap-1 mt-1 px-2 py-0.5 bg-primary/10 text-primary text-xs rounded-full font-medium">
-                          ✓ Active
-                        </span>
-                      )}
-                    </div>
-                    <div className="bg-secondary/40 rounded-xl p-4">
-                      <p className="text-xs text-muted-foreground mb-1">Member Since</p>
-                      <p className="text-lg font-semibold">{new Date(user.createdAt).toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}</p>
-                    </div>
+          
+          <TabsContent value="billing" className="space-y-6">
+            <div className="grid gap-6">
+              {/* Premium Hero Card */}
+              <Card className="overflow-hidden border-2 border-primary/10 shadow-xl">
+                <div className="bg-gradient-to-br from-[#5c2169] to-[#3d1645] p-8 text-white relative">
+                  <div className="absolute top-0 right-0 p-8 opacity-10">
+                    <Award className="w-32 h-32" />
                   </div>
-
-                  {user.plan === 'premium' ? (
-                    <div className="space-y-3">
-                      <div className="flex items-center justify-between p-3 bg-green-50 border border-green-200 rounded-xl">
-                        <div>
-                          <p className="font-medium text-green-800">Premium Plan — Active</p>
-                          <p className="text-sm text-green-600">Access to all 563+ deals</p>
-                        </div>
-                        <span className="text-green-600 text-xl">✓</span>
-                      </div>
-                      <Button
-                        variant="outline"
-                        className="w-full"
+                  <div className="relative z-10">
+                    <Badge className="bg-white/20 hover:bg-white/30 text-white border-0 mb-4 px-3 py-1">
+                      {user.plan === 'premium' ? 'Current Plan: Premium' : 'Limited Access: Free'}
+                    </Badge>
+                    <h2 className="text-3xl font-bold mb-2">
+                       {user.plan === 'premium' ? 'You are a PerksNest Pro' : 'Unlock Everything'}
+                    </h2>
+                    <p className="text-purple-100 max-w-md mb-8">
+                      {user.plan === 'premium' 
+                        ? 'Enjoy unlimited access to all 563+ exclusive SaaS deals and priority founder support.' 
+                        : 'Get access to our full database of 563+ curated perks and save thousands on your tech stack.'}
+                    </p>
+                    
+                    {user.plan !== 'premium' && (
+                      <Button 
+                        size="lg"
+                        className="bg-white text-[#5c2169] hover:bg-gray-100 font-bold px-8 shadow-2xl hover:scale-105 transition-all"
                         onClick={async () => {
                           try {
+                            const res = await fetch(`${API_BASE_URL}/api/checkout`, {
+                              method: 'POST',
+                              headers: { 'Content-Type': 'application/json' },
+                              body: JSON.stringify({ userId: user.id, email: user.email, name: user.name, period: 'annual' }),
+                            });
+                            const data = await res.json();
+                            if (data.url) window.location.href = data.url;
+                            else toast.error('Could not start checkout');
+                          } catch { toast.error('Checkout unavailable'); }
+                        }}
+                      >
+                        <Sparkles className="mr-2 h-5 w-5" />
+                        Upgrade to Premium — $20/mo
+                      </Button>
+                    )}
+                  </div>
+                </div>
+                {user.plan === 'premium' && (
+                   <CardContent className="bg-white py-4 flex justify-between items-center px-8 border-t">
+                      <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
+                        <CheckCircle className="h-4 w-4 text-green-500" />
+                        Next billing date: {new Date(new Date().setMonth(new Date().getMonth() + 1)).toLocaleDateString()}
+                      </div>
+                      <Button variant="ghost" size="sm" onClick={async () => {
+                         try {
                             const res = await fetch(`${API_BASE_URL}/api/billing/portal`, {
                               method: 'POST',
                               headers: { 'Content-Type': 'application/json' },
@@ -803,67 +816,63 @@ const CustomerPortal = () => {
                             if (data.url) window.location.href = data.url;
                             else toast.error('Could not open billing portal');
                           } catch { toast.error('Billing portal unavailable'); }
-                        }}
-                      >
-                        <CreditCard className="h-4 w-4 mr-2" />
-                        Manage Billing / Cancel
+                      }}>
+                        Manage Subscription
                       </Button>
-                    </div>
-                  ) : (
-                    <div className="space-y-3">
-                      <div className="p-4 bg-secondary/30 rounded-xl border border-border">
-                        <p className="font-medium mb-1">Free Plan</p>
-                        <p className="text-sm text-muted-foreground mb-3">Access to 50 free deals. Upgrade to unlock all 563+ deals.</p>
-                        <Button
-                          className="w-full"
-                          onClick={async () => {
-                            try {
-                              const res = await fetch(`${API_BASE_URL}/api/checkout`, {
-                                method: 'POST',
-                                headers: { 'Content-Type': 'application/json' },
-                                body: JSON.stringify({ userId: user.id, email: user.email, name: user.name, period: 'annual' }),
-                              });
-                              const data = await res.json();
-                              if (data.url) window.location.href = data.url;
-                              else toast.error('Could not start checkout');
-                            } catch { toast.error('Checkout unavailable'); }
-                          }}
-                        >
-                          Upgrade to Premium — $2/mo
-                        </Button>
-                      </div>
-                    </div>
-                  )}
-                </CardContent>
+                   </CardContent>
+                )}
               </Card>
 
-              {/* What's included */}
-              <Card>
-                <CardHeader><CardTitle className="text-base">What's included in your plan</CardTitle></CardHeader>
-                <CardContent>
-                  <div className="grid sm:grid-cols-2 gap-2">
-                    {(user.plan === 'premium' ? [
-                      '✓ All 563+ deals unlocked',
-                      '✓ New premium deals weekly',
-                      '✓ Deal comparison tools',
-                      '✓ Priority support',
-                      '✓ Private Slack community',
-                      '✓ Advanced analytics',
-                    ] : [
-                      '✓ 50 free deals',
-                      '✓ Basic deal search',
-                      '✓ Bookmarks & saves',
-                      '✗ Premium deals locked',
-                      '✗ No community access',
-                      '✗ No priority support',
-                    ]).map((f, i) => (
-                      <div key={i} className={`text-sm py-1 ${f.startsWith('✗') ? 'text-muted-foreground' : 'text-foreground'}`}>{f}</div>
+              {/* Perks Grid */}
+              <div className="grid md:grid-cols-2 gap-6">
+                <Card className="border-0 shadow-md bg-white">
+                  <CardHeader className="pb-3">
+                    <CardTitle className="text-lg">Member Benefits</CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    {[
+                      { text: 'All 563+ deals unlocked', included: true },
+                      { text: 'New premium deals weekly', included: true },
+                      { text: 'Priority founder support', included: user.plan === 'premium' },
+                      { text: 'Private Slack community', included: user.plan === 'premium' },
+                    ].map((benefit, i) => (
+                      <div key={i} className="flex items-center gap-3">
+                        {benefit.included ? (
+                          <div className="bg-green-100 p-1 rounded-full"><CheckCircle className="h-4 w-4 text-green-600" /></div>
+                        ) : (
+                          <div className="bg-gray-100 p-1 rounded-full"><Clock className="h-4 w-4 text-gray-400" /></div>
+                        )}
+                        <span className={`text-sm ${benefit.included ? 'text-foreground' : 'text-muted-foreground'}`}>{benefit.text}</span>
+                      </div>
                     ))}
-                  </div>
-                </CardContent>
-              </Card>
+                  </CardContent>
+                </Card>
+
+                <Card className="border-0 shadow-md bg-white">
+                  <CardHeader className="pb-3">
+                    <CardTitle className="text-lg">Account Stats</CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div className="flex justify-between items-center py-2 border-b border-gray-50">
+                      <span className="text-sm text-muted-foreground">Status</span>
+                      <Badge variant={user.plan === 'premium' ? 'default' : 'secondary'} className={user.plan === 'premium' ? 'bg-green-500 hover:bg-green-600' : ''}>
+                        {user.plan === 'premium' ? 'Active' : 'Free Tier'}
+                      </Badge>
+                    </div>
+                    <div className="flex justify-between items-center py-2 border-b border-gray-50">
+                      <span className="text-sm text-muted-foreground">Member Since</span>
+                      <span className="text-sm font-medium">{new Date(user.createdAt).toLocaleDateString()}</span>
+                    </div>
+                    <div className="flex justify-between items-center py-2">
+                       <span className="text-sm text-muted-foreground">Billing Period</span>
+                       <span className="text-sm font-medium">Monthly</span>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
             </div>
           </TabsContent>
+
 
           <TabsContent value="settings">
             <Card>

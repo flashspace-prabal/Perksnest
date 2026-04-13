@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { Mail, Twitter, Linkedin, Github, ArrowRight } from "lucide-react";
 
 const footerLinks = {
@@ -28,6 +28,12 @@ const footerLinks = {
 };
 
 const MainFooter = () => {
+  const location = useLocation();
+
+  if (location.pathname.startsWith('/admin')) {
+    return null;
+  }
+
   return (
     <footer className="bg-gray-900 text-white pt-16 pb-12 overflow-hidden">
       <div className="max-w-7xl mx-auto px-6 lg:px-8">

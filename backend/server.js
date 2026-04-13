@@ -71,6 +71,11 @@ const parseAuthorizationToken = (req) => {
 const safeArray = (value) => (Array.isArray(value) ? value : []);
 const toErrorMessage = (error) => (error && typeof error === "object" && "message" in error ? error.message : String(error || "Unknown error"));
 
+const isValidUUID = (str) => {
+  const regex = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+  return regex.test(str);
+};
+
 function formatSupabaseError(error) {
   if (!error) return "Unknown error";
   if (error.code === "PGRST106") {
@@ -97,7 +102,7 @@ const mapUser = (row) => ({
   roles: Array.isArray(row.roles) ? row.roles : [row.role || "customer"],
   status: row.status || "active",
   avatar: row.avatar || null,
-  createdAt: row.created_at || nowIso(),
+  createdAt: row.created_at || new Date().toISOString(),
 });
 
 function createAppSession(session, user) {
@@ -139,7 +144,10 @@ async function getUserProfileByEmail(email) {
 }
 
 async function getUserProfileById(userId) {
-  if (!userId) return null;
+  if (!userId || !isValidUUID(userId)) {
+    if (userId) console.warn(`[DB] Skipping lookup for invalid UUID: ${userId}`);
+    return null;
+  }
   const { data, error } = await db.from("users").select("*").eq("id", userId).maybeSingle();
   if (error) throw error;
   return data || null;
@@ -302,19 +310,34 @@ async function getAuthenticatedRequestContext(req) {
   const explicitUserId = req.headers["x-user-id"] || (req.body || {}).userId || req.query.userId || null;
 
   if (token) {
-    const profileContext = await getAuthenticatedProfileFromToken(token);
-    const profile = profileContext.user;
-    return {
-      accessToken: token,
-      authUser: profileContext.authUser,
-      userId: profile.id,
-      user: profile,
-    };
+    try {
+      const profileContext = await getAuthenticatedProfileFromToken(token);
+      const profile = profileContext.user;
+      return {
+        accessToken: token,
+        authUser: profileContext.authUser,
+        userId: profile.id,
+        user: profile,
+      };
+    } catch (error) {
+      console.warn("[AUTH] Token verification failed:", error.message || error);
+      // We return null so the route can decide whether to fail with 401
+      return null;
+    }
   }
 
   if (explicitUserId) {
-    const user = await getUserProfileById(explicitUserId);
-    return user ? { accessToken: null, authUser: null, userId: user.id, user } : null;
+    try {
+      if (!isValidUUID(explicitUserId)) {
+        console.warn(`[AUTH] Ignoring non-UUID explicit user ID: ${explicitUserId}`);
+        return null;
+      }
+      const user = await getUserProfileById(explicitUserId);
+      return user ? { accessToken: null, authUser: null, userId: user.id, user } : null;
+    } catch (error) {
+      console.warn("[AUTH] Explicit user look-up failed:", error.message || error);
+      return null;
+    }
   }
 
   return null;
@@ -461,7 +484,7 @@ async function convertReferralForUser(referredUser) {
 
   await db
     .from("referrals")
-    .update({ status: "converted", referree_id: referredUser.id, converted_at: nowIso() })
+    .update({ status: "converted", referree_id: referredUser.id, converted_at: new Date().toISOString() })
     .eq("id", data.id);
 
   const { count } = await db
@@ -543,6 +566,10 @@ const mapMessage = (row) => ({
 });
 
 async function getTicketWithMessages(ticketId) {
+  if (!ticketId || !isValidUUID(ticketId)) {
+    console.warn(`[DB] Invalid ticket UUID provided for lookup: ${ticketId}`);
+    return null;
+  }
   const { data: ticket, error: ticketError } = await db
     .from("tickets")
     .select("*")
@@ -689,8 +716,7 @@ app.get("/api/auth/me", async (req, res) => {
     const data = context?.user || null;
 
     if (!data) {
-      res.status(404).json({ success: false, error: "User not found" });
-      return;
+      return res.status(401).json({ success: false, error: "Authentication failed or session expired" });
     }
 
     res.json(await buildAuthResponse({ userRow: data, session: { access_token: parseAuthorizationToken(req) || "", user_id: data.id } }));
@@ -729,7 +755,7 @@ app.patch("/api/auth/plan", async (req, res) => {
     res.json({ success: true, user: mapUser(data) });
   } catch (error) {
     console.error("ERROR:", error);
-    res.status(500).json({ success: false, error: toErrorMessage(error) });
+    res.status(500).json({ success: false, error: (error instanceof Error ? error.message : String(error)) });
   }
 });
 
@@ -759,7 +785,7 @@ app.post("/api/auth/claim-deal", async (req, res) => {
     res.json({ success: true, user: mapUser(updatedUser) });
   } catch (error) {
     console.error("ERROR:", error);
-    res.status(500).json({ success: false, error: toErrorMessage(error) });
+    res.status(500).json({ success: false, error: (error instanceof Error ? error.message : String(error)) });
   }
 });
 
@@ -893,12 +919,12 @@ app.post("/api/deals/claim", async (req, res) => {
 
     await db
       .from("claim_events")
-      .upsert({ user_id: userId, deal_id: dealId, claimed_at: nowIso() }, { onConflict: "user_id,deal_id" });
+      .upsert({ user_id: userId, deal_id: dealId, claimed_at: new Date().toISOString() }, { onConflict: "user_id,deal_id" });
 
     res.json({ success: true, claimedDeals: updated });
   } catch (error) {
     console.error("ERROR:", error);
-    res.status(500).json({ success: false, error: toErrorMessage(error) });
+    res.status(500).json({ success: false, error: (error instanceof Error ? error.message : String(error)) });
   }
 });
 
@@ -927,7 +953,7 @@ app.get("/api/user/claims", async (req, res) => {
     res.json({ claims: data || [] });
   } catch (error) {
     console.error("ERROR:", error);
-    res.status(500).json({ claims: [], error: toErrorMessage(error) });
+    res.status(500).json({ claims: [], error: (error instanceof Error ? error.message : String(error)) });
   }
 });
 
@@ -949,7 +975,7 @@ app.get("/api/bookmarks", async (req, res) => {
     res.json({ success: true, dealIds: (data || []).map((row) => row.deal_id) });
   } catch (error) {
     console.error("ERROR:", error);
-    res.status(500).json({ success: false, error: toErrorMessage(error) });
+    res.status(500).json({ success: false, error: (error instanceof Error ? error.message : String(error)) });
   }
 });
 
@@ -970,7 +996,7 @@ app.post("/api/bookmarks", async (req, res) => {
     res.json({ success: true, dealId });
   } catch (error) {
     console.error("ERROR:", error);
-    res.status(500).json({ success: false, error: toErrorMessage(error) });
+    res.status(500).json({ success: false, error: (error instanceof Error ? error.message : String(error)) });
   }
 });
 
@@ -993,7 +1019,7 @@ app.delete("/api/bookmarks/:dealId", async (req, res) => {
     res.json({ success: true, dealId });
   } catch (error) {
     console.error("ERROR:", error);
-    res.status(500).json({ success: false, error: toErrorMessage(error) });
+    res.status(500).json({ success: false, error: (error instanceof Error ? error.message : String(error)) });
   }
 });
 
@@ -1053,7 +1079,7 @@ app.patch("/api/admin/users/:userId", async (req, res) => {
     });
 
     updates.approved_by = context.user.email;
-    updates.approved_at = nowIso();
+    updates.approved_at = new Date().toISOString();
 
     const { data, error } = await db
       .from("users")
@@ -1066,7 +1092,7 @@ app.patch("/api/admin/users/:userId", async (req, res) => {
     res.json({ success: true, user: mapUser(data), rawUser: data });
   } catch (error) {
     console.error("ERROR:", error);
-    res.status(500).json({ success: false, error: toErrorMessage(error) });
+    res.status(500).json({ success: false, error: (error instanceof Error ? error.message : String(error)) });
   }
 });
 
@@ -1091,7 +1117,7 @@ app.patch("/api/users/me", async (req, res) => {
     res.json({ success: true, user: data });
   } catch (error) {
     console.error("ERROR:", error);
-    res.status(500).json({ success: false, error: toErrorMessage(error) });
+    res.status(500).json({ success: false, error: (error instanceof Error ? error.message : String(error)) });
   }
 });
 
@@ -1107,7 +1133,7 @@ app.get("/api/tickets", async (req, res) => {
     res.json({ tickets: (data || []).map(mapTicket) });
   } catch (error) {
     console.error("ERROR:", error);
-    res.status(500).json({ tickets: [], error: toErrorMessage(error) });
+    res.status(500).json({ tickets: [], error: (error instanceof Error ? error.message : String(error)) });
   }
 });
 
@@ -1130,14 +1156,14 @@ app.post("/api/tickets", async (req, res) => {
       priority,
       type,
       description: String(description || message).trim(),
-      updated_at: nowIso(),
+      updated_at: new Date().toISOString(),
     };
     const { data, error } = await db.from("tickets").insert(payload).select("*").single();
     if (error) throw error;
     res.json({ success: true, ticket: mapTicket(data) });
   } catch (error) {
     console.error("ERROR:", error);
-    res.status(500).json({ success: false, error: toErrorMessage(error) });
+    res.status(500).json({ success: false, error: (error instanceof Error ? error.message : String(error)) });
   }
 });
 
@@ -1156,7 +1182,7 @@ app.get("/api/tickets/:ticketId", async (req, res) => {
     res.json({ ticket });
   } catch (error) {
     console.error("ERROR:", error);
-    res.status(500).json({ success: false, error: toErrorMessage(error) });
+    res.status(500).json({ success: false, error: (error instanceof Error ? error.message : String(error)) });
   }
 });
 
@@ -1181,17 +1207,17 @@ app.post("/api/tickets/:ticketId/reply", async (req, res) => {
       .select("*")
       .single();
     if (error) throw error;
-    await db.from("tickets").update({ status: "open", updated_at: nowIso() }).eq("id", req.params.ticketId);
+    await db.from("tickets").update({ status: "open", updated_at: new Date().toISOString() }).eq("id", req.params.ticketId);
     res.json({ success: true, message: mapTicketMessage(data) });
   } catch (error) {
     console.error("ERROR:", error);
-    res.status(500).json({ success: false, error: toErrorMessage(error) });
+    res.status(500).json({ success: false, error: (error instanceof Error ? error.message : String(error)) });
   }
 });
 
 app.put("/api/tickets/:ticketId/close", async (req, res) => {
   try {
-    const { error } = await db.from("tickets").update({ status: "closed", updated_at: nowIso() }).eq("id", req.params.ticketId);
+    const { error } = await db.from("tickets").update({ status: "closed", updated_at: new Date().toISOString() }).eq("id", req.params.ticketId);
     if (error) throw error;
     res.json({ success: true });
   } catch (error) {
@@ -1224,7 +1250,7 @@ app.patch("/api/tickets/:ticketId/status", async (req, res) => {
 
     const { data, error } = await db
       .from("tickets")
-      .update({ status: String(status), updated_at: nowIso() })
+      .update({ status: String(status), updated_at: new Date().toISOString() })
       .eq("id", req.params.ticketId)
       .select("*")
       .single();
@@ -1233,7 +1259,7 @@ app.patch("/api/tickets/:ticketId/status", async (req, res) => {
     res.json({ success: true, ticket: mapTicket(data) });
   } catch (error) {
     console.error("ERROR:", error);
-    res.status(500).json({ success: false, error: toErrorMessage(error) });
+    res.status(500).json({ success: false, error: (error instanceof Error ? error.message : String(error)) });
   }
 });
 
@@ -1279,7 +1305,7 @@ app.post("/api/admin/tickets/:ticketId/reply", async (req, res) => {
       .select("*")
       .single();
     if (error) throw error;
-    await db.from("tickets").update({ status: "pending", updated_at: nowIso() }).eq("id", req.params.ticketId);
+    await db.from("tickets").update({ status: "pending", updated_at: new Date().toISOString() }).eq("id", req.params.ticketId);
     res.json({ success: true, message: mapTicketMessage(data) });
   } catch (error) {
     res.status(500).json({ success: false, error: "Failed to send admin reply", details: error.message });
@@ -1292,7 +1318,7 @@ app.put("/api/admin/tickets/:ticketId", async (req, res) => {
     const payload = {
       ...(status ? { status } : {}),
       ...(priority ? { priority } : {}),
-      updated_at: nowIso(),
+      updated_at: new Date().toISOString(),
     };
     const { data, error } = await db.from("tickets").update(payload).eq("id", req.params.ticketId).select("*").single();
     if (error) throw error;
@@ -1324,7 +1350,7 @@ app.get("/api/messages", async (req, res) => {
     res.json({ success: true, messages: (data || []).map(mapMessage) });
   } catch (error) {
     console.error("ERROR:", error);
-    res.status(500).json({ success: false, error: toErrorMessage(error) });
+    res.status(500).json({ success: false, error: (error instanceof Error ? error.message : String(error)) });
   }
 });
 
@@ -1363,7 +1389,7 @@ app.get("/api/messages/threads", async (req, res) => {
     res.json({ success: true, threads: Array.from(threads.values()) });
   } catch (error) {
     console.error("ERROR:", error);
-    res.status(500).json({ success: false, error: toErrorMessage(error) });
+    res.status(500).json({ success: false, error: (error instanceof Error ? error.message : String(error)) });
   }
 });
 
@@ -1398,7 +1424,7 @@ app.post("/api/messages", async (req, res) => {
     res.json({ success: true, message: mapMessage(data) });
   } catch (error) {
     console.error("ERROR:", error);
-    res.status(500).json({ success: false, error: toErrorMessage(error) });
+    res.status(500).json({ success: false, error: (error instanceof Error ? error.message : String(error)) });
   }
 });
 
@@ -1420,7 +1446,7 @@ app.patch("/api/messages/:threadId/read", async (req, res) => {
     res.json({ success: true });
   } catch (error) {
     console.error("ERROR:", error);
-    res.status(500).json({ success: false, error: toErrorMessage(error) });
+    res.status(500).json({ success: false, error: (error instanceof Error ? error.message : String(error)) });
   }
 });
 
@@ -1436,7 +1462,7 @@ app.get("/api/referrals", async (req, res) => {
     res.json({ success: true, ...summary });
   } catch (error) {
     console.error("ERROR:", error);
-    res.status(500).json({ success: false, error: toErrorMessage(error) });
+    res.status(500).json({ success: false, error: (error instanceof Error ? error.message : String(error)) });
   }
 });
 
@@ -1457,7 +1483,7 @@ app.get("/api/referrals/me", async (req, res) => {
     });
   } catch (error) {
     console.error("ERROR:", error);
-    res.status(500).json({ referrals: 0, conversions: 0, rewards: 0, error: toErrorMessage(error) });
+    res.status(500).json({ referrals: 0, conversions: 0, rewards: 0, error: (error instanceof Error ? error.message : String(error)) });
   }
 });
 
@@ -1488,13 +1514,13 @@ app.post("/api/referrals/invite", async (req, res) => {
     await db.from("referral_clicks").insert({
       referral_code: String(referrer.referral_code || "").toUpperCase(),
       source: "email_invite",
-      clicked_at: nowIso(),
+      clicked_at: new Date().toISOString(),
     });
 
     res.json({ success: true, referral });
   } catch (error) {
     console.error("ERROR:", error);
-    res.status(500).json({ success: false, error: toErrorMessage(error) });
+    res.status(500).json({ success: false, error: (error instanceof Error ? error.message : String(error)) });
   }
 });
 
@@ -1515,12 +1541,12 @@ app.post("/api/referrals/click", async (req, res) => {
     await db.from("referral_clicks").insert({
       referral_code: normalizedCode,
       source: source || "web",
-      clicked_at: nowIso(),
+      clicked_at: new Date().toISOString(),
     });
     res.json({ tracked: true });
   } catch (error) {
     console.error("ERROR:", error);
-    res.status(500).json({ tracked: false, error: toErrorMessage(error) });
+    res.status(500).json({ tracked: false, error: (error instanceof Error ? error.message : String(error)) });
   }
 });
 
@@ -1533,7 +1559,7 @@ app.post("/api/referrals/convert", async (req, res) => {
   try {
     const { error } = await db
       .from("referrals")
-      .update({ status: "converted", converted_at: nowIso() })
+      .update({ status: "converted", converted_at: new Date().toISOString() })
       .eq("code", String(referralCode).toUpperCase());
     if (error) throw error;
     res.json({ converted: true });
@@ -1573,7 +1599,7 @@ app.post("/api/contact", async (req, res) => {
       name,
       email: String(email).toLowerCase().trim(),
       message,
-      created_at: nowIso(),
+      created_at: new Date().toISOString(),
     });
   } catch {
     // Best effort only.
@@ -1636,7 +1662,7 @@ app.get("/api/admin/settings", async (_, res) => {
 
 app.post("/api/admin/settings", async (req, res) => {
   try {
-    const payload = { ...req.body, updated_at: nowIso() };
+    const payload = { ...req.body, updated_at: new Date().toISOString() };
     await db.from("admin_settings").upsert(payload, { onConflict: "id" });
     res.json({ success: true });
   } catch {
@@ -1714,6 +1740,257 @@ app.delete("/api/admin/deals/:dealId", async (req, res) => {
   }
 });
 
+// --- USER TICKET ROUTES ---
+app.get("/api/tickets", async (req, res) => {
+  try {
+    const context = await getAuthenticatedRequestContext(req);
+    if (!context?.userId) return res.status(401).json({ success: false, error: "Authentication required" });
+
+    const { data, error } = await db.from("tickets").select("*").eq("user_id", context.userId).order("updated_at", { ascending: false });
+    if (error) throw error;
+    res.json({ tickets: data || [] });
+  } catch (error) {
+    console.error("ERROR:", error);
+    res.status(500).json({ tickets: [], error: (error instanceof Error ? error.message : String(error)) });
+  }
+});
+
+app.post("/api/tickets", async (req, res) => {
+  try {
+    const context = await getAuthenticatedRequestContext(req);
+    if (!context?.userId) return res.status(401).json({ success: false, error: "Authentication required" });
+
+    const { subject, message, type, priority } = req.body;
+    const { data: ticket, error: ticketError } = await db.from("tickets").insert({
+      user_id: context.userId,
+      user_name: context.user?.name || "User",
+      user_email: context.user?.email || "",
+      user_role: context.user?.role || "customer",
+      subject: String(subject).trim(),
+      description: String(message).trim(),
+      type: type || "general",
+      priority: priority || "medium",
+      status: "open",
+    }).select("*").single();
+
+    if (ticketError) throw ticketError;
+    res.json({ success: true, ticket });
+  } catch (error) {
+    console.error("ERROR:", error);
+    res.status(500).json({ success: false, error: (error instanceof Error ? error.message : String(error)) });
+  }
+});
+
+app.get("/api/tickets/:id", async (req, res) => {
+  try {
+    const context = await getAuthenticatedRequestContext(req);
+    if (!context?.userId) return res.status(401).json({ success: false, error: "Authentication required" });
+
+    const ticket = await getTicketWithMessages(req.params.id);
+    if (!ticket) return res.status(404).json({ success: false, error: "Ticket not found" });
+    if (!canAccessTicket(ticket, context.user)) return res.status(403).json({ success: false, error: "Forbidden" });
+
+    res.json({ ticket });
+  } catch (error) {
+    console.error("ERROR:", error);
+    res.status(500).json({ success: false, error: (error instanceof Error ? error.message : String(error)) });
+  }
+});
+
+app.post("/api/tickets/:id/reply", async (req, res) => {
+  try {
+    const context = await getAuthenticatedRequestContext(req);
+    if (!context?.userId) return res.status(401).json({ success: false, error: "Authentication required" });
+
+    const ticket = await getTicketWithMessages(req.params.id);
+    if (!ticket) return res.status(404).json({ success: false, error: "Ticket not found" });
+    if (!canAccessTicket(ticket, context.user)) return res.status(403).json({ success: false, error: "Forbidden" });
+
+    const { data, error } = await db.from("ticket_messages").insert({
+      ticket_id: req.params.id,
+      user_id: context.userId,
+      user_name: context.user?.name || "User",
+      message: String(req.body.message).trim(),
+      is_admin: isAdminUser(context.user),
+    }).select("*").single();
+
+    if (error) throw error;
+    
+    await db.from("tickets").update({ updated_at: new Date().toISOString(), status: "open" }).eq("id", req.params.id);
+    io.to(String(req.params.id)).emit("receive_message", { success: true, message: mapTicketMessage(data) });
+
+    res.json({ success: true, message: mapTicketMessage(data) });
+  } catch (error) {
+    console.error("ERROR:", error);
+    res.status(500).json({ success: false, error: (error instanceof Error ? error.message : String(error)) });
+  }
+});
+
+app.patch("/api/tickets/:id/status", async (req, res) => {
+  try {
+    const context = await getAuthenticatedRequestContext(req);
+    if (!context?.userId) return res.status(401).json({ success: false, error: "Authentication required" });
+
+    const ticket = await getTicketWithMessages(req.params.id);
+    if (!ticket) return res.status(404).json({ success: false, error: "Ticket not found" });
+    if (!canAccessTicket(ticket, context.user)) return res.status(403).json({ success: false, error: "Forbidden" });
+
+    const { status } = req.body;
+    if (!status) return res.status(400).json({ success: false, error: "Status required" });
+
+    const { data, error } = await db.from("tickets")
+      .update({ status, updated_at: new Date().toISOString() })
+      .eq("id", req.params.id)
+      .select("*")
+      .single();
+
+    if (error) throw error;
+    res.json({ success: true, ticket: data });
+  } catch (error) {
+    console.error("ERROR:", error);
+    res.status(500).json({ success: false, error: (error instanceof Error ? error.message : String(error)) });
+  }
+});
+
+// --- ADMIN TICKET ROUTES ---
+app.get("/api/admin/tickets", async (req, res) => {
+  try {
+    const context = await getAuthenticatedRequestContext(req);
+    if (!context?.userId || !isAdminUser(context.user)) {
+      return res.status(403).json({ success: false, error: "Forbidden - Admin only" });
+    }
+
+    const { data, error } = await db.from("tickets").select("*").order("updated_at", { ascending: false });
+    if (error) throw error;
+    res.json({ tickets: data || [] });
+  } catch (error) {
+    console.error("ERROR:", error);
+    res.status(500).json({ tickets: [], error: (error instanceof Error ? error.message : String(error)) });
+  }
+});
+
+app.get("/api/admin/tickets/:id", async (req, res) => {
+  const { id } = req.params;
+  if (!isValidUUID(id)) {
+    return res.status(400).json({ success: false, error: "Invalid Ticket ID format" });
+  }
+  try {
+    const context = await getAuthenticatedRequestContext(req);
+    if (!context?.userId || !isAdminUser(context.user)) {
+      return res.status(403).json({ success: false, error: "Forbidden - Admin only" });
+    }
+
+    const ticket = await getTicketWithMessages(req.params.id);
+    if (!ticket) return res.status(404).json({ success: false, error: "Ticket not found" });
+
+    res.json({ ticket });
+  } catch (error) {
+    console.error("ERROR:", error);
+    res.status(500).json({ success: false, error: (error instanceof Error ? error.message : String(error)) });
+  }
+});
+
+app.put("/api/admin/tickets/:id", async (req, res) => {
+  const { id } = req.params;
+  if (!isValidUUID(id)) {
+    return res.status(400).json({ success: false, error: "Invalid Ticket ID format" });
+  }
+  try {
+    const context = await getAuthenticatedRequestContext(req);
+    if (!context?.userId || !isAdminUser(context.user)) {
+      return res.status(403).json({ success: false, error: "Forbidden - Admin only" });
+    }
+
+    const { status, priority } = req.body;
+    const updates = {};
+    if (status) updates.status = status;
+    if (priority) updates.priority = priority;
+
+    const { data, error } = await db.from("tickets").update(updates).eq("id", req.params.id).select("*").single();
+    if (error) throw error;
+
+    res.json({ success: true, ticket: data });
+  } catch (error) {
+    console.error("ERROR:", error);
+    res.status(500).json({ success: false, error: (error instanceof Error ? error.message : String(error)) });
+  }
+});
+
+app.post("/api/admin/tickets/:id/reply", async (req, res) => {
+  const ticketId = req.params.id;
+  if (!isValidUUID(ticketId)) {
+    return res.status(400).json({ success: false, error: "Invalid Ticket ID format" });
+  }
+  try {
+    console.log(`[ADMIN REPLY] Starting reply for ticket: ${ticketId}`);
+    
+    // 1. Authenticate Request
+    let context;
+    try {
+      context = await getAuthenticatedRequestContext(req);
+    } catch (authErr) {
+      console.error("[ADMIN REPLY] Auth check failed:", authErr);
+      return res.status(401).json({ 
+        success: false, 
+        error: "Your session has expired. Please log in again.",
+        code: "UNAUTHORIZED"
+      });
+    }
+
+    if (!context?.userId || !isAdminUser(context.user)) {
+      console.warn(`[ADMIN REPLY] Access denied for user: ${context?.userId}`);
+      return res.status(403).json({ success: false, error: "Forbidden - Admin access required" });
+    }
+
+    // 2. Insert Message
+    console.log(`[ADMIN REPLY] Inserting message into DB for ticket ${ticketId}`);
+    const { data, error } = await db.from("ticket_messages").insert({
+      ticket_id: ticketId,
+      user_id: context.userId,
+      user_name: context.user?.name || "Admin",
+      message: String(req.body.message || "").trim(),
+      is_admin: true,
+    }).select("*").single();
+
+    if (error) {
+      console.error("[ADMIN REPLY] Database insert error:", error);
+      throw error;
+    }
+    
+    if (!data) {
+      throw new Error("Message created but no data was returned from the database.");
+    }
+    
+    const mapped = mapTicketMessage(data);
+    
+    // 3. Update Ticket Metadata
+    console.log(`[ADMIN REPLY] Updating ticket status for ${ticketId}`);
+    await db.from("tickets").update({ 
+      updated_at: new Date().toISOString(), 
+      status: req.body.status || "open" 
+    }).eq("id", ticketId);
+
+    // 4. Real-time broadcast (Defensive)
+    try {
+      console.log(`[ADMIN REPLY] Broadcasting update for ticket ${ticketId} via socket`);
+      io.to(String(ticketId)).emit("receive_message", { success: true, message: mapped });
+    } catch (socketErr) {
+      console.warn("[ADMIN REPLY] Real-time broadcast failed (non-critical):", socketErr);
+      // We don't throw here so the user still gets a success response for the DB write
+    }
+
+    console.log(`[ADMIN REPLY] Successfully processed reply for ticket ${ticketId}`);
+    res.json({ success: true, message: mapped });
+  } catch (error) {
+    console.error(`[ADMIN REPLY] Critical error processing ticket ${ticketId}:`, error);
+    res.status(500).json({ 
+      success: false, 
+      error: "Internal Server Error during ticket reply processing.",
+      details: (error instanceof Error ? error.message : String(error))
+    });
+  }
+});
+
 io.use(async (socket, next) => {
   try {
     const token =
@@ -1753,14 +2030,14 @@ io.on("connection", (socket) => {
       socket.emit("joined_ticket", { success: true, ticketId: String(ticketId) });
     } catch (error) {
       console.error("ERROR:", error);
-      socket.emit("ticket_error", { success: false, error: toErrorMessage(error) });
+      socket.emit("ticket_error", { success: false, error: (error instanceof Error ? error.message : String(error)) });
     }
   });
 
   socket.on("send_message", async ({ ticketId, message }) => {
     try {
-      if (!ticketId || !message) {
-        socket.emit("ticket_error", { success: false, error: "ticketId and message are required" });
+      if (!ticketId || !message || !isValidUUID(ticketId)) {
+        socket.emit("ticket_error", { success: false, error: "Valid ticketId and message are required" });
         return;
       }
 
@@ -1787,11 +2064,11 @@ io.on("connection", (socket) => {
         .single();
       if (error) throw error;
 
-      await db.from("tickets").update({ updated_at: nowIso(), status: "open" }).eq("id", ticketId);
+      await db.from("tickets").update({ updated_at: new Date().toISOString(), status: "open" }).eq("id", ticketId);
       io.to(String(ticketId)).emit("receive_message", { success: true, message: mapTicketMessage(data) });
     } catch (error) {
       console.error("ERROR:", error);
-      socket.emit("ticket_error", { success: false, error: toErrorMessage(error) });
+      socket.emit("ticket_error", { success: false, error: (error instanceof Error ? error.message : String(error)) });
     }
   });
 });

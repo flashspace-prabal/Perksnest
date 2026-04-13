@@ -128,6 +128,10 @@ const MainNavbar = () => {
     setActiveMenu(null);
   }, [location]);
 
+  if (location.pathname.startsWith('/admin')) {
+    return null;
+  }
+
   const getUserInitials = () => user?.name ? user.name.split(' ').map(n=>n[0]).join('').toUpperCase().slice(0,2) : 'U';
 
   return (
