@@ -181,7 +181,6 @@ const TicketDetail = () => {
         <div className="px-4 sm:px-6 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4 sm:gap-6">
-              <Link to="/" className="font-bold text-lg sm:text-xl">perksnest.</Link>
               <Badge className="bg-primary/10 text-primary border-primary/20">Ticket #{ticket.id.slice(0, 8)}</Badge>
             </div>
             <Link to="/customer/tickets">

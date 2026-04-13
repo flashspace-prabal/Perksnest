@@ -86,9 +86,14 @@ export const AdminTickets = () => {
       setReplyText("");
       loadTicketDetail(selectedTicket.id);
       loadTickets();
-    } catch (error) {
+    } catch (error: any) {
       console.error("Failed to send reply:", error);
-      toast.error("Failed to send reply");
+      
+      if (error.status === 401) {
+        toast.error("Your session has expired. Please refresh the page and log in again.");
+      } else {
+        toast.error(error.message || "Failed to send reply");
+      }
     } finally {
       setSending(false);
     }

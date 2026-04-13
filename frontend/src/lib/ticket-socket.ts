@@ -30,7 +30,7 @@ export function getTicketSocket() {
   const token = getToken();
   if (!token) return null;
 
-  if (socket?.connected && socket.auth?.token === token) {
+  if (socket?.connected && (socket.auth as any)?.token === token) {
     return socket;
   }
 
@@ -41,6 +41,18 @@ export function getTicketSocket() {
   socket = io(SOCKET_BASE_URL, {
     auth: { token },
     transports: ["websocket"],
+  });
+
+  socket.on("connect", () => {
+    console.log("✅ Socket connected to:", SOCKET_BASE_URL);
+  });
+
+  socket.on("connect_error", (error) => {
+    console.error("❌ Socket connection error:", error.message);
+  });
+
+  socket.on("disconnect", (reason) => {
+    console.log("ℹ️ Socket disconnected:", reason);
   });
 
   return socket;
