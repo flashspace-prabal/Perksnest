@@ -176,29 +176,24 @@ const TicketDetail = () => {
 
   return (
     <div className="min-h-screen bg-muted/30">
-      {/* Header */}
-      <header className="bg-background border-b sticky top-0 z-50">
-        <div className="px-4 sm:px-6 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4 sm:gap-6">
-              <Badge className="bg-primary/10 text-primary border-primary/20">Ticket #{ticket.id.slice(0, 8)}</Badge>
-            </div>
-            <Link to="/customer/tickets">
-              <Button variant="outline" size="sm">
-                <ArrowLeft className="h-4 w-4 sm:mr-2" />
-                <span className="hidden sm:inline">All Tickets</span>
-              </Button>
-            </Link>
-          </div>
-        </div>
-      </header>
-
       <div className="max-w-4xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
+        <div className="mb-6 space-y-4">
+          <Link to="/customer/tickets" className="inline-flex items-center gap-2 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground">
+            <ArrowLeft className="h-4 w-4" />
+            All Tickets
+          </Link>
+        </div>
+
         {/* Ticket Header */}
         <Card className="mb-6">
           <CardHeader>
             <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
               <div className="flex-1">
+                <div className="mb-3">
+                  <Badge variant="outline" className="bg-background px-3 py-1 text-foreground border-border">
+                    Ticket #{ticket.id.slice(0, 8)}
+                  </Badge>
+                </div>
                 <CardTitle className="text-xl sm:text-2xl mb-2">{ticket.subject}</CardTitle>
                 <div className="flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
                   <span className="capitalize">{ticket.type}</span>

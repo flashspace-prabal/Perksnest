@@ -2,7 +2,7 @@ import { Link } from "react-router-dom";
 import { useState } from "react";
 import { useAuth } from "@/lib/auth";
 import {
-  LayoutDashboard, Users, Package, UserCheck, DollarSign, Settings, Bell, Globe, Search, MessageSquare, LifeBuoy
+  LayoutDashboard, Users, Package, UserCheck, DollarSign, Settings, Bell, Globe, Search, LifeBuoy
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -21,7 +21,6 @@ const sidebarItems = [
   { id: "tickets", label: "Tickets", icon: LifeBuoy },
   { id: "revenue", label: "Revenue", icon: DollarSign },
   { id: "whitelabel", label: "White Label", icon: Globe },
-  { id: "messages", label: "Messages", icon: MessageSquare },
   { id: "settings", label: "Settings", icon: Settings },
 ];
 

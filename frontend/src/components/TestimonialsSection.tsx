@@ -97,7 +97,7 @@ const TestimonialsSection = () => {
   ];
 
   return (
-    <section className="overflow-hidden bg-[#faf9f5] py-12">
+    <section className="overflow-hidden bg-[#faf9f5] py-1">
       <div className="mx-auto max-w-7xl px-6 lg:px-8">
         <div className="mx-auto max-w-3xl text-center">
           <p className="text-xs font-semibold uppercase tracking-[0.32em] text-stone-500">Testimonials</p>

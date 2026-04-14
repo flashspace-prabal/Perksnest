@@ -14,7 +14,20 @@ interface BookmarksContextValue {
   refreshBookmarks: () => Promise<void>;
 }
 
-const BookmarksContext = createContext<BookmarksContextValue | null>(null);
+const fallbackBookmarksContext: BookmarksContextValue = {
+  bookmarkedDealIds: [],
+  isLoading: false,
+  error: null,
+  isBookmarked: () => false,
+  isBookmarkPending: () => false,
+  toggleBookmark: async () => {
+    console.warn("toggleBookmark called without BookmarksProvider");
+    return false;
+  },
+  refreshBookmarks: async () => {},
+};
+
+const BookmarksContext = createContext<BookmarksContextValue>(fallbackBookmarksContext);
 
 export function BookmarksProvider({ children }: { children: ReactNode }) {
   const { user, isAuthenticated } = useAuth();
@@ -106,6 +119,5 @@ export function BookmarksProvider({ children }: { children: ReactNode }) {
 
 export function useBookmarks() {
   const context = useContext(BookmarksContext);
-  if (!context) throw new Error("useBookmarks must be used within BookmarksProvider");
   return context;
 }

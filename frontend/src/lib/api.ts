@@ -24,6 +24,20 @@ export interface ReferralSummary {
   totalClicks: number;
 }
 
+interface TicketEntry {
+  id: string;
+  subject: string;
+  message: string;
+  description: string;
+  status: "open" | "pending" | "closed";
+  priority: "low" | "medium" | "high";
+  type: "billing" | "technical" | "general";
+  createdAt: string;
+  updatedAt: string;
+  created_at: string;
+  updated_at: string;
+}
+
 function mapReferralEntry(row: Record<string, unknown>): ReferralEntry {
   return {
     code: String(row.code || ''),
@@ -35,6 +49,25 @@ function mapReferralEntry(row: Record<string, unknown>): ReferralEntry {
     creditAmount: Number(row.creditAmount || row.credit_amount || 0),
     createdAt: String(row.createdAt || row.created_at || new Date().toISOString()),
     convertedAt: row.convertedAt ? String(row.convertedAt) : row.converted_at ? String(row.converted_at) : undefined,
+  };
+}
+
+function mapTicketEntry(row: Record<string, unknown>): TicketEntry {
+  const createdAt = String(row.createdAt || row.created_at || new Date().toISOString());
+  const updatedAt = String(row.updatedAt || row.updated_at || createdAt);
+
+  return {
+    id: String(row.id || ""),
+    subject: String(row.subject || "Untitled ticket"),
+    message: String(row.message || row.description || ""),
+    description: String(row.description || row.message || ""),
+    status: (row.status as TicketEntry["status"]) || "open",
+    priority: (row.priority as TicketEntry["priority"]) || "medium",
+    type: (row.type as TicketEntry["type"]) || "general",
+    createdAt,
+    updatedAt,
+    created_at: createdAt,
+    updated_at: updatedAt,
   };
 }
 
@@ -235,7 +268,15 @@ export async function convertReferral(referralCode: string) {
 
 export async function getTickets() {
   try {
-    return await apiCall('/api/tickets', 'GET', undefined, 2);
+    const response = await apiCall('/api/tickets', 'GET', undefined, 2);
+    const tickets = Array.isArray(response.tickets)
+      ? response.tickets.map((ticket: Record<string, unknown>) => mapTicketEntry(ticket))
+      : [];
+
+    return {
+      ...response,
+      tickets,
+    };
   } catch (error) {
     console.warn('Get tickets API failed', error);
     return { tickets: [] };

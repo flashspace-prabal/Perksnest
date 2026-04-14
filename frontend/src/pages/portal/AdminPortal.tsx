@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
 import { Navigate } from "react-router-dom";
 import { AdminHeader, AdminSidebar } from "@/components/admin/AdminSidebar";
-import { RealtimeMessagingTab } from "@/components/shared/RealtimeMessagingTab";
 import { AdminDashboardLive } from "@/components/admin/AdminDashboardLive";
 import { AdminUsersLive } from "@/components/admin/AdminUsersLive";
 import { AdminDealsLive } from "@/components/admin/AdminDealsLive";
@@ -75,8 +74,6 @@ const AdminPortal = () => {
         return <AdminRevenueLive />;
       case "whitelabel":
         return <AdminWhiteLabelLive />;
-      case "messages":
-        return <RealtimeMessagingTab portalRole="admin" />;
       case "settings":
         return <AdminSettings />;
       default:

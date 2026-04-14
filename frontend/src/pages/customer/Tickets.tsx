@@ -1,6 +1,6 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { MessageSquare, Plus, Clock, CheckCircle, AlertCircle, Search, X } from "lucide-react";
+import { MessageSquare, Plus, Clock, CheckCircle, AlertCircle, Search, ChevronLeft, ChevronRight, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -11,17 +11,22 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Textarea } from "@/components/ui/textarea";
 import { useAuth } from "@/lib/auth";
 import { toast } from "sonner";
-import { apiCall } from "@/lib/api";
+import { apiCall, getTickets } from "@/lib/api";
 
 interface Ticket {
   id: string;
   subject: string;
+  message: string;
   status: "open" | "pending" | "closed";
   priority: "low" | "medium" | "high";
   type: "billing" | "technical" | "general";
+  createdAt: string;
+  updatedAt: string;
   created_at: string;
   updated_at: string;
 }
+
+const TICKETS_PER_PAGE = 10;
 
 const Tickets = () => {
   document.title = "My Tickets | PerksNest";
@@ -31,6 +36,7 @@ const Tickets = () => {
   const [tickets, setTickets] = useState<Ticket[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
   const [newTicketOpen, setNewTicketOpen] = useState(false);
   const [creating, setCreating] = useState(false);
 
@@ -52,7 +58,7 @@ const Tickets = () => {
   const loadTickets = async () => {
     try {
       setLoading(true);
-      const data = await apiCall("/api/tickets");
+      const data = await getTickets();
       setTickets(data.tickets || []);
     } catch (error) {
       console.error("Failed to load tickets:", error);
@@ -92,9 +98,34 @@ const Tickets = () => {
     }
   };
 
-  const filteredTickets = tickets.filter((ticket) =>
-    ticket.subject.toLowerCase().includes(search.toLowerCase())
-  );
+  const filteredTickets = useMemo(() => {
+    const query = search.trim().toLowerCase();
+
+    return [...tickets]
+      .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+      .filter((ticket) =>
+        query.length === 0
+          ? true
+          : ticket.subject.toLowerCase().includes(query) ||
+            ticket.message.toLowerCase().includes(query)
+      );
+  }, [search, tickets]);
+
+  const totalPages = Math.max(1, Math.ceil(filteredTickets.length / TICKETS_PER_PAGE));
+  const paginatedTickets = useMemo(() => {
+    const start = (currentPage - 1) * TICKETS_PER_PAGE;
+    return filteredTickets.slice(start, start + TICKETS_PER_PAGE);
+  }, [currentPage, filteredTickets]);
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [search]);
+
+  useEffect(() => {
+    if (currentPage > totalPages) {
+      setCurrentPage(totalPages);
+    }
+  }, [currentPage, totalPages]);
 
   const getStatusBadge = (status: Ticket["status"]) => {
     switch (status) {
@@ -124,27 +155,15 @@ const Tickets = () => {
 
   return (
     <div className="min-h-screen bg-muted/30">
-      {/* Header */}
-      <header className="bg-background border-b sticky top-0 z-50">
-        <div className="px-4 sm:px-6 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4 sm:gap-6">
-              <Badge className="bg-primary/10 text-primary border-primary/20">Support Tickets</Badge>
-            </div>
-            <Link to="/customer">
-              <Button variant="outline" size="sm">
-                <X className="h-4 w-4 sm:mr-2" />
-                <span className="hidden sm:inline">Back to Portal</span>
-              </Button>
-            </Link>
-          </div>
-        </div>
-      </header>
-
       <div className="max-w-6xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
         {/* Page Header */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
-          <div>
+        <div className="space-y-4 mb-6">
+          <Link to="/customer" className="inline-flex items-center gap-2 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground">
+            <ArrowLeft className="h-4 w-4" />
+            Back to Portal
+          </Link>
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div>
             <h1 className="text-2xl sm:text-3xl font-bold flex items-center gap-2">
               <MessageSquare className="h-6 w-6 sm:h-8 sm:w-8 text-primary" />
               My Tickets
@@ -152,11 +171,12 @@ const Tickets = () => {
             <p className="text-sm sm:text-base text-muted-foreground mt-1">
               View and manage your support tickets
             </p>
+            </div>
+            <Button onClick={() => setNewTicketOpen(true)} className="gap-2 w-full sm:w-auto">
+              <Plus className="h-4 w-4" />
+              New Ticket
+            </Button>
           </div>
-          <Button onClick={() => setNewTicketOpen(true)} className="gap-2 w-full sm:w-auto">
-            <Plus className="h-4 w-4" />
-            New Ticket
-          </Button>
         </div>
 
         {/* Search */}
@@ -174,8 +194,16 @@ const Tickets = () => {
 
         {/* Tickets List */}
         <Card>
-          <CardHeader>
+          <CardHeader className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <CardTitle>All Tickets ({filteredTickets.length})</CardTitle>
+            {!loading && filteredTickets.length > 0 && (
+              <p className="text-sm text-muted-foreground">
+                Showing {(currentPage - 1) * TICKETS_PER_PAGE + 1}
+                {" "}to{" "}
+                {Math.min(currentPage * TICKETS_PER_PAGE, filteredTickets.length)}
+                {" "}of {filteredTickets.length} recent tickets
+              </p>
+            )}
           </CardHeader>
           <CardContent>
             {loading ? (
@@ -209,7 +237,7 @@ const Tickets = () => {
                     </tr>
                   </thead>
                   <tbody>
-                    {filteredTickets.map((ticket) => (
+                    {paginatedTickets.map((ticket) => (
                       <tr
                         key={ticket.id}
                         className="border-b last:border-0 hover:bg-muted/30 transition-colors cursor-pointer"
@@ -233,6 +261,34 @@ const Tickets = () => {
                     ))}
                   </tbody>
                 </table>
+              </div>
+            )}
+
+            {!loading && filteredTickets.length > 0 && (
+              <div className="mt-6 flex flex-col gap-3 border-t pt-4 sm:flex-row sm:items-center sm:justify-between">
+                <p className="text-sm text-muted-foreground">
+                  Page {currentPage} of {totalPages}
+                </p>
+                <div className="flex items-center gap-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setCurrentPage((page) => Math.max(1, page - 1))}
+                    disabled={currentPage === 1}
+                  >
+                    <ChevronLeft className="h-4 w-4 mr-1" />
+                    Previous
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setCurrentPage((page) => Math.min(totalPages, page + 1))}
+                    disabled={currentPage === totalPages}
+                  >
+                    Next
+                    <ChevronRight className="h-4 w-4 ml-1" />
+                  </Button>
+                </div>
               </div>
             )}
           </CardContent>

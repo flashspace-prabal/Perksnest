@@ -12,7 +12,6 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Progress } from "@/components/ui/progress";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { RealtimeMessagingTab } from "@/components/shared/RealtimeMessagingTab";
 import { useAuth } from "@/lib/auth";
 import { useBookmarks } from "@/lib/bookmarks";
 import { dealsData, type Deal } from "@/data/deals";
@@ -29,6 +28,7 @@ interface TicketSummary {
   message: string;
   status: "open" | "closed" | "pending";
   createdAt: string;
+  updatedAt?: string;
 }
 
 const CustomerPortal = () => {
@@ -192,6 +192,12 @@ const CustomerPortal = () => {
         isFree: deal.isFree,
       }));
   }, [bookmarkedDealIds, catalogDeals, partnerDeals]);
+
+  const recentTickets = useMemo(() => {
+    return [...tickets]
+      .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+      .slice(0, 2);
+  }, [tickets]);
 
   // If not authenticated, don't render anything (will redirect)
   if (!user || !isAuthenticated) {
@@ -407,10 +413,6 @@ const CustomerPortal = () => {
             <TabsTrigger value="billing" className="gap-2">
               <CreditCard className="h-4 w-4" />
               Billing
-            </TabsTrigger>
-            <TabsTrigger value="messages" className="gap-2">
-              <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.96 9.96 0 01-4.462-1.034L3 20l1.338-3.123C3.493 15.646 3 13.87 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" /></svg>
-              Messages
             </TabsTrigger>
             <TabsTrigger id="settings-tab" value="settings" className="gap-2">
               <Settings className="h-4 w-4" />
@@ -707,8 +709,15 @@ const CustomerPortal = () => {
               </Card>
 
               <Card>
-                <CardHeader>
+                <CardHeader className="flex flex-row items-center justify-between gap-4">
                   <CardTitle>My Tickets</CardTitle>
+                  {tickets.length > 0 && (
+                    <Link to="/customer/tickets">
+                      <Button variant="outline" size="sm">
+                        View All Tickets
+                      </Button>
+                    </Link>
+                  )}
                 </CardHeader>
                 <CardContent>
                   {tickets.length === 0 ? (
@@ -719,9 +728,8 @@ const CustomerPortal = () => {
                     </div>
                   ) : (
                     <div className="space-y-4">
-                      {tickets.map((ticket) => (
+                      {recentTickets.map((ticket) => (
                         <Link to={`/customer/tickets/${ticket.id}`} key={ticket.id} className="block p-4 bg-muted/50 rounded-lg hover:bg-border transition-colors group">
-                          
                           <div className="flex items-start justify-between mb-2">
                             <div>
                               <p className="font-medium">{ticket.subject}</p>
@@ -744,11 +752,6 @@ const CustomerPortal = () => {
                 </CardContent>
               </Card>
             </div>
-          </TabsContent>
-
-          {/* Messages Tab */}
-          <TabsContent value="messages" className="space-y-6">
-            <RealtimeMessagingTab portalRole="customer" />
           </TabsContent>
 
           {/* Settings Tab */}
