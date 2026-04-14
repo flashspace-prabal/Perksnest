@@ -238,7 +238,7 @@ const TicketDetail = () => {
                   {ticket.messages.map((message) => (
                     <div
                       key={message.id}
-                      className={`flex gap-3 ${message.is_admin ? "flex-row" : "flex-row-reverse"}`}
+                      className={`flex gap-3 ${message.is_admin ? "justify-end" : "justify-start"}`}
                     >
                       <div className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${
                         message.is_admin ? "bg-primary text-primary-foreground" : "bg-accent text-accent-foreground"
@@ -249,7 +249,7 @@ const TicketDetail = () => {
                           <User className="h-5 w-5" />
                         )}
                       </div>
-                      <div className={`flex-1 ${message.is_admin ? "" : "flex flex-col items-end"}`}>
+                      <div className={`flex-1 ${message.is_admin ? "flex flex-col items-end" : ""}`}>
                         <div className={`inline-block max-w-[85%] sm:max-w-[75%] rounded-lg px-4 py-2 ${
                           message.is_admin
                             ? "bg-primary/10 text-foreground"

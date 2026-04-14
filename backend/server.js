@@ -547,12 +547,62 @@ const mapTicket = (row) => ({
 const mapTicketMessage = (row) => ({
   id: row.id,
   ticket_id: row.ticket_id,
-  user_id: row.user_id,
-  user_name: row.user_name || "User",
+  user_id: row.sender_id || row.user_id,
+  sender_id: row.sender_id || row.user_id,
+  user_name: row.sender_name || row.user_name || "User",
+  sender_name: row.sender_name || row.user_name || "User",
   message: row.message,
-  is_admin: Boolean(row.is_admin),
+  sender_type: row.sender_type || (row.is_admin ? "admin" : "user"),
+  is_admin: row.sender_type ? row.sender_type === "admin" : Boolean(row.is_admin),
   created_at: row.created_at,
 });
+
+async function insertTicketMessageRecord({
+  ticketId,
+  senderId,
+  senderName,
+  senderType,
+  message,
+}) {
+  const normalizedMessage = String(message || "").trim();
+  if (!ticketId || !isValidUUID(ticketId)) {
+    throw new Error("Valid ticketId is required");
+  }
+  if (!senderId || !isValidUUID(senderId)) {
+    throw new Error("Valid senderId is required");
+  }
+  if (!normalizedMessage) {
+    throw new Error("Message is required");
+  }
+
+  const nextSenderType = senderType === "admin" ? "admin" : "user";
+  const modernPayload = {
+    ticket_id: ticketId,
+    sender_id: senderId,
+    sender_type: nextSenderType,
+    message: normalizedMessage,
+  };
+
+  const modernResult = await db.from("ticket_messages").insert(modernPayload).select("*").single();
+  if (!modernResult.error && modernResult.data) {
+    return modernResult.data;
+  }
+
+  const fallbackPayload = {
+    ticket_id: ticketId,
+    user_id: senderId,
+    user_name: senderName || (nextSenderType === "admin" ? "Support Team" : "User"),
+    message: normalizedMessage,
+    is_admin: nextSenderType === "admin",
+  };
+
+  const fallbackResult = await db.from("ticket_messages").insert(fallbackPayload).select("*").single();
+  if (fallbackResult.error) {
+    throw fallbackResult.error;
+  }
+
+  return fallbackResult.data;
+}
 
 const mapMessage = (row) => ({
   id: row.id,
@@ -564,6 +614,188 @@ const mapMessage = (row) => ({
   read: Boolean(row.read),
   created_at: row.created_at,
 });
+
+const parseMoneyValue = (value) => {
+  if (typeof value === "number") return Number.isFinite(value) ? value : 0;
+  if (typeof value !== "string") return 0;
+  const normalized = value.replace(/[^0-9.-]+/g, "");
+  const parsed = Number.parseFloat(normalized);
+  return Number.isFinite(parsed) ? parsed : 0;
+};
+
+const formatPartnerDeal = (row) => ({
+  id: row.id,
+  partnerId: row.partner_id,
+  partnerName: row.partner_name || "Partner",
+  name: row.name || "Untitled deal",
+  description: row.description || "",
+  dealText: row.deal_text || "",
+  savings: row.savings || "0",
+  category: row.category || "other",
+  websiteUrl: row.website_url || "",
+  logoUrl: row.logo_url || "",
+  promoCode: row.promo_code || "",
+  status: row.status || "pending",
+  rejectionReason: row.rejection_reason || null,
+  createdAt: row.created_at || nowIso(),
+  approvedAt: row.approved_at || null,
+  views: Number(row.views || 0),
+  claims: Number(row.claims || 0),
+});
+
+async function requireAdminContext(req, res) {
+  const context = await getAuthenticatedRequestContext(req);
+  if (!context?.userId || !isAdminUser(context.user)) {
+    res.status(403).json({ success: false, error: "Forbidden - Admin only" });
+    return null;
+  }
+  return context;
+}
+
+async function buildAdminStats() {
+  const [
+    usersResult,
+    dealsResult,
+    partnerDealsResult,
+    claimEventsResult,
+    whiteLabelResult,
+    ticketsResult,
+    messagesResult,
+    reviewsResult,
+  ] = await Promise.all([
+    db.from("users").select("id,plan,role,roles,status,created_at,claimed_deals"),
+    db.from("deals").select("id,name,category,savings,active,created_at"),
+    db.from("partner_deals").select("*"),
+    db.from("claim_events").select("id,deal_id,claimed_at"),
+    db.from("wl_clients").select("mrr,status,members").order("created_at", { ascending: false }),
+    db.from("tickets").select("id,status,priority,created_at,updated_at"),
+    db.from("messages").select("id,thread_id,created_at,read,sender_role"),
+    db.from("deal_reviews").select("rating"),
+  ]);
+
+  const users = safeArray(usersResult.data);
+  const platformDeals = safeArray(dealsResult.data);
+  const partnerDeals = safeArray(partnerDealsResult.data);
+  const claimEvents = safeArray(claimEventsResult.data);
+  const whiteLabelClients = safeArray(whiteLabelResult.data);
+  const tickets = safeArray(ticketsResult.data);
+  const messages = safeArray(messagesResult.data);
+  const reviews = safeArray(reviewsResult.data);
+
+  const approvedPartnerDeals = partnerDeals.filter((deal) => deal.status === "approved");
+  const pendingPartnerDeals = partnerDeals.filter((deal) => deal.status === "pending");
+  const activePlatformDeals = platformDeals.filter((deal) => deal.active !== false);
+  const allVisibleDeals = [
+    ...activePlatformDeals.map((deal) => ({
+      id: deal.id,
+      savings: deal.savings,
+      category: deal.category || "other",
+      createdAt: deal.created_at,
+    })),
+    ...approvedPartnerDeals.map((deal) => ({
+      id: deal.id,
+      savings: deal.savings,
+      category: deal.category || "other",
+      createdAt: deal.created_at,
+    })),
+  ];
+
+  const savingsByDealId = new Map(allVisibleDeals.map((deal) => [String(deal.id), parseMoneyValue(deal.savings)]));
+  const totalSavings = claimEvents.reduce((sum, claim) => sum + (savingsByDealId.get(String(claim.deal_id)) || 0), 0);
+
+  const totalUsers = users.length;
+  const activeUsers = users.filter((user) => (user.status || "active") === "active").length;
+  const premiumUsers = users.filter((user) => ["premium", "enterprise"].includes(user.plan || "free")).length;
+  const enterpriseUsers = users.filter((user) => user.plan === "enterprise").length;
+  const freeUsers = users.filter((user) => (user.plan || "free") === "free").length;
+  const suspendedUsers = users.filter((user) => user.status === "suspended").length;
+  const recentUsers = users.filter((user) => {
+    if (!user.created_at) return false;
+    return Date.now() - new Date(user.created_at).getTime() <= 30 * 24 * 60 * 60 * 1000;
+  }).length;
+
+  const reviewRatings = reviews.map((review) => Number(review.rating)).filter((rating) => Number.isFinite(rating) && rating > 0);
+  const avgRating = reviewRatings.length > 0 ? reviewRatings.reduce((sum, rating) => sum + rating, 0) / reviewRatings.length : null;
+  const nps = avgRating ? Math.round(((avgRating - 3) / 2) * 100) : null;
+
+  const messageThreads = new Map();
+  messages.forEach((message) => {
+    if (!message.thread_id) return;
+    const existing = messageThreads.get(message.thread_id);
+    if (!existing || new Date(message.created_at).getTime() > new Date(existing.created_at).getTime()) {
+      messageThreads.set(message.thread_id, message);
+    }
+  });
+
+  const sessionMinutes = messageThreads.size > 0
+    ? Math.max(
+        1,
+        Math.round(
+          messages.reduce((sum, message) => {
+            const ageMinutes = Math.max(1, (Date.now() - new Date(message.created_at).getTime()) / 60000);
+            return sum + Math.min(ageMinutes, 45);
+          }, 0) / Math.max(messages.length, 1)
+        )
+      )
+    : null;
+
+  const categories = Array.from(
+    allVisibleDeals.reduce((map, deal) => {
+      const category = String(deal.category || "other");
+      map.set(category, (map.get(category) || 0) + 1);
+      return map;
+    }, new Map()).entries()
+  ).map(([name, count]) => ({ name, count }));
+
+  const monthlyRevenue = whiteLabelClients
+    .filter((client) => (client.status || "").toLowerCase() === "active")
+    .reduce((sum, client) => sum + Number(client.mrr || 0), 0);
+
+  return {
+    totalUsers,
+    activeUsers,
+    premiumUsers,
+    enterpriseUsers,
+    freeUsers,
+    totalDeals: platformDeals.length + approvedPartnerDeals.length,
+    activeDeals: activePlatformDeals.length + approvedPartnerDeals.length,
+    pendingApproval: pendingPartnerDeals.length,
+    totalMembers: totalUsers,
+    totalSavings,
+    totalRevenue: monthlyRevenue,
+    mrr: monthlyRevenue,
+    arr: monthlyRevenue * 12,
+    partners: users.filter((user) => user.role === "partner" || safeArray(user.roles).includes("partner")).length,
+    conversionRate: totalUsers > 0 ? (premiumUsers / totalUsers) * 100 : 0,
+    churnRate: totalUsers > 0 ? (suspendedUsers / totalUsers) * 100 : 0,
+    nps,
+    avgSessionDurationMinutes: sessionMinutes,
+    categories,
+    tickets: {
+      total: tickets.length,
+      open: tickets.filter((ticket) => ticket.status === "open").length,
+      pending: tickets.filter((ticket) => ticket.status === "pending").length,
+      closed: tickets.filter((ticket) => ticket.status === "closed").length,
+      highPriority: tickets.filter((ticket) => ticket.priority === "high").length,
+    },
+    messages: {
+      threads: messageThreads.size,
+      unread: messages.filter((message) => !message.read).length,
+    },
+    whiteLabel: {
+      totalClients: whiteLabelClients.length,
+      activeClients: whiteLabelClients.filter((client) => (client.status || "").toLowerCase() === "active").length,
+      members: whiteLabelClients.reduce((sum, client) => sum + Number(client.members || 0), 0),
+    },
+    trends: {
+      newUsersLast30Days: recentUsers,
+      claimsLast30Days: claimEvents.filter((claim) => {
+        if (!claim.claimed_at) return false;
+        return Date.now() - new Date(claim.claimed_at).getTime() <= 30 * 24 * 60 * 60 * 1000;
+      }).length,
+    },
+  };
+}
 
 async function getTicketWithMessages(ticketId) {
   if (!ticketId || !isValidUUID(ticketId)) {
@@ -1023,29 +1255,28 @@ app.delete("/api/bookmarks/:dealId", async (req, res) => {
   }
 });
 
-app.get("/api/admin/stats", async (_, res) => {
+app.get("/api/admin/stats", async (req, res) => {
   try {
-    const [usersCount, dealsCount, claimsCount] = await Promise.all([
-      db.from("users").select("*", { count: "exact", head: true }),
-      db.from("deals").select("*", { count: "exact", head: true }),
-      db.from("claim_events").select("*", { count: "exact", head: true }),
-    ]);
-    res.json({
-      stats: {
-        users: usersCount.count || 0,
-        deals: dealsCount.count || 0,
-        claims: claimsCount.count || 0,
-      },
-    });
+    const context = await requireAdminContext(req, res);
+    if (!context) return;
+
+    const stats = await buildAdminStats();
+    res.json({ success: true, stats });
   } catch (error) {
     res.status(500).json({ error: "Failed to fetch admin stats", details: error.message });
   }
 });
 
 app.get("/api/admin/users", async (req, res) => {
+  const context = await requireAdminContext(req, res);
+  if (!context) return;
+
   const page = Number(req.query.page || 1);
   const limit = Number(req.query.limit || 50);
   const search = String(req.query.search || "").trim();
+  const status = String(req.query.status || "").trim();
+  const role = String(req.query.role || "").trim();
+  const plan = String(req.query.plan || "").trim();
   const from = Math.max((page - 1) * limit, 0);
   const to = from + limit - 1;
 
@@ -1054,21 +1285,100 @@ app.get("/api/admin/users", async (req, res) => {
     if (search) {
       query = query.or(`email.ilike.%${search}%,name.ilike.%${search}%`);
     }
+    if (status) query = query.eq("status", status);
+    if (role) query = query.or(`role.eq.${role},roles.cs.{${role}}`);
+    if (plan) query = query.eq("plan", plan);
     const { data, error, count } = await query;
     if (error) throw error;
-    res.json({ users: data || [], total: count || 0, page, limit });
+
+    const allUsersResult = await db.from("users").select("id,plan,role,roles,status,created_at");
+    if (allUsersResult.error) throw allUsersResult.error;
+    const allUsers = safeArray(allUsersResult.data);
+
+    res.json({
+      users: (data || []).map(mapUser),
+      total: count || 0,
+      page,
+      limit,
+      stats: {
+        total: allUsers.length,
+        active: allUsers.filter((user) => (user.status || "active") === "active").length,
+        premium: allUsers.filter((user) => ["premium", "enterprise"].includes(user.plan || "free")).length,
+        free: allUsers.filter((user) => (user.plan || "free") === "free").length,
+        enterprise: allUsers.filter((user) => user.plan === "enterprise").length,
+        newThisMonth: allUsers.filter((user) => {
+          if (!user.created_at) return false;
+          return Date.now() - new Date(user.created_at).getTime() <= 30 * 24 * 60 * 60 * 1000;
+        }).length,
+        pendingVerification: allUsers.filter((user) => user.status === "pending").length,
+      },
+    });
   } catch (error) {
     res.status(500).json({ users: [], total: 0, error: "Failed to fetch users", details: error.message });
   }
 });
 
-app.patch("/api/admin/users/:userId", async (req, res) => {
+app.post("/api/admin/users", async (req, res) => {
   try {
-    const context = await getAuthenticatedRequestContext(req);
-    if (!isAdminUser(context?.user)) {
-      res.status(403).json({ success: false, error: "Admin access required" });
+    const context = await requireAdminContext(req, res);
+    if (!context) return;
+
+    const { email, password, name, role = "customer", plan = "free", status = "active", roles } = req.body || {};
+    const normalizedEmail = String(email || "").toLowerCase().trim();
+
+    if (!normalizedEmail || !password || !name) {
+      res.status(400).json({ success: false, error: "name, email, and password are required" });
       return;
     }
+
+    const authResult = await authAdmin.auth.admin.createUser({
+      email: normalizedEmail,
+      password: String(password),
+      email_confirm: true,
+      user_metadata: { name: String(name).trim() },
+    });
+
+    if (authResult.error || !authResult.data?.user) {
+      throw authResult.error || new Error("Failed to create auth user");
+    }
+
+    let userRow = await ensureUserProfile({
+      email: normalizedEmail,
+      name: String(name).trim(),
+      authUserId: authResult.data.user.id,
+      role,
+      roles: Array.isArray(roles) && roles.length > 0 ? roles : [role],
+      emailVerified: true,
+    });
+
+    const { data: updatedUser, error: updateError } = await db
+      .from("users")
+      .update({
+        plan,
+        status,
+        role,
+        roles: Array.isArray(roles) && roles.length > 0 ? roles : [role],
+        approved_by: context.user.email,
+        approved_at: nowIso(),
+      })
+      .eq("id", userRow.id)
+      .select("*")
+      .single();
+
+    if (updateError) throw updateError;
+    userRow = updatedUser;
+
+    res.status(201).json({ success: true, user: mapUser(userRow) });
+  } catch (error) {
+    console.error("ERROR:", error);
+    res.status(500).json({ success: false, error: (error instanceof Error ? error.message : String(error)) });
+  }
+});
+
+app.patch("/api/admin/users/:userId", async (req, res) => {
+  try {
+    const context = await requireAdminContext(req, res);
+    if (!context) return;
 
     const allowedFields = ["name", "email", "role", "roles", "status", "plan", "notes", "email_verified"];
     const updates = {};
@@ -1090,6 +1400,43 @@ app.patch("/api/admin/users/:userId", async (req, res) => {
 
     if (error) throw error;
     res.json({ success: true, user: mapUser(data), rawUser: data });
+  } catch (error) {
+    console.error("ERROR:", error);
+    res.status(500).json({ success: false, error: (error instanceof Error ? error.message : String(error)) });
+  }
+});
+
+app.delete("/api/admin/users/:userId", async (req, res) => {
+  try {
+    const context = await requireAdminContext(req, res);
+    if (!context) return;
+
+    const targetUserId = String(req.params.userId || "");
+    if (!targetUserId) {
+      res.status(400).json({ success: false, error: "User ID is required" });
+      return;
+    }
+
+    if (targetUserId === context.userId) {
+      res.status(400).json({ success: false, error: "You cannot delete your own admin account" });
+      return;
+    }
+
+    const existingUser = await getUserProfileById(targetUserId);
+    if (!existingUser) {
+      res.status(404).json({ success: false, error: "User not found" });
+      return;
+    }
+
+    const deleteAuthResult = await authAdmin.auth.admin.deleteUser(targetUserId);
+    if (deleteAuthResult.error) {
+      console.warn("[ADMIN DELETE USER] Failed to delete auth user:", deleteAuthResult.error.message);
+    }
+
+    const { error } = await db.from("users").delete().eq("id", targetUserId);
+    if (error) throw error;
+
+    res.json({ success: true, deletedUserId: targetUserId });
   } catch (error) {
     console.error("ERROR:", error);
     res.status(500).json({ success: false, error: (error instanceof Error ? error.message : String(error)) });
@@ -1121,212 +1468,6 @@ app.patch("/api/users/me", async (req, res) => {
   }
 });
 
-app.get("/api/tickets", async (req, res) => {
-  try {
-    const userId = await getRequestUserId(req);
-    if (!userId) {
-      res.json({ tickets: [] });
-      return;
-    }
-    const { data, error } = await db.from("tickets").select("*").eq("user_id", userId).order("created_at", { ascending: false });
-    if (error) throw error;
-    res.json({ tickets: (data || []).map(mapTicket) });
-  } catch (error) {
-    console.error("ERROR:", error);
-    res.status(500).json({ tickets: [], error: (error instanceof Error ? error.message : String(error)) });
-  }
-});
-
-app.post("/api/tickets", async (req, res) => {
-  try {
-    const userId = await getRequestUserId(req);
-    const { subject, description, message, priority = "medium", type = "general" } = req.body || {};
-    if (!userId || !subject || !(description || message)) {
-      res.status(400).json({ success: false, error: "Missing required fields" });
-      return;
-    }
-    const { data: user } = await db.from("users").select("name,email,role").eq("id", userId).maybeSingle();
-    const payload = {
-      user_id: userId,
-      user_name: user?.name || "User",
-      user_email: user?.email || "",
-      user_role: user?.role || "customer",
-      subject: String(subject).trim(),
-      status: "open",
-      priority,
-      type,
-      description: String(description || message).trim(),
-      updated_at: new Date().toISOString(),
-    };
-    const { data, error } = await db.from("tickets").insert(payload).select("*").single();
-    if (error) throw error;
-    res.json({ success: true, ticket: mapTicket(data) });
-  } catch (error) {
-    console.error("ERROR:", error);
-    res.status(500).json({ success: false, error: (error instanceof Error ? error.message : String(error)) });
-  }
-});
-
-app.get("/api/tickets/:ticketId", async (req, res) => {
-  try {
-    const userId = await getRequestUserId(req);
-    const ticket = await getTicketWithMessages(req.params.ticketId);
-    if (!ticket) {
-      res.status(404).json({ error: "Ticket not found" });
-      return;
-    }
-    if (userId && ticket.user_id !== userId) {
-      res.status(403).json({ error: "Forbidden" });
-      return;
-    }
-    res.json({ ticket });
-  } catch (error) {
-    console.error("ERROR:", error);
-    res.status(500).json({ success: false, error: (error instanceof Error ? error.message : String(error)) });
-  }
-});
-
-app.post("/api/tickets/:ticketId/reply", async (req, res) => {
-  try {
-    const userId = await getRequestUserId(req);
-    const { message } = req.body || {};
-    if (!userId || !message) {
-      res.status(400).json({ success: false, error: "Missing required fields" });
-      return;
-    }
-    const { data: user } = await db.from("users").select("name").eq("id", userId).maybeSingle();
-    const { data, error } = await db
-      .from("ticket_messages")
-      .insert({
-        ticket_id: req.params.ticketId,
-        user_id: userId,
-        user_name: user?.name || "User",
-        message: String(message).trim(),
-        is_admin: false,
-      })
-      .select("*")
-      .single();
-    if (error) throw error;
-    await db.from("tickets").update({ status: "open", updated_at: new Date().toISOString() }).eq("id", req.params.ticketId);
-    res.json({ success: true, message: mapTicketMessage(data) });
-  } catch (error) {
-    console.error("ERROR:", error);
-    res.status(500).json({ success: false, error: (error instanceof Error ? error.message : String(error)) });
-  }
-});
-
-app.put("/api/tickets/:ticketId/close", async (req, res) => {
-  try {
-    const { error } = await db.from("tickets").update({ status: "closed", updated_at: new Date().toISOString() }).eq("id", req.params.ticketId);
-    if (error) throw error;
-    res.json({ success: true });
-  } catch (error) {
-    res.status(500).json({ success: false, error: "Failed to close ticket", details: error.message });
-  }
-});
-
-app.patch("/api/tickets/:ticketId/status", async (req, res) => {
-  try {
-    const context = await getAuthenticatedRequestContext(req);
-    const { status } = req.body || {};
-    if (!context?.user) {
-      res.status(401).json({ success: false, error: "Authentication required" });
-      return;
-    }
-    if (!status) {
-      res.status(400).json({ success: false, error: "status is required" });
-      return;
-    }
-
-    const ticket = await getTicketWithMessages(req.params.ticketId);
-    if (!ticket) {
-      res.status(404).json({ success: false, error: "Ticket not found" });
-      return;
-    }
-    if (!canAccessTicket(ticket, context.user)) {
-      res.status(403).json({ success: false, error: "Forbidden" });
-      return;
-    }
-
-    const { data, error } = await db
-      .from("tickets")
-      .update({ status: String(status), updated_at: new Date().toISOString() })
-      .eq("id", req.params.ticketId)
-      .select("*")
-      .single();
-    if (error) throw error;
-
-    res.json({ success: true, ticket: mapTicket(data) });
-  } catch (error) {
-    console.error("ERROR:", error);
-    res.status(500).json({ success: false, error: (error instanceof Error ? error.message : String(error)) });
-  }
-});
-
-app.get("/api/admin/tickets", async (_, res) => {
-  try {
-    const { data, error } = await db.from("tickets").select("*").order("updated_at", { ascending: false });
-    if (error) throw error;
-    res.json({ tickets: (data || []).map(mapTicket) });
-  } catch (error) {
-    res.status(500).json({ tickets: [], error: "Failed to load tickets", details: error.message });
-  }
-});
-
-app.get("/api/admin/tickets/:ticketId", async (req, res) => {
-  try {
-    const ticket = await getTicketWithMessages(req.params.ticketId);
-    if (!ticket) {
-      res.status(404).json({ error: "Ticket not found" });
-      return;
-    }
-    res.json({ ticket });
-  } catch (error) {
-    res.status(500).json({ error: "Failed to load ticket detail", details: error.message });
-  }
-});
-
-app.post("/api/admin/tickets/:ticketId/reply", async (req, res) => {
-  const { message } = req.body || {};
-  if (!message) {
-    res.status(400).json({ success: false, error: "Message is required" });
-    return;
-  }
-  try {
-    const { data, error } = await db
-      .from("ticket_messages")
-      .insert({
-        ticket_id: req.params.ticketId,
-        user_id: "admin",
-        user_name: "Support Team",
-        message: String(message).trim(),
-        is_admin: true,
-      })
-      .select("*")
-      .single();
-    if (error) throw error;
-    await db.from("tickets").update({ status: "pending", updated_at: new Date().toISOString() }).eq("id", req.params.ticketId);
-    res.json({ success: true, message: mapTicketMessage(data) });
-  } catch (error) {
-    res.status(500).json({ success: false, error: "Failed to send admin reply", details: error.message });
-  }
-});
-
-app.put("/api/admin/tickets/:ticketId", async (req, res) => {
-  const { status, priority } = req.body || {};
-  try {
-    const payload = {
-      ...(status ? { status } : {}),
-      ...(priority ? { priority } : {}),
-      updated_at: new Date().toISOString(),
-    };
-    const { data, error } = await db.from("tickets").update(payload).eq("id", req.params.ticketId).select("*").single();
-    if (error) throw error;
-    res.json({ success: true, ticket: mapTicket(data) });
-  } catch (error) {
-    res.status(500).json({ success: false, error: "Failed to update ticket", details: error.message });
-  }
-});
 
 app.get("/api/messages", async (req, res) => {
   try {
@@ -1710,8 +1851,62 @@ app.delete("/api/admin/whitelabel/clients/:id", async (req, res) => {
   }
 });
 
+app.get("/api/admin/deals", async (req, res) => {
+  try {
+    const context = await requireAdminContext(req, res);
+    if (!context) return;
+
+    const [platformDealsResult, partnerDealsResult] = await Promise.all([
+      db.from("deals").select("*").order("created_at", { ascending: false }),
+      db.from("partner_deals").select("*").order("created_at", { ascending: false }),
+    ]);
+
+    if (platformDealsResult.error) throw platformDealsResult.error;
+    if (partnerDealsResult.error) throw partnerDealsResult.error;
+
+    res.json({
+      success: true,
+      deals: safeArray(platformDealsResult.data),
+      partnerDeals: safeArray(partnerDealsResult.data).map(formatPartnerDeal),
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, deals: [], partnerDeals: [], error: error.message });
+  }
+});
+
+app.patch("/api/admin/partner-deals/:dealId/status", async (req, res) => {
+  try {
+    const context = await requireAdminContext(req, res);
+    if (!context) return;
+
+    const { status, rejectionReason } = req.body || {};
+    if (!["approved", "rejected", "pending"].includes(String(status))) {
+      res.status(400).json({ success: false, error: "status must be approved, rejected, or pending" });
+      return;
+    }
+
+    const { data, error } = await db
+      .from("partner_deals")
+      .update({
+        status,
+        rejection_reason: rejectionReason || null,
+        approved_at: status === "approved" ? nowIso() : null,
+      })
+      .eq("id", req.params.dealId)
+      .select("*")
+      .single();
+
+    if (error) throw error;
+    res.json({ success: true, deal: formatPartnerDeal(data) });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
 app.post("/api/admin/deals", async (req, res) => {
   try {
+    const context = await requireAdminContext(req, res);
+    if (!context) return;
     const { data, error } = await db.from("deals").insert(req.body).select("*").single();
     if (error) throw error;
     res.json({ success: true, deal: data });
@@ -1722,6 +1917,8 @@ app.post("/api/admin/deals", async (req, res) => {
 
 app.put("/api/admin/deals/:dealId", async (req, res) => {
   try {
+    const context = await requireAdminContext(req, res);
+    if (!context) return;
     const { data, error } = await db.from("deals").update(req.body).eq("id", req.params.dealId).select("*").single();
     if (error) throw error;
     res.json({ success: true, deal: data });
@@ -1732,6 +1929,8 @@ app.put("/api/admin/deals/:dealId", async (req, res) => {
 
 app.delete("/api/admin/deals/:dealId", async (req, res) => {
   try {
+    const context = await requireAdminContext(req, res);
+    if (!context) return;
     const { error } = await db.from("deals").delete().eq("id", req.params.dealId);
     if (error) throw error;
     res.json({ success: true });
@@ -1806,20 +2005,20 @@ app.post("/api/tickets/:id/reply", async (req, res) => {
     if (!ticket) return res.status(404).json({ success: false, error: "Ticket not found" });
     if (!canAccessTicket(ticket, context.user)) return res.status(403).json({ success: false, error: "Forbidden" });
 
-    const { data, error } = await db.from("ticket_messages").insert({
-      ticket_id: req.params.id,
-      user_id: context.userId,
-      user_name: context.user?.name || "User",
-      message: String(req.body.message).trim(),
-      is_admin: isAdminUser(context.user),
-    }).select("*").single();
-
-    if (error) throw error;
+    const data = await insertTicketMessageRecord({
+      ticketId: req.params.id,
+      senderId: context.userId,
+      senderName: context.user?.name || "User",
+      senderType: isAdminUser(context.user) ? "admin" : "user",
+      message: req.body.message,
+    });
     
     await db.from("tickets").update({ updated_at: new Date().toISOString(), status: "open" }).eq("id", req.params.id);
-    io.to(String(req.params.id)).emit("receive_message", { success: true, message: mapTicketMessage(data) });
+    const mapped = mapTicketMessage(data);
+    io.to(String(req.params.id)).emit("receive_message", { success: true, message: mapped });
+    io.to(String(req.params.id)).emit("ticket:message", mapped);
 
-    res.json({ success: true, message: mapTicketMessage(data) });
+    res.json({ success: true, message: mapped });
   } catch (error) {
     console.error("ERROR:", error);
     res.status(500).json({ success: false, error: (error instanceof Error ? error.message : String(error)) });
@@ -1944,18 +2143,13 @@ app.post("/api/admin/tickets/:id/reply", async (req, res) => {
 
     // 2. Insert Message
     console.log(`[ADMIN REPLY] Inserting message into DB for ticket ${ticketId}`);
-    const { data, error } = await db.from("ticket_messages").insert({
-      ticket_id: ticketId,
-      user_id: context.userId,
-      user_name: context.user?.name || "Admin",
-      message: String(req.body.message || "").trim(),
-      is_admin: true,
-    }).select("*").single();
-
-    if (error) {
-      console.error("[ADMIN REPLY] Database insert error:", error);
-      throw error;
-    }
+    const data = await insertTicketMessageRecord({
+      ticketId,
+      senderId: context.userId,
+      senderName: context.user?.name || "Support Team",
+      senderType: "admin",
+      message: req.body.message,
+    });
     
     if (!data) {
       throw new Error("Message created but no data was returned from the database.");
@@ -1974,6 +2168,7 @@ app.post("/api/admin/tickets/:id/reply", async (req, res) => {
     try {
       console.log(`[ADMIN REPLY] Broadcasting update for ticket ${ticketId} via socket`);
       io.to(String(ticketId)).emit("receive_message", { success: true, message: mapped });
+      io.to(String(ticketId)).emit("ticket:message", mapped);
     } catch (socketErr) {
       console.warn("[ADMIN REPLY] Real-time broadcast failed (non-critical):", socketErr);
       // We don't throw here so the user still gets a success response for the DB write
@@ -2051,21 +2246,18 @@ io.on("connection", (socket) => {
         return;
       }
 
-      const { data, error } = await db
-        .from("ticket_messages")
-        .insert({
-          ticket_id: ticketId,
-          user_id: socket.data.user.id,
-          user_name: socket.data.user.name || "User",
-          message: String(message).trim(),
-          is_admin: isAdminUser(socket.data.user),
-        })
-        .select("*")
-        .single();
-      if (error) throw error;
+      const data = await insertTicketMessageRecord({
+        ticketId,
+        senderId: socket.data.user.id,
+        senderName: socket.data.user.name || "User",
+        senderType: isAdminUser(socket.data.user) ? "admin" : "user",
+        message,
+      });
 
       await db.from("tickets").update({ updated_at: new Date().toISOString(), status: "open" }).eq("id", ticketId);
-      io.to(String(ticketId)).emit("receive_message", { success: true, message: mapTicketMessage(data) });
+      const mapped = mapTicketMessage(data);
+      io.to(String(ticketId)).emit("receive_message", { success: true, message: mapped });
+      io.to(String(ticketId)).emit("ticket:message", mapped);
     } catch (error) {
       console.error("ERROR:", error);
       socket.emit("ticket_error", { success: false, error: (error instanceof Error ? error.message : String(error)) });

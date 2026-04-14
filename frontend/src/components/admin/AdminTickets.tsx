@@ -10,6 +10,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { toast } from "sonner";
 import { apiCall } from "@/lib/api";
+import { useAuth } from "@/lib/auth";
+import { subscribeToTicketRoom } from "@/lib/ticket-socket";
 
 interface Message {
   id: string;
@@ -36,6 +38,7 @@ interface Ticket {
 }
 
 export const AdminTickets = () => {
+  const { user } = useAuth();
   const [tickets, setTickets] = useState<Ticket[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
@@ -48,6 +51,39 @@ export const AdminTickets = () => {
   useEffect(() => {
     loadTickets();
   }, []);
+
+  useEffect(() => {
+    if (!selectedTicket?.id) return;
+
+    return subscribeToTicketRoom(selectedTicket.id, {
+      onMessage: (payload) => {
+        if (!payload.message) return;
+
+        setSelectedTicket((current) => {
+          if (!current || current.id !== selectedTicket.id) return current;
+          const exists = current.messages?.some((message) => message.id === payload.message?.id);
+          if (exists) return current;
+
+          return {
+            ...current,
+            updated_at: payload.message.created_at,
+            messages: [...(current.messages || []), payload.message],
+          };
+        });
+
+        setTickets((current) =>
+          current.map((ticket) =>
+            ticket.id === selectedTicket.id
+              ? { ...ticket, updated_at: payload.message?.created_at || ticket.updated_at }
+              : ticket
+          )
+        );
+      },
+      onError: (message) => {
+        console.error("Admin ticket socket error:", message);
+      },
+    });
+  }, [selectedTicket?.id]);
 
   const loadTickets = async () => {
     try {
@@ -79,7 +115,8 @@ export const AdminTickets = () => {
       setSending(true);
       await apiCall(`/api/admin/tickets/${selectedTicket.id}/reply`, "POST", {
         message: replyText.trim(),
-        is_admin: true,
+        sender_id: user?.id,
+        sender_type: "admin",
       });
 
       toast.success("Reply sent successfully!");
@@ -354,7 +391,7 @@ export const AdminTickets = () => {
                       selectedTicket.messages.map((message) => (
                         <div
                           key={message.id}
-                          className={`flex gap-3 ${message.is_admin ? "flex-row" : "flex-row-reverse"}`}
+                          className={`flex gap-3 ${message.is_admin ? "justify-end" : "justify-start"}`}
                         >
                           <div
                             className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${
@@ -365,7 +402,7 @@ export const AdminTickets = () => {
                           >
                             <User className="h-5 w-5" />
                           </div>
-                          <div className={`flex-1 ${message.is_admin ? "" : "flex flex-col items-end"}`}>
+                          <div className={`flex-1 ${message.is_admin ? "flex flex-col items-end" : ""}`}>
                             <div
                               className={`inline-block max-w-[85%] rounded-lg px-4 py-2 ${
                                 message.is_admin

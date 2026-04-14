@@ -5,16 +5,29 @@
 
 import { dealsData, Deal } from '@/data/deals';
 import { getAllDeals, getDealById } from './api';
+import { getStaticStartupMarketplaceDeals } from './startupDeals';
 
 // Feature flag to enable API fetching
 const USE_API = true; // Set to false to use static data only
+
+const startupMarketplaceDeals = getStaticStartupMarketplaceDeals();
+
+function dedupeDeals(deals: Deal[]): Deal[] {
+  const seen = new Set<string>();
+  return deals.filter((deal) => {
+    const key = deal.slug || deal.id;
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+}
 
 /**
  * Get all deals from API or static data
  */
 export async function getDeals(): Promise<Deal[]> {
   if (!USE_API) {
-    return dealsData;
+    return dedupeDeals([...startupMarketplaceDeals, ...dealsData]);
   }
 
   try {
@@ -44,15 +57,15 @@ export async function getDeals(): Promise<Deal[]> {
       }));
 
       console.log(`Loaded ${apiDeals.length} deals from API`);
-      return apiDeals;
+      return dedupeDeals([...startupMarketplaceDeals, ...apiDeals]);
     }
 
     // Fallback to static data if API response is malformed or empty
     console.warn('API returned empty or unexpected format, falling back to static data');
-    return dealsData;
+    return dedupeDeals([...startupMarketplaceDeals, ...dealsData]);
   } catch (error) {
     console.error('Failed to fetch deals from API, using static data:', error);
-    return dealsData;
+    return dedupeDeals([...startupMarketplaceDeals, ...dealsData]);
   }
 }
 
@@ -60,6 +73,11 @@ export async function getDeals(): Promise<Deal[]> {
  * Get a single deal by ID from API or static data
  */
 export async function getDeal(dealId: string): Promise<Deal | null> {
+  const startupDeal = startupMarketplaceDeals.find((deal) => deal.slug === dealId || deal.id === dealId);
+  if (startupDeal) {
+    return startupDeal;
+  }
+
   if (!USE_API) {
     return dealsData.find(d => d.id === dealId) || null;
   }

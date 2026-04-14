@@ -2,13 +2,13 @@ import { useState, useEffect } from "react";
 import { Navigate } from "react-router-dom";
 import { AdminHeader, AdminSidebar } from "@/components/admin/AdminSidebar";
 import { RealtimeMessagingTab } from "@/components/shared/RealtimeMessagingTab";
-import { AdminDashboard } from "@/components/admin/AdminDashboard";
-import { AdminUsers } from "@/components/admin/AdminUsers";
-import { AdminDeals } from "@/components/admin/AdminDeals";
-import { AdminPartners } from "@/components/admin/AdminPartners";
+import { AdminDashboardLive } from "@/components/admin/AdminDashboardLive";
+import { AdminUsersLive } from "@/components/admin/AdminUsersLive";
+import { AdminDealsLive } from "@/components/admin/AdminDealsLive";
+import { AdminPartnersLive } from "@/components/admin/AdminPartnersLive";
 import { AdminTickets } from "@/components/admin/AdminTickets";
-import { AdminRevenue } from "@/components/admin/AdminRevenue";
-import { AdminWhiteLabel } from "@/components/admin/AdminWhiteLabel";
+import { AdminRevenueLive } from "@/components/admin/AdminRevenueLive";
+import { AdminWhiteLabelLive } from "@/components/admin/AdminWhiteLabelLive";
 import { AdminSettings } from "@/components/admin/AdminSettings";
 import { useAuth } from "@/lib/auth";
 
@@ -62,25 +62,25 @@ const AdminPortal = () => {
   const renderContent = () => {
     switch (activeTab) {
       case "dashboard":
-        return <AdminDashboard onTabChange={setActiveTab} />;
+        return <AdminDashboardLive onTabChange={setActiveTab} />;
       case "users":
-        return <AdminUsers />;
+        return <AdminUsersLive />;
       case "deals":
-        return <AdminDeals />;
+        return <AdminDealsLive />;
       case "partners":
-        return <AdminPartners />;
+        return <AdminPartnersLive />;
       case "tickets":
         return <AdminTickets />;
       case "revenue":
-        return <AdminRevenue />;
+        return <AdminRevenueLive />;
       case "whitelabel":
-        return <AdminWhiteLabel />;
+        return <AdminWhiteLabelLive />;
       case "messages":
         return <RealtimeMessagingTab portalRole="admin" />;
       case "settings":
         return <AdminSettings />;
       default:
-        return <AdminDashboard onTabChange={setActiveTab} />;
+        return <AdminDashboardLive onTabChange={setActiveTab} />;
     }
   };
 

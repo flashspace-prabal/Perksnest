@@ -18,7 +18,10 @@ import {
   Shield,
   UserCog,
   Settings,
-  Briefcase
+  Briefcase,
+  LayoutDashboard,
+  ShieldCheck,
+  LogOut
 } from "lucide-react";
 import { useAuth } from "@/lib/auth";
 import { dealsData } from "@/data/deals";
@@ -118,7 +121,8 @@ const MainNavbar = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [activeMenu, setActiveMenu] = useState<string | null>(null);
   const [activeCategory, setActiveCategory] = useState(categories[0]);
-  const { isAuthenticated, user, logout } = useAuth();
+  const [profileMenuOpen, setProfileMenuOpen] = useState(false);
+  const { isAuthenticated, user, logout, isAdmin } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -126,6 +130,7 @@ const MainNavbar = () => {
   useEffect(() => {
     setMobileMenuOpen(false);
     setActiveMenu(null);
+    setProfileMenuOpen(false);
   }, [location]);
 
   if (location.pathname.startsWith('/admin')) {
@@ -133,6 +138,10 @@ const MainNavbar = () => {
   }
 
   const getUserInitials = () => user?.name ? user.name.split(' ').map(n=>n[0]).join('').toUpperCase().slice(0,2) : 'U';
+  const portalLinks = [
+    { label: "User Portal", to: "/customer", icon: LayoutDashboard },
+    ...(isAdmin ? [{ label: "Admin Portal", to: "/admin", icon: ShieldCheck }] : []),
+  ];
 
   return (
     <header className="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-gray-100">
@@ -251,38 +260,13 @@ const MainNavbar = () => {
                 )}
               </div>
 
-              {/* Solutions (Multi-menu feel) */}
-              <div 
-                className="relative group"
-                onMouseEnter={() => setActiveMenu("solutions")}
-                onMouseLeave={() => setActiveMenu(null)}
-              >
-                  <button className={`flex items-center gap-1.5 px-4 py-2 text-[15px] font-medium transition-colors ${activeMenu === "solutions" ? 'text-gray-900' : 'text-gray-600 hover:text-gray-900'}`}>
-                    Solutions
-                    <ChevronDown className="h-4 w-4 transition-transform group-hover:rotate-180" />
-                  </button>
-                  {activeMenu === "solutions" && (
-                    <div className="absolute top-full left-0 w-64 bg-white border border-gray-100 rounded-xl shadow-2xl p-4 animate-in fade-in slide-in-from-top-2 duration-300">
-                        <div className="space-y-1">
-                            <Link to="/deals" className="block p-3 rounded-lg hover:bg-gray-50 transition-colors">
-                                <p className="text-sm font-semibold text-gray-900">For Startups</p>
-                                <p className="text-xs text-gray-500">Seed to Series A infrastructure</p>
-                            </Link>
-                            <Link to="/deals" className="block p-3 rounded-lg hover:bg-gray-50 transition-colors">
-                                <p className="text-sm font-semibold text-gray-900">For Agencies</p>
-                                <p className="text-xs text-gray-500">Client management & automation</p>
-                            </Link>
-                            <Link to="/deals" className="block p-3 rounded-lg hover:bg-gray-50 transition-colors">
-                                <p className="text-sm font-semibold text-gray-900">For Developers</p>
-                                <p className="text-xs text-gray-500">APIs, Tools & Infrastructure</p>
-                            </Link>
-                        </div>
-                    </div>
-                  )}
-              </div>
+   
 
               <Link to="/pricing" className="px-4 py-2 text-[15px] font-medium text-gray-600 hover:text-gray-900 transition-colors">
                 Pricing
+              </Link>
+              <Link to="/blog" className="px-4 py-2 text-[15px] font-medium text-gray-600 hover:text-gray-900 transition-colors">
+                Blog
               </Link>
               <Link to="/invite" className="px-4 py-2 text-[15px] font-medium text-gray-600 hover:text-gray-900 transition-colors">
                 Invite
@@ -309,16 +293,53 @@ const MainNavbar = () => {
                 </Link>
                 </>
             ) : (
-                <div className="flex items-center gap-3">
-                   <Link to="/customer" className="h-10 w-10 flex items-center justify-center rounded-full bg-gray-100 hover:bg-gray-200 transition-colors border border-gray-200">
-                      <span className="text-sm font-bold text-[#5c2169]">{getUserInitials()}</span>
-                   </Link>
-                   <button 
-                    onClick={() => logout()}
-                    className="hidden sm:block text-sm font-medium text-gray-500 hover:text-gray-900"
+                <div className="relative flex items-center gap-3">
+                   <button
+                    type="button"
+                    onClick={() => setProfileMenuOpen((open) => !open)}
+                    className="flex items-center gap-2 rounded-full border border-gray-200 bg-gray-50 px-2 py-1.5 hover:bg-gray-100 transition-colors"
                    >
-                    Sign out
+                      <span className="flex h-9 w-9 items-center justify-center rounded-full bg-gray-100 border border-gray-200">
+                        <span className="text-sm font-bold text-[#5c2169]">{getUserInitials()}</span>
+                      </span>
+                      <ChevronDown className={`hidden sm:block h-4 w-4 text-gray-500 transition-transform ${profileMenuOpen ? "rotate-180" : ""}`} />
                    </button>
+                   {profileMenuOpen && (
+                    <div className="absolute right-0 top-[calc(100%+10px)] w-56 rounded-2xl border border-gray-100 bg-white p-2 shadow-2xl">
+                      <div className="border-b border-gray-100 px-3 py-2">
+                        <p className="truncate text-sm font-semibold text-gray-900">{user?.name || "User"}</p>
+                        <p className="truncate text-xs text-gray-500">{user?.email || ""}</p>
+                      </div>
+                      <div className="py-2">
+                        {portalLinks.map((item) => {
+                          const Icon = item.icon;
+                          return (
+                            <Link
+                              key={item.to}
+                              to={item.to}
+                              className="flex items-center gap-3 rounded-xl px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 hover:text-gray-900"
+                              onClick={() => setProfileMenuOpen(false)}
+                            >
+                              <Icon className="h-4 w-4 text-[#5c2169]" />
+                              {item.label}
+                            </Link>
+                          );
+                        })}
+                      </div>
+                      <div className="border-t border-gray-100 pt-2">
+                        <button
+                          onClick={() => {
+                            setProfileMenuOpen(false);
+                            logout();
+                          }}
+                          className="flex w-full items-center gap-3 rounded-xl px-3 py-2 text-sm font-medium text-gray-600 hover:bg-gray-50 hover:text-gray-900"
+                        >
+                          <LogOut className="h-4 w-4 text-gray-500" />
+                          Sign out
+                        </button>
+                      </div>
+                    </div>
+                   )}
                 </div>
             )}
 
@@ -340,6 +361,7 @@ const MainNavbar = () => {
                   <p className="text-xs font-bold text-gray-400 uppercase tracking-widest px-4">Navigation</p>
                   <Link to="/deals" className="block px-4 py-2 text-lg font-semibold text-gray-900">Browse Deals</Link>
                   <Link to="/pricing" className="block px-4 py-2 text-lg font-semibold text-gray-900">Pricing</Link>
+                  <Link to="/blog" className="block px-4 py-2 text-lg font-semibold text-gray-900">Blog</Link>
                   <Link to="/invite" className="block px-4 py-2 text-lg font-semibold text-gray-900">Invite & Earn</Link>
               </div>
               
@@ -360,12 +382,27 @@ const MainNavbar = () => {
                     <Link to="/signup" className="flex items-center justify-center py-4 bg-[#5c2169] text-white font-bold rounded-2xl shadow-xl shadow-[#5c2169]/20">Get started</Link>
                   </>
                 ) : (
-                <button 
-                  onClick={() => logout()}
-                  className="w-full py-4 bg-gray-900 text-white font-bold rounded-2xl"
-                >
-                  Sign out
-                </button>
+                <>
+                  {portalLinks.map((item) => {
+                    const Icon = item.icon;
+                    return (
+                      <Link
+                        key={item.to}
+                        to={item.to}
+                        className="flex items-center justify-center gap-2 rounded-2xl border border-gray-200 py-4 text-sm font-bold text-gray-800"
+                      >
+                        <Icon className="h-4 w-4 text-[#5c2169]" />
+                        {item.label}
+                      </Link>
+                    );
+                  })}
+                  <button 
+                    onClick={() => logout()}
+                    className="w-full py-4 bg-gray-900 text-white font-bold rounded-2xl"
+                  >
+                    Sign out
+                  </button>
+                </>
               )}
             </div>
           </div>

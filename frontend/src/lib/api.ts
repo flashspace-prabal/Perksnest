@@ -116,16 +116,20 @@ export async function claimDeal(dealId: string) {
 
 export async function getAdminStats() {
   try {
-    return await apiCall('/api/admin/stats', 'GET', undefined, 2);
+    const response = await apiCall('/api/admin/stats', 'GET', undefined, 2);
+    return response.stats || {};
   } catch (error) {
     console.warn('Admin stats API failed', error);
-    return { stats: { users: 0, deals: 0, claims: 0 } };
+    return {};
   }
 }
 
-export async function getAdminUsers(page: number = 1, limit: number = 50, search: string = '') {
+export async function getAdminUsers(page: number = 1, limit: number = 50, search: string = '', filters?: { role?: string; status?: string; plan?: string }) {
   const params = new URLSearchParams({ page: String(page), limit: String(limit) });
   if (search) params.append('search', search);
+  if (filters?.role && filters.role !== 'all') params.append('role', filters.role);
+  if (filters?.status && filters.status !== 'all') params.append('status', filters.status);
+  if (filters?.plan && filters.plan !== 'all') params.append('plan', filters.plan);
   try {
     return await apiCall(`/api/admin/users?${params.toString()}`, 'GET', undefined, 2);
   } catch (error) {
@@ -265,6 +269,60 @@ export async function updateTicketStatus(ticketId: string, status: string) {
 
 export async function updateAdminUser(userId: string, updates: Record<string, unknown>) {
   return apiCall(`/api/admin/users/${userId}`, 'PATCH', updates, 2);
+}
+
+export async function createAdminUser(payload: Record<string, unknown>) {
+  return apiCall('/api/admin/users', 'POST', payload, 1);
+}
+
+export async function deleteAdminUser(userId: string) {
+  return apiCall(`/api/admin/users/${userId}`, 'DELETE', undefined, 1);
+}
+
+export async function getAdminDeals() {
+  try {
+    return await apiCall('/api/admin/deals', 'GET', undefined, 2);
+  } catch (error) {
+    console.warn('Admin deals API failed', error);
+    return { deals: [], partnerDeals: [] };
+  }
+}
+
+export async function getAdminWhiteLabelClients() {
+  try {
+    return await apiCall('/api/admin/whitelabel/clients', 'GET', undefined, 2);
+  } catch (error) {
+    console.warn('Admin white-label clients API failed', error);
+    return { clients: [] };
+  }
+}
+
+export async function createAdminWhiteLabelClient(payload: Record<string, unknown>) {
+  return apiCall('/api/admin/whitelabel/clients', 'POST', payload, 1);
+}
+
+export async function updateAdminWhiteLabelClient(clientId: string, payload: Record<string, unknown>) {
+  return apiCall(`/api/admin/whitelabel/clients/${clientId}`, 'PATCH', payload, 1);
+}
+
+export async function deleteAdminWhiteLabelClient(clientId: string) {
+  return apiCall(`/api/admin/whitelabel/clients/${clientId}`, 'DELETE', undefined, 1);
+}
+
+export async function createAdminDeal(payload: Record<string, unknown>) {
+  return apiCall('/api/admin/deals', 'POST', payload, 1);
+}
+
+export async function updateAdminDeal(dealId: string, payload: Record<string, unknown>) {
+  return apiCall(`/api/admin/deals/${dealId}`, 'PUT', payload, 1);
+}
+
+export async function deleteAdminDeal(dealId: string) {
+  return apiCall(`/api/admin/deals/${dealId}`, 'DELETE', undefined, 1);
+}
+
+export async function updatePartnerDealStatusAdmin(dealId: string, status: 'approved' | 'rejected' | 'pending', rejectionReason?: string) {
+  return apiCall(`/api/admin/partner-deals/${dealId}/status`, 'PATCH', { status, rejectionReason }, 1);
 }
 
 export async function requestPasswordReset(email: string) {

@@ -8,10 +8,10 @@ import { BookmarksProvider } from "@/lib/bookmarks";
 import Index from "./pages/Index";
 import HomeStripe from "./pages/HomeStripe";
 import Deals from "./pages/Deals";
-import DealDetail from "./pages/DealDetail";
 import DealRedeem from "./pages/DealRedeem";
+import DealRoute from "./pages/DealRoute";
 import Pricing from "./pages/Pricing";
-import Blog from "./pages/Blog";
+import BlogPage from "./pages/BlogPage";
 import Invite from "./pages/Invite";
 import Newsletter from "./pages/Newsletter";
 import Collections from "./pages/Collections";
@@ -19,7 +19,7 @@ import CollectionDetail from "./pages/CollectionDetail";
 import Categories from "./pages/Categories";
 import Category from "./pages/Category";
 import Leaderboard from "./pages/Leaderboard";
-import Compare from "./pages/Compare";
+import ComparePage from "./pages/ComparePage";
 import Login from "./pages/Login";
 import ReferralRedirect from "./pages/ReferralRedirect";
 import Communities from "./pages/Communities";
@@ -64,12 +64,12 @@ const App = () => (
                 <Routes>
                   <Route path="/" element={<HomeStripe />} />
                   <Route path="/deals" element={<Deals />} />
-                  <Route path="/deals/:dealId" element={<DealDetail />} />
+                  <Route path="/deals/:dealId" element={<DealRoute />} />
                   <Route path="/deals/:dealId/redeem" element={<DealRedeem />} />
                   <Route path="/pricing" element={<Pricing />} />
                   <Route path="/contact" element={<Contact />} />
-                  <Route path="/blog" element={<Blog />} />
-                  <Route path="/blog/:postId" element={<Blog />} />
+                  <Route path="/blog" element={<BlogPage />} />
+                  <Route path="/blog/:postId" element={<BlogPage />} />
                   <Route path="/invite" element={<Invite />} />
                   <Route path="/newsletter" element={<Newsletter />} />
                   <Route path="/collections" element={<Collections />} />
@@ -77,7 +77,7 @@ const App = () => (
                   <Route path="/categories" element={<Categories />} />
                   <Route path="/category/:slug" element={<Category />} />
                   <Route path="/leaderboard" element={<Leaderboard />} />
-                  <Route path="/compare/:slug" element={<Compare />} />
+                  <Route path="/compare/:slug" element={<ComparePage />} />
                   <Route path="/login" element={<Login />} />
                   <Route path="/signup" element={<Login />} />
                   <Route path="/ref/:referralCode" element={<ReferralRedirect />} />

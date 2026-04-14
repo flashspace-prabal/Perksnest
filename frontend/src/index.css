@@ -199,6 +199,21 @@
 }
 
 @layer utilities {
+  .testimonial-fade-edge {
+    mask-image: linear-gradient(to right, transparent, black 8%, black 92%, transparent);
+    -webkit-mask-image: linear-gradient(to right, transparent, black 8%, black 92%, transparent);
+  }
+
+  .animate-marquee-forward {
+    animation: marquee-forward 34s linear infinite;
+    will-change: transform;
+  }
+
+  .animate-marquee-reverse {
+    animation: marquee-reverse 34s linear infinite;
+    will-change: transform;
+  }
+
   .text-balance {
     text-wrap: balance;
   }
@@ -213,5 +228,25 @@
 
   .animation-delay-300 {
     animation-delay: 300ms;
+  }
+}
+
+@keyframes marquee-forward {
+  from {
+    transform: translate3d(0, 0, 0);
+  }
+
+  to {
+    transform: translate3d(-50%, 0, 0);
+  }
+}
+
+@keyframes marquee-reverse {
+  from {
+    transform: translate3d(-50%, 0, 0);
+  }
+
+  to {
+    transform: translate3d(0, 0, 0);
   }
 }

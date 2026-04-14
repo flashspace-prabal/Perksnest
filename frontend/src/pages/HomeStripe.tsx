@@ -1,19 +1,15 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { ArrowRight, Check, Star, ChevronDown, Menu, X } from "lucide-react";
+import { ArrowRight, Check, ChevronDown, Menu, X } from "lucide-react";
 import { useAuth } from "@/lib/auth";
-import {
-  getMostPopularDeals,
-  getFreeDeals,
-  getRecentlyAddedDeals,
-} from "@/data/deals";
-import HeroBanner from "@/components/HeroBanner";
+import { getMostPopularDeals } from "@/data/deals";
 import HowItWorks from "@/components/HowItWorks";
 import FeaturedDeals from "@/components/FeaturedDeals";
+import CompareToolsSection from "@/components/CompareToolsSection";
 import PopularCategoriesSection from "@/components/PopularCategoriesSection";
 import PricingSection from "@/components/PricingSection";
 import CTASection from "@/components/CTASection";
-import Footer from "@/components/Footer";
+import TestimonialsSection from "@/components/TestimonialsSection";
 
 // Stripe Header Component
 const StripeHeader = () => {
@@ -180,48 +176,6 @@ const StripeTrustedBy = () => {
   );
 };
 
-// Testimonials Section
-const StripeTestimonials = () => {
-  const testimonials = [
-    { name: "Sarah Chen", role: "Founder, TechStart", quote: "PerksNest saved us over $50,000 in our first year. The deals are incredible.", avatar: "S" },
-    { name: "Marcus Johnson", role: "CEO, GrowthLabs", quote: "Essential for any startup. The curated deals actually matter for our stack.", avatar: "M" },
-    { name: "Elena Rodriguez", role: "CTO, DevFlow", quote: "We use 12 tools from PerksNest. The savings compound every month.", avatar: "E" },
-  ];
-
-  return (
-    <section className="py-16 lg:py-24 bg-gray-50">
-      <div className="max-w-7xl mx-auto px-6 lg:px-8">
-        <div className="mb-10 sm:mb-12">
-          <h2 className="text-3xl sm:text-4xl font-semibold text-gray-900 mb-4 leading-tight text-center md:text-left">
-            What our members are saying
-          </h2>
-        </div>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {testimonials.map((t) => (
-            <div key={t.name} className="bg-white rounded-2xl p-8 border border-gray-100">
-              <div className="flex items-center gap-0.5 mb-4">
-                {[...Array(5)].map((_, i) => (
-                  <Star key={i} className="h-4 w-4 fill-[#ffbe0b] text-[#ffbe0b]" />
-                ))}
-              </div>
-              <p className="text-gray-700 mb-6 leading-relaxed">"{t.quote}"</p>
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-[#5c2169]/10 flex items-center justify-center text-[#5c2169] font-semibold">
-                  {t.avatar}
-                </div>
-                <div>
-                  <p className="font-medium text-gray-900">{t.name}</p>
-                  <p className="text-sm text-gray-500">{t.role}</p>
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-    </section>
-  );
-};
-
 // Main Page Component
 const HomeStripe = () => {
   const { isAuthenticated } = useAuth();
@@ -242,14 +196,17 @@ const HomeStripe = () => {
         
         {/* Original Featured Deals - Restored Section */}
         <FeaturedDeals deals={mostPopularDeals} />
+
+        {/* Homepage Comparison Entry Point */}
+        <CompareToolsSection />
         
         {/* Original Popular Categories */}
         <div className="bg-gray-50/50">
           <PopularCategoriesSection />
         </div>
         
-        {/* Original Testimonials Carousel */}
-        <StripeTestimonials />
+        {/* Moving Testimonials */}
+        <TestimonialsSection />
         
         {/* Original Pricing */}
         <PricingSection />

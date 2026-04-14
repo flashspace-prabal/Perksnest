@@ -1,6 +1,7 @@
 // Centralized deals data with reliable logo URLs
 export interface Deal {
   id: string;
+  slug?: string;
   name: string;
   company?: string;
   logo: string;
@@ -20,6 +21,8 @@ export interface Deal {
   redeemUrl?: string;  // URL to redeem the deal
   promoCode?: string;  // Promo code if applicable
 }
+
+export { startupDeals } from "./startupDeals";
 
 export const dealsData: Deal[] = [
   {

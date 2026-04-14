@@ -15,6 +15,8 @@ type TicketMessagePayload = {
   error?: string;
 };
 
+type TicketMessage = NonNullable<TicketMessagePayload["message"]>;
+
 let socket: Socket | null = null;
 
 function getToken() {
@@ -74,16 +76,19 @@ export function subscribeToTicketRoom(
 
   const handleJoined = () => handlers.onJoined?.();
   const handleMessage = (payload: TicketMessagePayload) => handlers.onMessage?.(payload);
+  const handleTicketMessage = (message: TicketMessage) => handlers.onMessage?.({ success: true, message });
   const handleError = (payload: TicketMessagePayload) => handlers.onError?.(payload.error || "Ticket connection failed");
 
   socketInstance.on("joined_ticket", handleJoined);
   socketInstance.on("receive_message", handleMessage);
+  socketInstance.on("ticket:message", handleTicketMessage);
   socketInstance.on("ticket_error", handleError);
   socketInstance.emit("join_ticket", { ticketId });
 
   return () => {
     socketInstance.off("joined_ticket", handleJoined);
     socketInstance.off("receive_message", handleMessage);
+    socketInstance.off("ticket:message", handleTicketMessage);
     socketInstance.off("ticket_error", handleError);
   };
 }

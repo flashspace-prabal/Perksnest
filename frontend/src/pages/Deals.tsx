@@ -321,7 +321,7 @@ const Deals = () => {
                     <DealCardNew
                       key={deal.id}
                       id={deal.id}
-                      slug={deal.id}
+                      slug={deal.slug || deal.id}
                       name={deal.name}
                       logo={deal.logo}
                       description={deal.description}
@@ -374,7 +374,7 @@ const Deals = () => {
                     <DealCardNew
                       key={deal.id}
                       id={deal.id}
-                      slug={deal.id}
+                      slug={deal.slug || deal.id}
                       name={deal.name}
                       logo={deal.logo}
                       description={deal.description}
