@@ -1,0 +1,21 @@
+<svg width="1200" height="630" viewBox="0 0 1200 630" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1200" height="630" rx="36" fill="#F8F5FB"/>
+  <rect x="36" y="36" width="1128" height="558" rx="30" fill="url(#paint0_linear)"/>
+  <circle cx="1036" cy="130" r="96" fill="#F4D7A1" fill-opacity="0.3"/>
+  <circle cx="110" cy="534" r="88" fill="#FFFFFF" fill-opacity="0.16"/>
+  <rect x="88" y="112" width="188" height="54" rx="27" fill="#F4D7A1"/>
+  <text x="114" y="146" fill="#5C2169" font-family="Arial, Helvetica, sans-serif" font-size="24" font-weight="700">perksnest</text>
+  <text x="88" y="268" fill="white" font-family="Arial, Helvetica, sans-serif" font-size="72" font-weight="700">Startup SaaS Deals</text>
+  <text x="88" y="350" fill="white" font-family="Arial, Helvetica, sans-serif" font-size="72" font-weight="700">That Actually Compound</text>
+  <text x="88" y="426" fill="#E9DFF0" font-family="Arial, Helvetica, sans-serif" font-size="30" font-weight="400">
+    Compare tools, discover founder-friendly pricing, and claim curated perks.
+  </text>
+  <rect x="88" y="474" width="272" height="68" rx="22" fill="white"/>
+  <text x="124" y="517" fill="#5C2169" font-family="Arial, Helvetica, sans-serif" font-size="30" font-weight="700">Explore PerksNest</text>
+  <defs>
+    <linearGradient id="paint0_linear" x1="88" y1="80" x2="1112" y2="550" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#5C2169"/>
+      <stop offset="1" stop-color="#8B3E55"/>
+    </linearGradient>
+  </defs>
+</svg>

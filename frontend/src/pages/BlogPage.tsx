@@ -1,4 +1,3 @@
-import { useEffect } from "react";
 import { Link, useParams } from "react-router-dom";
 
 import { CalendarDays, ChevronRight } from "lucide-react";
@@ -8,14 +7,27 @@ import Breadcrumbs from "@/components/shared/Breadcrumbs";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { blogData, getBlogPageBySlug } from "@/data/blogPages";
+import { useSeo } from "@/lib/seo";
 
 const BlogPage = () => {
   const { postId } = useParams<{ postId: string }>();
   const post = postId ? getBlogPageBySlug(postId) : null;
 
-  useEffect(() => {
-    document.title = post ? `${post.title} | PerksNest` : "Insights & Guides | PerksNest";
-  }, [post]);
+  useSeo(
+    post
+      ? {
+          title: `${post.title} | PerksNest`,
+          description: post.excerpt,
+          path: `/blog/${post.slug}`,
+          image: post.image,
+          type: "article",
+        }
+      : {
+          title: "Insights & Guides | PerksNest",
+          description: "Practical reads for founders comparing tools, reducing SaaS waste, and building a cleaner startup stack.",
+          path: "/blog",
+        }
+  );
 
   if (post) {
     return (

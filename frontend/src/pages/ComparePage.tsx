@@ -1,4 +1,3 @@
-import { useEffect } from "react";
 import { Link, useParams } from "react-router-dom";
 
 import AlternativesGrid from "@/components/comparison/AlternativesGrid";
@@ -10,6 +9,7 @@ import Breadcrumbs from "@/components/shared/Breadcrumbs";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { getAlternativeComparisons, getComparisonPageBySlug } from "@/data/comparisonPages";
+import { useSeo } from "@/lib/seo";
 
 const tocItems = [
   { id: "overview", label: "Overview" },
@@ -25,11 +25,19 @@ const ComparePage = () => {
   const { slug } = useParams<{ slug: string }>();
   const comparison = getComparisonPageBySlug(slug || "");
 
-  useEffect(() => {
-    document.title = comparison
-      ? `${comparison.toolA.name} vs ${comparison.toolB.name} | PerksNest`
-      : "Compare Tools | PerksNest";
-  }, [comparison]);
+  useSeo(
+    comparison
+      ? {
+          title: `${comparison.toolA.name} vs ${comparison.toolB.name} | PerksNest`,
+          description: comparison.intro,
+          path: `/compare/${comparison.slug}`,
+        }
+      : {
+          title: "Compare Tools | PerksNest",
+          description: "Compare startup software side by side to understand tradeoffs, pricing, features, and the right fit for your team.",
+          path: slug ? `/compare/${slug}` : "/",
+        }
+  );
 
   if (!comparison) {
     return (

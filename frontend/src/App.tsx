@@ -40,6 +40,7 @@ import NotFound from "./pages/NotFound";
 import OAuthHandler from "./components/OAuthHandler";
 import ScrollToTop from "./components/ScrollToTop";
 import ReferralCodeCapture from "./components/ReferralCodeCapture";
+import AppSeo from "./components/AppSeo";
 import HelpCenter from "./pages/HelpCenter";
 import MainNavbar from "./components/MainNavbar";
 import MainFooter from "./components/MainFooter";
@@ -56,6 +57,7 @@ const App = () => (
           <Sonner />
           <BrowserRouter>
             <ScrollToTop />
+            <AppSeo />
             <OAuthHandler />
             <ReferralCodeCapture />
             <div className="flex flex-col min-h-screen">

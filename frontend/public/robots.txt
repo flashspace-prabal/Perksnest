@@ -3,6 +3,9 @@ Allow: /
 Disallow: /admin
 Disallow: /partner
 Disallow: /customer
+Disallow: /login
+Disallow: /signup
+Disallow: /forgot-password
 Disallow: /api/
 
 Sitemap: https://perksnest.co/sitemap.xml

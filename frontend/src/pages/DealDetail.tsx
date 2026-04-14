@@ -19,6 +19,7 @@ import { getExtendedDealInfo } from "@/data/extended-deals";
 import { getPartnerDeals, PartnerDeal } from "@/lib/store";
 import { claimDeal as apiClaimDeal, getDealClaims, getUserClaims } from "@/lib/api";
 import { getDeal, getDealsByCategory } from "@/lib/deals";
+import { useSeo } from "@/lib/seo";
 
 import notionLogo from "@/assets/logos/notion.png";
 import stripeLogo from "@/assets/logos/stripe.svg";
@@ -156,15 +157,6 @@ const DealDetail = () => {
     }
   }, [isAuthenticated]);
 
-  useEffect(() => {
-    if (dealId) {
-      const dealName = baseDeal?.name || partnerDeal?.name;
-      if (dealName) {
-        document.title = `${dealName} Deal | PerksNest`;
-      }
-    }
-  }, [dealId, baseDeal, partnerDeal]);
-  
   // If it's a partner deal, convert to deal format
   const effectiveDeal = baseDeal || (partnerDeal ? {
     id: partnerDeal.id,
@@ -198,6 +190,21 @@ const DealDetail = () => {
       role: "Founder",
     },
   } : null;
+
+  useSeo(
+    deal
+      ? {
+          title: `${deal.name} Deal | PerksNest`,
+          description: deal.description || deal.longDescription,
+          path: `/deals/${dealId || deal.id}`,
+          image: deal.logo || undefined,
+        }
+      : {
+          title: "Deal | PerksNest",
+          description: "Explore startup-friendly software deals, savings, and promo offers curated by PerksNest.",
+          path: dealId ? `/deals/${dealId}` : "/deals",
+        }
+  );
 
   const handleBookmark = async () => {
     if (!user) {

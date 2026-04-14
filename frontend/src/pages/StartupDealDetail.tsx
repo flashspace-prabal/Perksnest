@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { getStartupDealBySlug } from "@/lib/startupDeals";
+import { useSeo } from "@/lib/seo";
 import type { StartupDeal } from "@/data/startupDeals";
 
 const StartupDealDetail = () => {
@@ -22,10 +23,19 @@ const StartupDealDetail = () => {
       .finally(() => setIsLoading(false));
   }, [dealId]);
 
-  useEffect(() => {
-    if (!deal) return;
-    document.title = `${deal.title} Startup Deal | PerksNest`;
-  }, [deal]);
+  useSeo(
+    deal
+      ? {
+          title: `${deal.title} Startup Deal | PerksNest`,
+          description: deal.description,
+          path: `/deals/${deal.slug}`,
+        }
+      : {
+          title: "Startup Deal | PerksNest",
+          description: "Explore founder-friendly startup deals, credits, and software offers available through PerksNest.",
+          path: dealId ? `/deals/${dealId}` : "/deals",
+        }
+  );
 
   if (isLoading) {
     return (
