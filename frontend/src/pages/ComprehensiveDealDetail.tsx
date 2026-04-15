@@ -171,7 +171,6 @@ export const ComprehensiveDealDetailPage: React.FC = () => {
           description: deal.seoDescription || deal.shortDescription,
           path: `/deals/${dealId}`,
           image: deal.logo,
-          keywords: deal.seoKeywords,
         }
       : {
           title: "Deal | PerksNest",
