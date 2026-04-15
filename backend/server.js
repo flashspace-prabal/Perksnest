@@ -1166,10 +1166,21 @@ app.get("/api/deals/:dealId/claims", async (req, res) => {
       .from("claim_events")
       .select("*", { count: "exact", head: true })
       .eq("deal_id", req.params.dealId);
-    if (error) throw error;
+    
+    // Handle both table not found and other errors gracefully
+    if (error) {
+      // If table doesn't exist, return 0 count instead of erroring
+      if (error.code === "42P01" || error.code === "PGRST106") {
+        return res.json({ count: 0, message: "Claims table not initialized" });
+      }
+      throw error;
+    }
+    
     res.json({ count: count || 0 });
   } catch (error) {
-    res.status(500).json({ error: "Failed to fetch claim count", details: error.message });
+    // Log the error but return 0 count for graceful degradation
+    console.warn(`Deal claims error for ${req.params.dealId}:`, error.message);
+    res.json({ count: 0, fallback: true });
   }
 });
 
