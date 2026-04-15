@@ -503,7 +503,47 @@ const DealDetail = () => {
                   <h2 className="text-2xl font-bold text-foreground mb-6">
                     {deal.name} Promo Code: {deal.dealText}
                   </h2>
-                  <p className="text-muted-foreground">{deal.description}</p>
+                  <p className="text-muted-foreground mb-8">{deal.description}</p>
+
+                  {/* Generic Redemption Steps */}
+                  <div className="bg-primary/5 border border-primary/20 rounded-xl p-6 mb-8">
+                    <h3 className="text-lg font-bold mb-4">How to Claim This Deal</h3>
+                    <div className="space-y-4">
+                      <div className="flex gap-4">
+                        <div className="flex-shrink-0">
+                          <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary text-primary-foreground font-bold text-sm">
+                            1
+                          </div>
+                        </div>
+                        <div>
+                          <p className="font-medium">Click the "Claim Offer" button below</p>
+                          <p className="text-sm text-muted-foreground mt-1">Access the exclusive partner offer through PerksNest</p>
+                        </div>
+                      </div>
+                      <div className="flex gap-4">
+                        <div className="flex-shrink-0">
+                          <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary text-primary-foreground font-bold text-sm">
+                            2
+                          </div>
+                        </div>
+                        <div>
+                          <p className="font-medium">Apply Your Discount</p>
+                          <p className="text-sm text-muted-foreground mt-1">Depending on the partner, your discount may be automatically applied upon sign-up, or you may need to enter a promo code during checkout</p>
+                        </div>
+                      </div>
+                      <div className="flex gap-4">
+                        <div className="flex-shrink-0">
+                          <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary text-primary-foreground font-bold text-sm">
+                            3
+                          </div>
+                        </div>
+                        <div>
+                          <p className="font-medium">Enjoy Your Savings!</p>
+                          <p className="text-sm text-muted-foreground mt-1">Start using your new service and maximize the deal benefits</p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
                 </TabsContent>
                 <TabsContent value="general" className="pt-8">
                   <h2 className="text-2xl font-bold mb-4">About {deal.name}</h2>

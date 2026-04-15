@@ -147,6 +147,7 @@ const redemptionInfo: Record<string, {
 
 // Default redemption info for deals without specific info
 const defaultRedemptionInfo = {
+  promoCode: undefined,
   website: "#",
   steps: [
     {
@@ -184,11 +185,28 @@ const DealRedeem = () => {
 
   const redemption = dealId && redemptionInfo[dealId] ? redemptionInfo[dealId] : defaultRedemptionInfo;
 
+  // Merge deal info with redemption info
+  // Prioritize actual steps from deal if they exist, otherwise use redemption steps
+  const dealSteps: (
+    | { title: string; description: string; link?: string; linkText?: string }
+    | string
+  )[] = baseDeal && baseDeal.steps && baseDeal.steps.length > 0 
+    ? baseDeal.steps.map((step: string) => ({ 
+        title: step, 
+        description: "", 
+        link: undefined, 
+        linkText: undefined 
+      }))
+    : redemption.steps;
+    
   const deal = baseDeal ? {
     ...baseDeal,
-    promoCode: redemption.promoCode,
-    website: redemption.website,
-    steps: redemption.steps,
+    promoCode: baseDeal.promoCode || redemption.promoCode,
+    website: baseDeal.redeemUrl || redemption.website || "#",
+    steps: dealSteps as (
+      | { title: string; description: string; link?: string; linkText?: string }
+      | string
+    )[],
     eligibility: redemption.eligibility,
     expiresIn: redemption.expiresIn,
   } : null;
@@ -375,16 +393,18 @@ const DealRedeem = () => {
                     )}
                   </div>
                   <div className="flex-1 pb-6">
-                    <h3 className="font-semibold text-foreground mb-2">{step.title}</h3>
-                    <p className="text-muted-foreground mb-3">{step.description}</p>
-                    {step.link && (
+                    <h3 className="font-semibold text-foreground mb-2">{typeof step === 'string' ? step : step.title}</h3>
+                    {typeof step !== 'string' && step.description && (
+                      <p className="text-muted-foreground mb-3">{step.description}</p>
+                    )}
+                    {typeof step !== 'string' && step.link && (
                       <Link 
                         to={step.link}
                         target={step.link.startsWith('http') ? '_blank' : undefined}
                         rel={step.link.startsWith('http') ? 'noopener noreferrer' : undefined}
                       >
                         <Button variant="outline" size="sm" className="gap-2">
-                          {step.linkText}
+                          {step.linkText || 'Continue'}
                           <ChevronRight className="h-4 w-4" />
                         </Button>
                       </Link>
@@ -413,13 +433,15 @@ const DealRedeem = () => {
 
           {/* CTA Footer */}
           <div className="flex flex-wrap gap-4">
-            <a href={deal.website} target="_blank" rel="noopener noreferrer" className="flex-1">
-              <Button size="lg" className="w-full gap-2 h-14 text-lg">
-                <ExternalLink className="h-5 w-5" />
-                Go to {deal.name}
-              </Button>
-            </a>
-            <Link to={`/deals/${dealId}`} className="flex-1">
+            {deal.website && deal.website !== "#" && (
+              <a href={deal.website} target="_blank" rel="noopener noreferrer" className="flex-1">
+                <Button size="lg" className="w-full gap-2 h-14 text-lg">
+                  <ExternalLink className="h-5 w-5" />
+                  Continue to {deal.name}
+                </Button>
+              </a>
+            )}
+            <Link to={`/deals/${dealId}`} className={deal.website && deal.website !== "#" ? "flex-1" : "flex-1"}>
               <Button size="lg" variant="outline" className="w-full h-14 text-lg">
                 View full deal details
               </Button>
