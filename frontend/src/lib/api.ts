@@ -173,10 +173,12 @@ export async function getAdminUsers(page: number = 1, limit: number = 50, search
 
 export async function getDealClaims(dealId: string) {
   try {
-    return await apiCall(`/api/deals/${dealId}/claims`, 'GET', undefined, 2);
+    const result = await apiCall(`/api/deals/${dealId}/claims`, 'GET', undefined, 2);
+    return result || { count: 0 };
   } catch (error) {
     console.warn(`Deal claims API failed for ${dealId}`, error);
-    return { count: 0 };
+    // Return empty claims gracefully - don't fail page load
+    return { count: 0, fallback: true };
   }
 }
 

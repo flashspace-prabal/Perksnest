@@ -1,12 +1,12 @@
 import { useParams } from "react-router-dom";
 
-import DealDetail from "@/pages/DealDetail";
+import ComprehensiveDealDetailPage from "@/pages/ComprehensiveDealDetail";
 
 const DealRoute = () => {
   const { dealId } = useParams<{ dealId: string }>();
 
-  // Use the unified DealDetail layout for all deals (merged system)
-  return <DealDetail />;
+  // Use the new comprehensive deal detail page with all sections and animations
+  return <ComprehensiveDealDetailPage />;
 };
 
 export default DealRoute;

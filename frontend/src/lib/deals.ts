@@ -1,13 +1,27 @@
 /**
- * Deals data layer with API fallback
- * Fetches deals from API when available, falls back to static data
+ * Deals data layer with Supabase integration
+ * Priorities: Supabase → API → Static data
  */
 
 import { dealsData, Deal } from '@/data/deals';
 import { getAllDeals, getDealById } from './api';
+import { createClient } from '@supabase/supabase-js';
 
-// Feature flag to enable API fetching
-const USE_API = true; // Set to false to use static data only
+// Feature flags
+const USE_SUPABASE = true; // Set to false to skip Supabase
+const USE_API = true; // Set to false to skip API
+const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL || '';
+const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY || '';
+
+// Initialize Supabase client
+let supabase: ReturnType<typeof createClient> | null = null;
+
+function initSupabase() {
+  if (!supabase && SUPABASE_URL && SUPABASE_ANON_KEY) {
+    supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  }
+  return supabase;
+}
 
 function dedupeDeals(deals: Deal[]): Deal[] {
   const seen = new Set<string>();
@@ -19,95 +33,173 @@ function dedupeDeals(deals: Deal[]): Deal[] {
   });
 }
 
-/**
- * Get all deals from API or static data
- */
-export async function getDeals(): Promise<Deal[]> {
-  if (!USE_API) {
-    return dedupeDeals([...dealsData]);
-  }
-
-  try {
-    const response = await getAllDeals();
-
-    // Check if response has deals array AND it's not empty
-    if (response && response.deals && Array.isArray(response.deals) && response.deals.length > 0) {
-      // Transform API response to Deal format if needed
-      const apiDeals = response.deals.map((d: any) => ({
-        id: d.id,
-        name: d.name,
-        company: d.company,
-        logo: d.logo,
-        description: d.description,
-        dealText: d.deal_text || d.dealText,
-        savings: d.savings,
-        memberCount: d.member_count || d.memberCount || 0,
-        isPremium: d.is_premium || d.isPremium,
-        isFree: d.is_free || d.isFree,
-        isPick: d.is_pick || d.isPick,
-        featured: d.featured,
-        category: d.category,
-        subcategory: d.subcategory,
-        lastAdded: d.last_added || d.lastAdded,
-        expiresAt: d.expires_at || d.expiresAt,
-        collection: d.collection,
-      }));
-
-      console.log(`Loaded ${apiDeals.length} deals from API`);
-      return dedupeDeals([...apiDeals]);
-    }
-
-    // Fallback to static data if API response is malformed or empty
-    console.warn('API returned empty or unexpected format, falling back to static data');
-    return dedupeDeals([...dealsData]);
-  } catch (error) {
-    console.error('Failed to fetch deals from API, using static data:', error);
-    return dedupeDeals([...dealsData]);
-  }
+function transformSupabaseDeals(data: any[]): Deal[] {
+  return data.map((d) => ({
+    id: d.id,
+    slug: d.slug,
+    name: d.name,
+    company: d.company,
+    logo: d.logo,
+    description: d.description,
+    dealText: d.deal_text,
+    savings: d.savings,
+    memberCount: d.member_count || 0,
+    isPremium: d.is_premium || false,
+    isFree: d.is_free || false,
+    isPick: d.is_pick || false,
+    featured: d.featured || false,
+    category: d.category,
+    subcategory: d.subcategory,
+    lastAdded: d.last_added,
+    expiresAt: d.expires_at,
+    collection: d.collection,
+    redeemUrl: d.redeem_url,
+    promoCode: d.promo_code,
+    steps: d.steps || [],
+    website: d.website,
+    eligibility: d.eligibility || [],
+    expiresIn: d.expires_in,
+  }));
 }
 
 /**
- * Get a single deal by ID from API or static data
+ * Get all deals from Supabase, API, or static data
+ */
+export async function getDeals(): Promise<Deal[]> {
+  // Try Supabase first
+  if (USE_SUPABASE) {
+    try {
+      const client = initSupabase();
+      if (client) {
+        const { data, error } = await client
+          .from('deals')
+          .select('*');
+
+        if (error) throw error;
+        if (data && data.length > 0) {
+          console.log(`✅ Loaded ${data.length} deals from Supabase`);
+          return dedupeDeals(transformSupabaseDeals(data));
+        }
+      }
+    } catch (error) {
+      console.warn('Failed to fetch deals from Supabase, trying API:', error);
+    }
+  }
+
+  // Try API second
+  if (USE_API) {
+    try {
+      const response = await getAllDeals();
+
+      if (response && response.deals && Array.isArray(response.deals) && response.deals.length > 0) {
+        const apiDeals = response.deals.map((d: any) => ({
+          id: d.id,
+          name: d.name,
+          company: d.company,
+          logo: d.logo,
+          description: d.description,
+          dealText: d.deal_text || d.dealText,
+          savings: d.savings,
+          memberCount: d.member_count || d.memberCount || 0,
+          isPremium: d.is_premium || d.isPremium,
+          isFree: d.is_free || d.isFree,
+          isPick: d.is_pick || d.isPick,
+          featured: d.featured,
+          category: d.category,
+          subcategory: d.subcategory,
+          lastAdded: d.last_added || d.lastAdded,
+          expiresAt: d.expires_at || d.expiresAt,
+          collection: d.collection,
+          redeemUrl: d.redeem_url || d.redeemUrl,
+          promoCode: d.promo_code || d.promoCode,
+          steps: d.steps || [],
+          website: d.website || d.redeemUrl,
+          eligibility: d.eligibility || [],
+          expiresIn: d.expires_in || d.expiresIn,
+        }));
+
+        console.log(`✅ Loaded ${apiDeals.length} deals from API`);
+        return dedupeDeals([...apiDeals]);
+      }
+    } catch (error) {
+      console.warn('Failed to fetch deals from API, using static data:', error);
+    }
+  }
+
+  // Fallback to static data
+  console.log('📦 Using static deals data');
+  return dedupeDeals([...dealsData]);
+}
+
+/**
+ * Get a single deal by ID from Supabase, API, or static data
  */
 export async function getDeal(dealId: string): Promise<Deal | null> {
-  if (!USE_API) {
-    return dealsData.find(d => d.id === dealId || d.slug === dealId) || null;
-  }
+  // Try Supabase first
+  if (USE_SUPABASE) {
+    try {
+      const client = initSupabase();
+      if (client) {
+        const { data, error } = await client
+          .from('deals')
+          .select('*')
+          .or(`id.eq.${dealId},slug.eq.${dealId}`)
+          .single();
 
-  try {
-    const response = await getDealById(dealId);
-
-    if (response && response.deal) {
-      const d = response.deal;
-      console.log(`Loaded deal ${dealId} from API`);
-      return {
-        id: d.id,
-        name: d.name,
-        company: d.company,
-        logo: d.logo,
-        description: d.description,
-        dealText: d.deal_text || d.dealText,
-        savings: d.savings,
-        memberCount: d.member_count || d.memberCount || 0,
-        isPremium: d.is_premium || d.isPremium,
-        isFree: d.is_free || d.isFree,
-        isPick: d.is_pick || d.isPick,
-        featured: d.featured,
-        category: d.category,
-        subcategory: d.subcategory,
-        lastAdded: d.last_added || d.lastAdded,
-        expiresAt: d.expires_at || d.expiresAt,
-        collection: d.collection,
-      };
+        if (error && error.code !== 'PGRST116') throw error; // PGRST116 = no rows
+        if (data) {
+          console.log(`✅ Loaded deal ${dealId} from Supabase`);
+          return transformSupabaseDeals([data])[0];
+        }
+      }
+    } catch (error) {
+      console.warn(`Failed to fetch deal ${dealId} from Supabase, trying API:`, error);
     }
-
-    // Fallback to static data
-    console.warn(`Deal ${dealId} not found in API, checking static data`);
-    return dealsData.find(d => d.id === dealId || d.slug === dealId) || null;
-  } catch (error) {
-    console.error(`Failed to fetch deal ${dealId} from API, using static data:`, error);
-    return dealsData.find(d => d.id === dealId || d.slug === dealId) || null;
   }
+
+  // Try API second
+  if (USE_API) {
+    try {
+      const response = await getDealById(dealId);
+
+      if (response && response.deal) {
+        const d = response.deal;
+        console.log(`✅ Loaded deal ${dealId} from API`);
+        return {
+          id: d.id,
+          slug: d.slug,
+          name: d.name,
+          company: d.company,
+          logo: d.logo,
+          description: d.description,
+          dealText: d.deal_text || d.dealText,
+          savings: d.savings,
+          memberCount: d.member_count || d.memberCount || 0,
+          isPremium: d.is_premium || d.isPremium,
+          isFree: d.is_free || d.isFree,
+          isPick: d.is_pick || d.isPick,
+          featured: d.featured,
+          category: d.category,
+          subcategory: d.subcategory,
+          lastAdded: d.last_added || d.lastAdded,
+          expiresAt: d.expires_at || d.expiresAt,
+          collection: d.collection,
+          redeemUrl: d.redeem_url || d.redeemUrl,
+          promoCode: d.promo_code || d.promoCode,
+          steps: d.steps || [],
+          website: d.website || d.redeemUrl,
+          eligibility: d.eligibility || [],
+          expiresIn: d.expires_in || d.expiresIn,
+        };
+      }
+    } catch (error) {
+      console.warn(`Failed to fetch deal ${dealId} from API, checking static data:`, error);
+    }
+  }
+
+  // Fallback to static data
+  console.log(`📦 Searching for deal ${dealId} in static data`);
+  return dealsData.find(d => d.id === dealId || d.slug === dealId) || null;
 }
 
 /**
