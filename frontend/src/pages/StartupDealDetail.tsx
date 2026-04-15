@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { getStartupDealBySlug } from "@/lib/startupDeals";
+import { getDeal } from "@/lib/deals";
 import { useSeo } from "@/lib/seo";
 import type { StartupDeal } from "@/data/startupDeals";
 
@@ -19,7 +20,32 @@ const StartupDealDetail = () => {
 
     setIsLoading(true);
     getStartupDealBySlug(dealId)
-      .then((result) => setDeal(result))
+      .then(async (result) => {
+        if (result) {
+          setDeal(result);
+        } else {
+          // If it's a regular deal, map it to the startup deal format so it uses the same unified layout
+          const regularDeal = await getDeal(dealId);
+          if (regularDeal) {
+            setDeal({
+              index: 0, 
+              title: regularDeal.name,
+              slug: regularDeal.id,
+              category: regularDeal.category,
+              description: regularDeal.description,
+              perks: regularDeal.dealText,
+              steps: [
+                "Click the 'Claim Offer' button below to visit the official partner website.",
+                "Depending on the partner, your discount may be automatically applied upon sign-up, or you may need to enter a promo code during checkout.",
+                "Enjoy your savings!"
+              ],
+              website_url: regularDeal.redeemUrl || regularDeal.promoCode || "/deals/" + regularDeal.id + "/redeem", 
+            });
+          } else {
+            setDeal(null);
+          }
+        }
+      })
       .finally(() => setIsLoading(false));
   }, [dealId]);
 
@@ -82,7 +108,9 @@ const StartupDealDetail = () => {
           <div className="border-b border-stone-200 bg-[linear-gradient(135deg,#111827_0%,#1f2937_52%,#92400e_100%)] px-6 py-10 text-white sm:px-10">
             <div className="flex flex-col gap-5 sm:flex-row sm:items-start sm:justify-between">
               <div className="max-w-2xl">
-                <p className="text-xs font-semibold uppercase tracking-[0.32em] text-amber-200">Startup Deal #{deal.index}</p>
+                <p className="text-xs font-semibold uppercase tracking-[0.32em] text-amber-200">
+                  {deal.index > 0 ? `Startup Deal #${deal.index}` : "Exclusive Deal"}
+                </p>
                 <h1 className="mt-3 text-4xl font-black tracking-tight sm:text-5xl">{deal.title}</h1>
                 <p className="mt-4 max-w-2xl text-base leading-7 text-stone-200">{deal.description}</p>
               </div>
@@ -140,11 +168,6 @@ const StartupDealDetail = () => {
                       Claim Offer
                     </Button>
                   )}
-                  {deal.website_url ? (
-                    <p className="mt-4 break-all text-xs leading-6 text-stone-500">{deal.website_url}</p>
-                  ) : (
-                    <p className="mt-4 text-xs leading-6 text-stone-500">No website URL was provided in the source dataset for this offer.</p>
-                  )}
                 </CardContent>
               </Card>
 
@@ -157,12 +180,12 @@ const StartupDealDetail = () => {
                       <dd className="mt-1 text-sm font-semibold text-stone-900">{deal.category}</dd>
                     </div>
                     <div>
-                      <dt className="text-xs uppercase tracking-[0.22em] text-stone-500">Slug</dt>
+                      <dt className="text-xs uppercase tracking-[0.22em] text-stone-500">Company</dt>
                       <dd className="mt-1 break-all text-sm font-semibold text-stone-900">{deal.slug}</dd>
                     </div>
                     <div>
-                      <dt className="text-xs uppercase tracking-[0.22em] text-stone-500">Offer Number</dt>
-                      <dd className="mt-1 text-sm font-semibold text-stone-900">{deal.index}</dd>
+                      <dt className="text-xs uppercase tracking-[0.22em] text-stone-500">Perks</dt>
+                      <dd className="mt-1 text-sm font-semibold text-stone-900">{deal.perks}</dd>
                     </div>
                   </dl>
                 </CardContent>

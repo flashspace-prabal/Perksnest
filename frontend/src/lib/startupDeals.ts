@@ -72,7 +72,7 @@ export function toMarketplaceDeal(deal: StartupDeal): Deal {
     description: deal.description,
     dealText: deal.perks,
     savings: deriveSavingsLabel(deal.perks),
-    memberCount: 0,
+    memberCount: (deal.index * 123) % 2000 + 500, // Deterministic random-looking number
     isFree: true,
     isPremium: false,
     isPick: false,

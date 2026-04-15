@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
 import { ArrowLeft, Check, Copy, ExternalLink, Clock, Shield, Star, Gift, ChevronRight, Lock } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -7,7 +7,8 @@ import { AuthModal } from "@/components/AuthModal";
 import Footer from "@/components/Footer";
 import { useAuth } from "@/lib/auth";
 import { toast } from "sonner";
-import { dealsData } from "@/data/deals";
+import { getDeal } from "@/lib/deals";
+import { Deal } from "@/data/deals";
 
 // Extended redemption info
 const redemptionInfo: Record<string, {
@@ -145,18 +146,7 @@ const redemptionInfo: Record<string, {
 };
 
 // Default redemption info for deals without specific info
-const defaultRedemptionInfo: {
-  promoCode?: string;
-  website: string;
-  steps: {
-    title: string;
-    description: string;
-    link?: string;
-    linkText?: string;
-  }[];
-  eligibility: string[];
-  expiresIn: string;
-} = {
+const defaultRedemptionInfo = {
   website: "#",
   steps: [
     {
@@ -179,8 +169,19 @@ const DealRedeem = () => {
   const { dealId } = useParams<{ dealId: string }>();
   const { user, isAuthenticated } = useAuth();
   const [showAuthModal, setShowAuthModal] = useState(false);
+  const [baseDeal, setBaseDeal] = useState<Deal | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
-  const baseDeal = dealId ? dealsData.find(d => d.id === dealId) : null;
+  useEffect(() => {
+    if (dealId) {
+      getDeal(dealId)
+        .then(deal => setBaseDeal(deal))
+        .finally(() => setIsLoading(false));
+    } else {
+      setIsLoading(false);
+    }
+  }, [dealId]);
+
   const redemption = dealId && redemptionInfo[dealId] ? redemptionInfo[dealId] : defaultRedemptionInfo;
 
   const deal = baseDeal ? {
@@ -202,6 +203,17 @@ const DealRedeem = () => {
       toast.success("Promo code copied to clipboard!");
     }
   };
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-background">
+        <div className="container-wide py-20 text-center">
+          <h1 className="text-2xl font-bold mb-4">Loading deal...</h1>
+        </div>
+        <Footer />
+      </div>
+    );
+  }
 
   if (!deal) {
     return (
