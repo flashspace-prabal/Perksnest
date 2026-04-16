@@ -191,9 +191,6 @@ const HomeStripe = () => {
         {/* Trusted By Logos */}
         <StripeTrustedBy />
         
-        {/* Original How It Works */}
-        <HowItWorks />
-        
         {/* Original Featured Deals - Restored Section */}
         <FeaturedDeals deals={mostPopularDeals} />
 
@@ -204,7 +201,9 @@ const HomeStripe = () => {
         <div className="bg-gray-50/50">
           <PopularCategoriesSection />
         </div>
-        
+
+        {/* Original How It Works */}
+        <HowItWorks />
         {/* Moving Testimonials */}
         <TestimonialsSection />
         

@@ -95,8 +95,9 @@ export interface ComprehensiveDealDetail {
   deals: {
     title: string;
     explanation: string;
-    howCanBenefit: string;
-    whyChooseThis: string;
+    howCanBenefit?: string | string[];
+    howCanIBenefit?: string[];
+    whyChooseThis: string[];
   };
 
   // General Information

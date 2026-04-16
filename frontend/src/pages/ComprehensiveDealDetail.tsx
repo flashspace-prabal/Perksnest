@@ -28,6 +28,8 @@ import { stripeDealDetail } from "@/data/stripe-deal";
 import { notionDealDetail } from "@/data/notion-deal";
 import { makeDealDetail } from "@/data/make-deal";
 import { ALL_COMPREHENSIVE_DEALS, getComprehensiveDealByIdFromMaster } from "@/data/index-all-deals";
+import { dealsData } from "@/data/deals";
+import { convertBasicDealToComprehensive } from "@/lib/deal-converter";
 import { createClient } from "@supabase/supabase-js";
 
 // Components
@@ -39,7 +41,6 @@ import { FAQSection } from "@/components/deal-detail/FAQSection";
 import { PricingSection } from "@/components/deal-detail/PricingSection";
 import { FeaturesSection } from "@/components/deal-detail/FeaturesSection";
 import { ReviewsSection } from "@/components/deal-detail/ReviewsSection";
-import { AlternativesSection } from "@/components/deal-detail/AlternativesSection";
 import { RelatedDealsSection } from "@/components/deal-detail/RelatedDealsSection";
 import { ResourcesSection } from "@/components/deal-detail/ResourcesSection";
 
@@ -58,11 +59,6 @@ const DEAL_TABS = [
   { id: "pricing", label: "Pricing", sectionId: "pricing-section" },
   { id: "features", label: "Features", sectionId: "features-section" },
   { id: "reviews", label: "Reviews", sectionId: "reviews-section" },
-  {
-    id: "alternatives",
-    label: "Alternatives & VS",
-    sectionId: "alternatives-section",
-  },
   { id: "related", label: "Also Likes", sectionId: "related-section" },
   { id: "resources", label: "Resources", sectionId: "resources-section" },
 ];
@@ -116,6 +112,13 @@ async function getComprehensiveDealData(dealId: string): Promise<ComprehensiveDe
   if (legacyDataMap[dealId]) {
     console.log("✅ Loaded deal from legacy data:", dealId);
     return legacyDataMap[dealId];
+  }
+
+  // Fallback to basic deals data - convert to comprehensive format
+  const basicDeal = dealsData.find((d) => d.id === dealId);
+  if (basicDeal) {
+    console.log("✅ Converting basic deal to comprehensive:", dealId);
+    return convertBasicDealToComprehensive(basicDeal);
   }
 
   console.warn("❌ Deal not found:", dealId);
@@ -254,7 +257,7 @@ export const ComprehensiveDealDetailPage: React.FC = () => {
   // Not found state
   if (!deal) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-slate-50">
+      <div className="flex items-center justify-center bg-slate-50">
         <div className="text-center max-w-md">
           <h1 className="text-3xl font-bold text-slate-900 mb-4">
             Deal Not Found
@@ -290,9 +293,6 @@ export const ComprehensiveDealDetailPage: React.FC = () => {
       {/* Deals Section */}
       <DealsSection deal={deal} />
 
-      {/* General Information */}
-      <GeneralSection deal={deal} />
-
       {/* FAQ Section */}
       <FAQSection deal={deal} />
 
@@ -305,8 +305,8 @@ export const ComprehensiveDealDetailPage: React.FC = () => {
       {/* Reviews Section */}
       <ReviewsSection deal={deal} />
 
-      {/* Alternatives Section */}
-      <AlternativesSection deal={deal} />
+      {/* General Information */}
+      <GeneralSection deal={deal} />
 
       {/* Related/Also Likes Section */}
       <RelatedDealsSection deal={deal} />

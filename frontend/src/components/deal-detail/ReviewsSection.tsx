@@ -7,6 +7,15 @@ interface ReviewsSectionProps {
   deal: ComprehensiveDealDetail;
 }
 
+// Placeholder avatars - using consistent identifiers
+const AVATAR_SEEDS = [
+  "https://api.dicebear.com/7.x/avataaars/svg?seed=Felix",
+  "https://api.dicebear.com/7.x/avataaars/svg?seed=Aneka",
+  "https://api.dicebear.com/7.x/avataaars/svg?seed=Christian",
+  "https://api.dicebear.com/7.x/avataaars/svg?seed=Daisy",
+  "https://api.dicebear.com/7.x/avataaars/svg?seed=Evelyn",
+];
+
 export const ReviewsSection: React.FC<ReviewsSectionProps> = ({ deal }) => {
   const averageRating =
     deal.reviews && deal.reviews.length > 0
@@ -15,6 +24,11 @@ export const ReviewsSection: React.FC<ReviewsSectionProps> = ({ deal }) => {
           deal.reviews.length
         ).toFixed(1)
       : deal.rating.toFixed(1);
+
+  // Use review avatars, with fallback to generated avatars
+  const getReviewAvatar = (index: number, avatar?: string) => {
+    return avatar || AVATAR_SEEDS[index % AVATAR_SEEDS.length];
+  };
 
   return (
     <section id="reviews-section" className="py-16 bg-slate-50 border-b border-slate-200">
@@ -53,16 +67,16 @@ export const ReviewsSection: React.FC<ReviewsSectionProps> = ({ deal }) => {
         {/* Reviews Grid */}
         {deal.reviews && deal.reviews.length > 0 ? (
           <div className="space-y-6">
-            {deal.reviews.map((review) => (
+            {deal.reviews.map((review, idx) => (
               <div
                 key={review.id}
-                className="bg-white rounded-lg p-8 border border-slate-200"
+                className="bg-white rounded-lg p-8 border border-slate-200 hover:shadow-md transition"
               >
                 {/* Review Header */}
                 <div className="flex items-start justify-between mb-4">
                   <div className="flex items-center gap-4">
                     <Avatar className="w-12 h-12">
-                      <AvatarImage src={review.avatar} />
+                      <AvatarImage src={getReviewAvatar(idx, review.avatar)} alt={review.author} />
                       <AvatarFallback>{review.author[0]}</AvatarFallback>
                     </Avatar>
                     <div>
@@ -80,8 +94,8 @@ export const ReviewsSection: React.FC<ReviewsSectionProps> = ({ deal }) => {
                   )}
                 </div>
 
-                {/* Rating */}
-                <div className="flex gap-1 mb-3">
+                {/* Star Rating */}
+                <div className="flex gap-1 mb-4">
                   {[...Array(5)].map((_, i) => (
                     <Star
                       key={i}
@@ -94,9 +108,9 @@ export const ReviewsSection: React.FC<ReviewsSectionProps> = ({ deal }) => {
                   ))}
                 </div>
 
-                {/* Quote */}
-                <p className="text-slate-700 leading-relaxed italic">
-                  "{review.quote}"
+                {/* Review Quote */}
+                <p className="text-slate-700 italic">
+                  "{review.quote || "Great product and excellent service!"}"
                 </p>
               </div>
             ))}

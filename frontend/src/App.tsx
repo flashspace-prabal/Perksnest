@@ -20,6 +20,7 @@ import Categories from "./pages/Categories";
 import Category from "./pages/Category";
 import Leaderboard from "./pages/Leaderboard";
 import ComparePage from "./pages/ComparePage";
+import DynamicComparePage from "./pages/DynamicComparePage";
 import Login from "./pages/Login";
 import ReferralRedirect from "./pages/ReferralRedirect";
 import Communities from "./pages/Communities";
@@ -80,6 +81,7 @@ const App = () => (
                   <Route path="/category/:slug" element={<Category />} />
                   <Route path="/leaderboard" element={<Leaderboard />} />
                   <Route path="/compare/:slug" element={<ComparePage />} />
+                  <Route path="/compare/:deal1/vs/:deal2" element={<DynamicComparePage />} />
                   <Route path="/login" element={<Login />} />
                   <Route path="/signup" element={<Login />} />
                   <Route path="/ref/:referralCode" element={<ReferralRedirect />} />

@@ -24,7 +24,7 @@ export const DealHero: React.FC<DealHeroProps> = ({
   isLoading,
 }) => {
   return (
-    <section className="min-h-screen bg-gradient-to-br from-slate-50 to-white">
+    <section className=" bg-gradient-to-br from-slate-50 to-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Left Column: Main Content */}
@@ -56,15 +56,15 @@ export const DealHero: React.FC<DealHeroProps> = ({
               <div className="flex items-center gap-6 py-4 border-y border-slate-200">
                 <div>
                   <p className="text-3xl font-bold text-slate-900">
-                    {deal.socialProof.redeemedCount?.toLocaleString() || 0}
+                    {deal.socialProof?.redeemedCount?.toLocaleString() || 0}
                   </p>
                   <p className="text-sm text-slate-600">Redeemed deals</p>
                 </div>
 
-                {deal.socialProof.avatars && deal.socialProof.avatars.length > 0 && (
+                {deal.socialProof?.avatars && deal.socialProof?.avatars.length > 0 && (
                   <div className="flex items-center gap-2">
                     <div className="flex -space-x-2">
-                      {deal.socialProof.avatars.map((avatar, idx) => (
+                      {deal.socialProof?.avatars?.map((avatar, idx) => (
                         <Avatar key={idx} className="w-10 h-10 border-2 border-white">
                           <AvatarImage src={avatar} />
                           <AvatarFallback>U</AvatarFallback>
@@ -80,17 +80,17 @@ export const DealHero: React.FC<DealHeroProps> = ({
             </div>
 
             {/* Testimonial */}
-            {deal.socialProof.testimonialQuote && (
+            {deal.socialProof?.testimonialQuote && (
               <div className="bg-blue-50 border border-blue-200 rounded-lg p-6">
                 <p className="text-slate-700 italic">
                   "{deal.socialProof.testimonialQuote}"
                 </p>
                 <div className="mt-4 flex items-center gap-2">
                   <span className="font-semibold text-slate-900">
-                    {deal.socialProof.testimonialAuthor}
+                    {deal.socialProof.testimonialAuthor || "User"}
                   </span>
                   <span className="text-slate-600">
-                    • {deal.socialProof.testimonialRole}
+                    • {deal.socialProof.testimonialRole || "Team Member"}
                   </span>
                 </div>
               </div>
