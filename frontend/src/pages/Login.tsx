@@ -94,7 +94,7 @@ const Login = () => {
       const { error } = await supabaseAuth.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          redirectTo: callbackUrl,
+          redirectTo: 'https://perksnest.vercel.app',
           skipBrowserRedirect: false,
         },
       });
