@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider } from "@/lib/auth";
 import { BookmarksProvider } from "@/lib/bookmarks";
+import ProtectedRoute from "@/components/ProtectedRoute";
 import Index from "./pages/Index";
 import HomeStripe from "./pages/HomeStripe";
 import Deals from "./pages/Deals";
@@ -98,13 +99,13 @@ const App = () => (
                   <Route path="/about" element={<ComingSoon />} />
                   <Route path="/press" element={<ComingSoon />} />
                   <Route path="/careers" element={<ComingSoon />} />
-                  <Route path="/partner" element={<ComingSoon />} />
 
                   {/* Clean portal URLs */}
-                  <Route path="/admin" element={<AdminPortal />} />
-                  <Route path="/customer" element={<CustomerPortal />} />
-                  <Route path="/customer/tickets" element={<Tickets />} />
-                  <Route path="/customer/tickets/:ticketId" element={<TicketDetail />} />
+                  <Route path="/admin" element={<ProtectedRoute requiredRole="admin"><AdminPortal /></ProtectedRoute>} />
+                  <Route path="/partner" element={<ProtectedRoute requiredRole="partner"><PartnerPortal /></ProtectedRoute>} />
+                  <Route path="/customer" element={<ProtectedRoute requiredRole="customer"><CustomerPortal /></ProtectedRoute>} />
+                  <Route path="/customer/tickets" element={<ProtectedRoute requiredRole="customer"><Tickets /></ProtectedRoute>} />
+                  <Route path="/customer/tickets/:ticketId" element={<ProtectedRoute requiredRole="customer"><TicketDetail /></ProtectedRoute>} />
                   {/* Partner public profiles */}
                   <Route path="/brand/:brandId" element={<BrandProfile />} />
                   {/* Legacy redirects */}

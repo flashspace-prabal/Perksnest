@@ -105,35 +105,94 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    const session = readStoredSession();
-    const userId = localStorage.getItem(STORAGE_KEY) || session.user_id;
-    if (!userId && !session.access_token) {
-      setIsLoading(false);
-      return;
-    }
-
-    const loadUser = async () => {
+    const initializeAuth = async () => {
       try {
-        const response = await authApi<{ success: boolean; user: Record<string, unknown> }>(
-          "/api/auth/me",
-          "GET",
-          undefined,
-          userId || undefined
-        );
-        if (response.user) {
-          const nextUser = rowToUser(response.user);
-          setUser(nextUser);
-          localStorage.setItem(STORAGE_KEY, nextUser.id);
+        // First, check for stored session (faster)
+        const session = readStoredSession();
+        const userId = localStorage.getItem(STORAGE_KEY) || session.user_id;
+        
+        // Also check Supabase session for OAuth cases
+        const { data: supabaseSession } = await supabaseAuth.auth.getSession();
+        
+        if (!userId && !session.access_token && !supabaseSession.session) {
+          // No session anywhere
+          setIsLoading(false);
+          return;
         }
-      } catch {
-        localStorage.removeItem(STORAGE_KEY);
-        localStorage.removeItem(SESSION_STORAGE_KEY);
+
+        const loadUser = async () => {
+          try {
+            const response = await authApi<{ success: boolean; user: Record<string, unknown> }>(
+              "/api/auth/me",
+              "GET",
+              undefined,
+              userId || undefined
+            );
+            if (response.user) {
+              const nextUser = rowToUser(response.user);
+              setUser(nextUser);
+              localStorage.setItem(STORAGE_KEY, nextUser.id);
+            }
+          } catch {
+            // Clear storage if fetch fails
+            localStorage.removeItem(STORAGE_KEY);
+            localStorage.removeItem(SESSION_STORAGE_KEY);
+          }
+        };
+
+        await loadUser();
       } finally {
         setIsLoading(false);
       }
     };
 
-    loadUser();
+    initializeAuth();
+
+    // Listen to Supabase auth state changes (for OAuth and other providers)
+    const { data: { subscription } } = supabaseAuth.auth.onAuthStateChange(async (event, session) => {
+      if (event === 'SIGNED_IN' && session?.user) {
+        // User signed in with OAuth - sync with backend
+        if (!localStorage.getItem('perksnest_logged_out')) {
+          const email = session.user.email?.toLowerCase().trim();
+          const name = session.user.user_metadata?.full_name 
+            || session.user.user_metadata?.name 
+            || email?.split('@')[0] 
+            || 'User';
+          const avatar = session.user.user_metadata?.avatar_url || null;
+
+          try {
+            const syncResponse = await fetch(`${API_BASE_URL}/api/auth/oauth-sync`, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                email,
+                name,
+                avatar,
+                authUserId: session.user.id,
+              }),
+            });
+            
+            const syncData = await syncResponse.json().catch(() => null);
+            if (syncResponse.ok && syncData?.user) {
+              const nextUser = rowToUser(syncData.user);
+              setUser(nextUser);
+              localStorage.setItem(STORAGE_KEY, nextUser.id);
+              if (syncData.session?.access_token) {
+                storeSession(syncData.session);
+              }
+            }
+          } catch (err) {
+            console.error('OAuth sync error:', err);
+          }
+        }
+      } else if (event === 'SIGNED_OUT') {
+        setUser(null);
+        localStorage.removeItem(STORAGE_KEY);
+        localStorage.removeItem(SESSION_STORAGE_KEY);
+      }
+    });
+
+    return () => subscription.unsubscribe();
   }, []);
 
   const login = async (email: string, password: string): Promise<boolean> => {
@@ -179,19 +238,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  const logout = () => {
+  const logout = async () => {
     try {
       setUser(null);
       localStorage.removeItem(STORAGE_KEY);
       localStorage.removeItem(SESSION_STORAGE_KEY);
       localStorage.setItem('perksnest_logged_out', 'true');
-      Promise.resolve(supabaseAuth.auth.signOut()).catch((err: unknown) => {
+      await supabaseAuth.auth.signOut().catch((err: unknown) => {
         console.error('Supabase sign out error:', err);
       });
     } catch (err) {
       console.error('Logout error:', err);
-    } finally {
-      window.location.href = '/';
     }
   };
 

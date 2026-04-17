@@ -331,6 +331,7 @@ const MainNavbar = () => {
                           onClick={() => {
                             setProfileMenuOpen(false);
                             logout();
+                            navigate('/');
                           }}
                           className="flex w-full items-center gap-3 rounded-xl px-3 py-2 text-sm font-medium text-gray-600 hover:bg-gray-50 hover:text-gray-900"
                         >
@@ -397,7 +398,10 @@ const MainNavbar = () => {
                     );
                   })}
                   <button 
-                    onClick={() => logout()}
+                    onClick={() => {
+                      logout();
+                      navigate('/');
+                    }}
                     className="w-full py-4 bg-gray-900 text-white font-bold rounded-2xl"
                   >
                     Sign out
