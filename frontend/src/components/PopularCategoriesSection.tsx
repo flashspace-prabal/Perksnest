@@ -61,9 +61,11 @@ const DealCard = ({ deal }: DealCardProps) => (
             </span>
           )}
         </div>
-        <p className="text-sm text-muted-foreground">
-          Used by {deal.memberCount.toLocaleString()} members
-        </p>
+        {deal.memberCount !== undefined && (
+          <p className="text-sm text-muted-foreground">
+            Used by {deal.memberCount.toLocaleString()} members
+          </p>
+        )}
       </div>
     </div>
     
