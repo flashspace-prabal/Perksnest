@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
-import { useAuth, sendVerificationEmail, verifyEmailCode } from "@/lib/auth";
+import { useAuth } from "@/lib/auth";
+import { sendVerificationEmail, verifyEmailCode } from "@/lib/authHelpers";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -89,12 +90,11 @@ const Login = () => {
 
   const handleGoogle = async () => {
     try {
-      const callbackBase = `${window.location.origin}/auth/callback`;
-      const callbackUrl = `${callbackBase}${returnUrl ? '?returnUrl=' + encodeURIComponent(returnUrl) : ''}`;
+      const callbackUrl = `${window.location.origin}/auth/callback${returnUrl ? '?returnUrl=' + encodeURIComponent(returnUrl) : ''}`;
       const { error } = await supabaseAuth.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          redirectTo: 'https://perksnest.vercel.app',
+          redirectTo: callbackUrl,
           skipBrowserRedirect: false,
         },
       });

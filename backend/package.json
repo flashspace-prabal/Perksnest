@@ -6,7 +6,15 @@
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
-    "dev": "node server.js"
+    "dev": "node server.js",
+    "test": "jest --runInBand",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage",
+    "test:auth": "jest __tests__/auth.test.js",
+    "test:deals": "jest __tests__/deals.test.js",
+    "test:user": "jest __tests__/user.test.js",
+    "test:referrals": "jest __tests__/referrals.test.js",
+    "test:integration": "jest __tests__/integration.test.js --runInBand"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.49.8",
@@ -18,7 +26,10 @@
     "socket.io-client": "^4.8.3"
   },
   "devDependencies": {
+    "@types/jest": "^29.5.14",
     "@types/node": "^25.6.0",
+    "jest": "^29.7.0",
+    "supertest": "^6.3.4",
     "ts-node": "^10.9.2",
     "typescript": "^5.3.3"
   }

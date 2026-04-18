@@ -11,6 +11,22 @@ import { SkeletonDealCard, SkeletonLoader } from "@/components/SkeletonLoader";
 const DEALS_PER_PAGE = 9;
 const filterOptions = ["Most popular", "Most upvoted", "Expiring soon", "Premium", "Free", "Recently added"];
 
+// Map template category IDs to actual deal category values (for main category filtering)
+const templateCategoryMapping: Record<string, string[]> = {
+  "ai": ["ai"],
+  "project": ["productivity"],
+  "data": ["cloud", "database", "storage", "infrastructure", "analytics", "monitoring"],
+  "customer": ["crm", "support"],
+  "development": ["deployment", "ci-cd", "web3", "automation"],
+  "marketing": [],
+  "finance": ["finance", "payments"],
+  "communication": ["communication"],
+  "sales": [],
+  "business": [],
+  "it": ["security", "tools", "backup", "forms"],
+  "hr": ["hr"],
+};
+
 // Map subcategory IDs to parent category IDs
 const subcategoryToParent: Record<string, string> = {
   // AI subcategories
@@ -195,11 +211,14 @@ const Deals = () => {
       // 1. If "all", show everything
       // 2. If exact category match (e.g., "ai"), show all deals in that category
       // 3. If activeCategory is a subcategory ID, check if deal has that exact subcategory
-      // 4. Fallback: If activeCategory is a subcategory, show deals in parent category (backward compatible)
+      // 4. Check if activeCategory maps to any actual deal categories
+      // 5. Fallback: If activeCategory is a subcategory, show deals in parent category (backward compatible)
       const parentCategory = subcategoryToParent[activeCategory];
+      const mappedCategories = templateCategoryMapping[activeCategory] || [];
       const matchesCategory = activeCategory === "all" ||
                               deal.category === activeCategory ||
                               deal.subcategory === activeCategory ||
+                              mappedCategories.includes(deal.category) ||
                               (parentCategory && deal.category === parentCategory);
 
       const matchesPremium = activeFilter !== "Premium" || deal.isPremium;

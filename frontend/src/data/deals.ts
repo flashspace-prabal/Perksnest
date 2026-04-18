@@ -7,8 +7,8 @@ export interface Deal {
   logo: string;
   description: string;
   dealText: string;
-  redeemUrl: string;
-  website: string;
+  redeemUrl?: string;
+  website?: string;
   savings: string;
   category: string;
   features?: string[];
@@ -23,6 +23,10 @@ export interface Deal {
   isPremium?: boolean;
   collection?: string;
   isPick?: boolean;
+  slug?: string;
+  company?: string;
+  subcategory?: string;
+  expiresAt?: string;
 }
 
 export const deals: Deal[] = [

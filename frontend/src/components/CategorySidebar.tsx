@@ -14,6 +14,22 @@ interface Category {
   subcategories?: SubCategory[];
 }
 
+// Map template category IDs to actual deal category values
+const categoryMapping: Record<string, string[]> = {
+  "ai": ["ai"],
+  "project": ["productivity"],
+  "data": ["cloud", "database", "storage", "infrastructure", "analytics", "monitoring"],
+  "customer": ["crm", "support"],
+  "development": ["deployment", "ci-cd", "web3", "automation"],
+  "marketing": [], // No specific marketing deals in current data
+  "finance": ["finance", "payments"],
+  "communication": ["communication"],
+  "sales": [], // No specific sales deals in current data
+  "business": [], // No specific business deals in current data
+  "it": ["security", "tools", "backup", "forms"],
+  "hr": ["hr"],
+};
+
 const categoryTemplates: Omit<Category, 'count'>[] = [
   { id: "all", name: "All deals" },
   { id: "ai", name: "AI" },
@@ -46,9 +62,13 @@ const CategorySidebar = ({ activeCategory, onCategoryChange }: CategorySidebarPr
 
   const categoryCounts = useMemo(() => {
     const counts: Record<string, number> = { all: dealsData.length };
-    dealsData.forEach(deal => {
-      counts[deal.category] = (counts[deal.category] || 0) + 1;
+    
+    // Count deals for each template category
+    Object.entries(categoryMapping).forEach(([templateId, categoryValues]) => {
+      const count = dealsData.filter(deal => categoryValues.includes(deal.category)).length;
+      counts[templateId] = count;
     });
+    
     return counts;
   }, []);
 

@@ -4,6 +4,14 @@ import { supabaseAuth } from "@/lib/supabase";
 import { API_BASE_URL } from "@/lib/runtime";
 import { clearStoredReferralCode, getStoredReferralCode } from "@/lib/referrals";
 
+// Cookie management
+function setCookie(name: string, value: string, days: number = 7) {
+  const date = new Date();
+  date.setTime(date.getTime() + days * 24 * 60 * 60 * 1000);
+  const expires = `expires=${date.toUTCString()}`;
+  document.cookie = `${name}=${encodeURIComponent(value)}; ${expires}; path=/; SameSite=Lax`;
+}
+
 export default function AuthCallback() {
   const navigate = useNavigate();
   const [status, setStatus] = useState("Completing sign-in...");
@@ -114,10 +122,10 @@ export default function AuthCallback() {
         const userId = syncData.user.id as string;
         const userRole = (syncData.user.role as string) || "customer";
 
-        // Set session
+        // Set session in cookies (more persistent than localStorage)
         localStorage.setItem('perksnest_user_id', userId);
         if (syncData.session?.access_token) {
-          localStorage.setItem('pn_session', JSON.stringify(syncData.session));
+          setCookie('pn_session', JSON.stringify(syncData.session), 7);
         }
         setStatus("Welcome! Taking you to your dashboard...");
 

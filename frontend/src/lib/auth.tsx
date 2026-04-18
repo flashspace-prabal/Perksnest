@@ -36,7 +36,7 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | null>(null);
 const STORAGE_KEY = 'perksnest_user_id';
-const SESSION_STORAGE_KEY = 'pn_session';
+const SESSION_COOKIE_NAME = 'pn_session';
 
 type AppSession = {
   access_token?: string;
@@ -46,9 +46,34 @@ type AppSession = {
   auth_user_id?: string;
 };
 
+// Cookie management functions
+function setCookie(name: string, value: string, days: number = 7) {
+  const date = new Date();
+  date.setTime(date.getTime() + days * 24 * 60 * 60 * 1000);
+  const expires = `expires=${date.toUTCString()}`;
+  document.cookie = `${name}=${encodeURIComponent(value)}; ${expires}; path=/; SameSite=Lax`;
+}
+
+function getCookie(name: string): string | null {
+  const nameEQ = `${name}=`;
+  const cookies = document.cookie.split(';');
+  for (let cookie of cookies) {
+    cookie = cookie.trim();
+    if (cookie.startsWith(nameEQ)) {
+      return decodeURIComponent(cookie.substring(nameEQ.length));
+    }
+  }
+  return null;
+}
+
+function deleteCookie(name: string) {
+  document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;`;
+}
+
 function readStoredSession(): AppSession {
   try {
-    return JSON.parse(localStorage.getItem(SESSION_STORAGE_KEY) || '{}') as AppSession;
+    const sessionJson = getCookie(SESSION_COOKIE_NAME);
+    return sessionJson ? JSON.parse(sessionJson) : {};
   } catch {
     return {};
   }
@@ -56,11 +81,11 @@ function readStoredSession(): AppSession {
 
 function storeSession(session?: AppSession | null) {
   if (!session?.access_token) {
-    localStorage.removeItem(SESSION_STORAGE_KEY);
+    deleteCookie(SESSION_COOKIE_NAME);
     return;
   }
 
-  localStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(session));
+  setCookie(SESSION_COOKIE_NAME, JSON.stringify(session), 7);
 }
 
 async function authApi<T>(path: string, method = "GET", body?: unknown, userId?: string): Promise<T> {
@@ -105,92 +130,114 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
+    // Setup listener FIRST before any async operations
+    // This ensures we catch OAuth state changes immediately
+    const { data: { subscription } } = supabaseAuth.auth.onAuthStateChange(async (event, session) => {
+      if (event === 'SIGNED_IN' && session?.user) {
+        // User signed in with OAuth - sync with backend
+        // Clear the logout flag when signing in
+        localStorage.removeItem('perksnest_logged_out');
+        
+        const email = session.user.email?.toLowerCase().trim();
+        const name = session.user.user_metadata?.full_name 
+          || session.user.user_metadata?.name 
+          || email?.split('@')[0] 
+          || 'User';
+        const avatar = session.user.user_metadata?.avatar_url || null;
+
+        // Always store the Supabase OAuth token for authenticated API calls
+        if (session.access_token) {
+          storeSession({
+            access_token: session.access_token,
+            refresh_token: session.refresh_token || undefined,
+            expires_in: session.expires_in,
+            token_type: session.token_type,
+          });
+        }
+
+        try {
+          const syncResponse = await fetch(`${API_BASE_URL}/api/auth/oauth-sync`, {
+            method: "POST",
+            headers: { 
+              "Content-Type": "application/json",
+              // Include token so backend can verify this is a valid Supabase user
+              ...(session.access_token ? { Authorization: `Bearer ${session.access_token}` } : {}),
+            },
+            body: JSON.stringify({
+              email,
+              name,
+              avatar,
+              authUserId: session.user.id,
+            }),
+          });
+          
+          const syncData = await syncResponse.json().catch(() => null);
+          if (syncResponse.ok && syncData?.user) {
+            const nextUser = rowToUser(syncData.user);
+            setUser(nextUser);
+            localStorage.setItem(STORAGE_KEY, nextUser.id);
+            // If backend returns a different token, use that instead
+            if (syncData.session?.access_token) {
+              storeSession(syncData.session);
+            }
+          }
+        } catch (err) {
+          console.error('OAuth sync error:', err);
+        }
+      } else if (event === 'SIGNED_OUT') {
+        setUser(null);
+        localStorage.removeItem(STORAGE_KEY);
+        deleteCookie(SESSION_COOKIE_NAME);
+      }
+    });
+
+    // Now initialize auth state
     const initializeAuth = async () => {
       try {
-        // First, check for stored session (faster)
+        // Check Supabase session first (catches OAuth cases)
+        const { data: supabaseSession } = await supabaseAuth.auth.getSession();
+        
+        if (supabaseSession.session?.user) {
+          // OAuth session exists - listener will handle sync
+          // Just mark as loaded
+          setIsLoading(false);
+          return;
+        }
+        
+        // No Supabase session, check stored session
         const session = readStoredSession();
         const userId = localStorage.getItem(STORAGE_KEY) || session.user_id;
         
-        // Also check Supabase session for OAuth cases
-        const { data: supabaseSession } = await supabaseAuth.auth.getSession();
-        
-        if (!userId && !session.access_token && !supabaseSession.session) {
+        if (!userId && !session.access_token) {
           // No session anywhere
           setIsLoading(false);
           return;
         }
 
-        const loadUser = async () => {
-          try {
-            const response = await authApi<{ success: boolean; user: Record<string, unknown> }>(
-              "/api/auth/me",
-              "GET",
-              undefined,
-              userId || undefined
-            );
-            if (response.user) {
-              const nextUser = rowToUser(response.user);
-              setUser(nextUser);
-              localStorage.setItem(STORAGE_KEY, nextUser.id);
-            }
-          } catch {
-            // Clear storage if fetch fails
-            localStorage.removeItem(STORAGE_KEY);
-            localStorage.removeItem(SESSION_STORAGE_KEY);
+        // Fetch user from backend
+        try {
+          const response = await authApi<{ success: boolean; user: Record<string, unknown> }>(
+            "/api/auth/me",
+            "GET",
+            undefined,
+            userId || undefined
+          );
+          if (response.user) {
+            const nextUser = rowToUser(response.user);
+            setUser(nextUser);
+            localStorage.setItem(STORAGE_KEY, nextUser.id);
           }
-        };
-
-        await loadUser();
+        } catch {
+          // Clear storage if fetch fails
+          localStorage.removeItem(STORAGE_KEY);
+          deleteCookie(SESSION_COOKIE_NAME);
+        }
       } finally {
         setIsLoading(false);
       }
     };
 
     initializeAuth();
-
-    // Listen to Supabase auth state changes (for OAuth and other providers)
-    const { data: { subscription } } = supabaseAuth.auth.onAuthStateChange(async (event, session) => {
-      if (event === 'SIGNED_IN' && session?.user) {
-        // User signed in with OAuth - sync with backend
-        if (!localStorage.getItem('perksnest_logged_out')) {
-          const email = session.user.email?.toLowerCase().trim();
-          const name = session.user.user_metadata?.full_name 
-            || session.user.user_metadata?.name 
-            || email?.split('@')[0] 
-            || 'User';
-          const avatar = session.user.user_metadata?.avatar_url || null;
-
-          try {
-            const syncResponse = await fetch(`${API_BASE_URL}/api/auth/oauth-sync`, {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({
-                email,
-                name,
-                avatar,
-                authUserId: session.user.id,
-              }),
-            });
-            
-            const syncData = await syncResponse.json().catch(() => null);
-            if (syncResponse.ok && syncData?.user) {
-              const nextUser = rowToUser(syncData.user);
-              setUser(nextUser);
-              localStorage.setItem(STORAGE_KEY, nextUser.id);
-              if (syncData.session?.access_token) {
-                storeSession(syncData.session);
-              }
-            }
-          } catch (err) {
-            console.error('OAuth sync error:', err);
-          }
-        }
-      } else if (event === 'SIGNED_OUT') {
-        setUser(null);
-        localStorage.removeItem(STORAGE_KEY);
-        localStorage.removeItem(SESSION_STORAGE_KEY);
-      }
-    });
 
     return () => subscription.unsubscribe();
   }, []);
@@ -242,7 +289,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     try {
       setUser(null);
       localStorage.removeItem(STORAGE_KEY);
-      localStorage.removeItem(SESSION_STORAGE_KEY);
+      deleteCookie(SESSION_COOKIE_NAME);
       localStorage.setItem('perksnest_logged_out', 'true');
       await supabaseAuth.auth.signOut().catch((err: unknown) => {
         console.error('Supabase sign out error:', err);
@@ -302,16 +349,16 @@ export function useAuth() {
   return ctx;
 }
 
-export async function getAllUsers(): Promise<User[]> {
+async function getAllUsers(): Promise<User[]> {
   const response = await authApi<{ users: Record<string, unknown>[] }>("/api/admin/users?page=1&limit=1000");
   return (response.users || []).map(rowToUser);
 }
 
-export async function sendVerificationEmail(email: string, name: string): Promise<void> {
+async function sendVerificationEmail(email: string, name: string): Promise<void> {
   await authApi("/api/auth/send-verification", "POST", { email, name });
 }
 
-export async function verifyEmailCode(email: string, code: string): Promise<boolean> {
+async function verifyEmailCode(email: string, code: string): Promise<boolean> {
   const response = await authApi<{ verified?: boolean }>("/api/auth/verify-email", "POST", { email, code });
   return !!response.verified;
 }
