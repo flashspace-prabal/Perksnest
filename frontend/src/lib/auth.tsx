@@ -194,27 +194,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     // Now initialize auth state
     const initializeAuth = async () => {
       try {
-        // Check Supabase session first (catches OAuth cases)
-        const { data: supabaseSession } = await supabaseAuth.auth.getSession();
-        
-        if (supabaseSession.session?.user) {
-          // OAuth session exists - listener will handle sync
-          // Just mark as loaded
-          setIsLoading(false);
-          return;
-        }
-        
-        // No Supabase session, check stored session
+        // Check stored session first (works for both email and OAuth)
         const session = readStoredSession();
         const userId = localStorage.getItem(STORAGE_KEY) || session.user_id;
         
-        if (!userId && !session.access_token) {
+        // Also check Supabase session for OAuth cases
+        const { data: supabaseSession } = await supabaseAuth.auth.getSession();
+        
+        if (!userId && !session.access_token && !supabaseSession.session?.user) {
           // No session anywhere
           setIsLoading(false);
           return;
         }
 
-        // Fetch user from backend
+        // Fetch user from backend (this works for both email and OAuth)
         try {
           const response = await authApi<{ success: boolean; user: Record<string, unknown> }>(
             "/api/auth/me",
@@ -225,9 +218,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           if (response.user) {
             const nextUser = rowToUser(response.user);
             setUser(nextUser);
-            localStorage.setItem(STORAGE_KEY, nextUser.id);
+            if (!localStorage.getItem(STORAGE_KEY)) {
+              localStorage.setItem(STORAGE_KEY, nextUser.id);
+            }
           }
-        } catch {
+        } catch (err) {
+          console.error('Failed to fetch user:', err);
           // Clear storage if fetch fails
           localStorage.removeItem(STORAGE_KEY);
           deleteCookie(SESSION_COOKIE_NAME);

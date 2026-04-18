@@ -95,6 +95,16 @@ export default function AuthCallback() {
         setStatus("Setting up your account...");
         name = name || email.split('@')[0];
 
+        // Store Supabase token BEFORE calling oauth-sync (critical for email login to work after OAuth)
+        if (accessToken) {
+          setCookie('pn_session', JSON.stringify({
+            access_token: accessToken,
+            refresh_token: refreshToken || undefined,
+            expires_in: expiresIn,
+            token_type: tokenType,
+          }), 7);
+        }
+
         const storedReferralCode = getStoredReferralCode();
         const syncResponse = await fetch(`${API_BASE_URL}/api/auth/oauth-sync`, {
           method: "POST",
