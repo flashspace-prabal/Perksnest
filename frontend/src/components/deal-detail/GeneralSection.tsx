@@ -1,6 +1,5 @@
 import React from "react";
 import { ComprehensiveDealDetail } from "@/data/deal-details-schema";
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import * as LucideIcons from "lucide-react";
 
 interface GeneralSectionProps {
@@ -9,30 +8,83 @@ interface GeneralSectionProps {
 
 export const GeneralSection: React.FC<GeneralSectionProps> = ({ deal }) => {
   return (
-    <section id="general-section" className="py-16 bg-slate-50 border-b border-slate-200">
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
-        {/* Title */}
+    <section id="general-section" className="py-20 bg-white border-b border-gray-200">
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 space-y-20">
+        {/* Main Title */}
         <div>
-          <h2 className="text-4xl font-bold text-slate-900 mb-6">
+          <h2 
+            className="text-4xl sm:text-5xl font-bold text-gray-900 mb-8"
+            style={{
+              fontFamily: 'Geist, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif',
+            }}
+          >
             General information
           </h2>
 
-          {/* Overview */}
-          <div className="space-y-4 mb-10">
-            <p className="text-lg text-slate-700 leading-relaxed">
+          {/* Overview - Rich Description */}
+          <div className="space-y-6 mb-16">
+            <p 
+              className="text-xl text-gray-700 leading-relaxed"
+              style={{
+                fontFamily: 'Geist, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif',
+                fontSize: '16px',
+                lineHeight: '1.6',
+              }}
+            >
               {(deal.general?.overview || (deal as any).generalInfo?.overview) || `${deal.name} is a powerful platform designed to help teams be more productive and efficient.`}
             </p>
+
+            {/* Why It's Valuable - Key Benefits */}
+            <div className="bg-gradient-to-r from-green-50 to-emerald-50 rounded-2xl border border-green-200 p-8">
+              <h3 
+                className="text-lg font-bold text-gray-900 mb-4"
+                style={{
+                  fontFamily: 'Geist, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif',
+                }}
+              >
+                ✨ Why {deal.name} is valuable
+              </h3>
+              <p 
+                className="text-gray-700"
+                style={{
+                  fontFamily: 'Geist, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif',
+                  fontSize: '14px',
+                  lineHeight: '1.6',
+                }}
+              >
+                This tool compounds over time—the more you use it, the more value you extract. Perfect for startups looking to scale their operations without adding recurring costs.
+              </p>
+            </div>
           </div>
 
-          {/* Use Cases */}
+          {/* Use Cases - Grid Layout */}
           {((deal.general?.useCases || (deal as any).generalInfo?.useCases) && (deal.general?.useCases || (deal as any).generalInfo?.useCases).length > 0) && (
-            <div className="mb-10">
-              <h3 className="text-xl font-bold text-slate-900 mb-4">Use Cases</h3>
-              <div className="grid grid-cols-2 gap-3">
+            <div className="mb-16">
+              <h3 
+                className="text-2xl font-bold text-gray-900 mb-8"
+                style={{
+                  fontFamily: 'Geist, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif',
+                }}
+              >
+                Best for
+              </h3>
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                 {(deal.general?.useCases || (deal as any).generalInfo?.useCases).map((useCase: string, idx: number) => (
-                  <div key={idx} className="flex gap-2 text-slate-700">
-                    <span className="text-blue-600 font-bold">•</span>
-                    {useCase}
+                  <div 
+                    key={idx} 
+                    className="flex gap-3 items-start p-4 rounded-xl bg-gray-50 border border-gray-100 hover:border-gray-200 hover:bg-gray-100 transition"
+                  >
+                    <span className="text-blue-600 font-bold text-xl flex-shrink-0">→</span>
+                    <p 
+                      className="text-gray-700"
+                      style={{
+                        fontFamily: 'Geist, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif',
+                        fontSize: '14px',
+                        lineHeight: '1.5',
+                      }}
+                    >
+                      {useCase}
+                    </p>
                   </div>
                 ))}
               </div>
@@ -41,43 +93,79 @@ export const GeneralSection: React.FC<GeneralSectionProps> = ({ deal }) => {
 
           {/* Technical Info */}
           {(deal.general?.technicalInfo || (deal as any).generalInfo?.technicalInfo) && (
-            <div className="bg-white rounded-lg p-6 border border-slate-200 mb-10">
-              <h3 className="text-lg font-bold text-slate-900 mb-3">
+            <div className="bg-blue-50 border border-blue-200 rounded-2xl p-8 mb-16">
+              <h3 
+                className="text-lg font-bold text-gray-900 mb-4"
+                style={{
+                  fontFamily: 'Geist, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif',
+                }}
+              >
                 Technical Information
               </h3>
-              <p className="text-slate-700 leading-relaxed">
+              <p 
+                className="text-gray-700 leading-relaxed"
+                style={{
+                  fontFamily: 'Geist, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif',
+                  fontSize: '14px',
+                  lineHeight: '1.6',
+                }}
+              >
                 {deal.general?.technicalInfo || (deal as any).generalInfo?.technicalInfo}
               </p>
             </div>
           )}
         </div>
 
-        {/* Features Grid */}
+        {/* Key Features - Premium Grid */}
         {(deal.general?.features || (deal as any).generalInfo?.features) && (deal.general?.features || (deal as any).generalInfo?.features).length > 0 && (
           <div>
-            <h2 className="text-3xl font-bold text-slate-900 mb-8">Key Features</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <h2 
+              className="text-3xl sm:text-4xl font-bold text-gray-900 mb-10"
+              style={{
+                fontFamily: 'Geist, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif',
+              }}
+            >
+              Key features
+            </h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
               {(deal.general?.features || (deal as any).generalInfo?.features).map((feature: any) => {
                 const IconComponent = feature.icon
                   ? (LucideIcons[feature.icon as keyof typeof LucideIcons] as any)
                   : null;
 
                 return (
-                  <Card key={feature.id} className="border border-slate-200">
-                    <CardHeader>
-                      <div className="flex gap-3 items-start">
-                        {IconComponent && (
-                          <div className="p-2 bg-blue-100 rounded-lg">
-                            <IconComponent className="w-6 h-6 text-blue-600" />
-                          </div>
-                        )}
-                        <CardTitle className="text-lg">{feature.title}</CardTitle>
+                  <div 
+                    key={feature.id} 
+                    className="rounded-2xl border border-gray-200 p-8 hover:border-gray-300 hover:shadow-lg transition"
+                  >
+                    <div className="flex gap-4 items-start">
+                      {IconComponent && (
+                        <div className="p-3 bg-blue-100 rounded-xl flex-shrink-0">
+                          <IconComponent className="w-6 h-6 text-blue-600" />
+                        </div>
+                      )}
+                      <div>
+                        <h4 
+                          className="text-lg font-bold text-gray-900 mb-2"
+                          style={{
+                            fontFamily: 'Geist, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif',
+                          }}
+                        >
+                          {feature.title}
+                        </h4>
+                        <p 
+                          className="text-gray-600"
+                          style={{
+                            fontFamily: 'Geist, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif',
+                            fontSize: '14px',
+                            lineHeight: '1.6',
+                          }}
+                        >
+                          {feature.description}
+                        </p>
                       </div>
-                    </CardHeader>
-                    <CardContent>
-                      <p className="text-slate-600">{feature.description}</p>
-                    </CardContent>
-                  </Card>
+                    </div>
+                  </div>
                 );
               })}
             </div>
