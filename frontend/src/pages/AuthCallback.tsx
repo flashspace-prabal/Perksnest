@@ -1,5 +1,4 @@
-import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useEffect } from "react";
 import { supabaseAuth } from "@/lib/supabase";
 import { API_BASE_URL } from "@/lib/runtime";
 import { clearStoredReferralCode, getStoredReferralCode } from "@/lib/referrals";
@@ -13,14 +12,11 @@ function setCookie(name: string, value: string, days: number = 7) {
 }
 
 export default function AuthCallback() {
-  const navigate = useNavigate();
-  const [status, setStatus] = useState("Completing sign-in...");
-
   useEffect(() => {
     const handleCallback = async () => {
       try {
         // Give Supabase JS a moment to process the URL hash/code
-        await new Promise(r => setTimeout(r, 500));
+        await new Promise(r => setTimeout(r, 300));
 
         // Try all methods to get the session
         let email: string | null = null;
@@ -87,12 +83,10 @@ export default function AuthCallback() {
         }
 
         if (!email) {
-          setStatus("Could not get your Google account details. Please try again.");
-          setTimeout(() => navigate("/login"), 3000);
+          window.location.replace("/login");
           return;
         }
 
-        setStatus("Setting up your account...");
         name = name || email.split('@')[0];
 
         // Store Supabase token BEFORE calling oauth-sync (critical for email login to work after OAuth)
@@ -123,8 +117,7 @@ export default function AuthCallback() {
         });
         const syncData = await syncResponse.json().catch(() => null);
         if (!syncResponse.ok || !syncData?.user) {
-          setStatus(`Account setup failed. Please try again.`);
-          setTimeout(() => navigate("/login"), 3000);
+          window.location.replace("/login");
           return;
         }
         if (storedReferralCode) clearStoredReferralCode();
@@ -137,7 +130,6 @@ export default function AuthCallback() {
         if (syncData.session?.access_token) {
           setCookie('pn_session', JSON.stringify(syncData.session), 7);
         }
-        setStatus("Welcome! Taking you to your dashboard...");
 
         // Redirect based on role or returnUrl
         const returnUrl = new URLSearchParams(window.location.search).get('returnUrl');
@@ -147,21 +139,20 @@ export default function AuthCallback() {
 
       } catch (err: unknown) {
         console.error('Auth callback error:', err);
-        const message = err instanceof Error ? err.message : 'Something went wrong';
-        setStatus(`Error: ${message}. Redirecting...`);
-        setTimeout(() => navigate("/login"), 3000);
+        window.location.replace("/login");
       }
     };
 
     handleCallback();
-  }, [navigate]);
+  }, []);
 
+  // Show loading UI while processing OAuth callback
   return (
     <div className="min-h-screen bg-background flex items-center justify-center">
       <div className="text-center max-w-sm px-4">
         <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4" />
-        <p className="text-foreground font-medium mb-1">{status}</p>
-        <p className="text-muted-foreground text-sm">Please wait...</p>
+        <p className="text-foreground font-medium mb-1">Completing sign-in...</p>
+        <p className="text-muted-foreground text-sm">Please wait a moment...</p>
       </div>
     </div>
   );
