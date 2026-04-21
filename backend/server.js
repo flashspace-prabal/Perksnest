@@ -7,6 +7,46 @@ const { Server } = require("socket.io");
 
 const app = express();
 const server = http.createServer(app);
+
+// Stripe setup
+const STRIPE_SECRET_KEY = process.env.STRIPE_SECRET_KEY || "";
+const stripe = STRIPE_SECRET_KEY ? require("stripe")(STRIPE_SECRET_KEY) : null;
+
+// Mount Stripe webhook before body parser
+app.post("/api/webhooks/stripe", express.raw({ type: "application/json" }), async (req, res) => {
+  if (!stripe) {
+    return res.status(400).send("Stripe not configured");
+  }
+
+  const sig = req.headers["stripe-signature"];
+  const endpointSecret = process.env.STRIPE_WEBHOOK_SECRET;
+
+  let event;
+  try {
+    event = stripe.webhooks.constructEvent(req.body, sig, endpointSecret);
+  } catch (err) {
+    console.error("Webhook signature verification failed:", err.message);
+    return res.status(400).send(`Webhook Error: ${err.message}`);
+  }
+
+  if (event.type === "checkout.session.completed") {
+    const session = event.data.object;
+    const userId = session.client_reference_id;
+
+    if (userId) {
+      try {
+        const { error } = await db.from("users").update({ plan: "premium" }).eq("id", userId);
+        if (error) throw error;
+        console.log(`Successfully upgraded user ${userId} to premium via webhook`);
+      } catch (err) {
+        console.error("Failed to update user plan:", err);
+      }
+    }
+  }
+
+  res.json({ received: true });
+});
+
 app.use(express.json({ limit: "1mb" }));
 const PORT = Number(process.env.PORT || 3000);
 
@@ -835,6 +875,66 @@ function canAccessTicket(ticket, user) {
 
 app.get("/health", (_, res) => res.json({ ok: true, service: "perksnest-backend" }));
 app.get("/api/health", (_, res) => res.json({ ok: true, service: "perksnest-backend" }));
+
+app.post("/api/checkout", async (req, res) => {
+  try {
+    const { userId, email, name, period } = req.body || {};
+    if (!userId) {
+      return res.status(400).json({ success: false, error: "Missing userId" });
+    }
+
+    if (!stripe) {
+      // Mock flow if no Stripe key is set
+      const mockSuccessUrl = `${process.env.CORS_ORIGINS ? process.env.CORS_ORIGINS.split(',')[0] : 'http://localhost:8080'}/api/checkout/mock-success?session_id=mock_${userId}`;
+      return res.json({ url: mockSuccessUrl });
+    }
+
+    const FRONTEND_URL = process.env.CORS_ORIGINS ? process.env.CORS_ORIGINS.split(',')[0] : 'http://localhost:8080';
+    
+    // Create actual Stripe checkout session
+    const session = await stripe.checkout.sessions.create({
+      payment_method_types: ['card'],
+      line_items: [
+        {
+          price_data: {
+            currency: 'usd',
+            product_data: {
+              name: 'PerksNest Premium',
+              description: 'Access to all premium deals',
+            },
+            unit_amount: period === 'annual' ? 20000 : 2000, // $200.00 annual or $20.00 monthly
+          },
+          quantity: 1,
+        },
+      ],
+      mode: 'payment',
+      success_url: `${FRONTEND_URL}/customer?success=true`,
+      cancel_url: `${FRONTEND_URL}/pricing?canceled=true`,
+      client_reference_id: userId,
+      customer_email: email || undefined,
+    });
+
+    res.json({ url: session.url });
+  } catch (error) {
+    console.error("Checkout Error:", error);
+    res.status(500).json({ success: false, error: "Failed to create checkout session" });
+  }
+});
+
+app.get("/api/checkout/mock-success", async (req, res) => {
+  try {
+    const { session_id } = req.query;
+    if (session_id && session_id.startsWith("mock_")) {
+      const userId = session_id.replace("mock_", "");
+      const { error } = await db.from("users").update({ plan: "premium" }).eq("id", userId);
+      if (error) console.error("Mock upgrade failed:", error);
+    }
+    const FRONTEND_URL = process.env.CORS_ORIGINS ? process.env.CORS_ORIGINS.split(',')[0] : 'http://localhost:8080';
+    res.redirect(`${FRONTEND_URL}/customer?success=true`);
+  } catch (error) {
+    res.status(500).send("Error completing mock checkout");
+  }
+});
 
 app.post("/api/auth/login", async (req, res) => {
   const { email, password } = req.body || {};

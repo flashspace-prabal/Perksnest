@@ -144,6 +144,7 @@ export interface ComprehensiveDealDetail {
   // SEO & Meta
   seoKeywords?: string[];
   seoDescription?: string;
+  isPremium?: boolean;
 }
 
 /**

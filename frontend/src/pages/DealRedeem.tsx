@@ -211,9 +211,10 @@ const DealRedeem = () => {
     expiresIn: redemption.expiresIn,
   } : null;
 
-  const isClaimed = dealId && user?.claimedDeals.includes(dealId);
+  const isClaimed = dealId && user?.claimedDeals?.includes(dealId);
   const isPremiumDeal = deal?.isPremium;
-  const canViewCode = isAuthenticated && isClaimed && (!isPremiumDeal || user?.plan === 'premium');
+  const isMUserPremium = user?.plan === "premium" || user?.plan === "enterprise";
+  const canViewCode = isAuthenticated && isClaimed && (!isPremiumDeal || isMUserPremium);
 
   const handleCopyCode = () => {
     if (deal?.promoCode && canViewCode) {
@@ -342,7 +343,7 @@ const DealRedeem = () => {
           )}
 
           {/* Premium Lock Alert */}
-          {isAuthenticated && isPremiumDeal && !(user?.plan === 'premium') && (
+          {isAuthenticated && isPremiumDeal && !isMUserPremium && (
             <Alert className="mb-8 border-primary/50 bg-primary/10">
               <Lock className="h-4 w-4" />
               <AlertDescription>

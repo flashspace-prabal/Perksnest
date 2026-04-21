@@ -1,3 +1,4 @@
+import { isPremiumDeal } from "@/lib/deal-types";
 /**
  * Refactored Deal Detail Page - Production Grade
  * Comprehensive product/deal page with all sections matching reference design
@@ -228,17 +229,29 @@ export const ComprehensiveDealDetailPage: React.FC = () => {
     }
   };
 
-  const handleShare = () => {
-    if (navigator.share && deal) {
-      navigator.share({
-        title: deal.name,
-        text: deal.dealHighlight?.headline || deal.shortDescription,
-        url: window.location.href,
-      });
-    } else {
-      // Fallback: Copy to clipboard
-      navigator.clipboard.writeText(window.location.href);
-      toast.success("Link copied to clipboard!");
+  const handleShare = async () => {
+    try {
+      if (navigator.share && deal) {
+        await navigator.share({
+          title: deal.name,
+          text: deal.dealHighlight?.headline || deal.shortDescription,
+          url: window.location.href,
+        });
+        toast.success("Shared successfully!");
+      } else {
+        await navigator.clipboard.writeText(window.location.href);
+        toast.success("Link copied to clipboard!");
+      }
+    } catch (error) {
+      // User might have canceled the share or it failed
+      if (error instanceof Error && error.name !== 'AbortError') {
+        try {
+          await navigator.clipboard.writeText(window.location.href);
+          toast.success("Link copied to clipboard!");
+        } catch (clipboardError) {
+          toast.error("Failed to share or copy link");
+        }
+      }
     }
   };
 
@@ -274,17 +287,22 @@ export const ComprehensiveDealDetailPage: React.FC = () => {
     );
   }
 
+  // Check premium access
+  const isMUserPremium = user?.plan === "premium" || user?.plan === "enterprise";
+  const requireUpgrade = (!!deal?.isPremium || (!!dealId && isPremiumDeal(dealId))) && !isMUserPremium;
+
   return (
     <div className="min-h-screen bg-white">
       {/* Hero Section */}
       <DealHero
         deal={deal}
-        onClaim={handleClaim}
+        onClaim={requireUpgrade ? () => navigate("/pricing") : handleClaim}
         onBookmark={handleBookmark}
         onShare={handleShare}
         isClaimed={isClaimed}
         isBookmarked={isBookmarked(dealId || "")}
         isLoading={isClaiming}
+        requireUpgrade={requireUpgrade}
       />
 
       {/* Sticky Tabs Navigation */}

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { ArrowRight, Share2, Bookmark } from "lucide-react";
+import { ArrowRight, Share2, Bookmark, Lock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { ComprehensiveDealDetail } from "@/data/deal-details-schema";
@@ -15,6 +15,7 @@ interface DealHeroProps {
   isClaimed?: boolean;
   isBookmarked?: boolean;
   isLoading?: boolean;
+  requireUpgrade?: boolean;
 }
 
 export const DealHero: React.FC<DealHeroProps> = ({
@@ -25,6 +26,7 @@ export const DealHero: React.FC<DealHeroProps> = ({
   isClaimed,
   isBookmarked,
   isLoading,
+  requireUpgrade,
 }) => {
   // Get the first review for this deal to use as testimonial
   const dealTestimonial = dealReviews.find((r) => r.dealId === deal.id);
@@ -271,14 +273,24 @@ export const DealHero: React.FC<DealHeroProps> = ({
               </div>
 
               {/* Main CTA - Premium Button */}
-              <Button
-                onClick={onClaim}
-                disabled={isClaimed || isLoading}
-                className="w-full bg-[#5c2169] text-white py-3 rounded-lg font-semibold h-12 flex items-center justify-center gap-2 shadow-md hover:shadow-lg transition"
-              >
-                {isClaimed ? "✓ Deal Claimed" : "Get deal for free"}
-                {!isClaimed && <ArrowRight className="w-4 h-4" />}
-              </Button>
+              {requireUpgrade ? (
+                <Button
+                  onClick={onClaim}
+                  className="w-full bg-[#5c2169] text-white py-3 rounded-lg font-semibold h-12 flex items-center justify-center gap-2 shadow-md hover:shadow-lg transition"
+                >
+                  <Lock className="w-4 h-4" />
+                  Upgrade to Access Deal
+                </Button>
+              ) : (
+                <Button
+                  onClick={onClaim}
+                  disabled={isClaimed || isLoading}
+                  className="w-full bg-[#5c2169] text-white py-3 rounded-lg font-semibold h-12 flex items-center justify-center gap-2 shadow-md hover:shadow-lg transition"
+                >
+                  {isClaimed ? "✓ Deal Claimed" : "Get deal for free"}
+                  {!isClaimed && <ArrowRight className="w-4 h-4" />}
+                </Button>
+              )}
 
               {/* Eligibility Note */}
               <p 

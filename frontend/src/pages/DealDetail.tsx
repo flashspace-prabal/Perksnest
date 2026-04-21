@@ -20,6 +20,7 @@ import { getPartnerDeals, PartnerDeal } from "@/lib/store";
 import { claimDeal as apiClaimDeal, getDealClaims, getUserClaims } from "@/lib/api";
 import { getDeal, getDealsByCategory } from "@/lib/deals";
 import { useSeo } from "@/lib/seo";
+import { isPremiumDeal, isFreeDeal } from "@/lib/deal-types";
 
 import notionLogo from "@/assets/logos/notion.png";
 import stripeLogo from "@/assets/logos/stripe.svg";
@@ -223,8 +224,8 @@ const DealDetail = () => {
   };
 
   const isClaimed = !!dealId && (user?.claimedDeals?.includes(dealId) || serverClaimedDeals.includes(dealId));
-  const isPremiumDeal = deal?.isPremium;
-  const canClaim = isAuthenticated && (!isPremiumDeal || isPro);
+  const isDealPremium = dealId ? isPremiumDeal(dealId) : deal?.isPremium;
+  const canClaim = isAuthenticated && (!isDealPremium || isPro);
 
   const [isClaiming, setIsClaiming] = React.useState(false);
 
@@ -234,7 +235,7 @@ const DealDetail = () => {
       return;
     }
 
-    if (isPremiumDeal && !isPro) {
+    if (isDealPremium && !isPro) {
       setShowUpgradeModal(true);
       return;
     }
@@ -298,9 +299,13 @@ const DealDetail = () => {
     }
   };
 
-  const handleShare = () => {
-    navigator.clipboard.writeText(window.location.href);
-    toast.success("Link copied to clipboard!");
+  const handleShare = async () => {
+    try {
+      await navigator.clipboard.writeText(window.location.href);
+      toast.success("Link copied to clipboard!");
+    } catch (error) {
+      toast.error("Failed to copy link");
+    }
   };
 
   if (isLoading) {
@@ -681,13 +686,20 @@ const DealDetail = () => {
                   </div>
                 </div>
 
-                {/* Savings */}
-                <p className="text-primary font-semibold mb-2">Save up to {deal.savings}</p>
+                {/* Savings Card */}
+                <div className="bg-emerald-50 border border-emerald-200 rounded-xl p-5 mb-6">
+                  <p className="text-xs text-emerald-600 font-semibold uppercase tracking-widest mb-2">Save up to</p>
+                  <div className="select-none pointer-events-none">
+                    <p className="text-4xl font-black text-emerald-700 leading-none whitespace-nowrap">{deal.savings}</p>
+                  </div>
+                </div>
 
                 {/* Deal Text */}
-                <h4 className="text-xl font-bold text-foreground mb-6 leading-tight">
-                  {deal.dealText}
-                </h4>
+                <div className="mb-6">
+                  <h4 className="text-lg font-semibold text-foreground mb-2">
+                    {deal.dealText}
+                  </h4>
+                </div>
 
                 {/* CTA Button */}
                 {isClaimed ? (
@@ -698,13 +710,13 @@ const DealDetail = () => {
                     <Check className="h-4 w-4 mr-2" />
                     View Promo Code
                   </Button>
-                ) : isPremiumDeal && !isPro ? (
+                ) : isDealPremium && !isPro ? (
                   <Button
-                    className="w-full h-12 text-base font-semibold"
+                    className="w-full h-12 text-base font-semibold bg-purple-600 hover:bg-purple-700 text-white"
                     onClick={() => navigate('/pricing')}
                   >
                     <Lock className="h-4 w-4 mr-2" />
-                    Upgrade to Claim
+                    Upgrade to Access Premium Deal
                   </Button>
                 ) : (
                   <Button
@@ -720,10 +732,13 @@ const DealDetail = () => {
                     ) : !isAuthenticated ? (
                       <>
                         <Lock className="h-4 w-4 mr-2" />
-                        Claim Deal
+                        Sign in to Claim
                       </>
                     ) : (
-                      'Claim Deal'
+                      <>
+                        <ArrowUpRight className="h-4 w-4 mr-2" />
+                        Claim Deal
+                      </>
                     )}
                   </Button>
                 )}

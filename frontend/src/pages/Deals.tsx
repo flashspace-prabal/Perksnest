@@ -1,12 +1,13 @@
 import { useState, useEffect } from "react";
 import { Link, useSearchParams } from "react-router-dom";
-import { Grid, List, Star, Search, X, Loader2, TrendingUp, Clock, Zap } from "lucide-react";
+import { Grid, List, Star, Search, X, Loader2, TrendingUp, Clock, Zap, Gift, Lock } from "lucide-react";
 import DealCardNew from "@/components/DealCardNew";
 import CategorySidebar from "@/components/CategorySidebar";
 import { Deal, getExpiryLabel } from "@/data/deals";
 import { getUpvoteCount, getPartnerDeals, PartnerDeal } from "@/lib/store";
 import { getDeals } from "@/lib/deals";
 import { SkeletonDealCard, SkeletonLoader } from "@/components/SkeletonLoader";
+import { isFreeDeal, isPremiumDeal } from "@/lib/deal-types";
 
 const DEALS_PER_PAGE = 9;
 const filterOptions = ["Most popular", "Most upvoted", "Expiring soon", "Premium", "Free", "Recently added"];
@@ -221,8 +222,12 @@ const Deals = () => {
                               mappedCategories.includes(deal.category) ||
                               (parentCategory && deal.category === parentCategory);
 
-      const matchesPremium = activeFilter !== "Premium" || deal.isPremium;
-      const matchesFree = activeFilter !== "Free" || deal.isFree;
+      // Use the deal-types mapping functions to check premium/free status
+      const dealIsPremium = isPremiumDeal(deal.id) || deal.isPremium;
+      const dealIsFree = !dealIsPremium;
+      
+      const matchesPremium = activeFilter !== "Premium" || dealIsPremium;
+      const matchesFree = activeFilter !== "Free" || dealIsFree;
       return matchesSearch && matchesCategory && matchesPremium && matchesFree;
     })
     .sort((a, b) => {
@@ -355,8 +360,8 @@ const Deals = () => {
               </div>
             )}
 
-            {/* All Deals */}
-            <div className="mb-6">
+            {/* All Deals - Split into FREE and PREMIUM sections */}
+            <div className="mb-6 space-y-12">
               {!searchQuery && currentPage === 1 && (
                 <h2 className="text-lg font-bold text-gray-900 mb-4">All Deals</h2>
               )}
@@ -388,23 +393,76 @@ const Deals = () => {
                   </button>
                 </div>
               ) : (
-                <div className={`grid gap-4 ${viewMode === "grid" ? "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3" : "grid-cols-1"}`}>
-                  {paginatedDeals.map((deal) => (
-                    <DealCardNew
-                      key={deal.id}
-                      id={deal.id}
-                      slug={deal.slug || deal.id}
-                      name={deal.name}
-                      logo={deal.logo}
-                      description={deal.description}
-                      dealText={deal.dealText}
-                      savings={deal.savings}
-                      memberCount={deal.memberCount}
-                      isPremium={deal.isPremium}
-                      isPick={deal.isPick}
-                    />
-                  ))}
-                </div>
+                <>
+                  {/* FREE DEALS SECTION - Only show if not filtering by Premium */}
+                  {activeFilter !== "Premium" && (() => {
+                    const freeDeal = paginatedDeals.filter(d => !(isPremiumDeal(d.id) || d.isPremium));
+                    return freeDeal.length > 0 ? (
+                      <section>
+                        <div className="flex items-center gap-3 mb-4">
+                          <Gift className="h-5 w-5 text-green-600" />
+                          <h3 className="text-lg font-bold text-gray-900">Free Deals</h3>
+                          <span className="text-sm text-gray-500">({filteredDeals.filter(d => !(isPremiumDeal(d.id) || d.isPremium)).length})</span>
+                        </div>
+                        <div className={`grid gap-4 ${viewMode === "grid" ? "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3" : "grid-cols-1"}`}>
+                          {freeDeal.map((deal) => (
+                            <DealCardNew
+                              key={deal.id}
+                              id={deal.id}
+                              slug={deal.slug || deal.id}
+                              name={deal.name}
+                              logo={deal.logo}
+                              description={deal.description}
+                              dealText={deal.dealText}
+                              savings={deal.savings}
+                              memberCount={deal.memberCount}
+                              isPremium={deal.isPremium}
+                              isPick={deal.isPick}
+                            />
+                          ))}
+                        </div>
+                      </section>
+                    ) : null;
+                  })()}
+
+                  {/* PREMIUM DEALS SECTION - Only show if not filtering by Free */}
+                  {activeFilter !== "Free" && (() => {
+                    const premiumDeals = paginatedDeals.filter(d => isPremiumDeal(d.id) || d.isPremium);
+                    return premiumDeals.length > 0 ? (
+                      <section className="relative">
+                        <div className="absolute -inset-4 bg-gradient-to-r from-purple-600/5 to-purple-700/5 rounded-3xl blur-2xl pointer-events-none" />
+                        <div className="relative">
+                          <div className="flex items-center gap-3 mb-4">
+                            <Lock className="h-5 w-5 text-purple-600" />
+                            <h3 className="text-lg font-bold text-gray-900">Premium Deals</h3>
+                            <span className="text-sm text-gray-500">({filteredDeals.filter(d => isPremiumDeal(d.id) || d.isPremium).length})</span>
+                          </div>
+                          <div className={`grid gap-4 ${viewMode === "grid" ? "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3" : "grid-cols-1"}`}>
+                            {premiumDeals.map((deal) => (
+                              <div key={deal.id} className="relative group">
+                                <div className="absolute -inset-1 bg-gradient-to-r from-purple-600/20 to-purple-700/20 rounded-2xl opacity-0 group-hover:opacity-100 transition blur-lg" />
+                                <div className="relative">
+                                  <DealCardNew
+                                    id={deal.id}
+                                    slug={deal.slug || deal.id}
+                                    name={deal.name}
+                                    logo={deal.logo}
+                                    description={deal.description}
+                                    dealText={deal.dealText}
+                                    savings={deal.savings}
+                                    memberCount={deal.memberCount}
+                                    isPremium={true}
+                                    isPick={deal.isPick}
+                                  />
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      </section>
+                    ) : null;
+                  })()}
+                </>
               )}
             </div>
 

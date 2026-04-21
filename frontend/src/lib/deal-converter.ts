@@ -5,6 +5,7 @@
 
 import { Deal } from "@/data/deals";
 import { ComprehensiveDealDetail } from "@/data/deal-details-schema";
+import { isPremiumDeal } from "./deal-types";
 
 export function convertBasicDealToComprehensive(basicDeal: Deal): ComprehensiveDealDetail {
   return {
@@ -350,7 +351,7 @@ export function convertBasicDealToComprehensive(basicDeal: Deal): ComprehensiveD
 
     // Metadata
     isFeatured: basicDeal.featured || false,
-    isPremium: basicDeal.isPremium || false,
+    isPremium: basicDeal.isPremium || isPremiumDeal(basicDeal.id),
     isFree: basicDeal.isFree || false,
     isPick: basicDeal.isPick || false,
   };

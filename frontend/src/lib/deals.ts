@@ -3,7 +3,7 @@
  * Priorities: Supabase → API → Static data
  */
 
-import { dealsData, Deal } from '@/data/deals';
+import { dealsData, Deal, enrichDeals } from '@/data/deals';
 import { getAllDeals, getDealById } from './api';
 import { createClient } from '@supabase/supabase-js';
 
@@ -128,7 +128,7 @@ export async function getDeals(): Promise<Deal[]> {
 
   // Fallback to static data
   console.log('📦 Using static deals data');
-  return dedupeDeals([...dealsData]);
+  return dedupeDeals([...enrichDeals(dealsData)]);
 }
 
 /**
@@ -199,7 +199,12 @@ export async function getDeal(dealId: string): Promise<Deal | null> {
 
   // Fallback to static data
   console.log(`📦 Searching for deal ${dealId} in static data`);
-  return dealsData.find(d => d.id === dealId || d.slug === dealId) || null;
+  const staticDeal = dealsData.find(d => d.id === dealId || d.slug === dealId);
+  if (staticDeal) {
+    const enriched = enrichDeals([staticDeal])[0];
+    return enriched;
+  }
+  return null;
 }
 
 /**

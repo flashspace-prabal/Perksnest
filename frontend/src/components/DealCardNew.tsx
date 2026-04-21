@@ -13,7 +13,7 @@ interface DealCardNewProps {
   description: string;
   dealText: string;
   savings: string;
-  memberCount: number;
+  memberCount?: number;
   isPremium?: boolean;
   isFree?: boolean;
   isPick?: boolean;
@@ -27,7 +27,7 @@ const DealCardNew = ({
   description,
   dealText,
   savings,
-  memberCount,
+  memberCount = 0,
   isPremium = false,
   isPick = false,
   slug,

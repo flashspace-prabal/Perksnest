@@ -1,6 +1,8 @@
 // Generated Deals Data with Real Links and Avatars
 // Generated on 2026-04-17T07:33:24.371Z
 
+import { isPremiumDeal, isFreeDeal } from "@/lib/deal-types";
+
 export interface Deal {
   id: string;
   name: string;
@@ -27,6 +29,8 @@ export interface Deal {
   company?: string;
   subcategory?: string;
   expiresAt?: string;
+  steps?: string[];
+  promoCode?: string;
 }
 
 export const deals: Deal[] = [
@@ -624,6 +628,7 @@ export const deals: Deal[] = [
     "logo": "https://www.google.com/s2/favicons?domain=deepinfra.com&sz=128",
     "description": "DeepInfra provides scalable infrastructure for running open-source AI models including large language models (LLMs), image generation models, and speech models at scale. Ideal for startups building AI applications without the complexity of self-hosted infrastructure, DeepInfra offers easy API access to powerful open models. With additional AI inference credits, startups can experiment with cutting-edge models and build AI-powered features cost-effectively. DeepInfra's focus on open-source models and developer experience makes it perfect for innovation-driven startups.",
     "dealText": "Credits for startups",
+    "isPremium": true,
     "redeemUrl": "https://deepinfra.com",
     "website": "https://deepinfra.com",
     "savings": "Up to $5,000",
@@ -704,6 +709,7 @@ export const deals: Deal[] = [
   },
   {
     "id": "couchbase",
+    "isPremium": true,
     "name": "Couchbase",
     "logo": "https://www.google.com/s2/favicons?domain=couchbase.com&sz=128",
     "description": "Couchbase provides a distributed NoSQL database with exceptional performance for real-time applications requiring sub-millisecond latency and high throughput. Designed for mission-critical applications where performance is non-negotiable, Couchbase combines document flexibility with key-value speed. With $12,750 in starter credits, startups can build high-performance applications without infrastructure complexity. Couchbase's focus on performance, developer experience, and distributed architecture makes it ideal for startups building real-time applications.",
@@ -788,6 +794,7 @@ export const deals: Deal[] = [
   },
   {
     "id": "planetscale",
+    "isPremium": true,
     "name": "PlanetScale",
     "logo": "https://www.google.com/s2/favicons?domain=planetscale.com&sz=128",
     "description": "PlanetScale is a serverless MySQL database platform built for scalability, reliability, and developer experience. Based on Vitess, the same technology powering YouTube's scale, PlanetScale brings enterprise-grade MySQL capabilities to startups without operational overhead. With custom startup credits, teams can scale their relational databases seamlessly as they grow. PlanetScale's focus on compatibility, performance, and serverless architecture makes it the modern choice for MySQL-powered startups.",
@@ -914,6 +921,7 @@ export const deals: Deal[] = [
   },
   {
     "id": "twilio-segment",
+    "isPremium": true,
     "name": "Twilio Segment",
     "logo": "https://www.google.com/s2/favicons?domain=twilio.com&sz=128",
     "description": "Twilio Segment is a customer data platform that helps startups collect, unify, and activate customer data across all business tools and channels. By centralizing customer data collection and providing clean APIs, Segment eliminates data silos and enables sophisticated customer analytics. With $25,000 in benefits, teams can implement a modern data stack without fragmentation. Segment's focus on data integration, customer experience, and activation makes it essential for customer-centric startups.",
@@ -956,6 +964,7 @@ export const deals: Deal[] = [
   },
   {
     "id": "amplitude",
+    "isPremium": true,
     "name": "Amplitude",
     "logo": "https://www.google.com/s2/favicons?domain=amplitude.com&sz=128",
     "description": "Amplitude is a comprehensive product analytics platform enabling startups to track user journeys, measure engagement, analyze funnels, and optimize retention through data-driven product decisions. With deep user journey analysis and behavioral cohorts, Amplitude helps teams understand exactly how users interact with their products. With 1 year of free access, startups can implement complete analytics infrastructure to guide growth and optimization. Amplitude's focus on user behavior understanding and product optimization makes it critical for startups pursuing product-led growth.",
@@ -1082,6 +1091,7 @@ export const deals: Deal[] = [
   },
   {
     "id": "retool",
+    "isPremium": true,
     "name": "Retool",
     "logo": "https://www.google.com/s2/favicons?domain=retool.com&sz=128",
     "description": "Retool is a powerful low-code platform for rapidly building internal tools, dashboards, and administrative interfaces without writing extensive code. Perfect for startups wanting to accelerate internal tool development and reduce engineering burden on non-customer-facing features, Retool enables non-technical team members to build functional applications. With $60,000 in startup credits, teams can build unlimited internal tools to streamline operations. Retool's focus on speed, simplicity, and developer productivity makes it game-changing for startup efficiency.",
@@ -1124,6 +1134,7 @@ export const deals: Deal[] = [
   },
   {
     "id": "algolia",
+    "isPremium": true,
     "name": "Algolia",
     "logo": "https://www.google.com/s2/favicons?domain=algolia.com&sz=128",
     "description": "Algolia is a powerful search API platform providing instant, relevant search experiences that help startups engage users and drive conversions through fast, accurate search. By abstracting search complexity, Algolia enables developers to implement sophisticated search without deep expertise. With $10,000 in startup credits, teams can add production-grade search to applications instantly. Algolia's focus on search performance, relevance, and developer experience makes it essential for discovery-driven startups.",
@@ -1208,6 +1219,7 @@ export const deals: Deal[] = [
   },
   {
     "id": "bastion",
+    "isPremium": true,
     "name": "Bastion",
     "logo": "https://www.google.com/s2/favicons?domain=bastion.tech&sz=128",
     "description": "Bastion provides SOC 2 compliance solutions and security certifications for startups needing to meet enterprise customer requirements and security standards. For startups selling to enterprises, SOC 2 compliance is often mandatory but complex and expensive to achieve. With 20% discount, Bastion makes compliance achievable and maintainable. Bastion's focus on startup needs and compliance simplification makes it crucial for startups targeting enterprise customers.",
@@ -1376,6 +1388,7 @@ export const deals: Deal[] = [
   },
   {
     "id": "atlassian",
+    "isPremium": true,
     "name": "Atlassian",
     "logo": "https://www.google.com/s2/favicons?domain=atlassian.com&sz=128",
     "description": "Atlassian offers comprehensive tools including Jira for project tracking, Confluence for documentation, and Bitbucket for version control, providing an integrated platform for development teams. Perfect for startups wanting unified development tooling, Atlassian provides discounted or free plans for startups. With free or significantly discounted plans valued up to $10,000, teams can implement comprehensive development infrastructure. Atlassian's ecosystem breadth and powerful tools make them central to many startup development workflows.",
@@ -1418,6 +1431,7 @@ export const deals: Deal[] = [
   },
   {
     "id": "whimsical",
+    "isPremium": true,
     "name": "Whimsical",
     "logo": "https://www.google.com/s2/favicons?domain=whimsical.com&sz=128",
     "description": "Whimsical is a visual collaboration tool for creating flowcharts, wireframes, mind maps, and brainstorming boards that help teams communicate and plan visually. Perfect for startups wanting to visualize product designs, user flows, and system architecture, Whimsical provides beautiful templates and easy collaboration. With up to 12 months free, teams can implement comprehensive visual collaboration without cost. Whimsical's focus on simplicity, beauty, and collaboration makes it perfect for creative startup teams.",
@@ -1460,6 +1474,7 @@ export const deals: Deal[] = [
   },
   {
     "id": "lightfield-crm",
+    "isPremium": true,
     "name": "Lightfield CRM",
     "logo": "https://www.google.com/s2/favicons?domain=lightfield.app&sz=128",
     "description": "Lightfield CRM is a customer relationship management tool specifically designed for startups, providing an intuitive platform for managing sales, customers, and relationships without overwhelming complexity. Perfect for early-stage teams wanting to professionalize customer management without legacy CRM overhead, Lightfield provides essential features at startup-friendly pricing. With 6 months free, teams can establish customer management practices early. Lightfield's focus on startup needs and simplicity makes it ideal for growing teams prioritizing customer relationships.",
@@ -1544,6 +1559,7 @@ export const deals: Deal[] = [
   },
   {
     "id": "intercom",
+    "isPremium": true,
     "name": "Intercom",
     "logo": "https://www.google.com/s2/favicons?domain=intercom.com&sz=128",
     "description": "Intercom is a comprehensive customer messaging platform for support, onboarding, engagement, and customer communication all in one unified inbox. Perfect for startups wanting to provide exceptional customer service and personalized customer experiences, Intercom unifies customer communication. With up to 95% discount for early-stage startups, teams can implement sophisticated customer engagement without cost. Intercom's focus on customer communication and relationship building makes it essential for customer-centric startups.",
@@ -1586,6 +1602,7 @@ export const deals: Deal[] = [
   },
   {
     "id": "hubspot",
+    "isPremium": true,
     "name": "HubSpot",
     "logo": "https://www.google.com/s2/favicons?domain=hubspot.com&sz=128",
     "description": "HubSpot provides an all-in-one CRM platform combining sales, marketing, and customer service tools designed to help startups grow through better customer relationships and data-driven strategies. Perfect for startups building business efficiency and customer-centric operations, HubSpot provides integrated tools eliminating fragmentation. With up to 90% discount for startups, teams can access premium CRM capabilities affordably. HubSpot's comprehensive platform, excellent support, and startup focus make it the go-to choice for growth-focused startups.",
@@ -1628,6 +1645,7 @@ export const deals: Deal[] = [
   },
   {
     "id": "zendesk",
+    "isPremium": true,
     "name": "Zendesk",
     "logo": "https://www.google.com/s2/favicons?domain=zendesk.com&sz=128",
     "description": "Zendesk is a customer support platform for managing support tickets, conversations, and customer relationships through an organized, efficient system. Perfect for startups wanting to provide exceptional support and maintain customer satisfaction as they scale, Zendesk organizes customer interactions. With 6 months free access, teams can establish customer support practices early. Zendesk's focus on customer support excellence and team collaboration makes it essential for customer-focused startups.",
@@ -1670,6 +1688,7 @@ export const deals: Deal[] = [
   },
   {
     "id": "salesforce",
+    "isPremium": true,
     "name": "Salesforce",
     "logo": "https://www.google.com/s2/favicons?domain=salesforce.com&sz=128",
     "description": "Salesforce provides industry-leading CRM tools for managing sales, marketing, and customer relationships at scale with powerful customization and integration capabilities. Perfect for startups wanting enterprise-grade CRM with customization potential, Salesforce provides the platform for sophisticated customer relationship management. With startup-friendly pricing, teams can access powerful CRM capabilities affordably. Salesforce's market dominance, comprehensive features, and startup support make it the choice for ambitious scaling startups.",
@@ -1754,6 +1773,7 @@ export const deals: Deal[] = [
   },
   {
     "id": "brex",
+    "isPremium": true,
     "name": "Brex",
     "logo": "https://www.google.com/s2/favicons?domain=brex.com&sz=128",
     "description": "Brex offers corporate cards and financial management tools for startups with a rewards marketplace providing access to curated startup perks and discounts. Perfect for startups wanting to manage spending and access exclusive startup benefits, Brex combines financial infrastructure with startup ecosystem access. With startup rewards marketplace integration, teams gain access to significant value. Brex's focus on founder needs and financial infrastructure makes it valuable for ambitious startups.",
@@ -1796,6 +1816,7 @@ export const deals: Deal[] = [
   },
   {
     "id": "ramp",
+    "isPremium": true,
     "name": "Ramp",
     "logo": "https://www.google.com/s2/favicons?domain=ramp.com&sz=128",
     "description": "Ramp provides corporate cards and expense management software with startup perks and rewards helping teams control spending, reduce fraud, and access exclusive benefits. Perfect for startups wanting financial visibility and control combined with startup perks, Ramp provides modern expense management. With startup rewards integration, teams access significant value. Ramp's focus on expense automation and founder support makes it ideal for efficient startup management.",
@@ -1838,6 +1859,7 @@ export const deals: Deal[] = [
   },
   {
     "id": "revolut-business",
+    "isPremium": true,
     "name": "Revolut Business",
     "logo": "https://www.google.com/s2/favicons?domain=revolut.com&sz=128",
     "description": "Revolut Business provides global banking and financial tools for startups including multi-currency accounts, cards, payments, and expense management. Perfect for international startups handling multiple currencies and geographies, Revolut offers banking infrastructure designed for modern businesses. With 6 months free plan, teams can establish banking practices early. Revolut's global focus and modern banking approach make it ideal for international startups.",
@@ -1880,6 +1902,7 @@ export const deals: Deal[] = [
   },
   {
     "id": "gusto",
+    "isPremium": true,
     "name": "Gusto",
     "logo": "https://www.google.com/s2/favicons?domain=gusto.com&sz=128",
     "description": "Gusto provides comprehensive payroll, HR, and employee management solutions helping startups handle hiring, payroll, benefits, and compliance without complexity. Perfect for startups scaling to their first employees and wanting to handle HR professionally, Gusto provides integrated HR infrastructure. With startup discounts, teams can implement professional HR management affordably. Gusto's focus on ease-of-use and compliance makes it essential for growing startups.",
@@ -1922,6 +1945,7 @@ export const deals: Deal[] = [
   },
   {
     "id": "revsh",
+    "isPremium": true,
     "name": "RevSh",
     "logo": "https://www.google.com/s2/favicons?domain=revsh.com&sz=128",
     "description": "RevSh provides revenue-sharing tools and infrastructure for partnerships and collaborations helping teams manage financial partnerships and revenue splits efficiently. Perfect for startups managing complex partnerships and revenue sharing arrangements, RevSh provides transparent infrastructure. With $1,000 grant plus 25% discount, teams get immediate value and ongoing savings. RevSh's focus on partnership transparency makes it valuable for partnership-driven startups.",
@@ -1964,6 +1988,7 @@ export const deals: Deal[] = [
   },
   {
     "id": "backblaze",
+    "isPremium": true,
     "name": "Backblaze",
     "logo": "https://www.google.com/s2/favicons?domain=backblaze.com&sz=128",
     "description": "Backblaze provides cloud storage and backup solutions for data-heavy startups ensuring data safety, recovery, and accessibility at scale. Perfect for startups with significant data storage needs who want reliable backup without massive infrastructure investment, Backblaze provides affordable, reliable storage. With up to $100K in startup credits, teams can store massive datasets affordably. Backblaze's focus on reliability and affordability makes it ideal for data-intensive startups.",
@@ -2006,6 +2031,7 @@ export const deals: Deal[] = [
   },
   {
     "id": "zoho",
+    "isPremium": true,
     "name": "Zoho",
     "logo": "https://www.google.com/s2/favicons?domain=zoho.com&sz=128",
     "description": "Zoho offers a comprehensive suite of business tools including CRM, email, accounting, and project management providing integrated platforms for startup operations. Perfect for startups wanting unified business tools without multiple vendors, Zoho provides integrated solutions. With 1 year free suite access, teams can implement comprehensive business infrastructure. Zoho's breadth of tools and affordability make it ideal for cost-conscious startups.",
@@ -2048,6 +2074,7 @@ export const deals: Deal[] = [
   },
   {
     "id": "typeform",
+    "isPremium": true,
     "name": "Typeform",
     "logo": "https://www.google.com/s2/favicons?domain=typeform.com&sz=128",
     "description": "Typeform helps startups create engaging forms, surveys, and quizzes for lead generation, customer feedback, and data collection with beautiful, mobile-optimized designs. Perfect for startups wanting to gather customer insights and generate leads without technical complexity, Typeform provides intuitive form creation. With up to 75% discount, teams can implement sophisticated form infrastructure affordably. Typeform's focus on user experience and conversion makes it ideal for growth-focused startups.",
@@ -2090,6 +2117,7 @@ export const deals: Deal[] = [
   },
   {
     "id": "deel",
+    "isPremium": true,
     "name": "Deel",
     "logo": "https://www.google.com/s2/favicons?domain=deel.com&sz=128",
     "description": "Deel provides global hiring, payroll, and compliance solutions enabling startups to hire contractors and employees worldwide without complex legal and tax infrastructure. Perfect for startups wanting global talent access and hiring simplification, Deel handles international hiring complexity. With startup discounts, teams can scale globally affordably. Deel's focus on global hiring and compliance makes it essential for globally ambitious startups.",
@@ -2132,6 +2160,7 @@ export const deals: Deal[] = [
   },
   {
     "id": "box-ai",
+    "isPremium": true,
     "name": "Box",
     "logo": "https://www.google.com/s2/favicons?domain=box.com&sz=128",
     "description": "Box provides enterprise cloud storage with AI capabilities and startup program support enabling content collaboration with cutting-edge AI integrations. Perfect for startups managing enterprise content and wanting AI-powered workflows, Box provides enterprise-grade infrastructure. With enterprise tools access and GTM support, teams get comprehensive value. Box's focus on enterprise and AI makes it ideal for startups targeting enterprise customers.",
@@ -2174,6 +2203,7 @@ export const deals: Deal[] = [
   },
   {
     "id": "statsig",
+    "isPremium": true,
     "name": "Statsig",
     "logo": "https://www.google.com/s2/favicons?domain=statsig.com&sz=128",
     "description": "Statsig provides comprehensive feature flags, experimentation, and analytics tools enabling startups to test features safely, experiment rapidly, and drive decisions through data. Perfect for startups practicing continuous deployment and wanting experimentation infrastructure, Statsig provides essential tools. With $50,000 in credits, teams can implement sophisticated feature management at scale. Statsig's focus on experimentation and safe deployment makes it essential for modern development practices.",
@@ -2216,6 +2246,7 @@ export const deals: Deal[] = [
   },
   {
     "id": "circleci",
+    "isPremium": true,
     "name": "CircleCI",
     "logo": "https://www.google.com/s2/favicons?domain=circleci.com&sz=128",
     "description": "CircleCI provides continuous integration and deployment pipelines helping startups automate builds, testing, and deployments ensuring code quality and deployment velocity. Perfect for startups wanting DevOps automation without hiring specialized engineers, CircleCI provides powerful CI/CD infrastructure. With 400,000 free build minutes, teams can automate pipelines at scale. CircleCI's focus on developer productivity and automation makes it essential for modern development practices.",
@@ -2258,6 +2289,7 @@ export const deals: Deal[] = [
   },
   {
     "id": "scaleway",
+    "isPremium": true,
     "name": "Scaleway",
     "logo": "https://www.google.com/s2/favicons?domain=scaleway.com&sz=128",
     "description": "Scaleway provides European cloud infrastructure including compute, storage, and AI workloads with focus on privacy, sustainability, and affordability. Perfect for European startups wanting GDPR-compliant infrastructure or alternative to US cloud providers, Scaleway offers competitive solutions. With €36,000 in startup credits, teams can build infrastructure cost-effectively. Scaleway's European focus and sustainability commitment make it ideal for privacy-conscious European startups.",
@@ -2300,6 +2332,7 @@ export const deals: Deal[] = [
   },
   {
     "id": "gitlab",
+    "isPremium": true,
     "name": "GitLab",
     "logo": "https://www.google.com/s2/favicons?domain=gitlab.com&sz=128",
     "description": "GitLab is a comprehensive DevOps platform providing version control, CI/CD, security scanning, and collaboration tools for development teams. Perfect for startups wanting an all-in-one DevOps solution, GitLab consolidates development and operations tooling. With free Ultimate licenses for 1 year, teams can access advanced collaboration features without cost. GitLab's breadth and DevOps focus make it perfect for startups prioritizing development efficiency.",
@@ -2342,6 +2375,7 @@ export const deals: Deal[] = [
   },
   {
     "id": "alchemy",
+    "isPremium": true,
     "name": "Alchemy",
     "logo": "https://www.google.com/s2/favicons?domain=alchemy.com&sz=128",
     "description": "Alchemy provides blockchain infrastructure and APIs enabling startups to build Web3 applications without managing node infrastructure. Perfect for startups building blockchain and decentralized applications, Alchemy abstracts blockchain complexity. With Web3 credits, teams can develop and scale blockchain applications cost-effectively. Alchemy's focus on developer experience and Web3 support makes it essential for blockchain startups.",
@@ -2384,6 +2418,7 @@ export const deals: Deal[] = [
   },
   {
     "id": "snowflake",
+    "isPremium": true,
     "name": "Snowflake",
     "logo": "https://www.google.com/s2/favicons?domain=snowflake.com&sz=128",
     "description": "Snowflake provides a cloud data platform for analytics, business intelligence, and AI workloads enabling data teams to analyze massive datasets and power data-driven decisions. Perfect for startups with data-intensive workloads and analytics needs, Snowflake provides scalable solutions. With startup credits, teams can implement data infrastructure cost-effectively. Snowflake's focus on analytics and ease-of-use makes it ideal for data-driven startups.",
@@ -2468,6 +2503,7 @@ export const deals: Deal[] = [
   },
   {
     "id": "cleura",
+    "isPremium": true,
     "name": "Cleura",
     "logo": "https://www.google.com/s2/favicons?domain=cleura.com&sz=128",
     "description": "Cleura provides privacy-focused cloud infrastructure and startup program support enabling European startups to build applications with privacy compliance. Perfect for startups prioritizing privacy and GDPR compliance, Cleura offers European alternatives to US clouds. With cloud credits, teams can build infrastructure cost-effectively. Cleura's focus on privacy and European values makes it ideal for privacy-conscious startups.",
@@ -2510,6 +2546,7 @@ export const deals: Deal[] = [
   },
   {
     "id": "fireworks-ai",
+    "isPremium": true,
     "name": "Fireworks AI",
     "logo": "https://www.google.com/s2/favicons?domain=fireworks.ai&sz=128",
     "description": "Fireworks provides AI inference infrastructure for generative AI startups enabling cost-effective, fast model serving and inference. Perfect for startups building AI applications and wanting affordable inference infrastructure, Fireworks provides powerful solutions. With AI credits, teams can build and serve AI models cost-effectively. Fireworks' focus on AI performance and affordability makes it ideal for AI-first startups.",
@@ -2552,6 +2589,7 @@ export const deals: Deal[] = [
   },
   {
     "id": "infura",
+    "isPremium": true,
     "name": "Infura",
     "logo": "https://www.google.com/s2/favicons?domain=infura.io&sz=128",
     "description": "Infura provides blockchain APIs and infrastructure for Ethereum and decentralized applications enabling developers to build Web3 apps without running nodes. Perfect for startups building blockchain and DeFi applications, Infura simplifies blockchain infrastructure. With API credits, teams can develop blockchain applications cost-effectively. Infura's focus on blockchain developer experience makes it essential for Web3 startups.",
@@ -2594,6 +2632,7 @@ export const deals: Deal[] = [
   },
   {
     "id": "inworld-ai",
+    "isPremium": true,
     "name": "Inworld AI",
     "logo": "https://www.google.com/s2/favicons?domain=inworld.ai&sz=128",
     "description": "Inworld AI provides conversational AI tools and platforms for building virtual agents and NPCs enabling interactive experiences in games, applications, and products. Perfect for startups building conversational AI and character-driven experiences, Inworld provides powerful AI agent tools. With AI credits, teams can build and scale conversational AI affordably. Inworld's focus on character AI and interactive experiences makes it ideal for creative AI startups.",
@@ -2636,6 +2675,7 @@ export const deals: Deal[] = [
   },
   {
     "id": "oracle",
+    "isPremium": true,
     "name": "Oracle",
     "logo": "https://www.google.com/s2/favicons?domain=oracle.com&sz=128",
     "description": "Oracle provides cloud infrastructure and enterprise tools with dedicated startup program offering cloud credits and support for ambitious startups. Perfect for startups building enterprise applications, Oracle provides robust infrastructure. With substantial cloud credits and support, teams can build on enterprise-grade infrastructure. Oracle's enterprise focus and startup support make it valuable for enterprise-targeting startups.",
@@ -2678,6 +2718,7 @@ export const deals: Deal[] = [
   },
   {
     "id": "siemens",
+    "isPremium": true,
     "name": "Siemens",
     "logo": "https://www.google.com/s2/favicons?domain=siemens.com&sz=128",
     "description": "Siemens offers industrial software tools and partnerships for startups in industrial automation, manufacturing, and industrial IoT enabling access to enterprise industrial infrastructure. Perfect for startups in industrial space, Siemens provides tools and partnership opportunities. With industrial tools access and partnership connections, teams gain significant value. Siemens' industrial focus makes it ideal for hardware and industrial startups.",
@@ -2762,6 +2803,7 @@ export const deals: Deal[] = [
   },
   {
     "id": "wiz",
+    "isPremium": true,
     "name": "Wiz",
     "logo": "https://www.google.com/s2/favicons?domain=wiz.io&sz=128",
     "description": "Wiz provides cloud security tools helping startups detect vulnerabilities, misconfigurations, and security risks ensuring infrastructure remains secure as they scale. Perfect for security-conscious startups, Wiz provides comprehensive cloud security. With cloud security tools access, teams gain visibility into their security posture. Wiz's focus on cloud security makes it essential for responsible startups.",
@@ -2804,6 +2846,7 @@ export const deals: Deal[] = [
   },
   {
     "id": "0x",
+    "isPremium": true,
     "name": "0x Protocol",
     "logo": "https://www.google.com/s2/favicons?domain=0x.org&sz=128",
     "description": "0x JumpStart provides APIs and infrastructure for Web3 and decentralized finance applications enabling startups to build trading, DEX, and financial applications. Perfect for startups building DeFi applications, 0x provides powerful infrastructure. With startup credits, teams can develop DeFi applications cost-effectively. 0x's focus on DeFi infrastructure makes it essential for financial Web3 startups.",
@@ -2846,6 +2889,7 @@ export const deals: Deal[] = [
   },
   {
     "id": "browserbase",
+    "isPremium": true,
     "name": "Browserbase",
     "logo": "https://www.google.com/s2/favicons?domain=browserbase.com&sz=128",
     "description": "Browserbase provides infrastructure for web automation and browser-based tasks enabling startups to build web scraping, testing, and automation solutions at scale. Perfect for startups building web automation tools, Browserbase abstracts browser complexity. With automation credits, teams can scale automation solutions affordably. Browserbase's focus on browser infrastructure makes it ideal for automation startups.",
@@ -2888,6 +2932,7 @@ export const deals: Deal[] = [
   },
   {
     "id": "mercury",
+    "isPremium": true,
     "name": "Mercury",
     "logo": "https://www.google.com/s2/favicons?domain=mercury.com&sz=128",
     "description": "Mercury provides startup banking infrastructure and curated access to a startup perks ecosystem enabling founders to manage finances and access exclusive benefits. Perfect for startups wanting financial infrastructure and perks, Mercury provides integrated solutions. With startup perks ecosystem access, teams gain significant value. Mercury's focus on founder needs makes it valuable for ambitious startups.",
@@ -2932,15 +2977,32 @@ export const deals: Deal[] = [
 
 export const dealsData = deals;
 
+// Helper function to enrich a deal with correct isPremium/isFree flags based on deal-types mapping
+export const enrichDeal = (deal: Deal): Deal => {
+  return {
+    ...deal,
+    isPremium: isPremiumDeal(deal.id),
+    isFree: isFreeDeal(deal.id),
+  };
+};
+
+// Helper function to enrich all deals
+export const enrichDeals = (dealsArray: Deal[]): Deal[] => {
+  return dealsArray.map(enrichDeal);
+};
+
+// Get enriched deals with correct premium/free flags
+export const getEnrichedDeals = () => enrichDeals(deals);
+
 // Utility functions for deals
 export const getMostPopularDeals = () => 
-  [...deals].sort((a, b) => b.memberCount - a.memberCount).slice(0, 12);
+  enrichDeals([...deals]).sort((a, b) => b.memberCount - a.memberCount).slice(0, 12);
 
 export const getFreeDeals = () => 
-  deals.filter(deal => deal.isFree).slice(0, 12);
+  enrichDeals(deals).filter(deal => deal.isFree).slice(0, 12);
 
 export const getPremiumDeals = () => 
-  deals.filter(deal => deal.isPremium).slice(0, 12);
+  enrichDeals(deals).filter(deal => deal.isPremium).slice(0, 12);
 
 export const getRecentlyAddedDeals = () => 
   [...deals].reverse().slice(0, 12);
