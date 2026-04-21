@@ -76,6 +76,7 @@ const App = () => (
                   <Route path="/blog" element={FEATURES.blog ? <BlogPage /> : <Navigate to="/" replace />} />
                   <Route path="/blog/:postId" element={FEATURES.blog ? <BlogPage /> : <Navigate to="/" replace />} />
                   <Route path="/invite" element={FEATURES.invite ? <Invite /> : <Navigate to="/" replace />} />
+                  <Route path="/referrals" element={FEATURES.referrals ? <Invite /> : <Navigate to="/customer" replace />} />
                   <Route path="/newsletter" element={<Newsletter />} />
                   <Route path="/collections" element={<Collections />} />
                   <Route path="/collections/:id" element={<CollectionDetail />} />

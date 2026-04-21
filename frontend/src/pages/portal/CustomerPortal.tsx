@@ -22,6 +22,7 @@ import { getPartnerDeals, type PartnerDeal } from "@/lib/store";
 import { buildReferralLink } from "@/lib/referrals";
 import { API_BASE_URL } from "@/lib/runtime";
 import SavingsInsights, { DealSavingsIndicator } from "@/components/dashboard/SavingsInsights";
+import { FEATURES } from "@/lib/feature-flags";
 
 interface TicketSummary {
   id: string;
@@ -131,7 +132,12 @@ const CustomerPortal = () => {
   const totalSavings = claimedDealsWithDetails.reduce((acc, deal) => acc + deal.savings, 0);
 
   useEffect(() => {
-    if (!user?.id) return;
+    if (!FEATURES.referrals || !user?.id) {
+      setIsReferralLoading(false);
+      setReferrals([]);
+      setReferralEarnings(0);
+      return;
+    }
 
     setIsReferralLoading(true);
     getReferralSummary()
@@ -355,7 +361,7 @@ const CustomerPortal = () => {
         </div>
 
         {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+        <div className={`grid grid-cols-1 ${FEATURES.referrals ? "md:grid-cols-4" : "md:grid-cols-2"} gap-4 mb-8`}>
           <Card className="bg-primary/5 border-primary/10">
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
@@ -380,29 +386,33 @@ const CustomerPortal = () => {
             </CardContent>
           </Card>
 
-          <Card>
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-muted-foreground">Referral Earnings</p>
-                  <p className="text-2xl font-bold">${referralEarnings}</p>
-                </div>
-                <Users className="h-8 w-8 text-accent" />
-              </div>
-            </CardContent>
-          </Card>
+          {FEATURES.referrals && (
+            <>
+              <Card>
+                <CardContent className="p-6">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm text-muted-foreground">Referral Earnings</p>
+                      <p className="text-2xl font-bold">${referralEarnings}</p>
+                    </div>
+                    <Users className="h-8 w-8 text-accent" />
+                  </div>
+                </CardContent>
+              </Card>
 
-          <Card>
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-muted-foreground">Referrals</p>
-                  <p className="text-2xl font-bold">{referrals.length}</p>
-                </div>
-                <Share2 className="h-8 w-8 text-accent" />
-              </div>
-            </CardContent>
-          </Card>
+              <Card>
+                <CardContent className="p-6">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm text-muted-foreground">Referrals</p>
+                      <p className="text-2xl font-bold">{referrals.length}</p>
+                    </div>
+                    <Share2 className="h-8 w-8 text-accent" />
+                  </div>
+                </CardContent>
+              </Card>
+            </>
+          )}
         </div>
 
         {/* Main Content Tabs */}
@@ -416,10 +426,12 @@ const CustomerPortal = () => {
               <Bookmark className="h-4 w-4" />
               Saved
             </TabsTrigger>
-            <TabsTrigger value="referrals" className="gap-2">
-              <Share2 className="h-4 w-4" />
-              Referrals
-            </TabsTrigger>
+            {FEATURES.referrals && (
+              <TabsTrigger value="referrals" className="gap-2">
+                <Share2 className="h-4 w-4" />
+                Referrals
+              </TabsTrigger>
+            )}
             <TabsTrigger value="tickets" className="gap-2">
               <MessageSquare className="h-4 w-4" />
               My Tickets
@@ -591,7 +603,8 @@ const CustomerPortal = () => {
             </Card>
           </TabsContent>
 
-          {/* Referrals Tab */}
+          {/* Referrals Tab - hidden while referrals feature is disabled. */}
+          {FEATURES.referrals && (
           <TabsContent value="referrals">
             <div className="grid lg:grid-cols-3 gap-6">
               <Card className="lg:col-span-2">
@@ -685,6 +698,7 @@ const CustomerPortal = () => {
               </Card>
             </div>
           </TabsContent>
+          )}
 
           {/* Tickets Tab */}
           <TabsContent value="tickets">
@@ -924,10 +938,12 @@ const CustomerPortal = () => {
                       <label className="text-sm font-medium mb-2 block">Plan</label>
                       <Input value={getPlanLabel()} disabled />
                     </div>
-                    <div>
-                      <label className="text-sm font-medium mb-2 block">Referral Code</label>
-                      <Input value={user.referralCode} disabled />
-                    </div>
+                    {FEATURES.referrals && (
+                      <div>
+                        <label className="text-sm font-medium mb-2 block">Referral Code</label>
+                        <Input value={user.referralCode} disabled />
+                      </div>
+                    )}
                     <div>
                       <label className="text-sm font-medium mb-2 block">Member Since</label>
                       <Input value={new Date(user.createdAt).toLocaleDateString()} disabled />

@@ -2,4 +2,5 @@
 export const FEATURES = {
   blog: false,
   invite: false,
+  referrals: false,
 } as const;
