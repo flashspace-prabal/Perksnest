@@ -12,6 +12,25 @@ const server = http.createServer(app);
 const STRIPE_SECRET_KEY = process.env.STRIPE_SECRET_KEY || "";
 const stripe = STRIPE_SECRET_KEY ? require("stripe")(STRIPE_SECRET_KEY) : null;
 
+// Razorpay setup
+const RAZORPAY_KEY_ID = process.env.RAZORPAY_KEY_ID || "";
+const RAZORPAY_KEY_SECRET = process.env.RAZORPAY_KEY_SECRET || "";
+let razorpay = null;
+try {
+  if (RAZORPAY_KEY_ID && RAZORPAY_KEY_SECRET) {
+    const Razorpay = require("razorpay");
+    razorpay = new Razorpay({
+      key_id: RAZORPAY_KEY_ID,
+      key_secret: RAZORPAY_KEY_SECRET,
+    });
+    console.log("[PAYMENT] Razorpay SDK initialized successfully");
+  } else {
+    console.warn("[PAYMENT] Razorpay credentials not configured");
+  }
+} catch (error) {
+  console.error("[PAYMENT] Failed to initialize Razorpay SDK:", error.message);
+}
+
 // Mount Stripe webhook before body parser
 app.post("/api/webhooks/stripe", express.raw({ type: "application/json" }), async (req, res) => {
   if (!stripe) {
@@ -1113,7 +1132,7 @@ app.post("/api/auth/claim-deal", async (req, res) => {
       .single();
     if (updateError) throw updateError;
 
-    await db.from("claim_events").upsert({ user_id: userId, deal_id: dealId }, { onConflict: "user_id,deal_id" });
+    await db.from("claim_events").upsert({ user_id: userId, deal_id: dealId, claimed_at: new Date().toISOString() }, { onConflict: "user_id,deal_id" });
     res.json({ success: true, user: mapUser(updatedUser) });
   } catch (error) {
     console.error("ERROR:", error);
@@ -1236,27 +1255,64 @@ app.post("/api/deals/claim", async (req, res) => {
   try {
     const userId = await getRequestUserId(req);
     const { dealId } = req.body || {};
+    console.log(`[CLAIM] User ${userId} claiming deal ${dealId}`);
+    
     if (!userId || !dealId) {
       res.status(400).json({ success: false, error: "userId and dealId are required" });
       return;
     }
-    const { data: user, error: userError } = await db.from("users").select("claimed_deals").eq("id", userId).single();
-    if (userError) throw userError;
+    
+    const { data: user, error: userError } = await db.from("users").select("*").eq("id", userId).single();
+    if (userError) {
+      console.error(`[CLAIM] Failed to fetch user: ${userError.message}`);
+      throw userError;
+    }
 
     const claimedDeals = safeArray(user.claimed_deals);
-    const updated = claimedDeals.includes(dealId) ? claimedDeals : [...claimedDeals, dealId];
+    console.log(`[CLAIM] Current claimed deals: ${JSON.stringify(claimedDeals)}`);
+    
+    const alreadyClaimed = claimedDeals.includes(dealId);
+    const updated = alreadyClaimed ? claimedDeals : [...claimedDeals, dealId];
+    
+    console.log(`[CLAIM] Updating claimed deals: ${JSON.stringify(updated)}`);
 
-    const { error: updateError } = await db.from("users").update({ claimed_deals: updated }).eq("id", userId);
-    if (updateError) throw updateError;
+    const { data: updatedUser, error: updateError } = await db.from("users").update({ claimed_deals: updated }).eq("id", userId).select("*").single();
+    if (updateError) {
+      console.error(`[CLAIM] Failed to update user: ${updateError.message}`);
+      throw updateError;
+    }
 
+    console.log(`[CLAIM] User updated successfully. Inserting claim event...`);
+    
     await db
       .from("claim_events")
       .upsert({ user_id: userId, deal_id: dealId, claimed_at: new Date().toISOString() }, { onConflict: "user_id,deal_id" });
 
-    res.json({ success: true, claimedDeals: updated });
+    console.log(`[CLAIM] Claim event recorded. Returning response...`);
+    res.json({ success: true, user: mapUser(updatedUser), claimedDeals: updated });
   } catch (error) {
-    console.error("ERROR:", error);
-    res.status(500).json({ success: false, error: (error instanceof Error ? error.message : String(error)) });
+    console.error("[CLAIM] ERROR:", error);
+    
+    // Provide detailed error information
+    let errorMsg = (error instanceof Error ? error.message : String(error));
+    let hint = "";
+    
+    // Check for specific Supabase errors
+    if (errorMsg.includes("undefined column") || errorMsg.includes("does not exist")) {
+      hint = "The 'claimed_deals' column might not exist in the users table. Run the migration: sql/03-add-claimed-deals-column.sql";
+    } else if (errorMsg.includes("permission")) {
+      hint = "Check database permissions and RLS policies";
+    } else if (errorMsg.includes("connection")) {
+      hint = "Check Supabase connectivity and API keys in .env file";
+    }
+    
+    console.error("[CLAIM] HINT:", hint);
+    res.status(500).json({ 
+      success: false, 
+      error: errorMsg,
+      hint: hint,
+      code: error.code || null
+    });
   }
 });
 
@@ -1287,15 +1343,24 @@ app.get("/api/deals/:dealId/claims", async (req, res) => {
 app.get("/api/user/claims", async (req, res) => {
   try {
     const userId = await getRequestUserId(req);
+    console.log(`[USER-CLAIMS] Fetching claims for user ${userId}`);
+    
     if (!userId) {
+      console.warn(`[USER-CLAIMS] No userId provided`);
       res.status(400).json({ claims: [] });
       return;
     }
+    
     const { data, error } = await db.from("claim_events").select("*").eq("user_id", userId).order("claimed_at", { ascending: false });
-    if (error) throw error;
+    if (error) {
+      console.error(`[USER-CLAIMS] Database error: ${error.message}`);
+      throw error;
+    }
+    
+    console.log(`[USER-CLAIMS] Found ${data?.length || 0} claims`);
     res.json({ claims: data || [] });
   } catch (error) {
-    console.error("ERROR:", error);
+    console.error("[USER-CLAIMS] ERROR:", error);
     res.status(500).json({ claims: [], error: (error instanceof Error ? error.message : String(error)) });
   }
 });
@@ -2162,6 +2227,222 @@ app.patch("/api/tickets/:id/status", async (req, res) => {
   }
 });
 
+// --- PAYMENT ROUTES (Razorpay) ---
+
+/**
+ * POST /api/create-order
+ * Creates a Razorpay order for premium upgrade
+ * Used when user clicks "Upgrade to Premium"
+ */
+app.post("/api/create-order", async (req, res) => {
+  try {
+    const userId = await getRequestUserId(req);
+    if (!userId) {
+      return res.status(401).json({ success: false, error: "Authentication required" });
+    }
+
+    // Check if Razorpay is initialized
+    if (!razorpay) {
+      console.error("[PAYMENT] Razorpay SDK not initialized");
+      return res.status(500).json({ success: false, error: "Payment service not configured" });
+    }
+
+    // Prevent duplicate orders - check if user already has active premium
+    const { data: user, error: userError } = await db.from("users").select("plan,id").eq("id", userId).single();
+    if (userError) throw userError;
+
+    if (user.plan === "premium") {
+      return res.status(400).json({ success: false, error: "User is already premium" });
+    }
+
+    try {
+      const options = {
+        amount: 2000, // ₹20 in paise
+        currency: "INR",
+        receipt: `rcpt_${Date.now()}`, // Max 40 chars: Razorpay requirement
+        payment_capture: 1, // Auto capture payment
+      };
+
+      console.log(`[PAYMENT] Creating order for user ${userId}`, options);
+      
+      const order = await razorpay.orders.create(options);
+
+      console.log(`[PAYMENT] Order created successfully: ${order.id}`);
+
+      // Store order in database for tracking (non-blocking)
+      try {
+        const { error: insertError } = await db.from("payment_orders").insert({
+          user_id: userId,
+          razorpay_order_id: order.id,
+          amount: options.amount,
+          currency: options.currency,
+          status: "created",
+          created_at: new Date().toISOString(),
+        });
+        if (insertError) {
+          console.warn("[PAYMENT] Failed to store order:", insertError);
+        } else {
+          console.log("[PAYMENT] Order stored in database");
+        }
+      } catch (dbError) {
+        console.warn("[PAYMENT] Error storing order:", dbError);
+      }
+
+      res.json({
+        success: true,
+        order_id: order.id,
+        amount: order.amount,
+        currency: order.currency,
+      });
+    } catch (razorpayError) {
+      const errorMsg = razorpayError instanceof Error ? razorpayError.message : String(razorpayError);
+      const errorFull = JSON.stringify(razorpayError, null, 2);
+      console.error("[PAYMENT] Razorpay error:", errorMsg);
+      console.error("[PAYMENT] Full error:", errorFull);
+      res.status(500).json({
+        success: false,
+        error: `Failed to create order: ${errorMsg}`,
+      });
+    }
+  } catch (error) {
+    console.error("[PAYMENT] Create order error:", error);
+    res.status(500).json({
+      success: false,
+      error: (error instanceof Error ? error.message : String(error)),
+    });
+  }
+});
+
+/**
+ * POST /api/verify-payment
+ * Verifies Razorpay payment signature and upgrades user to premium
+ * CRITICAL: Only upgrade user after successful signature verification
+ */
+app.post("/api/verify-payment", async (req, res) => {
+  try {
+    const userId = await getRequestUserId(req);
+    if (!userId) {
+      return res.status(401).json({ success: false, error: "Authentication required" });
+    }
+
+    const { payment_id, order_id, signature } = req.body;
+
+    if (!payment_id || !order_id || !signature) {
+      console.warn(`[PAYMENT] Missing payment details for user ${userId}`);
+      return res.status(400).json({
+        success: false,
+        error: "Missing payment details",
+      });
+    }
+
+    const RAZORPAY_KEY_SECRET = process.env.RAZORPAY_KEY_SECRET;
+    if (!RAZORPAY_KEY_SECRET) {
+      console.error("[PAYMENT] Missing Razorpay secret key");
+      return res.status(500).json({ success: false, error: "Payment verification failed" });
+    }
+
+    try {
+      // Verify signature using crypto
+      const crypto = require("crypto");
+      const expectedSignature = crypto
+        .createHmac("sha256", RAZORPAY_KEY_SECRET)
+        .update(`${order_id}|${payment_id}`)
+        .digest("hex");
+
+      const isSignatureValid = expectedSignature === signature;
+
+      console.log(`[PAYMENT] Signature verification for user ${userId}:`, {
+        isValid: isSignatureValid,
+        orderId: order_id,
+        paymentId: payment_id,
+      });
+
+      if (!isSignatureValid) {
+        console.warn(`[PAYMENT] Invalid signature for user ${userId}`);
+        return res.status(400).json({
+          success: false,
+          error: "Invalid payment signature - payment verification failed",
+        });
+      }
+
+      // Signature is valid - upgrade user to premium
+      console.log(`[PAYMENT] Valid signature. Upgrading user ${userId} to premium...`);
+
+      const { data: updatedUser, error: updateError } = await db
+        .from("users")
+        .update({
+          plan: "premium",
+          updated_at: new Date().toISOString(),
+        })
+        .eq("id", userId)
+        .select("*")
+        .single();
+
+      if (updateError) {
+        console.error(`[PAYMENT] Failed to update user: ${updateError.message}`);
+        throw updateError;
+      }
+
+      // Store successful payment in database (non-blocking)
+      try {
+        const { error: updateStatusError } = await db
+          .from("payment_orders")
+          .update({ status: "success" })
+          .eq("razorpay_order_id", order_id);
+        if (updateStatusError) {
+          console.warn("[PAYMENT] Failed to update order status:", updateStatusError);
+        } else {
+          console.log("[PAYMENT] Order status updated to success");
+        }
+      } catch (dbError) {
+        console.warn("[PAYMENT] Error updating order status:", dbError);
+      }
+
+      // Store payment record (non-blocking)
+      try {
+        const { error: insertError } = await db
+          .from("payment_history")
+          .insert({
+            user_id: userId,
+            razorpay_payment_id: payment_id,
+            razorpay_order_id: order_id,
+            amount: 2000,
+            currency: "INR",
+            status: "success",
+            created_at: new Date().toISOString(),
+          });
+        if (insertError) {
+          console.warn("[PAYMENT] Failed to store payment history:", insertError);
+        } else {
+          console.log("[PAYMENT] Payment record stored");
+        }
+      } catch (dbError) {
+        console.warn("[PAYMENT] Error storing payment history:", dbError);
+      }
+
+      console.log(`[PAYMENT] User ${userId} successfully upgraded to premium`);
+
+      res.json({
+        success: true,
+        message: "Payment verified and user upgraded to premium",
+        user: mapUser(updatedUser),
+      });
+    } catch (verifyError) {
+      console.error("[PAYMENT] Verification error:", verifyError);
+      res.status(500).json({
+        success: false,
+        error: "Payment verification failed",
+      });
+    }
+  } catch (error) {
+    console.error("[PAYMENT] Verify payment error:", error);
+    res.status(500).json({
+      success: false,
+      error: (error instanceof Error ? error.message : String(error)),
+    });
+  }
+});
+
 // --- ADMIN TICKET ROUTES ---
 app.get("/api/admin/tickets", async (req, res) => {
   try {
@@ -2374,6 +2655,179 @@ io.on("connection", (socket) => {
       socket.emit("ticket_error", { success: false, error: (error instanceof Error ? error.message : String(error)) });
     }
   });
+});
+
+// --- DEBUG ENDPOINT ---
+app.get("/api/debug/claimed-deals", async (req, res) => {
+  try {
+    // Try to get userId from:
+    // 1. Query parameter: ?userId=xxx
+    // 2. Header: x-user-id: xxx
+    // 3. Authentication header
+    const queryUserId = req.query.userId || req.query.uid;
+    const headerUserId = req.headers["x-user-id"];
+    let userId = queryUserId || headerUserId;
+    
+    // If no userId provided, try to get from auth
+    if (!userId) {
+      userId = await getRequestUserId(req).catch(() => null);
+    }
+    
+    console.log(`[DEBUG] Testing claimed_deals`);
+    console.log(`[DEBUG] Provided userId: ${userId}`);
+    console.log(`[DEBUG] Query params:`, req.query);
+    console.log(`[DEBUG] Headers x-user-id:`, req.headers["x-user-id"]);
+
+    // First: Test database connection
+    console.log(`[DEBUG] Testing database connection...`);
+    const { data: testUser, error: testError } = await db
+      .from("users")
+      .select("id,email,claimed_deals")
+      .limit(1)
+      .single();
+    
+    if (testError) {
+      console.error(`[DEBUG] Database connection failed:`, testError);
+      return res.json({
+        status: "error",
+        phase: "database_connection",
+        error: testError.message,
+        code: testError.code,
+        hint: "Database is not accessible. Check Supabase connectivity.",
+        help: "Your Supabase URL and API key may be incorrect. Check backend/.env"
+      });
+    }
+
+    console.log(`[DEBUG] Database connection OK`);
+
+    // Check if claimed_deals column exists
+    const hasClaimedDealsColumn = testUser && 'claimed_deals' in testUser;
+    console.log(`[DEBUG] claimed_deals column exists: ${hasClaimedDealsColumn}`);
+
+    if (!hasClaimedDealsColumn) {
+      return res.json({
+        status: "error",
+        phase: "column_check",
+        error: "claimed_deals column does not exist",
+        message: "The 'claimed_deals' column is missing from the users table",
+        hint: "You need to run the SQL migration to add the claimed_deals column",
+        fix: "Run this SQL in Supabase SQL Editor: ALTER TABLE perksnest.users ADD COLUMN IF NOT EXISTS claimed_deals TEXT[] DEFAULT '{}';",
+        help: "See DEBUG_CLAIMED_DEALS.md for full migration SQL"
+      });
+    }
+
+    if (!userId) {
+      return res.json({
+        status: "ok",
+        phase: "no_user_provided",
+        message: "Database and column are OK, but no userId was provided",
+        database_status: "connected",
+        claimed_deals_column: "exists",
+        how_to_test_with_user: [
+          "Option 1: Visit ?userId=any-test-id",
+          "Option 2: Send header: x-user-id: any-test-id",
+          "Option 3: Login to the app first, then visit without parameters"
+        ]
+      });
+    }
+
+    // Test 2: Fetch specific user and check claimed_deals
+    console.log(`[DEBUG] Fetching user: ${userId}`);
+    const { data: user, error: userError } = await db.from("users").select("*").eq("id", userId).single();
+    
+    if (userError) {
+      console.error(`[DEBUG] User fetch failed:`, userError);
+      return res.json({
+        status: "error",
+        phase: "user_fetch",
+        error: userError.message,
+        code: userError.code,
+        hint: userError.hint,
+        userId: userId,
+        message: `User ${userId} not found or access denied`
+      });
+    }
+
+    console.log(`[DEBUG] User found:`, { id: user.id, email: user.email });
+
+    // Test 3: Try to update claimed_deals
+    const testDealId = "test-deal-" + Date.now();
+    const currentDeals = Array.isArray(user.claimed_deals) ? user.claimed_deals : [];
+    const updated = [...currentDeals, testDealId];
+    
+    console.log(`[DEBUG] Testing update with test deal: ${testDealId}`);
+    const { data: updatedUser, error: updateError } = await db
+      .from("users")
+      .update({ claimed_deals: updated })
+      .eq("id", userId)
+      .select("*")
+      .single();
+    
+    if (updateError) {
+      console.error(`[DEBUG] Update failed:`, updateError);
+      return res.json({
+        status: "error",
+        phase: "update_test",
+        error: updateError.message,
+        code: updateError.code,
+        hint: "Update to claimed_deals column failed",
+        message: "Check database permissions and RLS policies",
+        userId: userId
+      });
+    }
+
+    console.log(`[DEBUG] Update successful`);
+
+    // Test 4: Verify update worked
+    const { data: verifyUser, error: verifyError } = await db
+      .from("users")
+      .select("claimed_deals")
+      .eq("id", userId)
+      .single();
+
+    const updateVerified = verifyUser && verifyUser.claimed_deals && verifyUser.claimed_deals.includes(testDealId);
+    console.log(`[DEBUG] Update verified: ${updateVerified}`);
+
+    res.json({
+      status: "ok",
+      phase: "all_tests_passed",
+      message: "Everything looks good! Your claimed deals setup is working correctly.",
+      database: {
+        connected: true,
+        schema: SUPABASE_DB_SCHEMA
+      },
+      column: {
+        exists: true,
+        type: "array"
+      },
+      user: {
+        id: user.id,
+        email: user.email,
+        claimed_deals_count: currentDeals.length,
+        claimed_deals_current: currentDeals
+      },
+      update_test: {
+        attempted: true,
+        success: true,
+        tested_value: testDealId,
+        verified: updateVerified
+      },
+      next_steps: [
+        "Try claiming a deal in the app",
+        "Check the /api/user/claims endpoint to verify persistence",
+        "Check the dashboard to see claimed deals"
+      ]
+    });
+
+  } catch (error) {
+    console.error("[DEBUG] Unexpected error:", error);
+    res.status(500).json({
+      status: "error",
+      phase: "unexpected_error",
+      error: (error instanceof Error ? error.message : String(error)),
+      stack: process.env.NODE_ENV === 'development' ? error.stack : undefined
+    });
+  }
 });
 
 server.listen(PORT, () => {

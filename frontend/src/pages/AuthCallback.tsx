@@ -135,7 +135,15 @@ export default function AuthCallback() {
         const returnUrl = new URLSearchParams(window.location.search).get('returnUrl');
         const defaultDest = userRole === 'admin' ? '/admin' : userRole === 'partner' ? '/partner' : '/customer';
         const dest = returnUrl && returnUrl.startsWith('/') ? returnUrl : defaultDest;
-        window.location.replace(dest);
+        
+        // Force a hard page reload after successful OAuth to ensure:
+        // 1. All stored session/user data is properly loaded
+        // 2. AuthProvider re-initializes with the new session
+        // 3. Navbar updates immediately with user data
+        // Small delay ensures all browser storage operations complete
+        setTimeout(() => {
+          window.location.href = dest;
+        }, 200);
 
       } catch (err: unknown) {
         console.error('Auth callback error:', err);
@@ -152,7 +160,7 @@ export default function AuthCallback() {
       <div className="text-center max-w-sm px-4">
         <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4" />
         <p className="text-foreground font-medium mb-1">Completing sign-in...</p>
-        <p className="text-muted-foreground text-sm">Please wait a moment...</p>
+        <p className="text-muted-foreground text-sm">Verifying your account and loading your profile...</p>
       </div>
     </div>
   );

@@ -60,6 +60,22 @@ const normalizeClaimedDeals = (payload: unknown): string[] => {
       .filter((dealId): dealId is string => !!dealId);
   }
 
+  // Handle /api/user/claims response format: { claims: [...] }
+  if (payload && typeof payload === "object" && "claims" in payload) {
+    const claims = payload.claims;
+    if (Array.isArray(claims)) {
+      return claims
+        .map((item) => {
+          if (item && typeof item === "object" && "deal_id" in item && typeof item.deal_id === "string") {
+            return item.deal_id;
+          }
+          return null;
+        })
+        .filter((dealId): dealId is string => !!dealId);
+    }
+  }
+
+  // Handle /api/auth/me response format: { claimedDeals: [...] }
   if (payload && typeof payload === "object" && "claimedDeals" in payload) {
     const claimedDeals = payload.claimedDeals;
     if (Array.isArray(claimedDeals)) {
@@ -142,7 +158,10 @@ const DealDetail = () => {
 
     if (isAuthenticated) {
       getUserClaims()
-        .then(claims => setServerClaimedDeals(normalizeClaimedDeals(claims)))
+        .then(claims => {
+          console.log('[DealDetail] Fetched user claims:', claims);
+          setServerClaimedDeals(normalizeClaimedDeals(claims));
+        })
         .catch(err => console.warn('Failed to fetch user claims metadata:', err));
     }
   }, [dealId, isAuthenticated]);
@@ -151,7 +170,10 @@ const DealDetail = () => {
   useEffect(() => {
     if (isAuthenticated) {
       getUserClaims()
-        .then(data => setServerClaimedDeals(normalizeClaimedDeals(data)))
+        .then(data => {
+          console.log('[DealDetail] Updated user claims:', data);
+          setServerClaimedDeals(normalizeClaimedDeals(data));
+        })
         .catch(err => {
           console.error('Failed to fetch user claims:', err);
         });
@@ -250,14 +272,18 @@ const DealDetail = () => {
 
     setIsClaiming(true);
     try {
-      console.log(`Claiming deal: ${dealId}`);
+      console.log(`[DealDetail] Claiming deal: ${dealId}`);
       
       // Call backend API to track claim (with timeout and retry)
+      // This now returns the full updated user object
       const response = await apiClaimDeal(dealId);
-      console.log('Claim response:', response);
+      console.log('[DealDetail] Claim response:', response);
 
-      // Also update local state
-      claimDeal(dealId);
+      // Update local server state immediately
+      if (!serverClaimedDeals.includes(dealId)) {
+        console.log('[DealDetail] Adding to serverClaimedDeals');
+        setServerClaimedDeals([...serverClaimedDeals, dealId]);
+      }
 
       // Increment local claim count
       setClaimCount(prev => prev + 1);
@@ -278,6 +304,7 @@ const DealDetail = () => {
 
       // Navigate after a short delay for better UX
       setTimeout(() => {
+        console.log('[DealDetail] Navigating to redeem page');
         navigate(`/deals/${dealId}/redeem`);
       }, 800);
     } catch (error: unknown) {
@@ -717,6 +744,14 @@ const DealDetail = () => {
                   >
                     <Lock className="h-4 w-4 mr-2" />
                     Upgrade to Access Premium Deal
+                  </Button>
+                ) : isClaimed ? (
+                  <Button
+                    className="w-full h-12 text-base font-semibold bg-green-600 hover:bg-green-700 text-white"
+                    disabled
+                  >
+                    <Check className="h-4 w-4 mr-2" />
+                    Already Claimed ✅
                   </Button>
                 ) : (
                   <Button

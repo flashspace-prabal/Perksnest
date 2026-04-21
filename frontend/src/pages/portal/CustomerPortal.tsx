@@ -21,6 +21,7 @@ import { getDeals } from "@/lib/deals";
 import { getPartnerDeals, type PartnerDeal } from "@/lib/store";
 import { buildReferralLink } from "@/lib/referrals";
 import { API_BASE_URL } from "@/lib/runtime";
+import SavingsInsights, { DealSavingsIndicator } from "@/components/dashboard/SavingsInsights";
 
 interface TicketSummary {
   id: string;
@@ -36,7 +37,7 @@ const CustomerPortal = () => {
   document.title = "My Account | PerksNest";
 
   const navigate = useNavigate();
-  const { user, isAuthenticated, updatePlan, logout, claimDeal } = useAuth();
+  const { user, isAuthenticated, updatePlan, logout, claimDeal, refetchClaimedDeals } = useAuth();
   const {
     bookmarkedDealIds,
     isLoading: areBookmarksLoading,
@@ -74,6 +75,19 @@ const CustomerPortal = () => {
       setEditedEmail(user.email);
     }
   }, [user]);
+
+  // Refetch claimed deals from server when component mounts or user changes
+  useEffect(() => {
+    if (user && isAuthenticated) {
+      refetchClaimedDeals()
+        .then(() => {
+          console.log('Claimed deals refetched successfully');
+        })
+        .catch(err => {
+          console.error('Failed to refetch claimed deals:', err);
+        });
+    }
+  }, [user?.id, isAuthenticated, refetchClaimedDeals]);
 
   // Fetch tickets from API
   useEffect(() => {
@@ -449,7 +463,8 @@ const CustomerPortal = () => {
                           </div>
                           <div>
                             <p className="font-medium">{deal.vendor}</p>
-                            <p className="text-sm text-muted-foreground">{deal.name}</p>
+                            <p className="text-sm text-muted-foreground mb-1">{deal.name}</p>
+                            <DealSavingsIndicator savings={deal.savings} />
                             <div className="flex items-center gap-3 mt-1 text-sm text-muted-foreground">
                               <span>Claimed {new Date(deal.claimedDate).toLocaleDateString()}</span>
                               <span>•</span>
@@ -488,6 +503,7 @@ const CustomerPortal = () => {
                         </div>
                       </div>
                     ))}
+                    <SavingsInsights deals={claimedDealsWithDetails} />
                   </div>
                 )}
               </CardContent>

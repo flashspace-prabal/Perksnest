@@ -131,7 +131,10 @@ export async function apiCall(path: string, method = 'GET', body?: unknown, retr
  */
 export async function claimDeal(dealId: string) {
   try {
-    return await apiCall('/api/deals/claim', 'POST', { dealId }, 2);
+    console.log(`[API] Claiming deal: ${dealId}`);
+    const response = await apiCall('/api/deals/claim', 'POST', { dealId }, 2);
+    console.log(`[API] Claim response:`, response);
+    return response;
   } catch (error) {
     // Fallback: save to localStorage if API fails
     console.warn('Claim API failed, saving to localStorage', error);
@@ -141,6 +144,7 @@ export async function claimDeal(dealId: string) {
       if (!claims.includes(dealId)) {
         claims.push(dealId);
         localStorage.setItem('pn_claimed_deals', JSON.stringify(claims));
+        console.log('[API] Saved claim to localStorage fallback');
       }
     }
     return { success: true, fallback: true };
@@ -184,11 +188,44 @@ export async function getDealClaims(dealId: string) {
 
 export async function getUserClaims() {
   try {
-    return await apiCall('/api/user/claims', 'GET', undefined, 2);
+    console.log('[API] Fetching user claims...');
+    const response = await apiCall('/api/user/claims', 'GET', undefined, 2);
+    console.log('[API] User claims response:', response);
+    return response;
   } catch (error) {
     console.warn('User claims API failed, using localStorage', error);
     const claims = JSON.parse(localStorage.getItem('pn_claimed_deals') || '[]');
     return claims;
+  }
+}
+
+/**
+ * Refetch user's claimed deals from server and return the updated user object
+ * Used after claiming a deal to update auth context
+ */
+export async function refetchUserClaimedDeals() {
+  try {
+    const response = await apiCall('/api/auth/me', 'GET', undefined, 2);
+    return response?.user || null;
+  } catch (error) {
+    console.warn('Failed to refetch user claimed deals', error);
+    return null;
+  }
+}
+
+/**
+ * Get current authenticated user
+ * Used after payment to verify premium upgrade
+ */
+export async function getCurrentUser() {
+  try {
+    console.log('[API] Fetching current user...');
+    const response = await apiCall('/api/auth/me', 'GET', undefined, 2);
+    console.log('[API] Current user:', response);
+    return response?.user || response || null;
+  } catch (error) {
+    console.warn('Failed to fetch current user', error);
+    return null;
   }
 }
 

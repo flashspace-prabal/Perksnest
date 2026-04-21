@@ -2,6 +2,7 @@
 import { supabaseAuth } from "./supabase";
 import { clearStoredReferralCode, getStoredReferralCode } from "@/lib/referrals";
 import { API_BASE_URL } from "@/lib/runtime";
+import { refetchUserClaimedDeals } from "@/lib/api";
 
 export type UserPlan = 'free' | 'premium' | 'enterprise';
 export type UserRole = 'customer' | 'partner' | 'admin';
@@ -32,6 +33,7 @@ interface AuthContextType {
   logout: () => void;
   updatePlan: (plan: UserPlan) => Promise<void>;
   claimDeal: (dealId: string) => Promise<void>;
+  refetchClaimedDeals: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | null>(null);
@@ -319,6 +321,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUser(rowToUser(response.user));
   };
 
+  const refetchClaimedDeals = async () => {
+    try {
+      const updatedUser = await refetchUserClaimedDeals();
+      if (updatedUser) {
+        setUser(rowToUser(updatedUser));
+      }
+    } catch (error) {
+      console.error('Failed to refetch claimed deals:', error);
+    }
+  };
+
   return (
     <AuthContext.Provider
       value={{
@@ -332,6 +345,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         logout,
         updatePlan,
         claimDeal,
+        refetchClaimedDeals,
       }}
     >
       {children}

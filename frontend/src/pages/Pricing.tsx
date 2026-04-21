@@ -7,42 +7,13 @@ import { useAuth } from "@/lib/auth";
 import { AuthModal } from "@/components/AuthModal";
 import { useState, useEffect } from "react";
 import { API_BASE_URL } from "@/lib/runtime";
+import PremiumUpgradeButton from "@/components/PremiumUpgradeButton";
 import {
   Accordion,
   AccordionItem,
   AccordionTrigger,
   AccordionContent,
 } from "@/components/ui/accordion";
-
-async function startCheckout(userId: string, email: string, name: string, period: 'annual') {
-  try {
-    const res = await fetch(`${API_BASE_URL}/api/checkout`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ userId, email, name, period }),
-    });
-    
-    if (!res.ok) {
-      throw new Error(`Checkout service error: ${res.status} ${res.statusText}`);
-    }
-    
-    const data = await res.json();
-    if (!data) {
-      throw new Error('Invalid checkout response');
-    }
-    
-    if (data.url) {
-      window.location.href = data.url;
-    } else if (data.error) {
-      throw new Error(data.error);
-    } else {
-      throw new Error('No checkout URL returned');
-    }
-  } catch (error) {
-    console.error('Checkout error:', error);
-    throw error;
-  }
-}
 
 const plans = [
   {
@@ -163,66 +134,7 @@ const Pricing = () => {
   const [authModalOpen, setAuthModalOpen] = useState(false);
   const [authModalTab, setAuthModalTab] = useState<'login' | 'register'>('login');
 
-  const [checkoutLoading, setCheckoutLoading] = useState(false);
-
-  // Auto-trigger checkout if user just logged in from pricing page
-  useEffect(() => {
-    const action = sessionStorage.getItem('perksnest_post_login_action');
-    if (action === 'checkout_annual' && isAuthenticated && user) {
-      sessionStorage.removeItem('perksnest_post_login_action');
-      // Small delay to let auth settle
-      setTimeout(async () => {
-        setCheckoutLoading(true);
-        try {
-          const res = await fetch(`${API_BASE_URL}/api/checkout`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ userId: user.id, email: user.email, name: user.name, period: 'annual' }),
-          });
-          const data = await res.json();
-          if (data.url) window.location.href = data.url;
-        } catch { /* silent */ } finally { setCheckoutLoading(false); }
-      }, 500);
-    }
-  }, [isAuthenticated, user]);
-
   const handlePlanClick = async (planName: string, ctaLink: string) => {
-    if (planName === "Pro") {
-      if (!isAuthenticated || !user) {
-        sessionStorage.setItem('perksnest_post_login_action', 'checkout_annual');
-        window.location.href = '/login?returnUrl=/pricing';
-        return;
-      }
-      if (user.plan === 'premium') {
-        window.location.href = '/customer';
-        return;
-      }
-      // Launch Stripe checkout
-      setCheckoutLoading(true);
-      try {
-        const res = await fetch(`${API_BASE_URL}/api/checkout`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            userId: user.id,
-            email: user.email,
-            name: user.name,
-            period: 'annual',
-          }),
-        });
-        const data = await res.json();
-        if (data.url) {
-          window.location.href = data.url;
-        } else {
-          toast.error('Could not start checkout. Please try again.');
-        }
-      } catch {
-        toast.error('Checkout failed. Please try again.');
-      } finally {
-        setCheckoutLoading(false);
-      }
-      return;
-    }
     if (planName === "Free") {
       window.location.href = isAuthenticated ? '/customer' : '/login';
       return;
@@ -274,17 +186,54 @@ const Pricing = () => {
       );
     }
 
-    // For Free and Pro plans, handle auth state
+    // For Pro plan, use PremiumUpgradeButton
+    if (plan.name === "Pro") {
+      if (badge !== null) {
+        return (
+          <Button
+            disabled
+            className={`w-full ${
+              plan.highlighted
+                ? "bg-primary-foreground text-primary hover:bg-primary-foreground/90"
+                : "bg-primary text-primary-foreground hover:bg-primary/90"
+            }`}
+            size="lg"
+          >
+            Current Plan
+          </Button>
+        );
+      }
+
+      return (
+        <PremiumUpgradeButton
+          size="lg"
+          fullWidth
+          buttonText="Upgrade to Premium – $20"
+          onSuccess={(user) => {
+            // User is upgraded, redirect to dashboard
+            setTimeout(() => {
+              window.location.href = '/customer';
+            }, 1500);
+          }}
+          onError={(error) => {
+            console.error('Payment error:', error);
+            toast.error(`Payment failed: ${error}`);
+          }}
+        />
+      );
+    }
+
+    // For Free plan, use standard button
     return (
       <Button
         onClick={() => handlePlanClick(plan.name, plan.ctaLink)}
-              className={`w-full ${
+        className={`w-full ${
           plan.highlighted
             ? "bg-primary-foreground text-primary hover:bg-primary-foreground/90"
             : "bg-primary text-primary-foreground hover:bg-primary/90"
         }`}
         size="lg"
-        disabled={(checkoutLoading && plan.name === "Pro") || badge !== null}
+        disabled={badge !== null}
       >
         {badge ? "Current Plan" : plan.cta}
       </Button>
