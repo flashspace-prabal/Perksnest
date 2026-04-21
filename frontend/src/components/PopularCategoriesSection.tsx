@@ -6,34 +6,41 @@ import { dealsData, Deal } from "@/data/deals";
 
 const categoryTabs = [
   { id: "ai", name: "AI" },
-  { id: "development", name: "Development" },
   { id: "project", name: "Project Management" },
-  { id: "ai-agents", name: "AI Agents" },
-  { id: "productivity", name: "Productivity" },
-  { id: "ai-automation", name: "AI Automation" },
-  { id: "ai-development", name: "AI Development" },
-  { id: "no-code", name: "No-Code Development" },
+  { id: "data", name: "Data & Cloud" },
+  { id: "customer", name: "Customer" },
+  { id: "development", name: "Development" },
   { id: "marketing", name: "Marketing" },
-  { id: "collaboration", name: "Collaboration" },
+  { id: "finance", name: "Finance" },
+  { id: "communication", name: "Communication" },
+  { id: "sales", name: "Sales" },
   { id: "business", name: "Business" },
-  { id: "data", name: "Data" },
+  { id: "it", name: "IT & Security" },
+  { id: "hr", name: "HR" },
 ];
 
-// Map category tabs to deal categories
+// Map category IDs to actual deal categories
+const categoryMapping: Record<string, string[]> = {
+  "ai": ["ai"],
+  "project": ["productivity"],
+  "data": ["cloud", "database", "storage", "infrastructure", "analytics", "monitoring"],
+  "customer": ["crm", "support"],
+  "development": ["deployment", "ci-cd", "web3", "automation"],
+  "marketing": [],
+  "finance": ["finance", "payments"],
+  "communication": ["communication"],
+  "sales": [],
+  "business": [],
+  "it": ["security", "tools", "backup", "forms"],
+  "hr": ["hr"],
+};
+
+// Get deals for a specific category
 const getCategoryDeals = (categoryId: string): Deal[] => {
-  const categoryMap: Record<string, string[]> = {
-    "ai": ["ai"],
-    "development": ["development"],
-    "project": ["project"],
-    "productivity": ["project"],
-    "marketing": ["marketing"],
-    "collaboration": ["project", "communication"],
-    "business": ["business", "sales"],
-    "data": ["data"],
-  };
-  
-  const targetCategories = categoryMap[categoryId] || [categoryId];
-  return dealsData.filter(deal => targetCategories.includes(deal.category)).slice(0, 9);
+  const targetCategories = categoryMapping[categoryId] || [];
+  return dealsData
+    .filter(deal => targetCategories.includes(deal.category))
+    .slice(0, 9);
 };
 
 interface DealCardProps {
@@ -84,9 +91,10 @@ const DealCard = ({ deal }: DealCardProps) => (
 );
 
 const PopularCategoriesSection = () => {
-  const [activeTab, setActiveTab] = useState("collaboration");
+  const [activeTab, setActiveTab] = useState("ai");
   const categoryDeals = getCategoryDeals(activeTab);
   const activeTabName = categoryTabs.find(t => t.id === activeTab)?.name || activeTab;
+  const hasDeal = categoryDeals.length > 0;
 
   return (
     <section className="py-12 md:py-20 bg-background">
