@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { Grid, List, Star, Search, X, Loader2, TrendingUp, Clock, Zap, Gift, Lock } from "lucide-react";
 import DealCardNew from "@/components/DealCardNew";
@@ -136,6 +136,29 @@ const Deals = () => {
   const [partnerDeals, setPartnerDeals] = useState<PartnerDeal[]>([]);
   const [dealsData, setDealsData] = useState<Deal[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const isSyncingFromUrl = useRef(false);
+
+  useEffect(() => {
+    const nextSearchQuery = searchParams.get("q") || "";
+    const nextCategory = searchParams.get("category") || "all";
+    const nextFilter = searchParams.get("sort") || "Most popular";
+
+    const hasUrlStateChange =
+      searchQuery !== nextSearchQuery ||
+      searchInput !== nextSearchQuery ||
+      activeCategory !== nextCategory ||
+      activeFilter !== nextFilter;
+
+    if (hasUrlStateChange) {
+      isSyncingFromUrl.current = true;
+    }
+
+    if (searchQuery !== nextSearchQuery) setSearchQuery(nextSearchQuery);
+    if (searchInput !== nextSearchQuery) setSearchInput(nextSearchQuery);
+    if (activeCategory !== nextCategory) setActiveCategory(nextCategory);
+    if (activeFilter !== nextFilter) setActiveFilter(nextFilter);
+    if (hasUrlStateChange) setCurrentPage(1);
+  }, [searchParams]);
 
   useEffect(() => {
     getPartnerDeals().then(deals => setPartnerDeals(deals.filter(d => d.status === "approved")));
@@ -193,6 +216,11 @@ const Deals = () => {
   }, [searchInput]);
 
   useEffect(() => {
+    if (isSyncingFromUrl.current) {
+      isSyncingFromUrl.current = false;
+      return;
+    }
+
     const params = new URLSearchParams();
     if (searchQuery) params.set("q", searchQuery);
     if (activeCategory !== "all") params.set("category", activeCategory);

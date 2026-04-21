@@ -26,6 +26,7 @@ import { Badge } from "@/components/ui/badge";
 import { AuthModal } from "@/components/AuthModal";
 import { useAuth } from "@/lib/auth";
 import { dealsData } from "@/data/deals";
+import { FEATURES } from "@/lib/feature-flags";
 
 // ─── Category definitions with icons, subcategories, and deal category keys ───
 const megaCategories = [
@@ -451,24 +452,28 @@ const Header = () => {
               </NavigationMenu>
 
               {/* Top-level links */}
-              <Link
-                to="/invite"
-                className="nav-link px-3 py-2 rounded-md hover:bg-secondary transition-colors"
-              >
-                Invite
-              </Link>
+              {FEATURES.invite && (
+                <Link
+                  to="/invite"
+                  className="nav-link px-3 py-2 rounded-md hover:bg-secondary transition-colors"
+                >
+                  Invite
+                </Link>
+              )}
               <Link
                 to="/pricing"
                 className="nav-link px-3 py-2 rounded-md hover:bg-secondary transition-colors"
               >
                 Pricing
               </Link>
-              <Link
-                to="/blog"
-                className="nav-link px-3 py-2 rounded-md hover:bg-secondary transition-colors"
-              >
-                Blog
-              </Link>
+              {FEATURES.blog && (
+                <Link
+                  to="/blog"
+                  className="nav-link px-3 py-2 rounded-md hover:bg-secondary transition-colors"
+                >
+                  Blog
+                </Link>
+              )}
             </nav>
           </div>
 
@@ -624,13 +629,15 @@ const Header = () => {
               >
                 Deals
               </Link>
-              <Link
-                to="/invite"
-                className="nav-link px-3 py-2 rounded-md hover:bg-secondary"
-                onClick={() => setMobileMenuOpen(false)}
-              >
-                Invite & Earn
-              </Link>
+              {FEATURES.invite && (
+                <Link
+                  to="/invite"
+                  className="nav-link px-3 py-2 rounded-md hover:bg-secondary"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  Invite & Earn
+                </Link>
+              )}
               <Link
                 to="/pricing"
                 className="nav-link px-3 py-2 rounded-md hover:bg-secondary"
@@ -638,13 +645,15 @@ const Header = () => {
               >
                 Pricing
               </Link>
-              <Link
-                to="/blog"
-                className="nav-link px-3 py-2 rounded-md hover:bg-secondary"
-                onClick={() => setMobileMenuOpen(false)}
-              >
-                Blog
-              </Link>
+              {FEATURES.blog && (
+                <Link
+                  to="/blog"
+                  className="nav-link px-3 py-2 rounded-md hover:bg-secondary"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  Blog
+                </Link>
+              )}
               <div className="pt-3 border-t border-border mt-2 space-y-2">
                 {isAuthenticated && user ? (
                   <>

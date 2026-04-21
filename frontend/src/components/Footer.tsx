@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { Mail, Twitter, Linkedin, Github } from "lucide-react";
+import { Mail, Instagram, Linkedin } from "lucide-react";
 
 const footerLinks = {
   product: [
@@ -31,10 +31,16 @@ const footerLinks = {
   ],
 };
 
+const XIcon = ({ className = "" }: { className?: string }) => (
+  <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" className={className}>
+    <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24h-6.657l-5.214-6.817-5.965 6.817H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231 5.45-6.231Zm-1.161 17.52h1.833L7.084 4.126H5.117L17.083 19.77Z" />
+  </svg>
+);
+
 const socialLinks = [
-  { name: "Twitter", icon: Twitter, href: "https://twitter.com/perksnest" },
+  { name: "X", icon: XIcon, href: "https://x.com/perksnest" },
   { name: "LinkedIn", icon: Linkedin, href: "https://linkedin.com/company/perksnest" },
-  { name: "GitHub", icon: Github, href: "https://github.com/perksnest" },
+  { name: "Instagram", icon: Instagram, href: "https://instagram.com/perksnest" },
   { name: "Email", icon: Mail, href: "mailto:hello@perksnest.co" },
 ];
 
@@ -57,7 +63,7 @@ const Footer = () => {
                       <a
                         key={social.name}
                         href={social.href}
-                        className="w-10 h-10 rounded-lg bg-background/10 flex items-center justify-center hover:bg-background/20 transition-colors"
+                        className="w-10 h-10 rounded-lg bg-background/10 flex items-center justify-center hover:bg-background/20 hover:scale-105 transition-all"
                         aria-label={social.name}
                       >
                         <Icon className="h-5 w-5" />

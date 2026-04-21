@@ -47,6 +47,7 @@ import HelpCenter from "./pages/HelpCenter";
 import MainNavbar from "./components/MainNavbar";
 import MainFooter from "./components/MainFooter";
 import ComingSoon from "./pages/ComingSoon";
+import { FEATURES } from "@/lib/feature-flags";
 
 const queryClient = new QueryClient();
 
@@ -72,9 +73,9 @@ const App = () => (
                   <Route path="/deals/:dealId/redeem" element={<DealRedeem />} />
                   <Route path="/pricing" element={<Pricing />} />
                   <Route path="/contact" element={<Contact />} />
-                  <Route path="/blog" element={<BlogPage />} />
-                  <Route path="/blog/:postId" element={<BlogPage />} />
-                  <Route path="/invite" element={<Invite />} />
+                  <Route path="/blog" element={FEATURES.blog ? <BlogPage /> : <Navigate to="/" replace />} />
+                  <Route path="/blog/:postId" element={FEATURES.blog ? <BlogPage /> : <Navigate to="/" replace />} />
+                  <Route path="/invite" element={FEATURES.invite ? <Invite /> : <Navigate to="/" replace />} />
                   <Route path="/newsletter" element={<Newsletter />} />
                   <Route path="/collections" element={<Collections />} />
                   <Route path="/collections/:id" element={<CollectionDetail />} />

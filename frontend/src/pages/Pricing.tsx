@@ -261,16 +261,16 @@ const Pricing = () => {
         {/* Pricing Cards */}
         <section className="py-16 -mt-8">
           <div className="container-wide">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto">
+            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 lg:gap-8 max-w-6xl mx-auto items-stretch">
               {plans.map((plan) => {
                 const Icon = plan.icon;
                 
                 return (
                   <div
                     key={plan.name}
-                    className={`relative rounded-2xl p-8 transition-all duration-300 ${
+                    className={`relative rounded-2xl p-6 sm:p-8 h-full flex flex-col transition-all duration-300 hover:-translate-y-1 ${
                       plan.highlighted
-                        ? "bg-primary text-primary-foreground scale-[1.02] shadow-2xl ring-4 ring-primary/20"
+                        ? "bg-primary text-primary-foreground shadow-2xl ring-4 ring-primary/20"
                         : "bg-card border border-border hover:border-primary/30 hover:shadow-lg"
                     }`}
                   >
@@ -282,23 +282,23 @@ const Pricing = () => {
                       </div>
                     )}
 
-                    <div className="flex items-center gap-3 mb-6">
+                    <div className="flex min-h-[56px] items-center gap-3 mb-6">
                       <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${
                         plan.highlighted ? "bg-primary-foreground/20" : "bg-secondary"
                       }`}>
                         <Icon className={`h-6 w-6 ${plan.highlighted ? "text-primary-foreground" : "text-primary"}`} />
                       </div>
-                      <div className="flex items-center">
+                      <div className="flex min-w-0 flex-wrap items-center gap-y-1">
                         <h3 className="font-bold text-xl">{plan.name}</h3>
                         {getPlanBadge(plan.name)}
                       </div>
                     </div>
 
-                    <p className={`text-sm mb-6 ${plan.highlighted ? "text-primary-foreground/80" : "text-muted-foreground"}`}>
+                    <p className={`min-h-[44px] text-sm mb-6 ${plan.highlighted ? "text-primary-foreground/80" : "text-muted-foreground"}`}>
                       {plan.description}
                     </p>
 
-                    <div className="mb-8">
+                    <div className="min-h-[56px] mb-8">
                       <div className="flex items-baseline gap-1">
                         <span className="text-4xl font-extrabold">{plan.price}</span>
                         <span className={plan.highlighted ? "text-primary-foreground/80" : "text-muted-foreground"}>
@@ -312,7 +312,7 @@ const Pricing = () => {
                       )}
                     </div>
 
-                    <ul className="space-y-3 mb-8">
+                    <ul className="space-y-3 mb-8 flex-1">
                       {plan.features.map((feature) => (
                         <li key={feature} className="flex items-start gap-3">
                           <Check className={`h-5 w-5 shrink-0 mt-0.5 ${
@@ -325,7 +325,9 @@ const Pricing = () => {
                       ))}
                     </ul>
 
-                    {getPlanCTA(plan)}
+                    <div className="mt-auto">
+                      {getPlanCTA(plan)}
+                    </div>
                   </div>
                 );
               })}

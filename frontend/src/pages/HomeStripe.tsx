@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { ArrowRight, Check, ChevronDown, Menu, X } from "lucide-react";
 import { useAuth } from "@/lib/auth";
-import { getMostPopularDeals } from "@/data/deals";
+import { getMostPopularDeals, type Deal } from "@/data/deals";
 import HowItWorks from "@/components/HowItWorks";
 import FeaturedDeals from "@/components/FeaturedDeals";
 import CompareToolsSection from "@/components/CompareToolsSection";
@@ -10,6 +10,15 @@ import PopularCategoriesSection from "@/components/PopularCategoriesSection";
 import PricingSection from "@/components/PricingSection";
 import CTASection from "@/components/CTASection";
 import TestimonialsSection from "@/components/TestimonialsSection";
+import SafeImage from "@/components/SafeImage";
+
+const getCompanyName = (deal: Deal) => {
+  return (deal.company || deal.name)
+    .replace(/\s+Startup Program$/i, "")
+    .replace(/\s+Startup Credits$/i, "")
+    .replace(/\s+for Startups$/i, "")
+    .trim();
+};
 
 // Stripe Header Component
 const StripeHeader = () => {
@@ -101,19 +110,19 @@ const StripeHero = ({ isAuthenticated }: { isAuthenticated: boolean }) => {
   return (
     <section className="relative overflow-hidden bg-white pt-12 pb-20 lg:pt-16 lg:pb-32 border-b border-gray-100">
       <div className="max-w-7xl mx-auto px-6 lg:px-8 relative z-10 text-center">
-        <div className="max-w-3xl mx-auto">
+        <div className="max-w-4xl mx-auto">
           {/* Stats Badge */}
           <p className="text-sm text-gray-500 mb-6">
             Global founders using PerksNest: <span className="text-[#5c2169] font-medium">100,000+</span>
           </p>
 
           {/* Main Headline - Responsive Scaling */}
-          <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-[68px] font-semibold leading-[1.1] tracking-tight mb-6 text-gray-900">
+          <h1 className="mx-auto max-w-4xl text-4xl sm:text-5xl md:text-6xl lg:text-[68px] font-semibold leading-[1.1] tracking-tight mb-6 text-center text-gray-900">
             Perks infrastructure to <span className="text-[#5c2169]">grow your startup.</span>
           </h1>
 
           {/* Subheadline */}
-          <p className="text-xl text-gray-500 leading-relaxed mb-8 max-w-xl mx-auto">
+          <p className="text-xl text-gray-500 leading-relaxed mb-8 max-w-2xl mx-auto">
             Your startup deserves better pricing. Discover the software perks that compound over time.
           </p>
 
@@ -140,11 +149,7 @@ const StripeHero = ({ isAuthenticated }: { isAuthenticated: boolean }) => {
           <div className="flex flex-wrap items-center justify-center gap-6">
             <div className="flex items-center gap-2 text-sm text-gray-600">
               <Check className="h-4 w-4 text-[#5c2169]" />
-              <span>350+ exclusive perks</span>
-            </div>
-            <div className="flex items-center gap-2 text-sm text-gray-600">
-              <Check className="h-4 w-4 text-[#5c2169]" />
-              <span>All directly negotiated</span>
+              <span>150+ exclusive perks</span>
             </div>
             <div className="flex items-center gap-2 text-sm text-gray-600">
               <Check className="h-4 w-4 text-[#5c2169]" />
@@ -158,17 +163,60 @@ const StripeHero = ({ isAuthenticated }: { isAuthenticated: boolean }) => {
 };
 
 // Trusted By Section
-const StripeTrustedBy = () => {
-  const logos = ["MetLife", "Ramp", "Marriott", "Figma", "Woo", "Vercel", "Uber", "Anthropic"];
-  
+const StripeTrustedBy = ({ deals }: { deals: Deal[] }) => {
+  const logoDeals = deals.map((deal) => ({
+    id: deal.id,
+    name: getCompanyName(deal),
+    logo: deal.logo,
+  }));
+
   return (
-    <section className="py-8 bg-white border-t border-gray-100">
-      <div className="max-w-7xl mx-auto px-6 lg:px-8">
-        <div className="flex flex-wrap items-center justify-center gap-6 sm:gap-8 md:gap-10 lg:gap-12 opacity-60">
-          {logos.map((logo) => (
-            <span key={logo} className="text-base sm:text-lg font-semibold text-gray-400 hover:text-gray-600 transition-colors decoration-gray-400/30">
-              {logo}
-            </span>
+    <section className="overflow-hidden bg-white py-10 border-t border-gray-100">
+      <div className="mb-7 px-6 text-center">
+        <p className="text-xs font-semibold tracking-[0.22em] text-[#5c2169] uppercase">Trusted by 5000+ businesses</p>
+        <p className="mt-2 text-sm text-gray-500">Deals from brands you already use</p>
+      </div>
+
+      <div className="relative mx-auto max-w-7xl overflow-hidden border-y border-[#5c2169]/10 bg-[#5c2169]/[0.03] py-7 shadow-[0_8px_32px_rgba(92,33,105,0.05)]">
+        <div className="pointer-events-none absolute inset-y-0 left-0 z-10 w-16 bg-gradient-to-r from-white to-transparent" />
+        <div className="pointer-events-none absolute inset-y-0 right-0 z-10 w-16 bg-gradient-to-l from-white to-transparent" />
+
+        <style>{`
+          @keyframes stripe-logo-marquee {
+            from { transform: translate3d(0, 0, 0); }
+            to { transform: translate3d(-50%, 0, 0); }
+          }
+
+          .stripe-logo-marquee {
+            display: flex;
+            width: max-content;
+            animation: stripe-logo-marquee 32s linear infinite;
+            will-change: transform;
+          }
+
+          .stripe-logo-marquee:hover {
+            animation-play-state: paused;
+          }
+        `}</style>
+
+        <div className="stripe-logo-marquee" aria-label="Partner logos">
+          {[...logoDeals, ...logoDeals].map((item, index) => (
+            <div
+              key={`${item.id}-${index}`}
+              className="group flex h-16 w-48 shrink-0 items-center justify-center gap-3.5 px-4 sm:w-52 md:w-56"
+              aria-hidden={index >= logoDeals.length}
+            >
+              <SafeImage
+                src={item.logo}
+                alt={item.name}
+                className="h-7 w-7 shrink-0 object-contain grayscale opacity-65 transition duration-300 group-hover:opacity-95"
+                fallbackClassName="h-7 w-7 shrink-0 text-xs text-gray-500"
+                loading="lazy"
+              />
+              <span className="min-w-0 truncate text-base font-semibold text-gray-500 transition-colors duration-300 group-hover:text-[#5c2169]">
+                {item.name}
+              </span>
+            </div>
           ))}
         </div>
       </div>
@@ -180,6 +228,10 @@ const StripeTrustedBy = () => {
 const HomeStripe = () => {
   const { isAuthenticated } = useAuth();
   const mostPopularDeals = getMostPopularDeals();
+  const featuredDeals = mostPopularDeals.map((deal) => ({
+    ...deal,
+    memberCount: deal.memberCount ?? 0,
+  }));
 
   return (
     <div className="min-h-screen bg-white font-[-apple-system,BlinkMacSystemFont,'Segoe_UI',Roboto,sans-serif]">
@@ -189,10 +241,10 @@ const HomeStripe = () => {
         <StripeHero isAuthenticated={isAuthenticated} />
         
         {/* Trusted By Logos */}
-        <StripeTrustedBy />
-        
+        <StripeTrustedBy deals={mostPopularDeals} />
+
         {/* Original Featured Deals - Restored Section */}
-        <FeaturedDeals deals={mostPopularDeals} />
+        <FeaturedDeals deals={featuredDeals} />
 
         {/* Homepage Comparison Entry Point */}
         <CompareToolsSection />

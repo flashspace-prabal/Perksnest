@@ -79,10 +79,10 @@ async function getComprehensiveDealData(dealId: string): Promise<ComprehensiveDe
 
       try {
         const { data, error } = await supabase
-          .from("comprehensive_deals")
+          .from("deals")
           .select("*")
           .eq("id", dealId)
-          .single();
+          .maybeSingle();
 
         if (!error && data) {
           console.log("✅ Loaded deal from Supabase:", dealId);

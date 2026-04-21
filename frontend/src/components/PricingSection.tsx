@@ -148,11 +148,11 @@ const PricingSection = () => {
         </div>
 
         {/* Pricing Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-6 lg:gap-10 max-w-5xl mx-auto">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 lg:gap-8 max-w-5xl mx-auto items-stretch justify-center">
           {plans.filter(plan => plan.name !== "White Label Solution").map((plan, index) => (
             <div
               key={plan.name}
-              className={`relative bg-card rounded-2xl p-6 h-full flex flex-col transition-all duration-300 hover:-translate-y-1 ${
+              className={`relative bg-card rounded-2xl p-6 sm:p-7 h-full md:min-h-[720px] flex flex-col transition-all duration-300 hover:-translate-y-1 ${
                 plan.isPremium 
                   ? 'border-2 border-primary shadow-lg ring-1 ring-primary/20' 
                   : 'border border-border hover:border-primary/30 hover:shadow-md'
@@ -169,12 +169,12 @@ const PricingSection = () => {
               )}
 
               {/* Trust Badge */}
-              <p className={`text-sm font-medium mb-4 ${plan.isPremium ? 'text-primary mt-2' : plan.trustBadgeColor}`}>
+              <p className={`min-h-[40px] text-sm font-medium mb-4 ${plan.isPremium ? 'text-primary mt-2' : plan.trustBadgeColor}`}>
                 {plan.trustBadge}
               </p>
 
               {/* Plan Name */}
-              <div className="flex items-center gap-2 mb-3">
+              <div className="flex min-h-[36px] items-center gap-2 mb-3">
                 {plan.isPremium && (
                   <Crown className="h-5 w-5 text-primary" />
                 )}
@@ -182,17 +182,17 @@ const PricingSection = () => {
               </div>
 
               {/* Description */}
-              <p className="text-muted-foreground text-sm mb-5 leading-relaxed">
+              <p className="min-h-[64px] text-muted-foreground text-sm mb-5 leading-relaxed">
                 {plan.description}
               </p>
 
               {/* Logo Stack - Real software logos */}
               {plan.showLogos && (
-                <div className="flex items-center gap-1.5 mb-6">
+                <div className="flex min-h-[36px] flex-wrap items-center gap-1.5 mb-6">
                   {softwareLogos.map((software, i) => (
                     <div
                       key={i}
-                      className="w-8 h-8 rounded-lg bg-card border border-border flex items-center justify-center p-1.5 shadow-sm"
+                      className="w-8 h-8 shrink-0 rounded-lg bg-card border border-border flex items-center justify-center p-1.5 shadow-sm"
                     >
                       <SafeImage
                         src={software.logo}
@@ -211,7 +211,7 @@ const PricingSection = () => {
               )}
 
               {/* Price */}
-              <div className="mb-6">
+              <div className="min-h-[72px] mb-6">
                 {plan.price ? (
                   <>
                     <div className="flex items-baseline gap-1">
@@ -249,7 +249,7 @@ const PricingSection = () => {
 
               {/* Target Audience */}
               {plan.targetAudience && (
-                <p className="text-sm text-center text-muted-foreground mb-6">
+                <p className="min-h-[20px] text-sm text-center text-muted-foreground mb-6">
                   {plan.targetAudience}
                 </p>
               )}
