@@ -1114,6 +1114,7 @@ app.post("/api/auth/claim-deal", async (req, res) => {
   try {
     const userId = await getRequestUserId(req);
     const { dealId } = req.body || {};
+    console.log(`[AUTH-CLAIM] User ${userId} claiming deal ${dealId}`);
     if (!userId || !dealId) {
       res.status(400).json({ success: false, error: "Missing userId or dealId" });
       return;
@@ -1122,6 +1123,7 @@ app.post("/api/auth/claim-deal", async (req, res) => {
     if (userError) throw userError;
 
     const claimedDeals = safeArray(user.claimed_deals);
+    console.log(`[AUTH-CLAIM] Current claimed deals: ${JSON.stringify(claimedDeals)}`);
     const updated = claimedDeals.includes(dealId) ? claimedDeals : [...claimedDeals, dealId];
 
     const { data: updatedUser, error: updateError } = await db
@@ -1133,9 +1135,10 @@ app.post("/api/auth/claim-deal", async (req, res) => {
     if (updateError) throw updateError;
 
     await db.from("claim_events").upsert({ user_id: userId, deal_id: dealId, claimed_at: new Date().toISOString() }, { onConflict: "user_id,deal_id" });
-    res.json({ success: true, user: mapUser(updatedUser) });
+    console.log(`[AUTH-CLAIM] Claim stored successfully for ${dealId}`);
+    res.json({ success: true, user: mapUser(updatedUser), claimedDeals: updated });
   } catch (error) {
-    console.error("ERROR:", error);
+    console.error("[AUTH-CLAIM] ERROR:", error);
     res.status(500).json({ success: false, error: (error instanceof Error ? error.message : String(error)) });
   }
 });
@@ -1978,6 +1981,56 @@ app.post("/api/checkout", async (_, res) => {
 
 app.post("/api/billing/portal", async (_, res) => {
   res.json({ url: process.env.BILLING_PORTAL_URL || "https://perksnest.co/customer" });
+});
+
+app.post("/api/billing/cancel-subscription", async (req, res) => {
+  try {
+    const userId = (await getRequestUserId(req)) || req.body?.userId;
+    if (!userId) {
+      return res.status(400).json({ success: false, error: "Missing userId" });
+    }
+
+    const { data: user, error: userError } = await db
+      .from("users")
+      .select("*")
+      .eq("id", userId)
+      .maybeSingle();
+    if (userError) throw userError;
+    if (!user) {
+      return res.status(404).json({ success: false, error: "User not found" });
+    }
+
+    const isActivePremiumSubscription =
+      user.plan === "premium" && String(user.status || "active").toLowerCase() === "active";
+
+    if (!isActivePremiumSubscription) {
+      return res.status(400).json({
+        success: false,
+        error: "No active premium subscription found for this account",
+      });
+    }
+
+    const { data: updatedUser, error: updateError } = await db
+      .from("users")
+      .update({ plan: "free" })
+      .eq("id", userId)
+      .select("*")
+      .single();
+    if (updateError) throw updateError;
+
+    res.json({
+      success: true,
+      message: "Subscription cancelled successfully",
+      cancelledAt: nowIso(),
+      user: mapUser(updatedUser),
+    });
+  } catch (error) {
+    console.error("CANCEL SUBSCRIPTION ERROR:", error);
+    res.status(500).json({
+      success: false,
+      error: error instanceof Error ? error.message : String(error),
+    });
+  }
 });
 
 app.get("/api/stripe/:path*", async (_, res) => {

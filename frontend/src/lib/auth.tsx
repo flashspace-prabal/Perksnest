@@ -312,13 +312,32 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (!user) throw new Error('User not authenticated');
     if (user.claimedDeals.includes(dealId)) return;
 
-    const response = await authApi<{ success: boolean; user: Record<string, unknown> }>(
-      "/api/auth/claim-deal",
-      "POST",
-      { dealId },
-      user.id
-    );
-    setUser(rowToUser(response.user));
+    const previousUser = user;
+    const optimisticClaimedDeals = previousUser.claimedDeals.includes(dealId)
+      ? previousUser.claimedDeals
+      : [...previousUser.claimedDeals, dealId];
+
+    console.log("[Auth] Claiming deal:", { userId: previousUser.id, dealId });
+    setUser({ ...previousUser, claimedDeals: optimisticClaimedDeals });
+
+    try {
+      const response = await authApi<{ success: boolean; user: Record<string, unknown> }>(
+        "/api/auth/claim-deal",
+        "POST",
+        { dealId },
+        previousUser.id
+      );
+      const nextUser = rowToUser(response.user);
+      console.log("[Auth] Claim synced from backend:", {
+        dealId,
+        claimedDeals: nextUser.claimedDeals,
+      });
+      setUser(nextUser);
+    } catch (error) {
+      console.error("[Auth] Claim failed, rolling back optimistic update:", error);
+      setUser(previousUser);
+      throw error;
+    }
   };
 
   const refetchClaimedDeals = async () => {

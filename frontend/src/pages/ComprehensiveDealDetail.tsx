@@ -17,7 +17,7 @@ import { isPremiumDeal } from "@/lib/deal-types";
  * 11. Resources section
  */
 
-import React, { useState, useEffect } from "react";
+import React, { useMemo, useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Loader2, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -28,9 +28,10 @@ import { ComprehensiveDealDetail } from "@/data/deal-details-schema";
 import { stripeDealDetail } from "@/data/stripe-deal";
 import { notionDealDetail } from "@/data/notion-deal";
 import { makeDealDetail } from "@/data/make-deal";
-import { ALL_COMPREHENSIVE_DEALS, getComprehensiveDealByIdFromMaster } from "@/data/index-all-deals";
+import { getComprehensiveDealByIdFromMaster } from "@/data/index-all-deals";
 import { dealsData } from "@/data/deals";
 import { convertBasicDealToComprehensive } from "@/lib/deal-converter";
+import { normalizeComprehensiveDeal } from "@/lib/comprehensive-deal-normalizer";
 import { createClient } from "@supabase/supabase-js";
 
 // Components
@@ -86,7 +87,7 @@ async function getComprehensiveDealData(dealId: string): Promise<ComprehensiveDe
 
         if (!error && data) {
           console.log("✅ Loaded deal from Supabase:", dealId);
-          return data as ComprehensiveDealDetail;
+          return normalizeComprehensiveDeal(data as Record<string, unknown>, dealId);
         }
       } catch (err) {
         console.log("⚠️ Supabase fetch failed, falling back to static data:", err);
@@ -100,7 +101,7 @@ async function getComprehensiveDealData(dealId: string): Promise<ComprehensiveDe
   const staticData = getComprehensiveDealByIdFromMaster(dealId);
   if (staticData) {
     console.log("✅ Loaded deal from comprehensive static data:", dealId);
-    return staticData;
+    return normalizeComprehensiveDeal(staticData as Record<string, unknown>, dealId);
   }
 
   // Final fallback - check legacy data sources for backward compatibility
@@ -112,14 +113,14 @@ async function getComprehensiveDealData(dealId: string): Promise<ComprehensiveDe
 
   if (legacyDataMap[dealId]) {
     console.log("✅ Loaded deal from legacy data:", dealId);
-    return legacyDataMap[dealId];
+    return normalizeComprehensiveDeal(legacyDataMap[dealId] as Record<string, unknown>, dealId);
   }
 
   // Fallback to basic deals data - convert to comprehensive format
   const basicDeal = dealsData.find((d) => d.id === dealId);
   if (basicDeal) {
     console.log("✅ Converting basic deal to comprehensive:", dealId);
-    return convertBasicDealToComprehensive(basicDeal);
+    return normalizeComprehensiveDeal(convertBasicDealToComprehensive(basicDeal) as Record<string, unknown>, dealId);
   }
 
   console.warn("❌ Deal not found:", dealId);
@@ -132,7 +133,7 @@ async function getComprehensiveDealData(dealId: string): Promise<ComprehensiveDe
 export const ComprehensiveDealDetailPage: React.FC = () => {
   const { dealId } = useParams<{ dealId: string }>();
   const navigate = useNavigate();
-  const { user, isAuthenticated } = useAuth();
+  const { user, isAuthenticated, claimDeal } = useAuth();
   const { isBookmarked, toggleBookmark, isBookmarkPending } = useBookmarks();
 
   const [deal, setDeal] = useState<ComprehensiveDealDetail | null>(null);
@@ -185,17 +186,31 @@ export const ComprehensiveDealDetailPage: React.FC = () => {
 
   // Handlers
   const handleClaim = async () => {
+    if (!dealId) return;
+
     if (!isAuthenticated) {
       toast.error("Please sign in to claim deals");
       navigate("/login");
       return;
     }
 
+    const isCurrentDealPremium = Boolean(deal?.isPremium || (dealId && isPremiumDeal(dealId)));
+    const isPremiumMember = user?.plan === "premium" || user?.plan === "enterprise";
+
+    if (isCurrentDealPremium && !isPremiumMember) {
+      toast.error("Upgrade to unlock this premium deal");
+      navigate("/pricing");
+      return;
+    }
+
+    if (user?.claimedDeals?.includes(dealId) || isClaimed) {
+      navigate(`/deals/${dealId}/redeem`);
+      return;
+    }
+
     setIsClaiming(true);
     try {
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 1500));
-
+      await claimDeal(dealId);
       setIsClaimed(true);
       toast.success(`${deal?.name} deal claimed successfully!`);
 
@@ -256,6 +271,22 @@ export const ComprehensiveDealDetailPage: React.FC = () => {
     }
   };
 
+  // Check premium access
+  const isMUserPremium = user?.plan === "premium" || user?.plan === "enterprise";
+  const isPremiumAccessDeal = Boolean(deal?.isPremium || (!!dealId && isPremiumDeal(dealId)));
+  const requireUpgrade = isPremiumAccessDeal && !isMUserPremium;
+  const areResourcesLocked = false;
+  const hasResources = Array.isArray(deal?.resources) && deal.resources.length > 0;
+  const resourceUnlockLabel = !isAuthenticated
+    ? "Sign in to unlock"
+    : requireUpgrade
+      ? "Upgrade to unlock"
+      : "Unlock resources";
+  const visibleTabs = useMemo(
+    () => DEAL_TABS.filter((tab) => (tab.id === "resources" ? hasResources : true)),
+    [hasResources]
+  );
+
   // Loading state
   if (isLoading) {
     return (
@@ -288,16 +319,12 @@ export const ComprehensiveDealDetailPage: React.FC = () => {
     );
   }
 
-  // Check premium access
-  const isMUserPremium = user?.plan === "premium" || user?.plan === "enterprise";
-  const requireUpgrade = (!!deal?.isPremium || (!!dealId && isPremiumDeal(dealId))) && !isMUserPremium;
-
   return (
     <div className="min-h-screen bg-white">
       {/* Hero Section */}
       <DealHero
         deal={deal}
-        onClaim={requireUpgrade ? () => navigate("/pricing") : handleClaim}
+        onClaim={handleClaim}
         onBookmark={handleBookmark}
         onShare={handleShare}
         isClaimed={isClaimed}
@@ -307,7 +334,7 @@ export const ComprehensiveDealDetailPage: React.FC = () => {
       />
 
       {/* Sticky Tabs Navigation */}
-      <DealTabs tabs={DEAL_TABS} />
+      <DealTabs tabs={visibleTabs} />
 
       {/* Deals Section */}
       <DealsSection deal={deal} />
@@ -331,7 +358,15 @@ export const ComprehensiveDealDetailPage: React.FC = () => {
       <RelatedDealsSection deal={deal} />
 
       {/* Resources Section */}
-      <ResourcesSection deal={deal} />
+      {hasResources ? (
+        <ResourcesSection
+          deal={deal}
+          isLocked={areResourcesLocked}
+          isPremiumDeal={isPremiumAccessDeal}
+          unlockLabel={resourceUnlockLabel}
+          onUnlock={handleClaim}
+        />
+      ) : null}
 
       {/* Footer CTA */}
       <section className="py-16 bg-blue-50 border-t border-blue-200">
@@ -345,10 +380,10 @@ export const ComprehensiveDealDetailPage: React.FC = () => {
           <Button
             onClick={handleClaim}
             size="lg"
-            disabled={isClaimed || isClaiming}
+            disabled={isClaiming}
             className="bg-blue-600 hover:bg-blue-700 text-white"
           >
-            {isClaimed ? "Already Claimed" : "Claim Your Deal Now"}
+            {isClaimed ? "View Claimed Deal" : requireUpgrade ? "Upgrade to Unlock" : "Claim Your Deal Now"}
           </Button>
         </div>
       </section>

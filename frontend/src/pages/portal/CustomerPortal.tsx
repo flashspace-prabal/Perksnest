@@ -4,8 +4,20 @@ import {
   User, Mail, Building, MapPin, Settings, Bell, CreditCard, Gift,
   Wallet, Calendar, Download, Share2, Copy, TrendingUp, Users,
   DollarSign, Clock, Bookmark, Star, Tag,
-  Search, ChevronRight, ExternalLink, MessageSquare, Send, X, Sparkles, Award, CheckCircle
+  Search, ChevronRight, ExternalLink, MessageSquare, Send, X, Sparkles, Award, CheckCircle, Loader2, AlertCircle
 } from "lucide-react";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -16,7 +28,7 @@ import { useAuth } from "@/lib/auth";
 import { useBookmarks } from "@/lib/bookmarks";
 import { dealsData, type Deal } from "@/data/deals";
 import { toast } from "sonner";
-import { getTickets, createTicket, claimDeal as apiClaimDeal, getReferralSummary, type ReferralEntry } from "@/lib/api";
+import { getTickets, createTicket, getReferralSummary, getUserClaims, type ReferralEntry } from "@/lib/api";
 import { getDeals } from "@/lib/deals";
 import { getPartnerDeals, type PartnerDeal } from "@/lib/store";
 import { buildReferralLink } from "@/lib/referrals";
@@ -60,6 +72,12 @@ const CustomerPortal = () => {
   const [referrals, setReferrals] = useState<ReferralEntry[]>([]);
   const [isReferralLoading, setIsReferralLoading] = useState(true);
   const [referralEarnings, setReferralEarnings] = useState(0);
+  const [isBillingPortalLoading, setIsBillingPortalLoading] = useState(false);
+  const [isCancelDialogOpen, setIsCancelDialogOpen] = useState(false);
+  const [isCancellingSubscription, setIsCancellingSubscription] = useState(false);
+  const [cancellationError, setCancellationError] = useState<string | null>(null);
+  const [isSubscriptionCancelled, setIsSubscriptionCancelled] = useState(false);
+  const [claimEventsByDealId, setClaimEventsByDealId] = useState<Record<string, string>>({});
 
   // Redirect to home if not authenticated
   useEffect(() => {
@@ -98,38 +116,6 @@ const CustomerPortal = () => {
         .catch(err => console.error('Failed to fetch tickets:', err));
     }
   }, [user]);
-
-  // Get claimed deals with full details from dealsData
-  const claimedDealsWithDetails = (user?.claimedDeals ?? [])
-    .map(dealId => {
-      const deal = dealsData.find(d => d.id === dealId);
-      if (!deal) return null;
-      return {
-        id: deal.id,
-        vendor: deal.name,
-        logo: deal.logo,
-        name: deal.dealText,
-        claimedDate: user?.createdAt || new Date().toISOString(), // Using user creation date as placeholder
-        status: "active" as const,
-        expiresDate: new Date(Date.now() + 180 * 24 * 60 * 60 * 1000).toISOString(), // 6 months from now
-        savings: parseInt(deal.savings.replace(/[$,]/g, '')) || 0,
-        redemptionCode: `${deal.id.toUpperCase()}-${user?.referralCode || "PN"}`
-      };
-    })
-    .filter(Boolean) as Array<{
-      id: string;
-      vendor: string;
-      logo: string;
-      name: string;
-      claimedDate: string;
-      status: "active" | "redeemed" | "pending";
-      expiresDate: string;
-      savings: number;
-      redemptionCode: string;
-    }>;
-
-  // Calculate total savings from claimed deals
-  const totalSavings = claimedDealsWithDetails.reduce((acc, deal) => acc + deal.savings, 0);
 
   useEffect(() => {
     if (!FEATURES.referrals || !user?.id) {
@@ -174,7 +160,56 @@ const CustomerPortal = () => {
     };
   }, []);
 
-  const savedDeals = useMemo(() => {
+  useEffect(() => {
+    let isMounted = true;
+
+    if (!user?.id || !isAuthenticated) {
+      setClaimEventsByDealId({});
+      return () => {
+        isMounted = false;
+      };
+    }
+
+    getUserClaims()
+      .then((response) => {
+        if (!isMounted) return;
+
+        console.log("[CustomerPortal] Dashboard claims fetch response:", response);
+        const rawClaims = Array.isArray((response as { claims?: unknown[] })?.claims)
+          ? (response as { claims: unknown[] }).claims
+          : Array.isArray(response)
+            ? response
+            : [];
+
+        const nextClaimEvents = rawClaims.reduce<Record<string, string>>((accumulator, entry) => {
+          if (!entry || typeof entry !== "object") return accumulator;
+
+          const dealId = typeof (entry as { deal_id?: unknown }).deal_id === "string"
+            ? ((entry as { deal_id: string }).deal_id)
+            : null;
+          const claimedAt = typeof (entry as { claimed_at?: unknown }).claimed_at === "string"
+            ? ((entry as { claimed_at: string }).claimed_at)
+            : null;
+
+          if (dealId) {
+            accumulator[dealId] = claimedAt || new Date().toISOString();
+          }
+
+          return accumulator;
+        }, {});
+
+        setClaimEventsByDealId(nextClaimEvents);
+      })
+      .catch((error) => {
+        console.error("[CustomerPortal] Failed to fetch claimed deal events:", error);
+      });
+
+    return () => {
+      isMounted = false;
+    };
+  }, [user?.id, isAuthenticated]);
+
+  const allDealLookup = useMemo(() => {
     const partnerDealsMapped: Deal[] = partnerDeals.map(deal => ({
       id: deal.id,
       name: deal.name,
@@ -190,18 +225,68 @@ const CustomerPortal = () => {
       subcategory: "",
     }));
 
-    const dealLookup = new Map<string, Deal>();
-    [...partnerDealsMapped, ...catalogDeals].forEach(deal => {
-      if (!dealLookup.has(deal.id)) {
-        dealLookup.set(deal.id, deal);
+    const lookup = new Map<string, Deal>();
+    [...partnerDealsMapped, ...catalogDeals, ...dealsData].forEach(deal => {
+      if (!lookup.has(deal.id)) {
+        lookup.set(deal.id, deal);
       }
-      if (deal.slug && !dealLookup.has(deal.slug)) {
-        dealLookup.set(deal.slug, deal);
+      if (deal.slug && !lookup.has(deal.slug)) {
+        lookup.set(deal.slug, deal);
       }
     });
 
+    return lookup;
+  }, [catalogDeals, partnerDeals]);
+
+  const claimedDealIds = useMemo(
+    () => Array.from(new Set([...(user?.claimedDeals ?? []), ...Object.keys(claimEventsByDealId)])),
+    [user?.claimedDeals, claimEventsByDealId]
+  );
+
+  const claimedDealsWithDetails = useMemo(() => {
+    const mappedDeals = claimedDealIds
+      .map((claimedDealId) => {
+        const deal = allDealLookup.get(claimedDealId);
+
+        if (!deal) {
+          console.warn("[CustomerPortal] Missing deal metadata for claimed deal:", claimedDealId);
+          return null;
+        }
+
+        return {
+          id: deal.id,
+          vendor: deal.name,
+          logo: deal.logo,
+          name: deal.dealText,
+          claimedDate: claimEventsByDealId[claimedDealId] || user?.createdAt || new Date().toISOString(),
+          status: "active" as const,
+          expiresDate: new Date(Date.now() + 180 * 24 * 60 * 60 * 1000).toISOString(),
+          savings: parseInt(String(deal.savings || "0").replace(/[$,]/g, ''), 10) || 0,
+          redemptionCode: `${deal.id.toUpperCase()}-${user?.referralCode || "PN"}`
+        };
+      })
+      .filter(Boolean) as Array<{
+        id: string;
+        vendor: string;
+        logo: string;
+        name: string;
+        claimedDate: string;
+        status: "active" | "redeemed" | "pending";
+        expiresDate: string;
+        savings: number;
+        redemptionCode: string;
+      }>;
+
+    console.log("[CustomerPortal] Claimed deals prepared for dashboard:", mappedDeals);
+    return mappedDeals;
+  }, [allDealLookup, claimEventsByDealId, claimedDealIds, user?.createdAt, user?.referralCode]);
+
+  // Calculate total savings from claimed deals
+  const totalSavings = claimedDealsWithDetails.reduce((acc, deal) => acc + deal.savings, 0);
+
+  const savedDeals = useMemo(() => {
     return bookmarkedDealIds
-      .map(dealId => dealLookup.get(dealId))
+      .map(dealId => allDealLookup.get(dealId))
       .filter((deal): deal is Deal => !!deal)
       .map(deal => ({
         id: deal.id,
@@ -214,7 +299,7 @@ const CustomerPortal = () => {
         isPremium: deal.isPremium,
         isFree: deal.isFree,
       }));
-  }, [bookmarkedDealIds, catalogDeals, partnerDeals]);
+  }, [allDealLookup, bookmarkedDealIds]);
 
   const recentTickets = useMemo(() => {
     return [...tickets]
@@ -226,6 +311,10 @@ const CustomerPortal = () => {
   if (!user || !isAuthenticated) {
     return null;
   }
+
+  const effectiveUserPlan = isSubscriptionCancelled ? 'free' : user.plan;
+  const hasActivePremiumSubscription =
+    effectiveUserPlan === 'premium' && (user.status ?? 'active') === 'active';
 
   const copyCode = (id: string, code: string) => {
     navigator.clipboard.writeText(code);
@@ -305,11 +394,16 @@ const CustomerPortal = () => {
 
   const handleClaimDeal = async (dealId: string) => {
     try {
-      // Call API to claim deal
-      await apiClaimDeal(dealId);
-      
-      // Also update local auth context
+      console.log("[CustomerPortal] Claiming deal from dashboard:", dealId);
       await claimDeal(dealId);
+      await refetchClaimedDeals();
+
+      try {
+        const refreshedClaims = await getUserClaims();
+        console.log("[CustomerPortal] Claims after dashboard claim:", refreshedClaims);
+      } catch (claimsError) {
+        console.warn("[CustomerPortal] Failed to refetch claims after dashboard claim:", claimsError);
+      }
       
       toast.success("Deal claimed successfully!");
     } catch (error) {
@@ -320,7 +414,7 @@ const CustomerPortal = () => {
 
   // Get plan badge variant
   const getPlanBadgeClass = () => {
-    switch (user.plan) {
+    switch (effectiveUserPlan) {
       case 'premium':
         return "bg-gradient-to-r from-primary to-purple-500";
       case 'enterprise':
@@ -332,7 +426,52 @@ const CustomerPortal = () => {
   };
 
   const getPlanLabel = () => {
-    return user.plan.charAt(0).toUpperCase() + user.plan.slice(1);
+    return effectiveUserPlan.charAt(0).toUpperCase() + effectiveUserPlan.slice(1);
+  };
+
+  const handleOpenBillingPortal = async () => {
+    if (isBillingPortalLoading) return;
+
+    setIsBillingPortalLoading(true);
+    try {
+      const res = await fetch(`${API_BASE_URL}/api/billing/portal`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId: user.id, email: user.email }),
+      });
+      const data = await res.json();
+      if (data.url) {
+        window.location.href = data.url;
+        return;
+      }
+      toast.error('Could not open billing portal');
+    } catch {
+      toast.error('Billing portal unavailable');
+    } finally {
+      setIsBillingPortalLoading(false);
+    }
+  };
+
+  const handleCancelSubscription = async () => {
+    if (isCancellingSubscription || !hasActivePremiumSubscription) return;
+
+    setCancellationError(null);
+    setIsCancellingSubscription(true);
+
+    try {
+      await updatePlan('free');
+
+      setIsSubscriptionCancelled(true);
+      setIsCancelDialogOpen(false);
+
+      toast.success('Your subscription has been cancelled.');
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Failed to cancel subscription';
+      setCancellationError(message);
+      toast.error(message);
+    } finally {
+      setIsCancellingSubscription(false);
+    }
   };
 
   return (
@@ -801,18 +940,18 @@ const CustomerPortal = () => {
                   </div>
                   <div className="relative z-10">
                     <Badge className="bg-white/20 hover:bg-white/30 text-white border-0 mb-4 px-3 py-1">
-                      {user.plan === 'premium' ? 'Current Plan: Premium' : 'Limited Access: Free'}
+                      {hasActivePremiumSubscription ? 'Current Plan: Premium' : 'Limited Access: Free'}
                     </Badge>
                     <h2 className="text-3xl font-bold mb-2">
-                       {user.plan === 'premium' ? 'You are a PerksNest Pro' : 'Unlock Everything'}
+                       {hasActivePremiumSubscription ? 'You are a PerksNest Pro' : 'Unlock Everything'}
                     </h2>
                     <p className="text-purple-100 max-w-md mb-8">
-                      {user.plan === 'premium' 
+                      {hasActivePremiumSubscription 
                         ? 'Enjoy unlimited access to all 563+ exclusive SaaS deals and priority founder support.' 
                         : 'Get access to our full database of 563+ curated perks and save thousands on your tech stack.'}
                     </p>
                     
-                    {user.plan !== 'premium' && (
+                    {!hasActivePremiumSubscription && (
                       <Button 
                         size="lg"
                         className="bg-white text-[#5c2169] hover:bg-gray-100 font-bold px-8 shadow-2xl hover:scale-105 transition-all"
@@ -835,29 +974,69 @@ const CustomerPortal = () => {
                     )}
                   </div>
                 </div>
-                {user.plan === 'premium' && (
-                   <CardContent className="bg-white py-4 flex justify-between items-center px-8 border-t">
+                {hasActivePremiumSubscription && (
+                   <CardContent className="bg-white py-4 px-8 border-t flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                       <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
                         <CheckCircle className="h-4 w-4 text-green-500" />
                         Next billing date: {new Date(new Date().setMonth(new Date().getMonth() + 1)).toLocaleDateString()}
                       </div>
-                      <Button variant="ghost" size="sm" onClick={async () => {
-                         try {
-                            const res = await fetch(`${API_BASE_URL}/api/billing/portal`, {
-                              method: 'POST',
-                              headers: { 'Content-Type': 'application/json' },
-                              body: JSON.stringify({ userId: user.id, email: user.email }),
-                            });
-                            const data = await res.json();
-                            if (data.url) window.location.href = data.url;
-                            else toast.error('Could not open billing portal');
-                          } catch { toast.error('Billing portal unavailable'); }
-                      }}>
-                        Manage Subscription
-                      </Button>
+                      <div className="flex flex-col-reverse gap-2 sm:flex-row sm:items-center">
+                        <AlertDialog open={isCancelDialogOpen} onOpenChange={setIsCancelDialogOpen}>
+                          <AlertDialogTrigger asChild>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              className="border-rose-200 text-rose-700 hover:bg-rose-50 hover:text-rose-800"
+                              disabled={isCancellingSubscription}
+                            >
+                              {isCancellingSubscription ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
+                              Cancel Subscription
+                            </Button>
+                          </AlertDialogTrigger>
+                          <AlertDialogContent>
+                            <AlertDialogHeader>
+                              <AlertDialogTitle>Are you sure you want to cancel?</AlertDialogTitle>
+                              <AlertDialogDescription>
+                                You will lose premium access after cancellation, and the change will be reflected in your billing dashboard right away.
+                              </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                              <AlertDialogCancel disabled={isCancellingSubscription}>Keep Subscription</AlertDialogCancel>
+                              <AlertDialogAction
+                                onClick={handleCancelSubscription}
+                                disabled={isCancellingSubscription}
+                                className="bg-rose-600 hover:bg-rose-700"
+                              >
+                                {isCancellingSubscription ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
+                                {isCancellingSubscription ? 'Cancelling...' : 'Yes, Cancel'}
+                              </AlertDialogAction>
+                            </AlertDialogFooter>
+                          </AlertDialogContent>
+                        </AlertDialog>
+
+                    
+                      </div>
                    </CardContent>
                 )}
               </Card>
+
+              {isSubscriptionCancelled && (
+                <Alert className="border-green-200 bg-green-50 text-green-900">
+                  <CheckCircle className="h-4 w-4 text-green-600" />
+                  <AlertTitle>Subscription Cancelled</AlertTitle>
+                  <AlertDescription>
+                    Your premium subscription has been cancelled successfully. You can upgrade again anytime from this billing page.
+                  </AlertDescription>
+                </Alert>
+              )}
+
+              {cancellationError && (
+                <Alert variant="destructive" className="border-destructive/30 bg-destructive/5">
+                  <AlertCircle className="h-4 w-4" />
+                  <AlertTitle>Cancellation failed</AlertTitle>
+                  <AlertDescription>{cancellationError}</AlertDescription>
+                </Alert>
+              )}
 
               {/* Perks Grid */}
               <div className="grid md:grid-cols-2 gap-6">
@@ -869,8 +1048,8 @@ const CustomerPortal = () => {
                     {[
                       { text: 'All 563+ deals unlocked', included: true },
                       { text: 'New premium deals weekly', included: true },
-                      { text: 'Priority founder support', included: user.plan === 'premium' },
-                      { text: 'Private Slack community', included: user.plan === 'premium' },
+                      { text: 'Priority founder support', included: hasActivePremiumSubscription },
+                      { text: 'Private Slack community', included: hasActivePremiumSubscription },
                     ].map((benefit, i) => (
                       <div key={i} className="flex items-center gap-3">
                         {benefit.included ? (
@@ -891,8 +1070,17 @@ const CustomerPortal = () => {
                   <CardContent className="space-y-4">
                     <div className="flex justify-between items-center py-2 border-b border-gray-50">
                       <span className="text-sm text-muted-foreground">Status</span>
-                      <Badge variant={user.plan === 'premium' ? 'default' : 'secondary'} className={user.plan === 'premium' ? 'bg-green-500 hover:bg-green-600' : ''}>
-                        {user.plan === 'premium' ? 'Active' : 'Free Tier'}
+                      <Badge
+                        variant={hasActivePremiumSubscription ? 'default' : 'secondary'}
+                        className={
+                          hasActivePremiumSubscription
+                            ? 'bg-green-500 hover:bg-green-600'
+                            : isSubscriptionCancelled
+                              ? 'bg-amber-100 text-amber-800 hover:bg-amber-100'
+                              : ''
+                        }
+                      >
+                        {isSubscriptionCancelled ? 'Subscription Cancelled' : hasActivePremiumSubscription ? 'Active' : 'Free Tier'}
                       </Badge>
                     </div>
                     <div className="flex justify-between items-center py-2 border-b border-gray-50">
@@ -901,7 +1089,9 @@ const CustomerPortal = () => {
                     </div>
                     <div className="flex justify-between items-center py-2">
                        <span className="text-sm text-muted-foreground">Billing Period</span>
-                       <span className="text-sm font-medium">Monthly</span>
+                       <span className="text-sm font-medium">
+                        {hasActivePremiumSubscription ? 'Monthly' : isSubscriptionCancelled ? 'Cancelled' : 'N/A'}
+                       </span>
                     </div>
                   </CardContent>
                 </Card>

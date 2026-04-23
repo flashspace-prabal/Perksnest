@@ -18,7 +18,7 @@ import { Deal } from "@/data/deals";
 import { getDealReview } from "@/data/reviews";
 import { getExtendedDealInfo } from "@/data/extended-deals";
 import { getPartnerDeals, PartnerDeal } from "@/lib/store";
-import { claimDeal as apiClaimDeal, getDealClaims, getUserClaims } from "@/lib/api";
+import { getDealClaims, getUserClaims } from "@/lib/api";
 import { getDeal } from "@/lib/deals";
 import { useSeo } from "@/lib/seo";
 import { isPremiumDeal, isFreeDeal } from "@/lib/deal-types";
@@ -103,7 +103,7 @@ const saasLogos = [
 const DealDetail = () => {
   const { dealId } = useParams<{ dealId: string }>();
   const navigate = useNavigate();
-  const { user, isAuthenticated, claimDeal } = useAuth();
+  const { user, isAuthenticated, claimDeal, refetchClaimedDeals } = useAuth();
   const { isBookmarked, isBookmarkPending, toggleBookmark } = useBookmarks();
   const isPro = user?.plan === 'premium';
   const [showAuthModal, setShowAuthModal] = useState(false);
@@ -268,27 +268,27 @@ const DealDetail = () => {
     try {
       console.log(`[DealDetail] Claiming deal: ${dealId}`);
       
-      // Call backend API to track claim (with timeout and retry)
-      // This now returns the full updated user object
-      const response = await apiClaimDeal(dealId);
-      console.log('[DealDetail] Claim response:', response);
+      await claimDeal(dealId);
+      console.log('[DealDetail] Auth claim completed successfully');
 
       // Update local server state immediately
-      if (!serverClaimedDeals.includes(dealId)) {
-        console.log('[DealDetail] Adding to serverClaimedDeals');
-        setServerClaimedDeals([...serverClaimedDeals, dealId]);
-      }
+      setServerClaimedDeals(current =>
+        current.includes(dealId) ? current : [...current, dealId]
+      );
 
       // Increment local claim count
       setClaimCount(prev => prev + 1);
 
       const dealName = deal?.name || 'Deal';
-      const isFallback = Boolean((response as { fallback?: boolean })?.fallback);
-      
-      if (isFallback) {
-        toast.success(`${dealName} claimed! (offline mode - syncing when online)`);
-      } else {
-        toast.success(`${dealName} claimed successfully!`);
+      toast.success(`${dealName} claimed successfully!`);
+
+      try {
+        await refetchClaimedDeals();
+        const claims = await getUserClaims();
+        console.log('[DealDetail] Claims after claim:', claims);
+        setServerClaimedDeals(normalizeClaimedDeals(claims));
+      } catch (refreshError) {
+        console.warn('[DealDetail] Failed to refetch claims after claim:', refreshError);
       }
 
       // Send confirmation email

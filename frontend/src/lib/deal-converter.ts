@@ -300,54 +300,10 @@ export function convertBasicDealToComprehensive(basicDeal: Deal): ComprehensiveD
       },
     ],
 
-    // Resources
-    resources: [
-      {
-        id: `resource-1-${basicDeal.id}`,
-        title: "Getting Started Guide",
-        type: "guide",
-        description: "Step-by-step guide to get started with this platform",
-        image: basicDeal.logo,
-        link: basicDeal.website || "#",
-        date: "2026-03-15",
-      },
-      {
-        id: `resource-2-${basicDeal.id}`,
-        title: "Best Practices",
-        type: "guide",
-        description: "Learn best practices for maximizing value",
-        image: basicDeal.logo,
-        link: basicDeal.website || "#",
-        date: "2026-03-10",
-      },
-      {
-        id: `resource-3-${basicDeal.id}`,
-        title: "Case Study",
-        type: "blog",
-        description: "How startups are using this platform",
-        image: basicDeal.logo,
-        link: basicDeal.website || "#",
-        date: "2026-03-05",
-      },
-      {
-        id: `resource-4-${basicDeal.id}`,
-        title: "Video Tutorial",
-        type: "video",
-        description: "Watch how to set up and use effectively",
-        image: basicDeal.logo,
-        link: basicDeal.website || "#",
-        date: "2026-02-28",
-      },
-      {
-        id: `resource-5-${basicDeal.id}`,
-        title: "API Documentation",
-        type: "guide",
-        description: "Complete API reference and integration guides",
-        image: basicDeal.logo,
-        link: basicDeal.website || "#",
-        date: "2026-02-20",
-      },
-    ],
+    // Resources are intentionally empty here until a deal has vetted,
+    // product-specific official docs or guides. We never fall back to the
+    // main website or placeholder links.
+    resources: [],
 
     // Metadata
     isFeatured: basicDeal.featured || false,

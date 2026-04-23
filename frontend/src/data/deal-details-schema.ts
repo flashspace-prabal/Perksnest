@@ -58,12 +58,14 @@ export interface PopularDeal {
 
 export interface Resource {
   id: string;
-  type: "blog" | "guide" | "webinar" | "template" | "video";
+  type: string;
   title: string;
-  description: string;
-  link: string;
+  description?: string;
+  link?: string;
+  url?: string;
   image?: string;
   date?: string;
+  ctaLabel?: string;
 }
 
 export interface ComprehensiveDealDetail {
