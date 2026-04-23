@@ -219,9 +219,10 @@ export const ComprehensiveDealDetailPage: React.FC = () => {
     }
 
     try {
-      await toggleBookmark(dealId || "");
+      const bookmarkId = deal?.id || dealId || "";
+      await toggleBookmark(bookmarkId);
       toast.success(
-        isBookmarked(dealId || "") ? "Deal removed from saved" : "Deal saved!"
+        isBookmarked(bookmarkId) ? "Deal removed from saved" : "Deal saved!"
       );
     } catch (error) {
       console.error("Failed to toggle bookmark:", error);
@@ -300,7 +301,7 @@ export const ComprehensiveDealDetailPage: React.FC = () => {
         onBookmark={handleBookmark}
         onShare={handleShare}
         isClaimed={isClaimed}
-        isBookmarked={isBookmarked(dealId || "")}
+        isBookmarked={isBookmarked(deal.id || dealId || "")}
         isLoading={isClaiming}
         requireUpgrade={requireUpgrade}
       />

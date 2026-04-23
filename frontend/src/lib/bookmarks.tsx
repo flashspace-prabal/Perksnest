@@ -3,6 +3,7 @@ import { useAuth } from "@/lib/auth";
 import { addBookmark, getBookmarks as getBookmarksFromApi, removeBookmark } from "@/lib/api";
 
 export const BOOKMARKS_UPDATED_EVENT = 'bookmarks-updated';
+const LEGACY_BOOKMARKS_KEY = 'pn_bookmarks';
 
 interface BookmarksContextValue {
   bookmarkedDealIds: string[];
@@ -29,6 +30,39 @@ const fallbackBookmarksContext: BookmarksContextValue = {
 
 const BookmarksContext = createContext<BookmarksContextValue>(fallbackBookmarksContext);
 
+const isUuid = (value?: string | null) =>
+  !!value && /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(value);
+
+const getBookmarkStorageKey = (userId: string) => `pn_bookmarks_${userId}`;
+
+function readCachedBookmarks(userId?: string | null): string[] {
+  if (!userId) return [];
+
+  try {
+    const scoped = JSON.parse(localStorage.getItem(getBookmarkStorageKey(userId)) || "[]");
+    if (Array.isArray(scoped)) {
+      return scoped.filter((dealId): dealId is string => typeof dealId === "string" && dealId.length > 0);
+    }
+
+    const legacy = JSON.parse(localStorage.getItem(LEGACY_BOOKMARKS_KEY) || '{"userId":"","dealIds":[]}');
+    if (legacy?.userId === userId && Array.isArray(legacy.dealIds)) {
+      return legacy.dealIds.filter((dealId: unknown): dealId is string => typeof dealId === "string" && dealId.length > 0);
+    }
+  } catch {
+    return [];
+  }
+
+  return [];
+}
+
+function writeCachedBookmarks(userId?: string | null, dealIds: string[] = []) {
+  if (!userId) return;
+
+  const nextIds = Array.from(new Set(dealIds.filter((dealId) => typeof dealId === "string" && dealId.length > 0)));
+  localStorage.setItem(getBookmarkStorageKey(userId), JSON.stringify(nextIds));
+  localStorage.setItem(LEGACY_BOOKMARKS_KEY, JSON.stringify({ userId, dealIds: nextIds }));
+}
+
 export function BookmarksProvider({ children }: { children: ReactNode }) {
   const { user, isAuthenticated } = useAuth();
   const [bookmarkedDealIds, setBookmarkedDealIds] = useState<string[]>([]);
@@ -47,12 +81,17 @@ export function BookmarksProvider({ children }: { children: ReactNode }) {
     setIsLoading(true);
     try {
       const response = await getBookmarksFromApi();
-      const ids = response.dealIds || [];
+      const remoteIds = Array.isArray(response?.dealIds) ? response.dealIds : [];
+      const cachedIds = readCachedBookmarks(user.id);
+      const ids = Array.from(new Set([...cachedIds, ...remoteIds]));
       setBookmarkedDealIds(ids);
+      writeCachedBookmarks(user.id, ids);
       setError(null);
     } catch (err) {
       console.error("Failed to load bookmarks:", err);
-      setError("Failed to load saved deals");
+      const cachedIds = readCachedBookmarks(user.id);
+      setBookmarkedDealIds(cachedIds);
+      setError(cachedIds.length > 0 ? null : "Failed to load saved deals");
     } finally {
       setIsLoading(false);
     }
@@ -76,16 +115,21 @@ export function BookmarksProvider({ children }: { children: ReactNode }) {
     if (!dealId) throw new Error("Invalid deal ID");
 
     const wasBookmarked = bookmarkedDealIds.includes(dealId);
+    const nextIds = wasBookmarked
+      ? bookmarkedDealIds.filter(id => id !== dealId)
+      : [dealId, ...bookmarkedDealIds.filter(id => id !== dealId)];
+
     setPendingDealIds(prev => prev.includes(dealId) ? prev : [...prev, dealId]);
-    setBookmarkedDealIds(prev => (
-      wasBookmarked ? prev.filter(id => id !== dealId) : [dealId, ...prev.filter(id => id !== dealId)]
-    ));
+    setBookmarkedDealIds(nextIds);
+    writeCachedBookmarks(user.id, nextIds);
 
     try {
-      if (wasBookmarked) {
-        await removeBookmark(dealId);
-      } else {
-        await addBookmark(dealId);
+      if (isUuid(dealId)) {
+        if (wasBookmarked) {
+          await removeBookmark(dealId);
+        } else {
+          await addBookmark(dealId);
+        }
       }
 
       const isSaved = !wasBookmarked;
@@ -94,9 +138,11 @@ export function BookmarksProvider({ children }: { children: ReactNode }) {
       return isSaved;
     } catch (err) {
       console.error("Failed to update bookmark:", err);
-      setBookmarkedDealIds(prev => (
-        wasBookmarked ? [dealId, ...prev.filter(id => id !== dealId)] : prev.filter(id => id !== dealId)
-      ));
+      const revertedIds = wasBookmarked
+        ? [dealId, ...nextIds.filter(id => id !== dealId)]
+        : nextIds.filter(id => id !== dealId);
+      setBookmarkedDealIds(revertedIds);
+      writeCachedBookmarks(user.id, revertedIds);
       setError("Failed to update saved deals");
       throw err;
     } finally {

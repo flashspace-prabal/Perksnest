@@ -1390,17 +1390,34 @@ app.get("/api/bookmarks", async (req, res) => {
 app.post("/api/bookmarks", async (req, res) => {
   try {
     const userId = await getRequestUserId(req);
-    const { dealId } = req.body || {};
-    if (!userId || !dealId) {
-      res.status(400).json({ success: false, error: "userId and dealId are required" });
+    const dealId = String(req.body?.dealId || "").trim();
+    if (!userId) {
+      res.status(401).json({ success: false, error: "Authentication required" });
       return;
     }
 
-    const { error } = await db
-      .from("bookmarks")
-      .upsert({ user_id: userId, deal_id: dealId }, { onConflict: "user_id,deal_id", ignoreDuplicates: true });
+    if (!dealId) {
+      res.status(400).json({ success: false, error: "dealId is required" });
+      return;
+    }
 
-    if (error) throw error;
+    const { data: existingBookmark, error: existingBookmarkError } = await db
+      .from("bookmarks")
+      .select("deal_id")
+      .eq("user_id", userId)
+      .eq("deal_id", dealId)
+      .maybeSingle();
+
+    if (existingBookmarkError) throw existingBookmarkError;
+
+    if (!existingBookmark) {
+      const { error } = await db
+        .from("bookmarks")
+        .insert({ user_id: userId, deal_id: dealId });
+
+      if (error) throw error;
+    }
+
     res.json({ success: true, dealId });
   } catch (error) {
     console.error("ERROR:", error);

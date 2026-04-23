@@ -98,7 +98,22 @@ export async function apiCall(path: string, method = 'GET', body?: unknown, retr
       clearTimeout(timeoutId);
 
       if (!res.ok) {
-        const error = new Error(`API Error: ${res.status} ${res.statusText}`);
+        let serverMessage = '';
+        try {
+          const contentType = res.headers.get('content-type') || '';
+          if (contentType.includes('application/json')) {
+            const errorBody = await res.json();
+            const rawMessage = errorBody?.error || errorBody?.message || errorBody;
+            serverMessage = typeof rawMessage === 'string' ? rawMessage : JSON.stringify(rawMessage);
+          } else {
+            serverMessage = await res.text();
+          }
+        } catch {
+          serverMessage = '';
+        }
+
+        const suffix = serverMessage ? ` - ${serverMessage}` : '';
+        const error = new Error(`API Error: ${res.status} ${res.statusText}${suffix}`);
         (error as Error & { status?: number }).status = res.status;
         throw error;
       }

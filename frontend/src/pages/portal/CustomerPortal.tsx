@@ -195,6 +195,9 @@ const CustomerPortal = () => {
       if (!dealLookup.has(deal.id)) {
         dealLookup.set(deal.id, deal);
       }
+      if (deal.slug && !dealLookup.has(deal.slug)) {
+        dealLookup.set(deal.slug, deal);
+      }
     });
 
     return bookmarkedDealIds

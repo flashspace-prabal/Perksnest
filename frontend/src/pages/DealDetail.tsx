@@ -7,6 +7,7 @@ import DealCardNew from "@/components/DealCardNew";
 import SafeImage from "@/components/SafeImage";
 import { AuthModal } from "@/components/AuthModal";
 import { DealReviews } from "@/components/DealReviews";
+import { RelatedDealsSection } from "@/components/deal-detail/RelatedDealsSection";
 import UpvoteButton from "@/components/UpvoteButton";
 import ExpiryBadge from "@/components/ExpiryBadge";
 import { sendEmail } from '@/lib/store';
@@ -18,7 +19,7 @@ import { getDealReview } from "@/data/reviews";
 import { getExtendedDealInfo } from "@/data/extended-deals";
 import { getPartnerDeals, PartnerDeal } from "@/lib/store";
 import { claimDeal as apiClaimDeal, getDealClaims, getUserClaims } from "@/lib/api";
-import { getDeal, getDealsByCategory } from "@/lib/deals";
+import { getDeal } from "@/lib/deals";
 import { useSeo } from "@/lib/seo";
 import { isPremiumDeal, isFreeDeal } from "@/lib/deal-types";
 
@@ -112,7 +113,6 @@ const DealDetail = () => {
   const [partnerDeal, setPartnerDeal] = useState<PartnerDeal | null>(null);
   const [serverClaimedDeals, setServerClaimedDeals] = useState<string[]>([]);
   const [baseDeal, setBaseDeal] = useState<Deal | null>(null);
-  const [relatedDeals, setRelatedDeals] = useState<Deal[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   // Fetch deal details
@@ -125,13 +125,6 @@ const DealDetail = () => {
     getDeal(dealId)
       .then(deal => {
         setBaseDeal(deal);
-        if (deal?.category) {
-          getDealsByCategory(deal.category)
-            .then(categoryDeals => {
-              setRelatedDeals(categoryDeals.filter(d => d.id !== dealId).slice(0, 3));
-            })
-            .catch(err => console.error('Failed to fetch related deals:', err));
-        }
       })
       .catch(err => {
         console.error('Failed to fetch core deal data:', err);
@@ -234,10 +227,11 @@ const DealDetail = () => {
       setShowAuthModal(true);
       return;
     }
-    if (!dealId) return;
+    const bookmarkId = deal?.id || deal?.slug || dealId;
+    if (!bookmarkId) return;
 
     try {
-      const result = await toggleBookmark(dealId);
+      const result = await toggleBookmark(bookmarkId);
       toast.success(result ? "Deal saved!" : "Deal removed from saved");
     } catch (error) {
       console.error("Failed to toggle bookmark:", error);
@@ -700,14 +694,14 @@ const DealDetail = () => {
                     <button
                       onClick={handleBookmark}
                       className={`p-2 hover:bg-secondary rounded-lg transition-colors ${
-                        dealId && isBookmarked(dealId) ? "text-primary" : ""
+                        (deal?.id || deal?.slug || dealId) && isBookmarked(deal?.id || deal?.slug || dealId) ? "text-primary" : ""
                       }`}
-                      disabled={dealId ? isBookmarkPending(dealId) : true}
+                      disabled={(deal?.id || deal?.slug || dealId) ? isBookmarkPending(deal?.id || deal?.slug || dealId) : true}
                     >
-                      {dealId && isBookmarkPending(dealId) ? (
+                      {(deal?.id || deal?.slug || dealId) && isBookmarkPending(deal?.id || deal?.slug || dealId) ? (
                         <Loader2 className="h-4 w-4 animate-spin" />
                       ) : (
-                        <Bookmark className={`h-4 w-4 ${dealId && isBookmarked(dealId) ? "fill-current" : "text-muted-foreground"}`} />
+                        <Bookmark className={`h-4 w-4 ${(deal?.id || deal?.slug || dealId) && isBookmarked(deal?.id || deal?.slug || dealId) ? "fill-current" : "text-muted-foreground"}`} />
                       )}
                     </button>
                   </div>
@@ -790,19 +784,17 @@ const DealDetail = () => {
             }}
           />
 
-          {/* Related Deals */}
-          <section className="mt-16">
-            <h2 className="text-2xl font-bold mb-8">People also liked these deals</h2>
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {relatedDeals.map((deal) => (
-                <Link key={deal.id} to={`/deals/${deal.id}`} className="block h-full">
-                  <DealCardNew {...deal} />
-                </Link>
-              ))}
-            </div>
-          </section>
         </div>
       </main>
+
+      <RelatedDealsSection
+        deal={{
+          id: deal.id,
+          name: deal.name,
+          category: deal.category,
+          subcategory: deal.subcategory,
+        }}
+      />
 
     </div>
   );

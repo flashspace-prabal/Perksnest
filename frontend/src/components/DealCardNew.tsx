@@ -35,9 +35,10 @@ const DealCardNew = ({
   const [isPressed, setIsPressed] = useState(false);
   const { isAuthenticated } = useAuth();
   const { isBookmarked, isBookmarkPending, toggleBookmark } = useBookmarks();
+  const bookmarkId = id || slug;
   const href = slug ? `/deals/${slug}` : id ? `/deals/${id}` : '#';
-  const saved = id ? isBookmarked(id) : false;
-  const isSaving = id ? isBookmarkPending(id) : false;
+  const saved = bookmarkId ? isBookmarked(bookmarkId) : false;
+  const isSaving = bookmarkId ? isBookmarkPending(bookmarkId) : false;
 
   const handleMouseDown = () => setIsPressed(true);
   const handleMouseUp = () => setIsPressed(false);
@@ -46,7 +47,7 @@ const DealCardNew = ({
     event.preventDefault();
     event.stopPropagation();
 
-    if (!id) return;
+    if (!bookmarkId) return;
 
     if (!isAuthenticated) {
       toast.info("Sign in to save deals");
@@ -54,7 +55,7 @@ const DealCardNew = ({
     }
 
     try {
-      const nowSaved = await toggleBookmark(id);
+      const nowSaved = await toggleBookmark(bookmarkId);
       toast.success(nowSaved ? "Deal saved" : "Deal removed from saved");
     } catch (error) {
       console.error("Failed to toggle bookmark:", error);
@@ -95,7 +96,7 @@ const DealCardNew = ({
             saved ? "border-primary/30 text-primary" : "border-gray-200 text-gray-500 hover:border-primary/30 hover:text-primary"
           }`}
           onClick={handleBookmarkClick}
-          disabled={!id || isSaving}
+          disabled={!bookmarkId || isSaving}
         >
           {isSaving ? (
             <Loader2 className="h-4 w-4 animate-spin" />
