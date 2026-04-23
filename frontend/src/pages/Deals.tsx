@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useMemo, useRef } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { Grid, List, Star, Search, X, Loader2, TrendingUp, Clock, Zap, Gift, Lock } from "lucide-react";
 import DealCardNew from "@/components/DealCardNew";
@@ -121,6 +121,22 @@ const subcategoryToParent: Record<string, string> = {
   "voip": "communication",
 };
 
+const sidebarCategoryIds = [
+  "all",
+  "ai",
+  "project",
+  "data",
+  "customer",
+  "development",
+  "marketing",
+  "finance",
+  "communication",
+  "sales",
+  "business",
+  "it",
+  "hr",
+];
+
 const Deals = () => {
   useEffect(() => {
     document.title = "Browse SaaS Deals | PerksNest";
@@ -228,35 +244,77 @@ const Deals = () => {
     setSearchParams(params, { replace: true });
   }, [searchQuery, activeCategory, activeFilter, setSearchParams]);
 
-  const filteredDeals = allDeals
+  const matchesSearch = (deal: Deal, query: string) => {
+    if (!query) return true;
+    const normalizedQuery = query.toLowerCase();
+    return (
+      deal.name.toLowerCase().includes(normalizedQuery) ||
+      deal.company?.toLowerCase().includes(normalizedQuery) ||
+      deal.description?.toLowerCase().includes(normalizedQuery)
+    );
+  };
+
+  const matchesCategory = (deal: Deal, categoryId: string) => {
+    const parentCategory = subcategoryToParent[categoryId];
+    const mappedCategories = templateCategoryMapping[categoryId] || [];
+
+    return (
+      categoryId === "all" ||
+      deal.category === categoryId ||
+      deal.subcategory === categoryId ||
+      mappedCategories.includes(deal.category) ||
+      (!!parentCategory && deal.category === parentCategory)
+    );
+  };
+
+  const getDealAccessType = (deal: Deal) => {
+    const premium = isPremiumDeal(deal.id) || deal.isPremium;
+    return premium ? "premium" : "free";
+  };
+
+  const scopedDeals = useMemo(
+    () => allDeals.filter((deal) => matchesSearch(deal, searchQuery) && matchesCategory(deal, activeCategory)),
+    [allDeals, searchQuery, activeCategory]
+  );
+
+  const freeDealsCount = useMemo(
+    () => scopedDeals.filter((deal) => getDealAccessType(deal) === "free").length,
+    [scopedDeals]
+  );
+
+  const premiumDealsCount = useMemo(
+    () => scopedDeals.filter((deal) => getDealAccessType(deal) === "premium").length,
+    [scopedDeals]
+  );
+
+  const categoryCounts = useMemo(() => {
+    const counts: Record<string, number> = {};
+
+    for (const categoryId of sidebarCategoryIds) {
+      counts[categoryId] = allDeals.filter((deal) => {
+        const inSearch = matchesSearch(deal, searchQuery);
+        const inCategory = matchesCategory(deal, categoryId);
+        const accessType = getDealAccessType(deal);
+        const matchesAccess =
+          activeFilter === "Premium"
+            ? accessType === "premium"
+            : activeFilter === "Free"
+              ? accessType === "free"
+              : true;
+
+        return inSearch && inCategory && matchesAccess;
+      }).length;
+    }
+
+    return counts;
+  }, [allDeals, searchQuery, activeFilter]);
+
+  const filteredDeals = scopedDeals
     .filter((deal) => {
-      const matchesSearch =
-        searchQuery === "" ||
-        deal.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        deal.company?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        deal.description?.toLowerCase().includes(searchQuery.toLowerCase());
-
-      // Enhanced subcategory matching logic
-      // 1. If "all", show everything
-      // 2. If exact category match (e.g., "ai"), show all deals in that category
-      // 3. If activeCategory is a subcategory ID, check if deal has that exact subcategory
-      // 4. Check if activeCategory maps to any actual deal categories
-      // 5. Fallback: If activeCategory is a subcategory, show deals in parent category (backward compatible)
-      const parentCategory = subcategoryToParent[activeCategory];
-      const mappedCategories = templateCategoryMapping[activeCategory] || [];
-      const matchesCategory = activeCategory === "all" ||
-                              deal.category === activeCategory ||
-                              deal.subcategory === activeCategory ||
-                              mappedCategories.includes(deal.category) ||
-                              (parentCategory && deal.category === parentCategory);
-
-      // Use the deal-types mapping functions to check premium/free status
-      const dealIsPremium = isPremiumDeal(deal.id) || deal.isPremium;
-      const dealIsFree = !dealIsPremium;
-      
-      const matchesPremium = activeFilter !== "Premium" || dealIsPremium;
-      const matchesFree = activeFilter !== "Free" || dealIsFree;
-      return matchesSearch && matchesCategory && matchesPremium && matchesFree;
+      const accessType = getDealAccessType(deal);
+      const matchesPremium = activeFilter !== "Premium" || accessType === "premium";
+      const matchesFree = activeFilter !== "Free" || accessType === "free";
+      return matchesPremium && matchesFree;
     })
     .sort((a, b) => {
       if (activeFilter === "Most upvoted") return getUpvoteCount(b.id) - getUpvoteCount(a.id);
@@ -283,7 +341,11 @@ const Deals = () => {
         <div className="flex flex-col lg:flex-row gap-6 lg:gap-8">
           {/* Left Sidebar */}
           <div className="hidden lg:block lg:w-64 flex-shrink-0">
-            <CategorySidebar activeCategory={activeCategory} onCategoryChange={(cat) => { setActiveCategory(cat); setCurrentPage(1); }} />
+            <CategorySidebar
+              activeCategory={activeCategory}
+              categoryCounts={categoryCounts}
+              onCategoryChange={(cat) => { setActiveCategory(cat); setCurrentPage(1); }}
+            />
           </div>
 
           {/* Main Content */}
@@ -424,13 +486,13 @@ const Deals = () => {
                 <>
                   {/* FREE DEALS SECTION - Only show if not filtering by Premium */}
                   {activeFilter !== "Premium" && (() => {
-                    const freeDeal = paginatedDeals.filter(d => !(isPremiumDeal(d.id) || d.isPremium));
+                    const freeDeal = paginatedDeals.filter((deal) => getDealAccessType(deal) === "free");
                     return freeDeal.length > 0 ? (
                       <section>
                         <div className="flex items-center gap-3 mb-4">
                           <Gift className="h-5 w-5 text-green-600" />
                           <h3 className="text-lg font-bold text-gray-900">Free Deals</h3>
-                          <span className="text-sm text-gray-500">({filteredDeals.filter(d => !(isPremiumDeal(d.id) || d.isPremium)).length})</span>
+                          <span className="text-sm text-gray-500">({freeDealsCount})</span>
                         </div>
                         <div className={`grid gap-4 ${viewMode === "grid" ? "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3" : "grid-cols-1"}`}>
                           {freeDeal.map((deal) => (
@@ -455,7 +517,7 @@ const Deals = () => {
 
                   {/* PREMIUM DEALS SECTION - Only show if not filtering by Free */}
                   {activeFilter !== "Free" && (() => {
-                    const premiumDeals = paginatedDeals.filter(d => isPremiumDeal(d.id) || d.isPremium);
+                    const premiumDeals = paginatedDeals.filter((deal) => getDealAccessType(deal) === "premium");
                     return premiumDeals.length > 0 ? (
                       <section className="relative">
                         <div className="absolute -inset-4 bg-gradient-to-r from-purple-600/5 to-purple-700/5 rounded-3xl blur-2xl pointer-events-none" />
@@ -463,7 +525,7 @@ const Deals = () => {
                           <div className="flex items-center gap-3 mb-4">
                             <Lock className="h-5 w-5 text-purple-600" />
                             <h3 className="text-lg font-bold text-gray-900">Premium Deals</h3>
-                            <span className="text-sm text-gray-500">({filteredDeals.filter(d => isPremiumDeal(d.id) || d.isPremium).length})</span>
+                            <span className="text-sm text-gray-500">({premiumDealsCount})</span>
                           </div>
                           <div className={`grid gap-4 ${viewMode === "grid" ? "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3" : "grid-cols-1"}`}>
                             {premiumDeals.map((deal) => (

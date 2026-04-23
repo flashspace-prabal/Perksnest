@@ -6,9 +6,10 @@ interface SafeImageProps {
   className?: string;
   fallbackClassName?: string;
   loading?: "lazy" | "eager";
+  style?: React.CSSProperties;
 }
 
-const SafeImage = ({ src, alt, className = "", fallbackClassName = "", loading }: SafeImageProps) => {
+const SafeImage = ({ src, alt, className = "", fallbackClassName = "", loading, style }: SafeImageProps) => {
   const [hasError, setHasError] = useState(false);
 
   const fallbackChar = useMemo(() => {
@@ -36,6 +37,7 @@ const SafeImage = ({ src, alt, className = "", fallbackClassName = "", loading }
       src={src}
       alt={alt}
       className={className}
+      style={style}
       referrerPolicy="no-referrer"
       onError={() => setHasError(true)}
       loading={loading}

@@ -1,36 +1,6 @@
 import { useState, useEffect } from "react";
-import { ChevronLeft, ChevronRight } from "lucide-react";
-
-const testimonials = [
-  {
-    name: "Rajan Mehta",
-    role: "Co-Founder",
-    company: "Launchpad AI",
-    avatar: "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=100&h=100&fit=crop&crop=faces",
-    quote: "PerksNest paid for itself in the first week. We stacked deals on Notion, AWS, and HubSpot and saved more than our entire annual SaaS budget. Absolutely wild.",
-  },
-  {
-    name: "Priya Nair",
-    role: "Founder & CEO",
-    company: "Orbit Health",
-    avatar: "https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?w=100&h=100&fit=crop&crop=faces",
-    quote: "The PerksNest team is incredibly responsive. Every deal we've claimed has worked flawlessly. It's become a core part of how we onboard new tools.",
-  },
-  {
-    name: "Marcus Osei",
-    role: "Head of Engineering",
-    company: "BuildFast Studio",
-    avatar: "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?w=100&h=100&fit=crop&crop=faces",
-    quote: "I was skeptical at first — free credits and big discounts sound too good. But every single offer we've redeemed delivered exactly what was promised.",
-  },
-  {
-    name: "Anika Sharma",
-    role: "Operations Lead",
-    company: "NovaSpark Ventures",
-    avatar: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=100&h=100&fit=crop&crop=faces",
-    quote: "We saved over $60,000 in our first year with PerksNest. The platform is clean, the support is fast, and new deals get added every week. Highly recommend.",
-  },
-];
+import { ChevronLeft, ChevronRight, Star, CheckCircle } from "lucide-react";
+import { allTestimonials } from "@/data/testimonials";
 
 const Testimonials = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -40,7 +10,7 @@ const Testimonials = () => {
     if (!isAutoPlaying) return;
     
     const interval = setInterval(() => {
-      setCurrentIndex((prev) => (prev + 1) % testimonials.length);
+      setCurrentIndex((prev) => (prev + 1) % allTestimonials.length);
     }, 5000);
     
     return () => clearInterval(interval);
@@ -48,13 +18,15 @@ const Testimonials = () => {
 
   const goToPrevious = () => {
     setIsAutoPlaying(false);
-    setCurrentIndex((prev) => (prev - 1 + testimonials.length) % testimonials.length);
+    setCurrentIndex((prev) => (prev - 1 + allTestimonials.length) % allTestimonials.length);
   };
 
   const goToNext = () => {
     setIsAutoPlaying(false);
-    setCurrentIndex((prev) => (prev + 1) % testimonials.length);
+    setCurrentIndex((prev) => (prev + 1) % allTestimonials.length);
   };
+
+  const currentTestimonial = allTestimonials[currentIndex];
 
   return (
     <section className="py-20 gradient-slack">
@@ -65,7 +37,7 @@ const Testimonials = () => {
             Startups scale faster with PerksNest
           </h2>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-            Join 212,980+ businesses who trust PerksNest to find the best SaaS deals
+            Join 5,000+ verified startups who've saved millions with exclusive SaaS deals
           </p>
         </div>
 
@@ -88,24 +60,52 @@ const Testimonials = () => {
           {/* Testimonial Card */}
           <div className="bg-card rounded-2xl border border-border p-8 md:p-12 shadow-lg">
             <div className="flex flex-col items-center text-center">
+              {/* Star Rating */}
+              <div className="flex items-center gap-2 mb-6">
+                <div className="flex gap-1">
+                  {Array.from({ length: 5 }).map((_, i) => (
+                    <Star
+                      key={i}
+                      className={`h-5 w-5 ${
+                        i < currentTestimonial.rating
+                          ? "fill-amber-400 text-amber-400"
+                          : "text-gray-300"
+                      }`}
+                    />
+                  ))}
+                </div>
+              </div>
+
               {/* Quote Text */}
-              <blockquote className="text-lg md:text-xl text-foreground leading-relaxed mb-8 max-w-2xl">
-                "{testimonials[currentIndex].quote}"
+              <blockquote className="text-lg md:text-xl text-foreground leading-relaxed mb-6 max-w-2xl">
+                "{currentTestimonial.quote}"
               </blockquote>
 
+              {/* Outcome Metric */}
+              <div className="mb-6 px-4 py-2 bg-primary/10 rounded-lg">
+                <p className="text-sm font-semibold text-primary">
+                  📊 {currentTestimonial.outcome}
+                </p>
+              </div>
+
               {/* Author */}
-              <div className="flex items-center gap-4">
+              <div className="flex items-center gap-4 justify-center">
                 <img
-                  src={testimonials[currentIndex].avatar}
-                  alt={testimonials[currentIndex].name}
+                  src={currentTestimonial.avatar}
+                  alt={currentTestimonial.name}
                   className="w-14 h-14 rounded-full object-cover ring-2 ring-primary/20"
                 />
                 <div className="text-left">
-                  <div className="font-semibold text-foreground">
-                    {testimonials[currentIndex].name}
+                  <div className="flex items-center gap-2">
+                    <div className="font-semibold text-foreground">
+                      {currentTestimonial.name}
+                    </div>
+                    {currentTestimonial.verified && (
+                      <CheckCircle className="h-4 w-4 text-green-500" />
+                    )}
                   </div>
                   <div className="text-sm text-muted-foreground">
-                    {testimonials[currentIndex].role}, {testimonials[currentIndex].company}
+                    {currentTestimonial.role}, {currentTestimonial.company}
                   </div>
                 </div>
               </div>
@@ -114,7 +114,7 @@ const Testimonials = () => {
 
           {/* Dots Indicator */}
           <div className="flex justify-center gap-2 mt-8">
-            {testimonials.map((_, index) => (
+            {allTestimonials.map((_, index) => (
               <button
                 key={index}
                 onClick={() => {
@@ -126,6 +126,7 @@ const Testimonials = () => {
                     ? "bg-primary w-8"
                     : "bg-border w-2.5 hover:bg-muted-foreground/50"
                 }`}
+                aria-label={`Go to testimonial ${index + 1}`}
               />
             ))}
           </div>

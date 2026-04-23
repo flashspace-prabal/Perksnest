@@ -9,6 +9,7 @@ import {
   FolderKanban,
   BarChart3,
   Users,
+  User,
   Code,
   Megaphone,
   DollarSign,
@@ -21,8 +22,7 @@ import {
   Briefcase,
   LayoutDashboard,
   ShieldCheck,
-  LogOut,
-  CircleUserRound
+  LogOut
 } from "lucide-react";
 import { useAuth } from "@/lib/auth";
 import { dealsData } from "@/data/deals";
@@ -118,32 +118,6 @@ const categories = [
 ];
 
 const featuredDeals = dealsData.slice(0, 4);
-
-const ProfileIconFallback = ({ className = "" }: { className?: string }) => (
-  <svg
-    viewBox="0 0 24 24"
-    fill="none"
-    aria-hidden="true"
-    className={className}
-  >
-    <path
-      d="M12 12.5c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4Z"
-      stroke="currentColor"
-      strokeWidth="1.8"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    />
-    <path
-      d="M4.75 20.25c1.26-3.05 3.73-4.75 7.25-4.75s5.99 1.7 7.25 4.75"
-      stroke="currentColor"
-      strokeWidth="1.8"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    />
-  </svg>
-);
-
-const ProfileIcon = CircleUserRound || ProfileIconFallback;
 
 const MainNavbar = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -312,9 +286,7 @@ const MainNavbar = () => {
                 )}
               </div>
 
-   
-
-                             <Link to="/deals" className="px-4 py-2 text-[15px] font-medium text-gray-600 hover:text-gray-900 transition-colors">
+              <Link to="/deals" className="px-4 py-2 text-[15px] font-medium text-gray-600 hover:text-gray-900 transition-colors">
                 Explore Marketplace
               </Link>
 
@@ -358,12 +330,11 @@ const MainNavbar = () => {
                    <button
                     type="button"
                     onClick={() => setProfileMenuOpen((open) => !open)}
-                    className="flex h-10 items-center gap-2 rounded-full border border-gray-200 bg-white px-1.5 pr-2.5 text-[#5c2169] shadow-sm shadow-gray-900/5 transition-all duration-200 hover:border-[#5c2169]/30 hover:bg-[#5c2169]/5 hover:opacity-95 hover:scale-[1.02]"
+                    className="flex h-10 w-10 items-center justify-center rounded-full border border-gray-200 bg-white text-gray-500 shadow-sm shadow-gray-900/5 transition-all duration-200 hover:border-gray-300 hover:text-gray-600 hover:scale-[1.02]"
                     aria-label="Open profile menu"
                     aria-expanded={profileMenuOpen}
                    >
-                      <ProfileIcon className="h-8 w-8" />
-                      <ChevronDown className={`hidden sm:block h-4 w-4 text-gray-500 transition-transform ${profileMenuOpen ? "rotate-180" : ""}`} />
+                      <User className="h-5 w-5" />
                    </button>
                    {profileMenuOpen && (
                     <div className="absolute right-0 top-[calc(100%+10px)] w-56 rounded-2xl border border-gray-100 bg-white p-2 shadow-2xl">

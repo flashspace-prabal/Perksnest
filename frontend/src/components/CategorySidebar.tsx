@@ -1,6 +1,5 @@
-import { useState, useMemo } from "react";
+import { useState } from "react";
 import { ChevronDown, ChevronRight } from "lucide-react";
-import { dealsData } from "@/data/deals";
 
 interface SubCategory {
   id: string;
@@ -54,23 +53,12 @@ const categoryTemplates: Omit<Category, 'count'>[] = [
 
 interface CategorySidebarProps {
   activeCategory: string;
+  categoryCounts: Record<string, number>;
   onCategoryChange: (categoryId: string) => void;
 }
 
-const CategorySidebar = ({ activeCategory, onCategoryChange }: CategorySidebarProps) => {
+const CategorySidebar = ({ activeCategory, categoryCounts, onCategoryChange }: CategorySidebarProps) => {
   const [expandedCategories, setExpandedCategories] = useState<string[]>([]);
-
-  const categoryCounts = useMemo(() => {
-    const counts: Record<string, number> = { all: dealsData.length };
-    
-    // Count deals for each template category
-    Object.entries(categoryMapping).forEach(([templateId, categoryValues]) => {
-      const count = dealsData.filter(deal => categoryValues.includes(deal.category)).length;
-      counts[templateId] = count;
-    });
-    
-    return counts;
-  }, []);
 
   const toggleExpanded = (categoryId: string) => {
     setExpandedCategories(prev =>

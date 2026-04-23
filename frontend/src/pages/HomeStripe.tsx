@@ -151,6 +151,10 @@ const StripeHero = ({ isAuthenticated }: { isAuthenticated: boolean }) => {
               <Check className="h-4 w-4 text-[#5c2169]" />
               <span>150+ exclusive perks</span>
             </div>
+             <div className="flex items-center gap-2 text-sm text-gray-600">
+              <Check className="h-4 w-4 text-[#5c2169]" />
+              <span>Curated for founders & teams</span>
+            </div>
             <div className="flex items-center gap-2 text-sm text-gray-600">
               <Check className="h-4 w-4 text-[#5c2169]" />
               <span>Trusted globally</span>
@@ -169,11 +173,12 @@ const StripeTrustedBy = ({ deals }: { deals: Deal[] }) => {
     name: getCompanyName(deal),
     logo: deal.logo,
   }));
+  const purpleLogoFilter = "grayscale(1) sepia(0.32) saturate(560%) hue-rotate(238deg) brightness(0.82) contrast(1.08)";
 
   return (
     <section className="overflow-hidden bg-white py-10 border-t border-gray-100">
       <div className="mb-7 px-6 text-center">
-        <p className="text-xs font-semibold tracking-[0.22em] text-[#5c2169] uppercase">Trusted by 5000+ businesses</p>
+        <p className="text-xs font-semibold tracking-[0.22em] text-[#5c2169] uppercase">Trusted by 1000+ businesses</p>
         <p className="mt-2 text-sm text-gray-500">Deals from brands you already use</p>
       </div>
 
@@ -209,11 +214,15 @@ const StripeTrustedBy = ({ deals }: { deals: Deal[] }) => {
               <SafeImage
                 src={item.logo}
                 alt={item.name}
-                className="h-7 w-7 shrink-0 object-contain grayscale opacity-65 transition duration-300 group-hover:opacity-95"
-                fallbackClassName="h-7 w-7 shrink-0 text-xs text-gray-500"
+                className="h-7 w-7 shrink-0 object-contain opacity-80 transition duration-300"
+                fallbackClassName="h-7 w-7 shrink-0 text-xs text-primary/70"
                 loading="lazy"
+                style={{
+                  filter: purpleLogoFilter,
+                  mixBlendMode: "multiply",
+                }}
               />
-              <span className="min-w-0 truncate text-base font-semibold text-gray-500 transition-colors duration-300 group-hover:text-[#5c2169]">
+              <span className="min-w-0 truncate text-base font-semibold text-primary/70 transition-colors duration-300">
                 {item.name}
               </span>
             </div>

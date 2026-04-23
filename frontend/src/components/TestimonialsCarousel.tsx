@@ -1,25 +1,6 @@
 import { useState, useEffect } from "react";
-
-const testimonials = [
-  {
-    name: "Rajan Mehta",
-    role: "Co-Founder",
-    avatar: "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=100&h=100&fit=crop&crop=faces",
-    quote: "PerksNest was the best investment I made in the early days of my company. Pays for itself instantly with Premium, very responsive team, new deals added every week.",
-  },
-  {
-    name: "Priya Nair",
-    role: "Founder & CEO",
-    avatar: "https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?w=100&h=100&fit=crop&crop=faces",
-    quote: "The PerksNest team has been incredibly responsive and helpful. Every offer has worked perfectly and saved us thousands of dollars.",
-  },
-  {
-    name: "Marcus Osei",
-    role: "Head of Engineering",
-    avatar: "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?w=100&h=100&fit=crop&crop=faces",
-    quote: "PerksNest helped us discover new tools and get free credits on ones we already use. It's like free money — sounds too good to be true, but it's completely real!",
-  },
-];
+import { Star, CheckCircle } from "lucide-react";
+import { authentictestimonials } from "@/data/testimonials";
 
 const TestimonialsCarousel = () => {
   return (
@@ -52,25 +33,59 @@ const TestimonialsCarousel = () => {
         </div>
         
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          {testimonials.map((testimonial, index) => (
+          {authentictestimonials.slice(0, 3).map((testimonial, index) => (
             <div
               key={index}
-              className="bg-card p-8 rounded-2xl border border-border shadow-sm flex flex-col h-full"
+              className="bg-card p-8 rounded-2xl border border-border shadow-sm flex flex-col h-full hover:shadow-lg transition-shadow duration-300"
             >
-              <div className="flex items-center gap-4 mb-6">
+              {/* Star Rating */}
+              <div className="flex items-center gap-2 mb-4">
+                <div className="flex gap-1">
+                  {Array.from({ length: 5 }).map((_, i) => (
+                    <Star
+                      key={i}
+                      className={`h-4 w-4 ${
+                        i < testimonial.rating
+                          ? "fill-amber-400 text-amber-400"
+                          : "text-gray-300"
+                      }`}
+                    />
+                  ))}
+                </div>
+                {testimonial.verified && (
+                  <div className="flex items-center gap-1 ml-auto">
+                    <CheckCircle className="h-4 w-4 text-green-500" />
+                    <span className="text-xs font-semibold text-green-600">Verified</span>
+                  </div>
+                )}
+              </div>
+
+              {/* Outcome Badge */}
+              <div className="mb-4">
+                <span className="inline-block bg-primary/10 text-primary text-xs font-semibold px-3 py-1 rounded-full">
+                  {testimonial.metric}
+                </span>
+              </div>
+
+              {/* Quote */}
+              <blockquote className="text-muted-foreground leading-relaxed italic flex-1 mb-6">
+                "{testimonial.quote}"
+              </blockquote>
+
+              {/* Author */}
+              <div className="flex items-center gap-4 pt-6 border-t border-border">
                 <img
                   src={testimonial.avatar}
                   alt={testimonial.name}
-                  className="w-14 h-14 rounded-full object-cover border-2 border-primary/10"
+                  className="w-12 h-12 rounded-full object-cover border-2 border-primary/10"
                 />
                 <div>
-                  <h4 className="font-semibold text-foreground text-lg">{testimonial.name}</h4>
-                  <p className="text-sm text-muted-foreground">{testimonial.role}</p>
+                  <h4 className="font-semibold text-foreground text-sm">{testimonial.name}</h4>
+                  <p className="text-xs text-muted-foreground">
+                    {testimonial.role} at {testimonial.company}
+                  </p>
                 </div>
               </div>
-              <blockquote className="text-muted-foreground leading-relaxed italic flex-1">
-                "{testimonial.quote}"
-              </blockquote>
             </div>
           ))}
         </div>

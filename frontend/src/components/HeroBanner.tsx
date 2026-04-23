@@ -13,6 +13,8 @@ const HeroBanner = () => {
     "MetLife", "Ramp", "Marriott", "Figma", "Woo", "Vercel", "Uber", "Anthropic"
   ];
 
+  const purpleLogoFilter = "grayscale(1) sepia(1) saturate(1800%) hue-rotate(235deg) brightness(0.68) contrast(1.05)";
+
   return (
     <section className="relative overflow-hidden bg-background min-h-[600px] lg:min-h-[700px]">
       {/* Abstract Blob - CSS-based with soothing colors */}
@@ -147,7 +149,7 @@ const HeroBanner = () => {
       <div className="border-t border-border bg-gradient-to-b from-background to-secondary/30 py-12 overflow-hidden">
         <div className="container-wide mb-8">
           <div className="text-center">
-            <p className="text-sm font-semibold text-primary tracking-widest uppercase mb-2">TRUSTED BY 5000+ BUSINESSES</p>
+            <p className="text-sm font-semibold text-primary tracking-widest uppercase mb-2">TRUSTED BY 1000+ BUSINESSES</p>
             <p className="text-center text-sm text-muted-foreground">Deals from brands you already use</p>
           </div>
         </div>
@@ -186,21 +188,18 @@ const HeroBanner = () => {
               { name: "Figma", icon: Share2, logo: "https://upload.wikimedia.org/wikipedia/commons/3/33/Figma-logo.svg" },
               { name: "GitHub", icon: Smartphone, logo: "https://upload.wikimedia.org/wikipedia/commons/9/91/Octicons-mark-github.svg" },
             ].map((item, idx) => {
-              const IconComponent = item.icon;
               return (
                 <div
                   key={idx}
                   className="flex items-center gap-3 px-6 md:px-8 py-3 rounded-xl hover:bg-white/60 transition-all whitespace-nowrap group cursor-pointer"
                 >
-                  <div className="flex items-center justify-center h-8 w-8 rounded-lg bg-primary/10 group-hover:bg-primary/20 transition-colors">
-                    <IconComponent className="h-4 w-4 text-primary group-hover:scale-110 transition-transform" />
-                  </div>
                   <SafeImage 
                     src={item.logo} 
                     alt={item.name} 
-                    className="h-5 md:h-6 w-auto object-contain grayscale group-hover:grayscale-0 transition-all opacity-70 group-hover:opacity-100"
+                    className="h-5 md:h-6 w-auto object-contain opacity-70 transition-all"
+                    style={{ filter: purpleLogoFilter }}
                   />
-                  <span className="text-xs md:text-sm font-medium text-foreground hidden sm:inline ml-1">{item.name}</span>
+                  <span className="text-xs md:text-sm font-medium text-primary/70 hidden sm:inline ml-1">{item.name}</span>
                 </div>
               );
             })}
@@ -214,22 +213,19 @@ const HeroBanner = () => {
               { name: "Figma", icon: Share2, logo: "https://upload.wikimedia.org/wikipedia/commons/3/33/Figma-logo.svg" },
               { name: "GitHub", icon: Smartphone, logo: "https://upload.wikimedia.org/wikipedia/commons/9/91/Octicons-mark-github.svg" },
             ].map((item, idx) => {
-              const IconComponent = item.icon;
               return (
                 <div
                   key={`duplicate-${idx}`}
                   className="flex items-center gap-3 px-6 md:px-8 py-3 rounded-xl hover:bg-white/60 transition-all whitespace-nowrap group cursor-pointer"
                   aria-hidden="true"
                 >
-                  <div className="flex items-center justify-center h-8 w-8 rounded-lg bg-primary/10 group-hover:bg-primary/20 transition-colors">
-                    <IconComponent className="h-4 w-4 text-primary group-hover:scale-110 transition-transform" />
-                  </div>
                   <SafeImage 
                     src={item.logo} 
                     alt={item.name} 
-                    className="h-5 md:h-6 w-auto object-contain grayscale group-hover:grayscale-0 transition-all opacity-70 group-hover:opacity-100"
+                    className="h-5 md:h-6 w-auto object-contain opacity-70 transition-all"
+                    style={{ filter: purpleLogoFilter }}
                   />
-                  <span className="text-xs md:text-sm font-medium text-foreground hidden sm:inline ml-1">{item.name}</span>
+                  <span className="text-xs md:text-sm font-medium text-primary/70 hidden sm:inline ml-1">{item.name}</span>
                 </div>
               );
             })}
