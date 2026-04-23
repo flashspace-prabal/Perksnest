@@ -1,19 +1,17 @@
-﻿import { generateAvatarUrl } from "@/lib/avatar-generator";
+import { generateAvatarUrl } from "@/lib/avatar-generator";
+import { Review } from "@/data/deal-details-schema";
+import { getReviewerAvatar } from "@/lib/reviewer-avatars";
 
 // Deal reviews/testimonials with unique customer data per deal
-// Each deal has exactly 5 reviews, generated with proper avatars
+// Each deal has exactly 5 reviews and uses the same shape as backend-normalized reviews.
 // This data should be stored in Supabase table: deal_reviews
-export interface DealReview {
+export interface DealReview extends Review {
   dealId: string;
-  quote: string;
-  author: string;
-  role: string;
-  company?: string;
-  avatar?: string;
-  rating?: number;
 }
 
-// Helper function to create reviews with proper avatar URLs
+const reviewDate = "2026-04-23";
+
+// Helper function to create reviews with local avatar URLs and a stable schema
 function createReview(
   dealId: string,
   quote: string,
@@ -22,14 +20,18 @@ function createReview(
   company: string,
   rating: number = 5
 ): DealReview {
+  const id = `${dealId}-${author.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "")}`;
+
   return {
+    id,
     dealId,
     quote,
     author,
     role,
     company,
-    avatar: generateAvatarUrl(author),
+    avatar: getReviewerAvatar(author, generateAvatarUrl(author)),
     rating,
+    date: reviewDate,
   };
 }
 
@@ -589,3 +591,11 @@ export const dealReviews: DealReview[] = [
     "Agency"
   ),
 ];
+
+export function getFallbackReviewsForDeal(dealId: string) {
+  return dealReviews.filter((review) => review.dealId === dealId).slice(0, 5);
+}
+
+export function getDealReview(dealId: string) {
+  return getFallbackReviewsForDeal(dealId)[0] || null;
+}

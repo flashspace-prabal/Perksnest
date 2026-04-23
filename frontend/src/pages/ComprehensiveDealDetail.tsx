@@ -32,6 +32,9 @@ import { getComprehensiveDealByIdFromMaster } from "@/data/index-all-deals";
 import { dealsData } from "@/data/deals";
 import { convertBasicDealToComprehensive } from "@/lib/deal-converter";
 import { normalizeComprehensiveDeal } from "@/lib/comprehensive-deal-normalizer";
+import { getDealReviews } from "@/lib/api";
+import { normalizeApiDealReviews, normalizeDealReviewCollection, DealPageReview } from "@/lib/deal-review-normalizer";
+import { dealReviews } from "@/data/reviews";
 import { createClient } from "@supabase/supabase-js";
 
 // Components
@@ -140,6 +143,8 @@ export const ComprehensiveDealDetailPage: React.FC = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [isClaimed, setIsClaimed] = useState(false);
   const [isClaiming, setIsClaiming] = useState(false);
+  const [dealPageReviews, setDealPageReviews] = useState<DealPageReview[]>([]);
+  const [isReviewsLoading, setIsReviewsLoading] = useState(false);
 
   // Load deal data
   useEffect(() => {
@@ -277,6 +282,23 @@ export const ComprehensiveDealDetailPage: React.FC = () => {
   const requireUpgrade = isPremiumAccessDeal && !isMUserPremium;
   const areResourcesLocked = false;
   const hasResources = Array.isArray(deal?.resources) && deal.resources.length > 0;
+  const fallbackDealReviews = useMemo(() => {
+    if (!dealId) return [];
+
+    const fallbackReviewsForDeal = dealReviews.filter((review) => review.dealId === dealId).slice(0, 5);
+
+    const staticFallback = normalizeDealReviewCollection(fallbackReviewsForDeal, {
+      dealId,
+      source: "fallback",
+    });
+
+    if (staticFallback.length > 0) return staticFallback;
+
+    return normalizeDealReviewCollection(deal?.reviews || [], {
+      dealId,
+      source: "embedded",
+    });
+  }, [deal?.reviews, dealId]);
   const resourceUnlockLabel = !isAuthenticated
     ? "Sign in to unlock"
     : requireUpgrade
@@ -286,6 +308,51 @@ export const ComprehensiveDealDetailPage: React.FC = () => {
     () => DEAL_TABS.filter((tab) => (tab.id === "resources" ? hasResources : true)),
     [hasResources]
   );
+
+  useEffect(() => {
+    if (!dealId) {
+      setDealPageReviews([]);
+      setIsReviewsLoading(false);
+      return;
+    }
+
+    let isCancelled = false;
+
+    const loadDealReviews = async () => {
+      setIsReviewsLoading(true);
+      try {
+        const response = await getDealReviews(dealId);
+        const backendReviews = normalizeApiDealReviews(response, dealId);
+        const resolvedReviews = backendReviews.length > 0 ? backendReviews : fallbackDealReviews;
+
+        console.log("[ComprehensiveDealDetail] Reviews source:", {
+          dealId,
+          backendCount: backendReviews.length,
+          fallbackCount: fallbackDealReviews.length,
+          using: backendReviews.length > 0 ? "backend" : "fallback",
+        });
+
+        if (!isCancelled) {
+          setDealPageReviews(resolvedReviews);
+        }
+      } catch (error) {
+        console.warn(`[ComprehensiveDealDetail] Failed to load backend reviews for ${dealId}`, error);
+        if (!isCancelled) {
+          setDealPageReviews(fallbackDealReviews);
+        }
+      } finally {
+        if (!isCancelled) {
+          setIsReviewsLoading(false);
+        }
+      }
+    };
+
+    loadDealReviews();
+
+    return () => {
+      isCancelled = true;
+    };
+  }, [dealId, fallbackDealReviews]);
 
   // Loading state
   if (isLoading) {
@@ -324,6 +391,7 @@ export const ComprehensiveDealDetailPage: React.FC = () => {
       {/* Hero Section */}
       <DealHero
         deal={deal}
+        reviews={dealPageReviews}
         onClaim={handleClaim}
         onBookmark={handleBookmark}
         onShare={handleShare}
@@ -349,7 +417,7 @@ export const ComprehensiveDealDetailPage: React.FC = () => {
       <FeaturesSection deal={deal} />
 
       {/* Reviews Section */}
-      <ReviewsSection deal={deal} />
+      <ReviewsSection reviews={dealPageReviews} isLoading={isReviewsLoading} />
 
       {/* General Information */}
       <GeneralSection deal={deal} />

@@ -1905,13 +1905,37 @@ app.post("/api/referrals/convert", async (req, res) => {
   }
 });
 
+const normalizeDealReviewRow = (row = {}) => ({
+  id: row.id || null,
+  deal_id: row.deal_id || row.dealId || null,
+  author: row.author || row.name || row.reviewer_name || "Anonymous reviewer",
+  name: row.name || row.author || row.reviewer_name || "Anonymous reviewer",
+  role: row.role || row.title || "Founder",
+  company: row.company || null,
+  avatar: row.avatar || row.image_url || row.profile_image || null,
+  image_url: row.image_url || row.avatar || row.profile_image || null,
+  rating: Number(row.rating || 5),
+  quote: row.quote || row.review_text || row.text || row.comment || "",
+  review_text: row.review_text || row.quote || row.text || row.comment || "",
+  date: row.date || row.created_at || new Date().toISOString().slice(0, 10),
+  created_at: row.created_at || null,
+});
+
 app.get("/api/deals/:dealId/reviews", async (req, res) => {
   try {
-    const { data, error } = await db.from("deal_reviews").select("*").eq("deal_id", req.params.dealId).maybeSingle();
+    const { data, error } = await db
+      .from("deal_reviews")
+      .select("*")
+      .eq("deal_id", req.params.dealId)
+      .order("created_at", { ascending: false });
+
     if (error) throw error;
-    res.json({ review: data || null });
+
+    const reviews = (data || []).map(normalizeDealReviewRow);
+    console.log(`[DEAL-REVIEWS] ${req.params.dealId}: returning ${reviews.length} review(s)`);
+    res.json({ reviews });
   } catch (error) {
-    res.status(500).json({ review: null, error: error.message });
+    res.status(500).json({ reviews: [], error: error.message });
   }
 });
 
@@ -1919,7 +1943,7 @@ app.get("/api/deals/reviews", async (_, res) => {
   try {
     const { data, error } = await db.from("deal_reviews").select("*").order("created_at", { ascending: false });
     if (error) throw error;
-    res.json({ reviews: data || [] });
+    res.json({ reviews: (data || []).map(normalizeDealReviewRow) });
   } catch (error) {
     res.status(500).json({ reviews: [], error: error.message });
   }

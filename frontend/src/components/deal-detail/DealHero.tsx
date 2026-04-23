@@ -1,11 +1,11 @@
-import React, { useState, useEffect } from "react";
+import React from "react";
 import { ArrowRight, Share2, Bookmark, Lock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { ComprehensiveDealDetail } from "@/data/deal-details-schema";
 import { generateAvatarUrl, getAvatarColor } from "@/lib/avatar-generator";
+import { DealPageReview } from "@/lib/deal-review-normalizer";
 import { generateSocialProofNames } from "@/lib/social-proof-names";
-import { dealReviews } from "@/data/reviews";
 
 interface DealHeroProps {
   deal: ComprehensiveDealDetail;
@@ -16,6 +16,7 @@ interface DealHeroProps {
   isBookmarked?: boolean;
   isLoading?: boolean;
   requireUpgrade?: boolean;
+  reviews?: DealPageReview[];
 }
 
 export const DealHero: React.FC<DealHeroProps> = ({
@@ -27,9 +28,13 @@ export const DealHero: React.FC<DealHeroProps> = ({
   isBookmarked,
   isLoading,
   requireUpgrade,
+  reviews = [],
 }) => {
-  // Get the first review for this deal to use as testimonial
-  const dealTestimonial = dealReviews.find((r) => r.dealId === deal.id);
+  const dealTestimonial = reviews[0];
+  const reviewCount = reviews.length || deal.reviewCount;
+  const reviewRating = reviews.length
+    ? (reviews.reduce((sum, review) => sum + review.rating, 0) / reviews.length).toFixed(1)
+    : deal.rating.toFixed(1);
 
   return (
     <section className="bg-white border-b border-gray-200">
@@ -174,7 +179,7 @@ export const DealHero: React.FC<DealHeroProps> = ({
                 <div className="flex items-center gap-4">
                   <Avatar className="w-14 h-14 shadow-md border-2 border-blue-200 flex-shrink-0">
                     <AvatarImage 
-                      src={generateAvatarUrl(dealTestimonial.author)} 
+                      src={dealTestimonial.avatar} 
                       alt={dealTestimonial.author}
                       className="object-cover"
                     />
@@ -240,7 +245,7 @@ export const DealHero: React.FC<DealHeroProps> = ({
                           fontSize: '13px',
                         }}
                       >
-                        {deal.rating.toFixed(1)} ({deal.reviewCount})
+                        {reviewRating} ({reviewCount})
                       </span>
                     </div>
                   </div>

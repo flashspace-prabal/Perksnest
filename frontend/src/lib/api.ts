@@ -455,7 +455,21 @@ export async function markMessagesRead(threadId: string) {
 // Reviews API - Fetches customer reviews from Supabase
 export async function getDealReviews(dealId: string) {
   try {
-    return await apiCall(`/api/deals/${dealId}/reviews`, 'GET', undefined, 2);
+    const response = await apiCall(`/api/deals/${dealId}/reviews`, 'GET', undefined, 2);
+
+    if (Array.isArray(response?.reviews)) {
+      return { ...response, reviews: response.reviews };
+    }
+
+    if (Array.isArray(response?.review)) {
+      return { ...response, reviews: response.review };
+    }
+
+    if (response?.review) {
+      return { ...response, reviews: [response.review] };
+    }
+
+    return { ...response, reviews: [] };
   } catch (error) {
     console.warn(`Get reviews API failed for ${dealId}`, error);
     return { reviews: [], fallback: true };
