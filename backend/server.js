@@ -4,6 +4,14 @@ const express = require("express");
 const cors = require("cors");
 const { createClient } = require("@supabase/supabase-js");
 const { Server } = require("socket.io");
+const nodemailer = require("nodemailer");
+
+let reviewMetadataRows = [];
+try {
+  reviewMetadataRows = require("./scripts/data/review-metadata.lookup.json");
+} catch {
+  reviewMetadataRows = [];
+}
 
 const app = express();
 const server = http.createServer(app);
@@ -129,6 +137,132 @@ const parseAuthorizationToken = (req) => {
 };
 const safeArray = (value) => (Array.isArray(value) ? value : []);
 const toErrorMessage = (error) => (error && typeof error === "object" && "message" in error ? error.message : String(error || "Unknown error"));
+const normalizeLookupValue = (value) => String(value || "").trim().toLowerCase().replace(/\s+/g, " ");
+const buildReviewLookupKey = (dealId, author, quote) => `${normalizeLookupValue(dealId)}::${normalizeLookupValue(author)}::${normalizeLookupValue(quote)}`;
+const reviewMetadataLookup = new Map(
+  safeArray(reviewMetadataRows).map((review) => [
+    buildReviewLookupKey(review.deal_id || review.dealId, review.user_name || review.name || review.author, review.comment || review.review_text || review.quote),
+    review,
+  ])
+);
+const EMAIL_USER = process.env.EMAIL_USER || "";
+const EMAIL_PASS = process.env.EMAIL_PASS || "";
+const CONTACT_EMAIL_TO = process.env.CONTACT_EMAIL_TO || process.env.ADMIN_EMAIL || EMAIL_USER;
+const CONTACT_RATE_LIMIT_WINDOW_MS = 15 * 60 * 1000;
+const CONTACT_RATE_LIMIT_MAX = 5;
+const contactSubmissionTracker = new Map();
+
+let contactTransporter = null;
+if (EMAIL_USER && EMAIL_PASS) {
+  contactTransporter = nodemailer.createTransport({
+    service: process.env.EMAIL_SERVICE || "gmail",
+    host: process.env.EMAIL_HOST || undefined,
+    port: process.env.EMAIL_PORT ? Number(process.env.EMAIL_PORT) : undefined,
+    secure: process.env.EMAIL_SECURE === "true",
+    auth: {
+      user: EMAIL_USER,
+      pass: EMAIL_PASS,
+    },
+  });
+}
+
+const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+function getClientIp(req) {
+  const forwarded = req.headers["x-forwarded-for"];
+  if (typeof forwarded === "string" && forwarded.trim()) {
+    return forwarded.split(",")[0].trim();
+  }
+  if (Array.isArray(forwarded) && forwarded[0]) {
+    return String(forwarded[0]).trim();
+  }
+  return req.ip || req.socket?.remoteAddress || "unknown";
+}
+
+function pruneContactRateLimit(now) {
+  for (const [key, timestamps] of contactSubmissionTracker.entries()) {
+    const recent = timestamps.filter((timestamp) => now - timestamp < CONTACT_RATE_LIMIT_WINDOW_MS);
+    if (recent.length === 0) {
+      contactSubmissionTracker.delete(key);
+      continue;
+    }
+    contactSubmissionTracker.set(key, recent);
+  }
+}
+
+function isContactRateLimited(ipAddress) {
+  const now = Date.now();
+  pruneContactRateLimit(now);
+
+  const attempts = contactSubmissionTracker.get(ipAddress) || [];
+  if (attempts.length >= CONTACT_RATE_LIMIT_MAX) {
+    return true;
+  }
+
+  contactSubmissionTracker.set(ipAddress, [...attempts, now]);
+  return false;
+}
+
+function validateContactPayload(payload = {}) {
+  const name = String(payload.name || "").trim();
+  const email = String(payload.email || "").trim().toLowerCase();
+  const subject = String(payload.subject || "").trim();
+  const message = String(payload.message || "").trim();
+  const honeypot = String(payload.website || payload.companyWebsite || "").trim();
+
+  if (honeypot) {
+    return { ok: true, data: { name, email, subject, message, honeypot } };
+  }
+
+  if (!name || !email || !subject || !message) {
+    return { ok: false, error: "All fields are required." };
+  }
+
+  if (!emailPattern.test(email)) {
+    return { ok: false, error: "Please provide a valid email address." };
+  }
+
+  if (name.length > 120 || subject.length > 180 || message.length > 5000) {
+    return { ok: false, error: "Your message is too long. Please shorten it and try again." };
+  }
+
+  return {
+    ok: true,
+    data: { name, email, subject, message, honeypot: "" },
+  };
+}
+
+async function sendContactSubmissionEmail({ name, email, subject, message }) {
+  if (!contactTransporter || !CONTACT_EMAIL_TO) {
+    throw new Error("Contact email is not configured.");
+  }
+
+  const formattedSubject = `New Contact Form Submission - ${subject}`;
+  const text = `Name: ${name}
+Email: ${email}
+Subject: ${subject}
+
+Message:
+${message}`;
+  const html = `
+    <div style="font-family:Arial,sans-serif;line-height:1.6;color:#111827;">
+      <h2 style="margin:0 0 16px;color:#5c2169;">New Contact Form Submission</h2>
+      <p style="margin:0 0 8px;"><strong>Name:</strong> ${name}</p>
+      <p style="margin:0 0 8px;"><strong>Email:</strong> ${email}</p>
+      <p style="margin:0 0 16px;"><strong>Subject:</strong> ${subject}</p>
+      <div style="padding:16px;border-radius:12px;background:#f8f5fb;border:1px solid #eadcf0;white-space:pre-wrap;">${message}</div>
+    </div>
+  `;
+
+  await contactTransporter.sendMail({
+    from: process.env.EMAIL_FROM || EMAIL_USER,
+    to: CONTACT_EMAIL_TO,
+    replyTo: email,
+    subject: formattedSubject,
+    text,
+    html,
+  });
+}
 
 const isValidUUID = (str) => {
   const regex = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
@@ -729,7 +863,7 @@ async function buildAdminStats() {
     db.from("wl_clients").select("mrr,status,members").order("created_at", { ascending: false }),
     db.from("tickets").select("id,status,priority,created_at,updated_at"),
     db.from("messages").select("id,thread_id,created_at,read,sender_role"),
-    db.from("deal_reviews").select("rating"),
+    db.from("reviews").select("rating"),
   ]);
 
   const users = safeArray(usersResult.data);
@@ -1905,67 +2039,119 @@ app.post("/api/referrals/convert", async (req, res) => {
   }
 });
 
-const normalizeDealReviewRow = (row = {}) => ({
-  id: row.id || null,
-  deal_id: row.deal_id || row.dealId || null,
-  author: row.author || row.name || row.reviewer_name || "Anonymous reviewer",
-  name: row.name || row.author || row.reviewer_name || "Anonymous reviewer",
-  role: row.role || row.title || "Founder",
-  company: row.company || null,
-  avatar: row.avatar || row.image_url || row.profile_image || null,
-  image_url: row.image_url || row.avatar || row.profile_image || null,
-  rating: Number(row.rating || 5),
-  quote: row.quote || row.review_text || row.text || row.comment || "",
-  review_text: row.review_text || row.quote || row.text || row.comment || "",
-  date: row.date || row.created_at || new Date().toISOString().slice(0, 10),
-  created_at: row.created_at || null,
-});
+const normalizeDealReviewRow = (row = {}) => {
+  const dealId = row.deal_id || row.dealId || null;
+  const author = row.author || row.name || row.user_name || row.reviewer_name || "Anonymous reviewer";
+  const quote = row.quote || row.review_text || row.text || row.comment || "";
+  const metadata = reviewMetadataLookup.get(buildReviewLookupKey(dealId, author, quote)) || {};
+
+  return {
+    id: row.id || metadata.id || null,
+    deal_id: dealId,
+    author,
+    name: row.name || row.author || row.user_name || row.reviewer_name || metadata.name || metadata.author || metadata.user_name || "Anonymous reviewer",
+    role: row.role || row.title || metadata.role || "Founder",
+    company: row.company || metadata.company || null,
+    avatar: row.avatar || row.image_url || row.profile_image || metadata.image_url || metadata.avatar || null,
+    image_url: row.image_url || row.avatar || row.profile_image || metadata.image_url || metadata.avatar || null,
+    rating: Number(row.rating || metadata.rating || 5),
+    quote,
+    review_text: row.review_text || row.quote || row.text || row.comment || metadata.review_text || metadata.quote || "",
+    date: row.date || metadata.date || row.created_at || metadata.created_at || new Date().toISOString().slice(0, 10),
+    created_at: row.created_at || metadata.created_at || null,
+  };
+};
+
+const getSeededDealReviews = (dealId) =>
+  safeArray(reviewMetadataRows)
+    .filter((review) => String(review.deal_id || review.dealId || "") === String(dealId || ""))
+    .map(normalizeDealReviewRow)
+    .sort((a, b) => new Date(b.created_at || b.date || 0).getTime() - new Date(a.created_at || a.date || 0).getTime());
 
 app.get("/api/deals/:dealId/reviews", async (req, res) => {
+  const seededReviews = getSeededDealReviews(req.params.dealId);
+
   try {
     const { data, error } = await db
-      .from("deal_reviews")
+      .from("reviews")
       .select("*")
       .eq("deal_id", req.params.dealId)
       .order("created_at", { ascending: false });
 
-    if (error) throw error;
+    if (error && error.code !== "22P02") throw error;
 
     const reviews = (data || []).map(normalizeDealReviewRow);
+    const resolvedReviews = reviews.length > 0 ? reviews : seededReviews;
     console.log(`[DEAL-REVIEWS] ${req.params.dealId}: returning ${reviews.length} review(s)`);
-    res.json({ reviews });
+    res.json({ reviews: resolvedReviews });
   } catch (error) {
+    if (seededReviews.length > 0) {
+      res.json({ reviews: seededReviews, fallback: true });
+      return;
+    }
+
     res.status(500).json({ reviews: [], error: error.message });
   }
 });
 
 app.get("/api/deals/reviews", async (_, res) => {
   try {
-    const { data, error } = await db.from("deal_reviews").select("*").order("created_at", { ascending: false });
+    const { data, error } = await db.from("reviews").select("*").order("created_at", { ascending: false });
     if (error) throw error;
-    res.json({ reviews: (data || []).map(normalizeDealReviewRow) });
+
+    const reviews = (data || []).map(normalizeDealReviewRow);
+    const resolvedReviews = reviews.length > 0 ? reviews : safeArray(reviewMetadataRows).map(normalizeDealReviewRow);
+    res.json({ reviews: resolvedReviews });
   } catch (error) {
-    res.status(500).json({ reviews: [], error: error.message });
+    res.json({ reviews: safeArray(reviewMetadataRows).map(normalizeDealReviewRow), fallback: true });
   }
 });
 
 app.post("/api/contact", async (req, res) => {
-  const { name, email, message } = req.body || {};
-  if (!name || !email || !message) {
-    res.status(400).json({ success: false, error: "Missing required fields" });
+  const validation = validateContactPayload(req.body || {});
+  if (!validation.ok) {
+    res.status(400).json({ success: false, error: validation.error });
     return;
   }
-  try {
-    await db.from("contact_messages").insert({
-      name,
-      email: String(email).toLowerCase().trim(),
-      message,
-      created_at: new Date().toISOString(),
-    });
-  } catch {
-    // Best effort only.
+
+  const { name, email, subject, message, honeypot } = validation.data;
+  if (honeypot) {
+    res.json({ success: true, ignored: true });
+    return;
   }
-  res.json({ success: true });
+
+  const ipAddress = getClientIp(req);
+  if (isContactRateLimited(ipAddress)) {
+    res.status(429).json({
+      success: false,
+      error: "Too many messages from this connection. Please wait a bit and try again.",
+    });
+    return;
+  }
+
+  try {
+    await sendContactSubmissionEmail({ name, email, subject, message });
+
+    try {
+      await db.from("contact_messages").insert({
+        name,
+        email,
+        message: `Subject: ${subject}\n\n${message}`,
+        created_at: new Date().toISOString(),
+      });
+    } catch (storageError) {
+      console.warn("[CONTACT] Failed to persist contact message:", toErrorMessage(storageError));
+    }
+
+    res.json({ success: true, message: "We’ll get back to you soon." });
+  } catch (error) {
+    console.error("[CONTACT] Failed to send contact email:", toErrorMessage(error));
+    res.status(500).json({
+      success: false,
+      error: "We couldn’t send your message right now. Please try again shortly.",
+    });
+    return;
+  }
 });
 
 app.post("/api/password-reset", async (req, res) => {

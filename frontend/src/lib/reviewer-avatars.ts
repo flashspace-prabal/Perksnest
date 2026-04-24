@@ -1,7 +1,7 @@
 import { detectGender } from "@/lib/avatar-generator";
 
-const menAvatars = Array.from({ length: 10 }, (_, index) => `/assets/testimonials/men-${index + 1}.jpg`);
-const womenAvatars = Array.from({ length: 10 }, (_, index) => `/assets/testimonials/women-${index + 1}.jpg`);
+const menAvatars = Array.from({ length: 20 }, (_, index) => `/assets/testimonials/men-${index + 1}.jpg`);
+const womenAvatars = Array.from({ length: 20 }, (_, index) => `/assets/testimonials/women-${index + 1}.jpg`);
 
 const honorifics = new Set([
   "dr",
@@ -115,10 +115,14 @@ function getHash(value: string) {
   return Math.abs(hash);
 }
 
-export function getReviewerAvatar(name: string, preferredAvatar?: string | null) {
+export function getReviewerAvatar(name: string, preferredAvatar?: string | null, seedValue?: string) {
   const localAvatar = preferredAvatar ? normalizedLocalAvatar(preferredAvatar) : "";
   if (localAvatar) return localAvatar;
 
+  const remoteAvatar = preferredAvatar?.trim() || "";
+  if (remoteAvatar) return remoteAvatar;
+
   const avatarPool = getLikelyGender(name) === "female" ? womenAvatars : menAvatars;
-  return avatarPool[getHash(name.toLowerCase()) % avatarPool.length];
+  const avatarSeed = `${seedValue || ""}:${name}`.toLowerCase();
+  return avatarPool[getHash(avatarSeed) % avatarPool.length];
 }

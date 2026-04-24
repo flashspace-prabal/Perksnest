@@ -143,6 +143,15 @@ const MainNavbar = () => {
     { label: "User Portal", to: "/customer", icon: LayoutDashboard },
     ...(isAdmin ? [{ label: "Admin Portal", to: "/admin", icon: ShieldCheck }] : []),
   ];
+  const isActivePath = (path: string) => location.pathname === path || (path !== "/" && location.pathname.startsWith(`${path}/`));
+  const desktopNavLinkClass = (path: string) =>
+    `px-4 py-2 text-[15px] font-medium transition-colors ${
+      isActivePath(path) ? "text-[#5c2169] border-b-2 border-[#5c2169]" : "text-gray-600 hover:text-gray-900"
+    }`;
+  const mobileNavLinkClass = (path: string) =>
+    `block px-4 py-2 text-lg font-semibold rounded-xl transition-colors ${
+      isActivePath(path) ? "bg-[#5c2169]/8 text-[#5c2169]" : "text-gray-900"
+    }`;
 
   return (
     <header className="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-gray-100">
@@ -286,16 +295,20 @@ const MainNavbar = () => {
                 )}
               </div>
 
-              <Link to="/deals" className="px-4 py-2 text-[15px] font-medium text-gray-600 hover:text-gray-900 transition-colors">
+              <Link to="/deals" className={desktopNavLinkClass("/deals")}>
                 Explore Marketplace
               </Link>
 
-              <Link to="/pricing" className="px-4 py-2 text-[15px] font-medium text-gray-600 hover:text-gray-900 transition-colors">
+              <Link to="/pricing" className={desktopNavLinkClass("/pricing")}>
                 Pricing
               </Link>
 
+              <Link to="/contact" className={desktopNavLinkClass("/contact")}>
+                Contact
+              </Link>
+
               {FEATURES.blog && (
-                <Link to="/blog" className="px-4 py-2 text-[15px] font-medium text-gray-600 hover:text-gray-900 transition-colors">
+                <Link to="/blog" className={desktopNavLinkClass("/blog")}>
                   Blog
                 </Link>
               )}
@@ -392,10 +405,11 @@ const MainNavbar = () => {
             <nav className="flex flex-col gap-6">
               <div className="space-y-4 px-2">
                  
-                  <Link to="/deals" className="block px-4 py-2 text-lg font-semibold text-gray-900">Explore Marketplace</Link>
-                  <Link to="/pricing" className="block px-4 py-2 text-lg font-semibold text-gray-900">Pricing</Link>
-                  {FEATURES.blog && <Link to="/blog" className="block px-4 py-2 text-lg font-semibold text-gray-900">Blog</Link>}
-                  {FEATURES.invite && <Link to="/invite" className="block px-4 py-2 text-lg font-semibold text-gray-900">Invite & Earn</Link>}
+                  <Link to="/deals" className={mobileNavLinkClass("/deals")}>Explore Marketplace</Link>
+                  <Link to="/pricing" className={mobileNavLinkClass("/pricing")}>Pricing</Link>
+                  <Link to="/contact" className={mobileNavLinkClass("/contact")}>Contact</Link>
+                  {FEATURES.blog && <Link to="/blog" className={mobileNavLinkClass("/blog")}>Blog</Link>}
+                  {FEATURES.invite && <Link to="/invite" className={mobileNavLinkClass("/invite")}>Invite & Earn</Link>}
               </div>
               
               <div className="space-y-4 px-2">

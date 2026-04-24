@@ -38,6 +38,14 @@ interface TicketEntry {
   updated_at: string;
 }
 
+export interface ContactMessagePayload {
+  name: string;
+  email: string;
+  subject: string;
+  message: string;
+  website?: string;
+}
+
 function mapReferralEntry(row: Record<string, unknown>): ReferralEntry {
   return {
     code: String(row.code || ''),
@@ -483,4 +491,8 @@ export async function getAllReviews() {
     console.warn('Get all reviews API failed', error);
     return { reviews: [], fallback: true };
   }
+}
+
+export async function submitContactMessage(payload: ContactMessagePayload) {
+  return apiCall('/api/contact', 'POST', payload, 0);
 }

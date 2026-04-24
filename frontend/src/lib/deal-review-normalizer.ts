@@ -62,7 +62,15 @@ export function normalizeDealReview(
       author,
       toStringValue(rawReview.avatar) ||
         toStringValue(rawReview.image_url) ||
-        toStringValue(rawReview.profile_image)
+        toStringValue(rawReview.profile_image),
+      [
+        options.dealId,
+        toStringValue(rawReview.id),
+        author,
+        quote.slice(0, 48),
+      ]
+        .filter(Boolean)
+        .join(":")
     ),
     rating: toRatingValue(rawReview.rating),
     quote,

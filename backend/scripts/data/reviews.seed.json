@@ -1,0 +1,2212 @@
+[
+  {
+    "id": "dd90b7b4-fe86-5582-95dd-763476ff35a1",
+    "deal_id": "google-cloud",
+    "user_id": "554c14d9-b0d2-57d3-8c80-5c276ee3d73d",
+    "user_name": "Aisha Patel",
+    "rating": 5,
+    "comment": "Working as co-founder at AI Innovations Lab, Google Cloud Startup Program started paying for itself once we were serious about scaling customer traffic without constantly redesigning the stack, and Firebase integration solved the part of the workflow that kept creating follow-up work. GCP's machine learning tools helped us build our AI product prototype in record time. The $350,000 credit through PerksNest removed the biggest barrier for a bootstrapped startup like ours. We were able to validate it under real volume before budget became the main conversation, and that changed the quality of the decision completely.",
+    "helpful": 0,
+    "created_at": "2026-04-23T00:00:00.000Z"
+  },
+  {
+    "id": "eaa72b02-f9c6-5426-8acb-5cf95daf8ed8",
+    "deal_id": "google-cloud",
+    "user_id": "b9d2d67b-ecd2-5798-bbec-bb32885922d0",
+    "user_name": "Tom Zhang",
+    "rating": 5,
+    "comment": "Working as infrastructure lead at Data Analytics Corp, Google Cloud Startup Program started paying for itself once we were serious about scaling customer traffic without constantly redesigning the stack, and BigQuery solved the part of the workflow that kept creating follow-up work. We migrated our infrastructure to GCP using the PerksNest credit. The managed services like BigQuery and Dataflow reduced our DevOps workload by 60%. Game changer. We were able to validate it under real volume before budget became the main conversation, and that changed the quality of the decision completely.",
+    "helpful": 0,
+    "created_at": "2026-04-23T00:00:00.000Z"
+  },
+  {
+    "id": "69c70238-1c5f-58c2-b459-3907d15ca325",
+    "deal_id": "google-cloud",
+    "user_id": "b9ad4bfc-d824-5033-ad4f-01ed484970ea",
+    "user_name": "Sophie Laurent",
+    "rating": 5,
+    "comment": "What pushed us toward Google Cloud Startup Program was the need to get better at running production and staging without adding DevOps overhead too early, and Google Cloud Platform handled the exact part of the process that had become messy. GCP's Vertex AI capabilities are phenomenal. The PerksNest deal gave us $400k to experiment with ML models. We built 3 production ML features in 6 months. The biggest win was how quickly the team trusted it once it was live, which is why up to $350,000 in credits felt like real leverage and not just a headline discount.",
+    "helpful": 0,
+    "created_at": "2026-04-23T00:00:00.000Z"
+  },
+  {
+    "id": "dfdd730c-b15e-5fbd-941f-84b03531ae8f",
+    "deal_id": "google-cloud",
+    "user_id": "48aecb03-e295-51a6-ac32-018114031ab0",
+    "user_name": "Vikram Singh",
+    "rating": 5,
+    "comment": "By the time we rolled out Google Cloud Startup Program, keeping infrastructure spend predictable while still shipping quickly was already slowing us down, and Cloud Storage gave us a cleaner operating rhythm almost immediately. The $300k credit from PerksNest was enough for us to fully test GCP before committing. Now it's our primary cloud provider. The savings and performance are incredible. It is one of the few startup perks we kept without much debate because the operational payoff showed up in the first month, not six months later.",
+    "helpful": 0,
+    "created_at": "2026-04-23T00:00:00.000Z"
+  },
+  {
+    "id": "dede42cc-c02e-582f-be17-24585393ce6a",
+    "deal_id": "google-cloud",
+    "user_id": "dbefbceb-66a6-52f0-b30d-174bdbb021ea",
+    "user_name": "Elena Rossi",
+    "rating": 5,
+    "comment": "We brought Google Cloud Startup Program in when running production and staging without adding DevOps overhead too early was becoming a weekly problem, and BigQuery was the first part of the rollout that made the team stop second-guessing the switch. GCP's edge computing and Kubernetes support sealed the deal for us. Combined with PerksNest's credit, we built our entire platform with confidence. The tool stuck because it improved day-to-day execution, not because it looked good in onboarding or vendor calls.",
+    "helpful": 0,
+    "created_at": "2026-04-23T00:00:00.000Z"
+  },
+  {
+    "id": "1d367098-ca37-53c1-97f3-a4e164e1612c",
+    "deal_id": "cloudflare",
+    "user_id": "c38181a6-56cf-5cfd-b0bd-a8bc5053a988",
+    "user_name": "Nathan Brown",
+    "rating": 5,
+    "comment": "Our team adopted Cloudflare at the point where reducing latency and security firefighting at the same time was already affecting execution, and Image optimization and automatic compression changed the workflow more than the vendor pitch did. Cloudflare's CDN accelerated our site performance globally. The PerksNest deal on their Business plan gave us DDoS protection and advanced security at an amazing price point. What made it easy to keep after the trial was that up to $250,000 in credits gave us enough room to test it on a live workflow instead of judging it from a polished demo.",
+    "helpful": 0,
+    "created_at": "2026-04-23T00:00:00.000Z"
+  },
+  {
+    "id": "b2322d97-a992-5283-8b74-1106f99413b5",
+    "deal_id": "cloudflare",
+    "user_id": "3d940d95-92d2-58f6-8f43-f84ec21212b2",
+    "user_name": "Isabella Santos",
+    "rating": 5,
+    "comment": "We did not add Cloudflare for vanity metrics; we added it because reducing latency and security firefighting at the same time needed a real fix, and DDoS and bot protection at scale delivered that first. We cut our latency in half by using Cloudflare's global network. The PerksNest discount on Workers and Pages made it affordable to rebuild our entire stack. That mix of measurable ROI and low friction is why we kept it in the stack after the offer period instead of treating it like a temporary experiment.",
+    "helpful": 0,
+    "created_at": "2026-04-23T00:00:00.000Z"
+  },
+  {
+    "id": "c7d39eae-c661-50f4-9a31-a704095056d8",
+    "deal_id": "cloudflare",
+    "user_id": "0735eca1-910e-5d29-986d-cab13857d6d6",
+    "user_name": "Hassan Al-Rashid",
+    "rating": 5,
+    "comment": "We brought Cloudflare in when reducing latency and security firefighting at the same time was becoming a weekly problem, and DDoS and bot protection at scale was the first part of the rollout that made the team stop second-guessing the switch. Cloudflare's security suite protected us from 3 major DDoS attacks in the first month. The PerksNest pricing means we get enterprise security at startup pricing. The tool stuck because it improved day-to-day execution, not because it looked good in onboarding or vendor calls.",
+    "helpful": 0,
+    "created_at": "2026-04-23T00:00:00.000Z"
+  },
+  {
+    "id": "64585055-34aa-5fe3-a558-90c2d57c7933",
+    "deal_id": "cloudflare",
+    "user_id": "b1197d9e-2d1d-5b5d-99df-ad5dfb203e48",
+    "user_name": "Yuki Tanaka",
+    "rating": 5,
+    "comment": "Our team adopted Cloudflare at the point where protecting performance during spikes without adding more vendors was already affecting execution, and Global CDN changed the workflow more than the vendor pitch did. Workers gave us serverless edge computing globally. With PerksNest's deal, we replaced 5 infrastructure services with Cloudflare. Cost and complexity both dropped 70%. What made it easy to keep after the trial was that up to $250,000 in credits gave us enough room to test it on a live workflow instead of judging it from a polished demo.",
+    "helpful": 0,
+    "created_at": "2026-04-23T00:00:00.000Z"
+  },
+  {
+    "id": "5c84e5ae-afa4-5f12-9b8f-dace664c4329",
+    "deal_id": "cloudflare",
+    "user_id": "7b4f24db-f9c2-5aeb-9c85-66d95871fa33",
+    "user_name": "Marcus Williams",
+    "rating": 5,
+    "comment": "From my seat as devops lead at Streaming Service, Cloudflare started paying for itself once we were serious about protecting performance during spikes without adding more vendors, and Global CDN solved the part of the workflow that kept creating follow-up work. The combination of Cloudflare's CDN, Workers, and security tools is unbeatable. PerksNest's discount means we save $5k/month compared to our previous setup. We were able to validate it under real volume before budget became the main conversation, and that changed the quality of the decision completely.",
+    "helpful": 0,
+    "created_at": "2026-04-23T00:00:00.000Z"
+  },
+  {
+    "id": "d1927607-67ef-5cbf-8458-48a13ce4c1ee",
+    "deal_id": "microsoft-azure",
+    "user_id": "539c972f-001f-504e-9872-0f6fbb8cf2cd",
+    "user_name": "James Wilson",
+    "rating": 5,
+    "comment": "We brought Microsoft Azure in when scaling customer traffic without constantly redesigning the stack was becoming a weekly problem, and Azure Virtual Machines was the first part of the rollout that made the team stop second-guessing the switch. Azure's integration with our existing Microsoft tools was seamless. The $150K credits let us build and scale without infrastructure concerns. The tool stuck because it improved day-to-day execution, not because it looked good in onboarding or vendor calls.",
+    "helpful": 0,
+    "created_at": "2026-04-23T00:00:00.000Z"
+  },
+  {
+    "id": "4829069a-20ec-56bb-ba2a-1b89c4ac3f50",
+    "deal_id": "microsoft-azure",
+    "user_id": "922f4b70-d940-5341-a6a7-50165c5957d8",
+    "user_name": "Priya Patel",
+    "rating": 4,
+    "comment": "Our team adopted Microsoft Azure at the point where keeping infrastructure spend predictable while still shipping quickly was already affecting execution, and SQL Database changed the workflow more than the vendor pitch did. Excellent resource for startups with Microsoft heritage. Dashboard is feature-rich but has a learning curve. Support team is very helpful. There is still a little tuning involved, but the day-to-day workflow is better enough that we kept it after the initial trial.",
+    "helpful": 0,
+    "created_at": "2026-04-23T00:00:00.000Z"
+  },
+  {
+    "id": "df3c45c5-acdb-5a92-ba92-ac135c367f4a",
+    "deal_id": "microsoft-azure",
+    "user_id": "bfb5dd0c-35a1-5c05-801c-5fe5f5465802",
+    "user_name": "David Kim",
+    "rating": 5,
+    "comment": "We brought Microsoft Azure in when keeping infrastructure spend predictable while still shipping quickly was becoming a weekly problem, and Azure DevOps was the first part of the rollout that made the team stop second-guessing the switch. Azure Functions made our serverless architecture implementation so much easier. The startup credits stretched further than we expected. The tool stuck because it improved day-to-day execution, not because it looked good in onboarding or vendor calls.",
+    "helpful": 0,
+    "created_at": "2026-04-23T00:00:00.000Z"
+  },
+  {
+    "id": "8d64f3c3-3519-5a8c-83cb-844f15f07724",
+    "deal_id": "aws",
+    "user_id": "392af86e-3416-5e0c-9404-386381f67e75",
+    "user_name": "Natasha Kovac",
+    "rating": 5,
+    "comment": "We tested AWS because we were tired of losing time to running production and staging without adding DevOps overhead too early, and DynamoDB made the value obvious much faster than I expected. AWS's infrastructure gave us access to enterprise-grade services as a startup. The $100k credit was transformational for scaling our platform without massive upfront costs. It ended up removing more follow-up and cleanup work than I expected, which is what makes the savings feel tangible.",
+    "helpful": 0,
+    "created_at": "2026-04-23T00:00:00.000Z"
+  },
+  {
+    "id": "92ded882-a200-5ddf-aa43-a2785a5b35b1",
+    "deal_id": "aws",
+    "user_id": "07221c30-d4fa-55da-9fde-28782cb0b641",
+    "user_name": "Arjun Verma",
+    "rating": 5,
+    "comment": "The reason AWS stuck for us is that it helped with keeping infrastructure spend predictable while still shipping quickly without turning setup into another side project, especially around S3. We built our entire data pipeline on AWS using the PerksNest credit. Lambda, S3, RDS, and Redshift processing terabytes of data daily. The savings were massive. Once the workflow was in place, the team stopped working around the process and actually started relying on it.",
+    "helpful": 0,
+    "created_at": "2026-04-23T00:00:00.000Z"
+  },
+  {
+    "id": "7676b2e3-b19d-5cc3-921f-43c14019ccf5",
+    "deal_id": "aws",
+    "user_id": "8a3e6d48-a0d2-5d1e-98f2-a5e5dd8e5570",
+    "user_name": "Lucy Chen",
+    "rating": 5,
+    "comment": "What pushed us toward AWS was the need to get better at running production and staging without adding DevOps overhead too early, and SageMaker handled the exact part of the process that had become messy. AWS's machine learning services (SageMaker) helped us build AI features in weeks. The $120k credit made it possible to experiment extensively. The biggest win was how quickly the team trusted it once it was live, which is why up to $100,000 in credits felt like real leverage and not just a headline discount.",
+    "helpful": 0,
+    "created_at": "2026-04-23T00:00:00.000Z"
+  },
+  {
+    "id": "ecfdd4a5-9437-5042-aea7-0545957bbbad",
+    "deal_id": "aws",
+    "user_id": "ff509a4e-c894-5add-9ac1-f72236901fd4",
+    "user_name": "Oliver Thompson",
+    "rating": 5,
+    "comment": "Working as devops engineer at Startup Company, AWS started paying for itself once we were serious about scaling customer traffic without constantly redesigning the stack, and S3 solved the part of the workflow that kept creating follow-up work. We use AWS for production infrastructure, staging, and dev environments. The PerksNest credit covered a year's worth of all environments. We were able to validate it under real volume before budget became the main conversation, and that changed the quality of the decision completely.",
+    "helpful": 0,
+    "created_at": "2026-04-23T00:00:00.000Z"
+  },
+  {
+    "id": "95c4fdb8-003d-539b-bc61-66ac0d0722e8",
+    "deal_id": "aws",
+    "user_id": "7bada2d3-044a-5ba8-b14d-b8f276ae48ea",
+    "user_name": "Priya Desai",
+    "rating": 5,
+    "comment": "By the time we rolled out AWS, keeping infrastructure spend predictable while still shipping quickly was already slowing us down, and EC2 gave us a cleaner operating rhythm almost immediately. AWS's global infrastructure meant our app is fast in every region. The PerksNest credit was crucial for stress-testing this complex multi-region setup. It is one of the few startup perks we kept without much debate because the operational payoff showed up in the first month, not six months later.",
+    "helpful": 0,
+    "created_at": "2026-04-23T00:00:00.000Z"
+  },
+  {
+    "id": "db93ad6b-333c-57d1-a438-845e8469355d",
+    "deal_id": "digitalocean",
+    "user_id": "2258c39a-6890-5115-9eb2-70f61b26ee15",
+    "user_name": "Alex Novak",
+    "rating": 5,
+    "comment": "Working as devops engineer at Web Platforms Inc, DigitalOcean started paying for itself once we were serious about scaling customer traffic without constantly redesigning the stack, and App Platform solved the part of the workflow that kept creating follow-up work. DigitalOcean's simplicity is perfect for growing startups. The $200 credit gets us 2-3 months of hosting for our main application and staging environments. We were able to validate it under real volume before budget became the main conversation, and that changed the quality of the decision completely.",
+    "helpful": 0,
+    "created_at": "2026-04-23T00:00:00.000Z"
+  },
+  {
+    "id": "ee494fcf-3fd9-5c57-8cea-8ab4d6c3377f",
+    "deal_id": "digitalocean",
+    "user_id": "21cd4e07-8bb0-598f-9bb7-7db06383a0f9",
+    "user_name": "Lin Zhang",
+    "rating": 5,
+    "comment": "Our team adopted DigitalOcean at the point where keeping infrastructure spend predictable while still shipping quickly was already affecting execution, and Managed Kubernetes changed the workflow more than the vendor pitch did. We host 30+ microservices on DigitalOcean's Kubernetes service. The PerksNest credit covered the container registry and load balancers for 6 months. What made it easy to keep after the trial was that up to $100,000 in credits gave us enough room to test it on a live workflow instead of judging it from a polished demo.",
+    "helpful": 0,
+    "created_at": "2026-04-23T00:00:00.000Z"
+  },
+  {
+    "id": "af5f225d-6860-5e95-933a-a58c2ec81e61",
+    "deal_id": "digitalocean",
+    "user_id": "43f208ad-fad3-52f6-a4eb-e9edfd2ddb1a",
+    "user_name": "Sofia Petrov",
+    "rating": 5,
+    "comment": "At Web Startup, where I work as full stack developer, DigitalOcean started paying for itself once we were serious about running production and staging without adding DevOps overhead too early, and Excellent documentation and tutorials solved the part of the workflow that kept creating follow-up work. DigitalOcean's App Platform is perfect for deploying without Docker expertise. The PerksNest discount meant we could experiment with different deployment strategies. We were able to validate it under real volume before budget became the main conversation, and that changed the quality of the decision completely.",
+    "helpful": 0,
+    "created_at": "2026-04-23T00:00:00.000Z"
+  },
+  {
+    "id": "27cdf4e9-3523-5b9c-ba16-a1c4070285d9",
+    "deal_id": "digitalocean",
+    "user_id": "c0846e0d-4d0a-59e9-bace-43f8dc032498",
+    "user_name": "Michael Williams",
+    "rating": 5,
+    "comment": "We tested DigitalOcean because we were tired of losing time to running production and staging without adding DevOps overhead too early, and Database as a service made the value obvious much faster than I expected. We use DigitalOcean for production, staging, and dev environments. The $300 credit from PerksNest gave us room to optimize infrastructure. It ended up removing more follow-up and cleanup work than I expected, which is what makes the savings feel tangible.",
+    "helpful": 0,
+    "created_at": "2026-04-23T00:00:00.000Z"
+  },
+  {
+    "id": "1b78b0ac-c4bc-5876-9b3b-33c84cba6f80",
+    "deal_id": "digitalocean",
+    "user_id": "be0d17af-926a-567a-b723-cbcbf3ea616b",
+    "user_name": "Emma Zhang",
+    "rating": 5,
+    "comment": "What pushed us toward DigitalOcean was the need to get better at scaling customer traffic without constantly redesigning the stack, and Droplets handled the exact part of the process that had become messy. DigitalOcean's managed databases are fantastic. The PerksNest credit covered our PostgreSQL and Redis databases for nearly a year. The biggest win was how quickly the team trusted it once it was live, which is why up to $100,000 in credits felt like real leverage and not just a headline discount.",
+    "helpful": 0,
+    "created_at": "2026-04-23T00:00:00.000Z"
+  },
+  {
+    "id": "3662d7f0-6bc3-5124-b43b-6ff4c5851dc0",
+    "deal_id": "ovhcloud",
+    "user_id": "f8953765-c0f5-587b-9b3e-637af1d6e25b",
+    "user_name": "Sophie Dupont",
+    "rating": 5,
+    "comment": "By the time we rolled out OVHCloud, running production and staging without adding DevOps overhead too early was already slowing us down, and European data centers gave us a cleaner operating rhythm almost immediately. Perfect for European startups. GDPR compliance is built-in. The €100K credits and support from local team made a huge difference. It is one of the few startup perks we kept without much debate because the operational payoff showed up in the first month, not six months later.",
+    "helpful": 0,
+    "created_at": "2026-04-23T00:00:00.000Z"
+  },
+  {
+    "id": "f69513a2-f701-5ce1-8b38-a657b6645cfb",
+    "deal_id": "ovhcloud",
+    "user_id": "03133828-597f-5cc6-b060-5385f57554f0",
+    "user_name": "Klaus Mueller",
+    "rating": 4,
+    "comment": "We brought OVHCloud in when keeping infrastructure spend predictable while still shipping quickly was becoming a weekly problem, and Virtual Private Servers was the first part of the rollout that made the team stop second-guessing the switch. Great infrastructure and European focus. Interface could be more intuitive but support team is helpful. There are still edges to smooth out, yet the benefit is obvious enough in weekly operations that it earned its place.",
+    "helpful": 0,
+    "created_at": "2026-04-23T00:00:00.000Z"
+  },
+  {
+    "id": "0a8b0474-e877-589d-a682-1fc52d60fb5f",
+    "deal_id": "ovhcloud",
+    "user_id": "0bd9dc5f-7638-5c87-a2ed-9b4fe261021b",
+    "user_name": "Elena Rossi",
+    "rating": 5,
+    "comment": "By the time we rolled out OVHCloud, scaling customer traffic without constantly redesigning the stack was already slowing us down, and GDPR and data sovereignty compliance gave us a cleaner operating rhythm almost immediately. Data privacy and European hosting are their strengths. Cost efficiency is remarkable compared to other European providers. It is one of the few startup perks we kept without much debate because the operational payoff showed up in the first month, not six months later.",
+    "helpful": 0,
+    "created_at": "2026-04-23T00:00:00.000Z"
+  },
+  {
+    "id": "63daf3f9-45fd-5024-b3b5-f4ce4ad3cc21",
+    "deal_id": "vercel",
+    "user_id": "885e3d40-7284-5425-bea3-53ca4d128db8",
+    "user_name": "Tom Bradley",
+    "rating": 5,
+    "comment": "We did not add Vercel for vanity metrics; we added it because removing hosting friction from release days needed a real fix, and Analytics and performance monitoring delivered that first. Deploying is as simple as git push. The startup credits mean we deploy without worrying about costs. Edge computing is game-changing. That mix of measurable ROI and low friction is why we kept it in the stack after the offer period instead of treating it like a temporary experiment.",
+    "helpful": 0,
+    "created_at": "2026-04-23T00:00:00.000Z"
+  },
+  {
+    "id": "f241561a-39f9-5ffc-a110-35ff44d8ae49",
+    "deal_id": "vercel",
+    "user_id": "66658e20-c164-5a98-8c34-fb5272ed5cb3",
+    "user_name": "Lisa Zhang",
+    "rating": 5,
+    "comment": "We did not add Vercel for vanity metrics; we added it because shipping changes quickly without babysitting deployments needed a real fix, and Global CDN delivered that first. Best deployment experience ever. Next.js integration is seamless. Preview deployments let us test before going live. That mix of measurable ROI and low friction is why we kept it in the stack after the offer period instead of treating it like a temporary experiment.",
+    "helpful": 0,
+    "created_at": "2026-04-23T00:00:00.000Z"
+  },
+  {
+    "id": "ef697be7-0995-5da9-9e90-a6100392d581",
+    "deal_id": "vercel",
+    "user_id": "ee4f9b8d-8dad-5f67-8675-3bf4bf43f9a1",
+    "user_name": "Ryan Cooper",
+    "rating": 4,
+    "comment": "By the time we rolled out Vercel, removing hosting friction from release days was already slowing us down, and Serverless functions gave us a cleaner operating rhythm almost immediately. Great for modern frameworks. Learning curve is minimal. The free tier is generous enough for many startups. We had to refine the setup a bit, but the improvement in execution was real and easy to defend internally.",
+    "helpful": 0,
+    "created_at": "2026-04-23T00:00:00.000Z"
+  },
+  {
+    "id": "57c2a188-fd3c-5f1f-9985-1ae0e53809fe",
+    "deal_id": "render",
+    "user_id": "eb2ac7a3-8676-5375-9cc5-05229e9d90e1",
+    "user_name": "Amit Patel",
+    "rating": 5,
+    "comment": "As cto, Render started paying for itself once we were serious about getting preview environments into the team workflow, and Integrated SSL certificates solved the part of the workflow that kept creating follow-up work. Render made deployment so easy. The $5K credits covered our hosting for 18 months. Management interface is intuitive. We were able to validate it under real volume before budget became the main conversation, and that changed the quality of the decision completely.",
+    "helpful": 0,
+    "created_at": "2026-04-23T00:00:00.000Z"
+  },
+  {
+    "id": "68626210-088e-5577-ba3d-15bbf2ccabcf",
+    "deal_id": "render",
+    "user_id": "d5141092-009a-5934-b84d-e935f031f756",
+    "user_name": "Grace Lee",
+    "rating": 5,
+    "comment": "By the time we rolled out Render, getting preview environments into the team workflow was already slowing us down, and Background jobs and cron jobs gave us a cleaner operating rhythm almost immediately. Zero configuration deployments. Just connect GitHub and we're done. Database integration is seamless. It is one of the few startup perks we kept without much debate because the operational payoff showed up in the first month, not six months later.",
+    "helpful": 0,
+    "created_at": "2026-04-23T00:00:00.000Z"
+  },
+  {
+    "id": "ae314775-1b0e-5567-940c-8f79cd77a8c4",
+    "deal_id": "render",
+    "user_id": "e5ff1c8d-f230-5ffb-9d1b-c486cd88b16e",
+    "user_name": "Carlos Mendez",
+    "rating": 4,
+    "comment": "We brought Render in when removing hosting friction from release days was becoming a weekly problem, and Global CDN and edge caching was the first part of the rollout that made the team stop second-guessing the switch. Great for startups. Pricing is transparent. Fewer advanced features than competitors but perfect for getting started. There are still edges to smooth out, yet the benefit is obvious enough in weekly operations that it earned its place.",
+    "helpful": 0,
+    "created_at": "2026-04-23T00:00:00.000Z"
+  },
+  {
+    "id": "278082b9-3075-5d2d-b072-c381621f76c2",
+    "deal_id": "anthropic",
+    "user_id": "73ee9549-2cf5-5db8-a381-0dc914fc6213",
+    "user_name": "Dr. Sarah Kim",
+    "rating": 5,
+    "comment": "What pushed us toward Anthropic was the need to get better at moving AI features from experiments into something customers could depend on, and Document analysis and extraction handled the exact part of the process that had become messy. Claude's reasoning is impressive. The $25K credits let us build an entire AI feature suite. Their safety approach is refreshing. The biggest win was how quickly the team trusted it once it was live, which is why aPI credits for startups felt like real leverage and not just a headline discount.",
+    "helpful": 0,
+    "created_at": "2026-04-23T00:00:00.000Z"
+  },
+  {
+    "id": "b36745de-8062-51f2-a76d-dcd313d19b62",
+    "deal_id": "anthropic",
+    "user_id": "dce86ec8-4b96-57e1-a3cb-335cad310a1a",
+    "user_name": "Nathan Ross",
+    "rating": 5,
+    "comment": "We brought Anthropic in when testing model-backed workflows without letting cost spiral was becoming a weekly problem, and Content generation and summarization was the first part of the rollout that made the team stop second-guessing the switch. API is well-designed and reliable. Claude understands context better than other models. Support for complex queries is excellent. The tool stuck because it improved day-to-day execution, not because it looked good in onboarding or vendor calls.",
+    "helpful": 0,
+    "created_at": "2026-04-23T00:00:00.000Z"
+  },
+  {
+    "id": "d5d38a02-114b-5a14-b621-633dca9afe8d",
+    "deal_id": "anthropic",
+    "user_id": "8bea09d7-1e81-5d58-bcfe-88fe70d7020b",
+    "user_name": "Julia Chen",
+    "rating": 4,
+    "comment": "The reason Anthropic stuck for us is that it helped with testing model-backed workflows without letting cost spiral without turning setup into another side project, especially around Safety-focused AI models. Great API documentation. Pricing is competitive. Learning curve is minimal. Highly recommend for AI startups. Even with some setup overhead, it delivered enough practical value that we kept expanding how we use it.",
+    "helpful": 0,
+    "created_at": "2026-04-23T00:00:00.000Z"
+  },
+  {
+    "id": "74814850-08d1-518b-9da2-e1891f1be522",
+    "deal_id": "perplexity-ai",
+    "user_id": "eb54a4e5-9e1f-51c7-8bcd-84c57e69c46b",
+    "user_name": "Prof. Michael Adams",
+    "rating": 5,
+    "comment": "Our team adopted Perplexity AI at the point where testing model-backed workflows without letting cost spiral was already affecting execution, and API changed the workflow more than the vendor pitch did. Perplexity's real-time search and source attribution are game-changing for research. The free 6 months plus credits is incredibly generous. What made it easy to keep after the trial was that free API access gave us enough room to test it on a live workflow instead of judging it from a polished demo.",
+    "helpful": 0,
+    "created_at": "2026-04-23T00:00:00.000Z"
+  },
+  {
+    "id": "cc02a41f-081c-5d03-a62e-58fc480a0500",
+    "deal_id": "perplexity-ai",
+    "user_id": "9bb7437d-5cd6-5003-8276-9b818c171deb",
+    "user_name": "Olivia Grant",
+    "rating": 5,
+    "comment": "The reason Perplexity AI stuck for us is that it helped with shipping production AI use cases without fragile glue code without turning setup into another side project, especially around Source attribution and citations. Built our knowledge platform on top of Perplexity API. Accuracy and speed are remarkable. Support team is knowledgeable. Once the workflow was in place, the team stopped working around the process and actually started relying on it.",
+    "helpful": 0,
+    "created_at": "2026-04-23T00:00:00.000Z"
+  },
+  {
+    "id": "dbd22c3e-18af-5e1a-88bd-f95db8c6892e",
+    "deal_id": "perplexity-ai",
+    "user_id": "7101291d-48d1-541e-b5d8-3e7205efe2bd",
+    "user_name": "Daniel Foster",
+    "rating": 4,
+    "comment": "In my role as developer, Perplexity AI started paying for itself once we were serious about shipping production AI use cases without fragile glue code, and Academic research access solved the part of the workflow that kept creating follow-up work. Great for research and information synthesis. API documentation is clear. Integration was straightforward. It took a bit of iteration to get the workflow dialed in, but the result was strong enough that nobody wanted to go back.",
+    "helpful": 0,
+    "created_at": "2026-04-23T00:00:00.000Z"
+  },
+  {
+    "id": "2f5a748f-e280-514a-8744-1090175dbb8f",
+    "deal_id": "elevenlabs",
+    "user_id": "16cc99ae-ef78-56cd-a7c5-9ef5ca45e240",
+    "user_name": "Ava Reynolds",
+    "rating": 5,
+    "comment": "The reason ElevenLabs stuck for us is that it helped with testing model-backed workflows without letting cost spiral without turning setup into another side project, especially around Custom voice creation. ElevenLabs voices are incredibly natural. The $4K credits let us produce 50+ podcast episodes. Quality is better than hiring voice actors. Once the workflow was in place, the team stopped working around the process and actually started relying on it.",
+    "helpful": 0,
+    "created_at": "2026-04-23T00:00:00.000Z"
+  },
+  {
+    "id": "11c6b752-16ea-5d11-af4f-8d4338717dea",
+    "deal_id": "elevenlabs",
+    "user_id": "ffc4cbf1-2814-5886-8fe1-d23b9db30933",
+    "user_name": "Marco Bellini",
+    "rating": 5,
+    "comment": "We brought ElevenLabs in when moving AI features from experiments into something customers could depend on was becoming a weekly problem, and Bulk audio generation was the first part of the rollout that made the team stop second-guessing the switch. Integrated ElevenLabs into our app. Users love the natural-sounding audio. API is well-documented and reliable. The tool stuck because it improved day-to-day execution, not because it looked good in onboarding or vendor calls.",
+    "helpful": 0,
+    "created_at": "2026-04-23T00:00:00.000Z"
+  },
+  {
+    "id": "d955ead7-e011-5e0a-87c7-b0a1fe119de4",
+    "deal_id": "elevenlabs",
+    "user_id": "da1e66cc-5dd1-56f0-aed1-4ac5bec234bd",
+    "user_name": "Yuki Tanaka",
+    "rating": 4,
+    "comment": "What pushed us toward ElevenLabs was the need to get better at moving AI features from experiments into something customers could depend on, and Voice cloning technology handled the exact part of the process that had become messy. Best text-to-speech I've used. Slight learning curve for voice cloning but results are excellent. It was not perfect on day one, although the underlying value showed up quickly enough that the team stayed with it.",
+    "helpful": 0,
+    "created_at": "2026-04-23T00:00:00.000Z"
+  },
+  {
+    "id": "4b219813-b0ac-51c0-8e63-beca3020a2ba",
+    "deal_id": "openai",
+    "user_id": "37399955-ff17-57f8-b6d8-cd1c902386c7",
+    "user_name": "Jennifer Wang",
+    "rating": 5,
+    "comment": "What pushed us toward OpenAI was the need to get better at testing model-backed workflows without letting cost spiral, and GPT-4 and GPT-3.5 models handled the exact part of the process that had become messy. OpenAI's GPT-4 is incredibly powerful. The $2.5K credits let us build multiple AI features. API is intuitive and well-documented. The biggest win was how quickly the team trusted it once it was live, which is why aPI credits for startups felt like real leverage and not just a headline discount.",
+    "helpful": 0,
+    "created_at": "2026-04-23T00:00:00.000Z"
+  },
+  {
+    "id": "f672ee79-eb1b-5f3b-aacd-668649a2fb72",
+    "deal_id": "openai",
+    "user_id": "4d8bd61f-e3eb-5891-b1b8-b008c9c550f3",
+    "user_name": "Robert Murphy",
+    "rating": 5,
+    "comment": "We tested OpenAI because we were tired of losing time to moving AI features from experiments into something customers could depend on, and Image generation made the value obvious much faster than I expected. Easiest AI to integrate. Our customers love the chatbot capabilities. Cost efficiency is remarkable with the credits. It ended up removing more follow-up and cleanup work than I expected, which is what makes the savings feel tangible.",
+    "helpful": 0,
+    "created_at": "2026-04-23T00:00:00.000Z"
+  },
+  {
+    "id": "de262144-8797-5b7b-b126-a369881bdef0",
+    "deal_id": "openai",
+    "user_id": "2d146f40-56e3-52da-b3b5-03b03b9417f5",
+    "user_name": "Sophie Chen",
+    "rating": 4,
+    "comment": "By the time we rolled out OpenAI, testing model-backed workflows without letting cost spiral was already slowing us down, and Chat completions API gave us a cleaner operating rhythm almost immediately. Great models and documentation. Rate limits require planning. Support is responsive and helpful. We had to refine the setup a bit, but the improvement in execution was real and easy to defend internally.",
+    "helpful": 0,
+    "created_at": "2026-04-23T00:00:00.000Z"
+  },
+  {
+    "id": "a8db54ad-c7d7-558e-b8d2-a3d24aca24aa",
+    "deal_id": "anam-ai",
+    "user_id": "52cef29a-21ba-58ba-a8d6-008ecfa6d3e7",
+    "user_name": "Professor Elena Voss",
+    "rating": 5,
+    "comment": "What pushed us toward Anam AI was the need to get better at testing model-backed workflows without letting cost spiral, and Multi-user collaboration handled the exact part of the process that had become messy. Anam's AI personas are incredibly realistic. Used them for training simulations. The 45% discount made it very affordable. The biggest win was how quickly the team trusted it once it was live, which is why aI platform access felt like real leverage and not just a headline discount.",
+    "helpful": 0,
+    "created_at": "2026-04-23T00:00:00.000Z"
+  },
+  {
+    "id": "694fcd3e-95a9-5efc-b834-0abe2280a7c9",
+    "deal_id": "anam-ai",
+    "user_id": "bc11f74e-f314-5123-b3ce-282718aefb49",
+    "user_name": "Marco Santini",
+    "rating": 4,
+    "comment": "The reason Anam AI stuck for us is that it helped with moving AI features from experiments into something customers could depend on without turning setup into another side project, especially around Customizable agent behaviors. Great for testing customer interactions. AI behavior is natural. Dashboard could be more intuitive. Even with some setup overhead, it delivered enough practical value that we kept expanding how we use it.",
+    "helpful": 0,
+    "created_at": "2026-04-23T00:00:00.000Z"
+  },
+  {
+    "id": "bddda82d-d822-56c7-80cc-dbf33650587a",
+    "deal_id": "anam-ai",
+    "user_id": "8d2e6537-552a-5a40-9707-0fbc4fbaa9ee",
+    "user_name": "Lily Wu",
+    "rating": 5,
+    "comment": "We tested Anam AI because we were tired of losing time to testing model-backed workflows without letting cost spiral, and Customer engagement simulation made the value obvious much faster than I expected. API integration was smooth. Personas behave realistically. Support team is responsive and helpful. It ended up removing more follow-up and cleanup work than I expected, which is what makes the savings feel tangible.",
+    "helpful": 0,
+    "created_at": "2026-04-23T00:00:00.000Z"
+  },
+  {
+    "id": "3f86fde7-1ffc-5c96-9807-4726dd802b9f",
+    "deal_id": "meetgeek",
+    "user_id": "53069a16-85ce-5ace-b968-b1066d0935e6",
+    "user_name": "Victoria Cross",
+    "rating": 5,
+    "comment": "As ceo, MeetGeek started paying for itself once we were serious about cutting down handoff time across a remote team, and AI-powered summaries solved the part of the workflow that kept creating follow-up work. MeetGeek eliminated our meeting notes problem. The 50% discount means the ROI is immediate. Team loves having accurate summaries. We were able to validate it under real volume before budget became the main conversation, and that changed the quality of the decision completely.",
+    "helpful": 0,
+    "created_at": "2026-04-23T00:00:00.000Z"
+  },
+  {
+    "id": "31d57e57-c21b-55e9-9977-210d631d35d7",
+    "deal_id": "meetgeek",
+    "user_id": "ff8403f3-6d71-5840-ae98-1f560b5e8272",
+    "user_name": "Dr. Patel",
+    "rating": 5,
+    "comment": "What pushed us toward MeetGeek was the need to get better at keeping cross-functional work visible without five disconnected tools, and Team collaboration features handled the exact part of the process that had become messy. Automatic action item tracking changed how we manage projects. Recording quality is excellent. Support is very responsive. The biggest win was how quickly the team trusted it once it was live, which is why pro features free felt like real leverage and not just a headline discount.",
+    "helpful": 0,
+    "created_at": "2026-04-23T00:00:00.000Z"
+  },
+  {
+    "id": "684c441c-aa98-5d72-8a0e-ff5bc3fe7d66",
+    "deal_id": "meetgeek",
+    "user_id": "b8d6423c-8ba3-56b1-a446-5d25d40ec2af",
+    "user_name": "James O'Brien",
+    "rating": 4,
+    "comment": "We brought MeetGeek in when cutting down handoff time across a remote team was becoming a weekly problem, and Action item extraction was the first part of the rollout that made the team stop second-guessing the switch. Great productivity tool. Integration is seamless. Minor issue with accent recognition in some cases. There are still edges to smooth out, yet the benefit is obvious enough in weekly operations that it earned its place.",
+    "helpful": 0,
+    "created_at": "2026-04-23T00:00:00.000Z"
+  },
+  {
+    "id": "4c280a6f-854c-519f-aa6c-e278177437ce",
+    "deal_id": "deepinfra",
+    "user_id": "9986607f-7d54-5451-b763-ee4970b5bb1b",
+    "user_name": "Dr. Alex Petrov",
+    "rating": 5,
+    "comment": "We did not add DeepInfra for vanity metrics; we added it because moving AI features from experiments into something customers could depend on needed a real fix, and Real-time model updates delivered that first. DeepInfra's access to open models is fantastic. Inference is fast and reliable. The credits allowed us to experiment extensively. That mix of measurable ROI and low friction is why we kept it in the stack after the offer period instead of treating it like a temporary experiment.",
+    "helpful": 0,
+    "created_at": "2026-04-23T00:00:00.000Z"
+  },
+  {
+    "id": "56c1a227-739b-5a27-9e7b-4d3164818a89",
+    "deal_id": "deepinfra",
+    "user_id": "c0ce7adb-1160-5cf8-b3d3-c1a277869672",
+    "user_name": "Sophia Lee",
+    "rating": 5,
+    "comment": "We tested DeepInfra because we were tired of losing time to shipping production AI use cases without fragile glue code, and Developer-friendly documentation made the value obvious much faster than I expected. Building on open models reduces vendor lock-in. API is clean and well-documented. Support team is very helpful. It ended up removing more follow-up and cleanup work than I expected, which is what makes the savings feel tangible.",
+    "helpful": 0,
+    "created_at": "2026-04-23T00:00:00.000Z"
+  },
+  {
+    "id": "b7888be9-ed49-503b-8e89-d63e8cccc582",
+    "deal_id": "deepinfra",
+    "user_id": "7ea33c05-1dd3-5eae-9726-abc2993768ed",
+    "user_name": "Tom Richardson",
+    "rating": 4,
+    "comment": "In my role as developer, DeepInfra started paying for itself once we were serious about shipping production AI use cases without fragile glue code, and Real-time model updates solved the part of the workflow that kept creating follow-up work. Great alternative to proprietary APIs. Pricing is reasonable. Occasional latency spikes during peak times. It took a bit of iteration to get the workflow dialed in, but the result was strong enough that nobody wanted to go back.",
+    "helpful": 0,
+    "created_at": "2026-04-23T00:00:00.000Z"
+  },
+  {
+    "id": "60fa23b0-86ba-59d5-825b-63bd234a9514",
+    "deal_id": "mongodb",
+    "user_id": "2e29e16e-acd5-5a74-a9a6-38a1ca205422",
+    "user_name": "Kai Zhang",
+    "rating": 5,
+    "comment": "From a database architect perspective, MongoDB started paying for itself once we were serious about scaling data workflows without creating more maintenance work, and Flexible document model solved the part of the workflow that kept creating follow-up work. MongoDB's flexibility saved us weeks of schema redesign. The $20K credits covered our database costs for a year. Atlas is incredibly reliable. We were able to validate it under real volume before budget became the main conversation, and that changed the quality of the decision completely.",
+    "helpful": 0,
+    "created_at": "2026-04-23T00:00:00.000Z"
+  },
+  {
+    "id": "dd7735df-7e36-57be-8b39-078c5643cd31",
+    "deal_id": "mongodb",
+    "user_id": "c2235171-0914-5276-8527-ddf080ff0969",
+    "user_name": "Emma Larson",
+    "rating": 5,
+    "comment": "What pushed us toward MongoDB was the need to get better at scaling data workflows without creating more maintenance work, and Powerful query language handled the exact part of the process that had become messy. Scaling with MongoDB is seamless. Sharding is automatic. The learning curve from SQL is minimal. The biggest win was how quickly the team trusted it once it was live, which is why startup program benefits felt like real leverage and not just a headline discount.",
+    "helpful": 0,
+    "created_at": "2026-04-23T00:00:00.000Z"
+  },
+  {
+    "id": "38c67503-9d4b-5e85-8dc3-0e1b6369921c",
+    "deal_id": "mongodb",
+    "user_id": "972357c7-a658-5f9e-8b2e-f756c8c7f41b",
+    "user_name": "Dev Gupta",
+    "rating": 4,
+    "comment": "By the time we rolled out MongoDB, keeping schema changes from slowing product work was already slowing us down, and Aggregation framework gave us a cleaner operating rhythm almost immediately. Great database for modern applications. Documentation is comprehensive. Transactions were a welcome addition. We had to refine the setup a bit, but the improvement in execution was real and easy to defend internally.",
+    "helpful": 0,
+    "created_at": "2026-04-23T00:00:00.000Z"
+  },
+  {
+    "id": "d29d5c9f-28b2-57e8-ab26-cef230b04a14",
+    "deal_id": "couchbase",
+    "user_id": "009837bd-7dcf-51de-a87c-1bcbe8b20915",
+    "user_name": "Dr. Robert Chang",
+    "rating": 5,
+    "comment": "What pushed us toward Couchbase was the need to get better at improving reliability without adding database admin overhead, and Automatic replication handled the exact part of the process that had become messy. Couchbase's performance is unmatched. Sub-millisecond latency transformed our application. The $12.75K credits were perfect for scaling. The biggest win was how quickly the team trusted it once it was live, which is why startup program access felt like real leverage and not just a headline discount.",
+    "helpful": 0,
+    "created_at": "2026-04-23T00:00:00.000Z"
+  },
+  {
+    "id": "c4413474-fe24-5b5a-811d-07a45a6027cd",
+    "deal_id": "couchbase",
+    "user_id": "34224c24-2a7f-5159-ae52-485bbda9a26c",
+    "user_name": "Anu Sharma",
+    "rating": 5,
+    "comment": "Our team adopted Couchbase at the point where scaling data workflows without creating more maintenance work was already affecting execution, and In-memory and persistent storage changed the workflow more than the vendor pitch did. Easy to manage and scale. Mobile sync is a killer feature. Support team is knowledgeable. What made it easy to keep after the trial was that startup program access gave us enough room to test it on a live workflow instead of judging it from a polished demo.",
+    "helpful": 0,
+    "created_at": "2026-04-23T00:00:00.000Z"
+  },
+  {
+    "id": "9678b7e2-5e5b-53a2-a5e0-9b3d068290f8",
+    "deal_id": "couchbase",
+    "user_id": "ec65763e-8062-565e-9c82-91c2efa43cdc",
+    "user_name": "Lucas Santos",
+    "rating": 4,
+    "comment": "We did not add Couchbase for vanity metrics; we added it because scaling data workflows without creating more maintenance work needed a real fix, and Automatic replication delivered that first. Great performance characteristics. Learning N1QL has a slight curve. Excellent documentation helps. The learning curve was manageable compared with the time it saves now, which is why it remained part of the stack.",
+    "helpful": 0,
+    "created_at": "2026-04-23T00:00:00.000Z"
+  },
+  {
+    "id": "c371c642-022c-545d-bce1-c00e1d778fce",
+    "deal_id": "supabase",
+    "user_id": "6a97b0da-7dd2-54b7-a665-460e2c4b14e2",
+    "user_name": "Finn O'Malley",
+    "rating": 5,
+    "comment": "Our team adopted Supabase at the point where keeping schema changes from slowing product work was already affecting execution, and Open-source and transparent changed the workflow more than the vendor pitch did. Supabase is a dream for building backends quickly. Real-time features work flawlessly. The $300 credits are appreciated. What made it easy to keep after the trial was that startup program credits gave us enough room to test it on a live workflow instead of judging it from a polished demo.",
+    "helpful": 0,
+    "created_at": "2026-04-23T00:00:00.000Z"
+  },
+  {
+    "id": "51939cec-509d-50ac-842b-9c916e584a27",
+    "deal_id": "supabase",
+    "user_id": "810c7b33-8ba8-52d9-82e0-a0708da0b8c3",
+    "user_name": "Maya Gupta",
+    "rating": 5,
+    "comment": "By the time we rolled out Supabase, scaling data workflows without creating more maintenance work was already slowing us down, and Authentication and authorization gave us a cleaner operating rhythm almost immediately. Better than Firebase for our SQL needs. API generation saves hours of development. Community is very helpful. It is one of the few startup perks we kept without much debate because the operational payoff showed up in the first month, not six months later.",
+    "helpful": 0,
+    "created_at": "2026-04-23T00:00:00.000Z"
+  },
+  {
+    "id": "f5571093-d113-53eb-b218-d7333b0f20af",
+    "deal_id": "supabase",
+    "user_id": "f120fea8-fd72-5e77-b382-f39378a8b604",
+    "user_name": "Yuki Sato",
+    "rating": 4,
+    "comment": "Our team adopted Supabase at the point where scaling data workflows without creating more maintenance work was already affecting execution, and Managed PostgreSQL database changed the workflow more than the vendor pitch did. Great backend solution. Documentation is good. Scaling can require more attention than managed DBaaS. There is still a little tuning involved, but the day-to-day workflow is better enough that we kept it after the initial trial.",
+    "helpful": 0,
+    "created_at": "2026-04-23T00:00:00.000Z"
+  },
+  {
+    "id": "e18fe0b9-df47-5545-8159-918b01605c65",
+    "deal_id": "planetscale",
+    "user_id": "cd78f2ab-f37a-50ea-8e39-749f72afeb2f",
+    "user_name": "Maria Garcia",
+    "rating": 5,
+    "comment": "From a database admin perspective, PlanetScale started paying for itself once we were serious about scaling data workflows without creating more maintenance work, and Vitess-powered technology solved the part of the workflow that kept creating follow-up work. PlanetScale's branch deployments changed our workflow. Zero-downtime deployments saved us countless headaches. Scaling is automatic. We were able to validate it under real volume before budget became the main conversation, and that changed the quality of the decision completely.",
+    "helpful": 0,
+    "created_at": "2026-04-23T00:00:00.000Z"
+  },
+  {
+    "id": "cf727064-6ba3-5724-bd90-3b2aa9d51799",
+    "deal_id": "planetscale",
+    "user_id": "9827cbf3-81f1-5872-8fe7-fb5a75a253dd",
+    "user_name": "Arun Singh",
+    "rating": 5,
+    "comment": "We did not add PlanetScale for vanity metrics; we added it because keeping schema changes from slowing product work needed a real fix, and Zero-downtime deployments delivered that first. Switching from traditional MySQL was seamless. Performance is exceptional. Startup credits covered 2 years of costs. That mix of measurable ROI and low friction is why we kept it in the stack after the offer period instead of treating it like a temporary experiment.",
+    "helpful": 0,
+    "created_at": "2026-04-23T00:00:00.000Z"
+  },
+  {
+    "id": "73842a9d-fe67-5034-a728-fcddce251a38",
+    "deal_id": "planetscale",
+    "user_id": "52997ea9-187f-5b71-8b66-cb5848ee35b1",
+    "user_name": "Zheng Liu",
+    "rating": 4,
+    "comment": "The reason PlanetScale stuck for us is that it helped with keeping schema changes from slowing product work without turning setup into another side project, especially around Zero-downtime deployments. Great MySQL alternative. Learning Vitess concepts is helpful. Documentation could be more extensive. Even with some setup overhead, it delivered enough practical value that we kept expanding how we use it.",
+    "helpful": 0,
+    "created_at": "2026-04-23T00:00:00.000Z"
+  },
+  {
+    "id": "faed67a4-f318-5f18-9414-42a77330de73",
+    "deal_id": "mixpanel",
+    "user_id": "7e42a20f-a97a-58c7-8662-a92a07cbd533",
+    "user_name": "Katie Murphy",
+    "rating": 5,
+    "comment": "By the time we rolled out Mixpanel, making experimentation faster than reporting cleanup was already slowing us down, and Custom event definitions gave us a cleaner operating rhythm almost immediately. Mixpanel's funnel analysis transformed our conversion optimization. The $50K benefits covered all our analytics needs. Data is accurate and actionable. It is one of the few startup perks we kept without much debate because the operational payoff showed up in the first month, not six months later.",
+    "helpful": 0,
+    "created_at": "2026-04-23T00:00:00.000Z"
+  },
+  {
+    "id": "b332d7d6-4d97-5720-8ab6-170044d3fc7e",
+    "deal_id": "mixpanel",
+    "user_id": "923f061d-65dc-5430-8536-c0f9351d504e",
+    "user_name": "Aaron Thompson",
+    "rating": 5,
+    "comment": "As growth lead, Mixpanel started paying for itself once we were serious about finding growth bottlenecks without waiting on analyst bandwidth, and Predictive analytics solved the part of the workflow that kept creating follow-up work. User cohort analysis helped us identify our best customers. Retention tracking guides our feature development. We were able to validate it under real volume before budget became the main conversation, and that changed the quality of the decision completely.",
+    "helpful": 0,
+    "created_at": "2026-04-23T00:00:00.000Z"
+  },
+  {
+    "id": "786dd921-1eb0-5672-819c-70d157decaae",
+    "deal_id": "mixpanel",
+    "user_id": "ff90b35e-2ae1-569f-b6e7-cc83c2676ffd",
+    "user_name": "Priya Desai",
+    "rating": 4,
+    "comment": "Our team adopted Mixpanel at the point where finding growth bottlenecks without waiting on analyst bandwidth was already affecting execution, and Predictive analytics changed the workflow more than the vendor pitch did. Powerful analytics platform. Learning all features takes time. Dashboard customization is flexible. There is still a little tuning involved, but the day-to-day workflow is better enough that we kept it after the initial trial.",
+    "helpful": 0,
+    "created_at": "2026-04-23T00:00:00.000Z"
+  },
+  {
+    "id": "977a9ca3-f97c-5921-906c-6d6779a7c765",
+    "deal_id": "posthog",
+    "user_id": "d8958539-3017-5bdf-8b28-21427cb0b625",
+    "user_name": "Dr. Helen Park",
+    "rating": 5,
+    "comment": "We tested PostHog because we were tired of losing time to turning raw events into decisions the product team could actually trust, and Session recordings made the value obvious much faster than I expected. PostHog's transparency and open-source nature are refreshing. Feature flags saved us from bad deployments. The $50K credits are generous. It ended up removing more follow-up and cleanup work than I expected, which is what makes the savings feel tangible.",
+    "helpful": 0,
+    "created_at": "2026-04-23T00:00:00.000Z"
+  },
+  {
+    "id": "57738e32-007c-5c3c-a176-10d866439e81",
+    "deal_id": "posthog",
+    "user_id": "1b33f6d0-2740-5484-a07a-75181ecbfd7b",
+    "user_name": "Tim Bridger",
+    "rating": 5,
+    "comment": "We did not add PostHog for vanity metrics; we added it because turning raw events into decisions the product team could actually trust needed a real fix, and Funnel and cohort analysis delivered that first. Self-hosting PostHog gives us full control. Session recordings are incredibly useful for UX research. That mix of measurable ROI and low friction is why we kept it in the stack after the offer period instead of treating it like a temporary experiment.",
+    "helpful": 0,
+    "created_at": "2026-04-23T00:00:00.000Z"
+  },
+  {
+    "id": "2e16b3ca-2db2-5a55-bb4e-8c9dff2093e8",
+    "deal_id": "posthog",
+    "user_id": "ce444aea-43b0-5108-bfa1-79f5ccfc1acb",
+    "user_name": "Fatima Al-Mansouri",
+    "rating": 4,
+    "comment": "The reason PostHog stuck for us is that it helped with making experimentation faster than reporting cleanup without turning setup into another side project, especially around Feature flags and experiments. Great alternative to closed-source analytics. Setup requires some technical knowledge. Community support is excellent. Even with some setup overhead, it delivered enough practical value that we kept expanding how we use it.",
+    "helpful": 0,
+    "created_at": "2026-04-23T00:00:00.000Z"
+  },
+  {
+    "id": "7106488a-24ec-5290-b2e2-817e2162a763",
+    "deal_id": "twilio-segment",
+    "user_id": "f94cf480-596c-5a34-b9b6-77b519782a97",
+    "user_name": "James Wu",
+    "rating": 5,
+    "comment": "By the time we rolled out Twilio Segment, turning raw events into decisions the product team could actually trust was already slowing us down, and Real-time data activation gave us a cleaner operating rhythm almost immediately. Segment unified our fragmented data collection. The $25K benefits covered our setup and ongoing costs. Integration is seamless. It is one of the few startup perks we kept without much debate because the operational payoff showed up in the first month, not six months later.",
+    "helpful": 0,
+    "created_at": "2026-04-23T00:00:00.000Z"
+  },
+  {
+    "id": "93698f04-eb58-52e4-a54d-09ce2fe28bc8",
+    "deal_id": "twilio-segment",
+    "user_id": "388b9144-c7c9-5fe4-ae1e-077047afefc8",
+    "user_name": "Rachel Kim",
+    "rating": 5,
+    "comment": "What pushed us toward Twilio Segment was the need to get better at making experimentation faster than reporting cleanup, and Multi-source data unification handled the exact part of the process that had become messy. Transformers feature lets us clean data in-flight. 500+ integrations cover all our tools. Documentation is comprehensive. The biggest win was how quickly the team trusted it once it was live, which is why startup program access felt like real leverage and not just a headline discount.",
+    "helpful": 0,
+    "created_at": "2026-04-23T00:00:00.000Z"
+  },
+  {
+    "id": "4cbeb426-0972-5c1a-8c99-88796316d984",
+    "deal_id": "twilio-segment",
+    "user_id": "37f0d8b1-0dfa-5b8a-a1a4-345a39d2df5d",
+    "user_name": "Carlos Rodriguez",
+    "rating": 4,
+    "comment": "We did not add Twilio Segment for vanity metrics; we added it because making experimentation faster than reporting cleanup needed a real fix, and Privacy compliance built-in delivered that first. Great CDP for startups. Learning curve for setup. Once configured, it's incredibly powerful. The learning curve was manageable compared with the time it saves now, which is why it remained part of the stack.",
+    "helpful": 0,
+    "created_at": "2026-04-23T00:00:00.000Z"
+  },
+  {
+    "id": "d2952d5f-cb32-5a4e-9be9-a7ec0188fe17",
+    "deal_id": "amplitude",
+    "user_id": "e063c350-c9f6-5796-a4ea-4dc098fffd26",
+    "user_name": "Dr. Monica Singh",
+    "rating": 5,
+    "comment": "Our team adopted Amplitude at the point where making experimentation faster than reporting cleanup was already affecting execution, and Predictive features changed the workflow more than the vendor pitch did. Amplitude's user journey visualization is phenomenal. The 1-year free access gave us time to prove ROI. Now it's central to our product strategy. What made it easy to keep after the trial was that startup plan gave us enough room to test it on a live workflow instead of judging it from a polished demo.",
+    "helpful": 0,
+    "created_at": "2026-04-23T00:00:00.000Z"
+  },
+  {
+    "id": "f2481de5-23cd-5155-8467-1ced8262b20e",
+    "deal_id": "amplitude",
+    "user_id": "3aa1e106-2e03-53be-aa4f-948e7d6f7c1f",
+    "user_name": "Brandon Lee",
+    "rating": 5,
+    "comment": "By the time we rolled out Amplitude, finding growth bottlenecks without waiting on analyst bandwidth was already slowing us down, and A/B testing framework gave us a cleaner operating rhythm almost immediately. Behavioral cohorts help us identify power users. Event tracking is reliable and accurate. Dashboard is intuitive. It is one of the few startup perks we kept without much debate because the operational payoff showed up in the first month, not six months later.",
+    "helpful": 0,
+    "created_at": "2026-04-23T00:00:00.000Z"
+  },
+  {
+    "id": "037fc87b-46ed-5120-920c-b1211b0485fb",
+    "deal_id": "amplitude",
+    "user_id": "cb112c10-ec2a-55fa-a0c0-2480ebc1bb0f",
+    "user_name": "Jessica Thompson",
+    "rating": 4,
+    "comment": "What pushed us toward Amplitude was the need to get better at finding growth bottlenecks without waiting on analyst bandwidth, and Approximately $10,000 value handled the exact part of the process that had become messy. Comprehensive analytics platform. Setup requires planning. Once configured, insights are incredibly valuable. It was not perfect on day one, although the underlying value showed up quickly enough that the team stayed with it.",
+    "helpful": 0,
+    "created_at": "2026-04-23T00:00:00.000Z"
+  },
+  {
+    "id": "6e70d9f2-3819-5c66-aaeb-f6ec2319401f",
+    "deal_id": "datadog",
+    "user_id": "257c690f-de79-5313-9164-2916469ae407",
+    "user_name": "Samuel Wong",
+    "rating": 5,
+    "comment": "We did not add Datadog for vanity metrics; we added it because seeing what broke without stitching together three dashboards needed a real fix, and Distributed tracing delivered that first. Datadog's unified monitoring saves hours of troubleshooting. The 1-year free access was crucial for our ops team. Alerts catch issues before users do. That mix of measurable ROI and low friction is why we kept it in the stack after the offer period instead of treating it like a temporary experiment.",
+    "helpful": 0,
+    "created_at": "2026-04-23T00:00:00.000Z"
+  },
+  {
+    "id": "e34db139-c730-5d1b-a971-24403d690832",
+    "deal_id": "datadog",
+    "user_id": "55683181-6a0d-59fb-87d4-f24909ed9290",
+    "user_name": "Priya Gupta",
+    "rating": 5,
+    "comment": "In my role as sre, Datadog started paying for itself once we were serious about seeing what broke without stitching together three dashboards, and Application performance monitoring solved the part of the workflow that kept creating follow-up work. Distributed tracing through microservices is flawless. Dashboards are customizable and beautiful. Support is responsive. We were able to validate it under real volume before budget became the main conversation, and that changed the quality of the decision completely.",
+    "helpful": 0,
+    "created_at": "2026-04-23T00:00:00.000Z"
+  },
+  {
+    "id": "9811b96d-97ba-547d-b160-7734b52cc7e7",
+    "deal_id": "datadog",
+    "user_id": "6b20c2ef-f6a1-5504-8e8d-4e135c2001ae",
+    "user_name": "Michael Zhao",
+    "rating": 4,
+    "comment": "What pushed us toward Datadog was the need to get better at seeing what broke without stitching together three dashboards, and Distributed tracing handled the exact part of the process that had become messy. Comprehensive monitoring platform. Learning all features takes time. Documentation is excellent. It was not perfect on day one, although the underlying value showed up quickly enough that the team stayed with it.",
+    "helpful": 0,
+    "created_at": "2026-04-23T00:00:00.000Z"
+  },
+  {
+    "id": "c3c2b2ca-ec34-5697-ba58-2484538ff4bc",
+    "deal_id": "sentry",
+    "user_id": "e6cac42b-a511-55d1-adf6-787bf390e0ef",
+    "user_name": "Nicholas Brooks",
+    "rating": 5,
+    "comment": "We tested Sentry because we were tired of losing time to seeing what broke without stitching together three dashboards, and Error notifications made the value obvious much faster than I expected. Sentry catches errors our QA misses. User impact data helps us prioritize fixes. The startup discount means we can monitor everything. It ended up removing more follow-up and cleanup work than I expected, which is what makes the savings feel tangible.",
+    "helpful": 0,
+    "created_at": "2026-04-23T00:00:00.000Z"
+  },
+  {
+    "id": "8f015b63-3b89-51a5-b9cf-d78182f10f49",
+    "deal_id": "sentry",
+    "user_id": "0090a4f4-e987-59f1-95eb-a8ca0faea00f",
+    "user_name": "Stephanie Chen",
+    "rating": 5,
+    "comment": "Our team adopted Sentry at the point where seeing what broke without stitching together three dashboards was already affecting execution, and Performance monitoring changed the workflow more than the vendor pitch did. Automatic error reporting is so convenient. Source maps let us debug production issues. Integration is effortless. What made it easy to keep after the trial was that team plan free for year 1 gave us enough room to test it on a live workflow instead of judging it from a polished demo.",
+    "helpful": 0,
+    "created_at": "2026-04-23T00:00:00.000Z"
+  },
+  {
+    "id": "7aef68f7-85fc-5686-b10f-7bc00a951874",
+    "deal_id": "sentry",
+    "user_id": "4d8f92b6-1c8f-528c-990e-cef29278ee07",
+    "user_name": "David Jones",
+    "rating": 4,
+    "comment": "What pushed us toward Sentry was the need to get better at catching issues before users reported them, and Release tracking handled the exact part of the process that had become messy. Essential error tracking tool. Free tier is generous. Performance monitoring has been improving steadily. It was not perfect on day one, although the underlying value showed up quickly enough that the team stayed with it.",
+    "helpful": 0,
+    "created_at": "2026-04-23T00:00:00.000Z"
+  },
+  {
+    "id": "37786783-6ec5-5491-85e3-fd76a483cd9f",
+    "deal_id": "retool",
+    "user_id": "6aea1016-33d0-5ad0-bc23-f5b501503a6d",
+    "user_name": "Victoria Hamilton",
+    "rating": 5,
+    "comment": "We did not add Retool for vanity metrics; we added it because giving the team leverage without building more internal overhead needed a real fix, and Pre-built components library delivered that first. Retool eliminated our need to build custom internal tools. The $60K credits covered months of usage. Even non-technical users built tools. That mix of measurable ROI and low friction is why we kept it in the stack after the offer period instead of treating it like a temporary experiment.",
+    "helpful": 0,
+    "created_at": "2026-04-23T00:00:00.000Z"
+  },
+  {
+    "id": "b17b59e5-fe43-5d9a-b771-bca20e14ca77",
+    "deal_id": "retool",
+    "user_id": "c6b17bfb-2702-5c4e-b768-c246426d4f68",
+    "user_name": "Patrick O'Neill",
+    "rating": 5,
+    "comment": "In my role as engineer, Retool started paying for itself once we were serious about speeding up workflows that had been blocked by manual setup, and Database connections solved the part of the workflow that kept creating follow-up work. Saved our team hundreds of hours on internal tool development. Low-code doesn't mean low-capability. Integrations are seamless. We were able to validate it under real volume before budget became the main conversation, and that changed the quality of the decision completely.",
+    "helpful": 0,
+    "created_at": "2026-04-23T00:00:00.000Z"
+  },
+  {
+    "id": "45b6e2ce-4f2d-568b-a8f8-28d53f07a651",
+    "deal_id": "retool",
+    "user_id": "7bc80a07-6b55-5285-85d4-225377c06bfe",
+    "user_name": "Sophia Wong",
+    "rating": 4,
+    "comment": "We did not add Retool for vanity metrics; we added it because giving the team leverage without building more internal overhead needed a real fix, and Pre-built components library delivered that first. Fantastic for rapid prototyping. Learning curve is minimal. Some advanced customization requires code. The learning curve was manageable compared with the time it saves now, which is why it remained part of the stack.",
+    "helpful": 0,
+    "created_at": "2026-04-23T00:00:00.000Z"
+  },
+  {
+    "id": "c7c27ccb-a03e-5858-a248-e77eb191512b",
+    "deal_id": "algolia",
+    "user_id": "3b575ac1-b7db-579a-b38c-72202d5a78d9",
+    "user_name": "Lauren Rodriguez",
+    "rating": 5,
+    "comment": "As product manager, Algolia started paying for itself once we were serious about removing repetitive engineering work from weekly operations, and Mobile-friendly results solved the part of the workflow that kept creating follow-up work. Algolia's search is incredibly fast. Users love the autocomplete. The $10K credits covered our search needs for a year. We were able to validate it under real volume before budget became the main conversation, and that changed the quality of the decision completely.",
+    "helpful": 0,
+    "created_at": "2026-04-23T00:00:00.000Z"
+  },
+  {
+    "id": "d1b07774-a898-5225-9ee5-16dcc2cc4b00",
+    "deal_id": "algolia",
+    "user_id": "62cd3e5a-30b9-5514-8df2-4f7407126713",
+    "user_name": "Ravi Patel",
+    "rating": 5,
+    "comment": "By the time we rolled out Algolia, giving the team leverage without building more internal overhead was already slowing us down, and Lightning-fast search API gave us a cleaner operating rhythm almost immediately. Integration was surprisingly easy. Search quality is exceptional. Typo tolerance impresses users. It is one of the few startup perks we kept without much debate because the operational payoff showed up in the first month, not six months later.",
+    "helpful": 0,
+    "created_at": "2026-04-23T00:00:00.000Z"
+  },
+  {
+    "id": "546fa3b5-d80b-56a5-9b12-353682024707",
+    "deal_id": "algolia",
+    "user_id": "d5cf61c5-02f7-5c4c-bfa3-b5685bdf1c66",
+    "user_name": "Emma Foster",
+    "rating": 4,
+    "comment": "The reason Algolia stuck for us is that it helped with giving the team leverage without building more internal overhead without turning setup into another side project, especially around Lightning-fast search API. Transformed how users discover our products. Learning the API takes time but documentation helps. Even with some setup overhead, it delivered enough practical value that we kept expanding how we use it.",
+    "helpful": 0,
+    "created_at": "2026-04-23T00:00:00.000Z"
+  },
+  {
+    "id": "12789a6b-0ab9-58bc-9eb5-d0735010d3f9",
+    "deal_id": "github",
+    "user_id": "2e4a7cb6-a8d6-54d6-8f60-ec979426750d",
+    "user_name": "Dr. Christopher Lang",
+    "rating": 5,
+    "comment": "We tested GitHub because we were tired of losing time to removing repetitive engineering work from weekly operations, and Security scanning made the value obvious much faster than I expected. GitHub Enterprise seats transformed our collaboration. GitHub Actions simplified our CI/CD significantly. Security features are comprehensive. It ended up removing more follow-up and cleanup work than I expected, which is what makes the savings feel tangible.",
+    "helpful": 0,
+    "created_at": "2026-04-23T00:00:00.000Z"
+  },
+  {
+    "id": "86229232-7060-5277-b614-ec2149666b8d",
+    "deal_id": "github",
+    "user_id": "150067e7-f9ee-5ad7-a832-c05ae276d6bd",
+    "user_name": "Alice Thompson",
+    "rating": 5,
+    "comment": "By the time we rolled out GitHub, giving the team leverage without building more internal overhead was already slowing us down, and 20 free Enterprise seats gave us a cleaner operating rhythm almost immediately. 20 free seats covered our entire team. Actions automated our deployment pipeline. Code review process is smooth. It is one of the few startup perks we kept without much debate because the operational payoff showed up in the first month, not six months later.",
+    "helpful": 0,
+    "created_at": "2026-04-23T00:00:00.000Z"
+  },
+  {
+    "id": "c22a9cd1-08f8-5367-a791-70d1f633ec9c",
+    "deal_id": "github",
+    "user_id": "2c6c3ae8-55d2-57d3-9189-3a1761aa8826",
+    "user_name": "Marcus Johnson",
+    "rating": 5,
+    "comment": "We did not add GitHub for vanity metrics; we added it because speeding up workflows that had been blocked by manual setup needed a real fix, and Approximately $4,500 in value delivered that first. GitHub is where our team lives. Integration with other tools is seamless. Support is professional. That mix of measurable ROI and low friction is why we kept it in the stack after the offer period instead of treating it like a temporary experiment.",
+    "helpful": 0,
+    "created_at": "2026-04-23T00:00:00.000Z"
+  },
+  {
+    "id": "2d0d3657-752e-5053-99db-e3334dee539d",
+    "deal_id": "bastion",
+    "user_id": "c80c9a28-5805-56c3-a4ff-c4fc12994ffe",
+    "user_name": "Dr. Raj Kumar",
+    "rating": 5,
+    "comment": "As security officer, Bastion started paying for itself once we were serious about tightening risk posture before bigger customer audits, and Audit trail maintenance solved the part of the workflow that kept creating follow-up work. Bastion made SOC 2 compliance straightforward. The 20% discount was appreciated. Now we can pursue enterprise deals with confidence. We were able to validate it under real volume before budget became the main conversation, and that changed the quality of the decision completely.",
+    "helpful": 0,
+    "created_at": "2026-04-23T00:00:00.000Z"
+  },
+  {
+    "id": "2730d570-a6a8-557f-a89b-d54f2b568746",
+    "deal_id": "bastion",
+    "user_id": "3949fa19-ab33-5270-a149-31b80d5152e2",
+    "user_name": "Jennifer Chen",
+    "rating": 5,
+    "comment": "By the time we rolled out Bastion, making security reviews less painful for a small team was already slowing us down, and Policy templates gave us a cleaner operating rhythm almost immediately. Without Bastion, SOC 2 would have taken months. Clear guidance and templates accelerated everything. Worth every penny. It is one of the few startup perks we kept without much debate because the operational payoff showed up in the first month, not six months later.",
+    "helpful": 0,
+    "created_at": "2026-04-23T00:00:00.000Z"
+  },
+  {
+    "id": "20becb7e-df75-55c0-8514-444e6053b552",
+    "deal_id": "bastion",
+    "user_id": "24893258-44be-56b2-a42f-68fd6b91f8f9",
+    "user_name": "Tom Bradley",
+    "rating": 4,
+    "comment": "As cto, Bastion started paying for itself once we were serious about tightening risk posture before bigger customer audits, and Audit trail maintenance solved the part of the workflow that kept creating follow-up work. Simplified compliance significantly. Some processes require detailed setup. Support team is knowledgeable. It took a bit of iteration to get the workflow dialed in, but the result was strong enough that nobody wanted to go back.",
+    "helpful": 0,
+    "created_at": "2026-04-23T00:00:00.000Z"
+  },
+  {
+    "id": "e1fc0c7e-2260-557d-ab28-9d7fc1a431ef",
+    "deal_id": "notion",
+    "user_id": "93c1711e-b4ed-59d0-9136-6b29e315950b",
+    "user_name": "Priya Sharma",
+    "rating": 5,
+    "comment": "What pushed us toward Notion was the need to get better at cutting down handoff time across a remote team, and API handled the exact part of the process that had become messy. Notion has completely transformed how our team manages projects. With PerksNest's deal, we get 6 months free to consolidate all our scattered documentation and workflows into one beautiful workspace. The AI assistant alone saves us hours every week. The biggest win was how quickly the team trusted it once it was live, which is why notion for Startups felt like real leverage and not just a headline discount.",
+    "helpful": 0,
+    "created_at": "2026-04-23T00:00:00.000Z"
+  },
+  {
+    "id": "6dc3a268-d524-50ce-aa30-ffdcc4c1536d",
+    "deal_id": "notion",
+    "user_id": "717c05b8-3c49-5eab-be3e-2344a7ec86cc",
+    "user_name": "Michael Torres",
+    "rating": 5,
+    "comment": "We brought Notion in when keeping cross-functional work visible without five disconnected tools was becoming a weekly problem, and Version history was the first part of the rollout that made the team stop second-guessing the switch. We switched our entire knowledge base to Notion using the PerksNest discount. The database templates and automation features have made onboarding new team members 3x faster. Best investment we've made. The tool stuck because it improved day-to-day execution, not because it looked good in onboarding or vendor calls.",
+    "helpful": 0,
+    "created_at": "2026-04-23T00:00:00.000Z"
+  },
+  {
+    "id": "7cfca70e-705d-5e60-8a70-fd649333c2d2",
+    "deal_id": "notion",
+    "user_id": "d0e034e7-1152-5b3c-afd2-b1f80215acd8",
+    "user_name": "Sarah Anderson",
+    "rating": 5,
+    "comment": "By the time we rolled out Notion, keeping cross-functional work visible without five disconnected tools was already slowing us down, and 6 months free Pro access gave us a cleaner operating rhythm almost immediately. Notion's flexibility is unmatched. We created custom project trackers, client databases, and internal wikis all in one platform. The PerksNest deal saved us thousands in comparison to other tools. It is one of the few startup perks we kept without much debate because the operational payoff showed up in the first month, not six months later.",
+    "helpful": 0,
+    "created_at": "2026-04-23T00:00:00.000Z"
+  },
+  {
+    "id": "2375d18f-7954-50d1-9260-75e1ee0fbbf7",
+    "deal_id": "notion",
+    "user_id": "5a2f74de-514b-5c37-ac73-b6d47d995042",
+    "user_name": "Rajesh Kumar",
+    "rating": 5,
+    "comment": "We did not add Notion for vanity metrics; we added it because giving the team one operating system for process and context needed a real fix, and Team management delivered that first. Our entire startup runs on Notion now. From HR records to product roadmap to financial tracking. The 6-month free period allowed us to fully test and commit without risk. That mix of measurable ROI and low friction is why we kept it in the stack after the offer period instead of treating it like a temporary experiment.",
+    "helpful": 0,
+    "created_at": "2026-04-23T00:00:00.000Z"
+  },
+  {
+    "id": "01f4ff36-113a-57e8-9d3e-e35f96a1f9a9",
+    "deal_id": "notion",
+    "user_id": "815a9ca5-decb-5b06-9042-f7570a01d00f",
+    "user_name": "Emma Wilson",
+    "rating": 5,
+    "comment": "We brought Notion in when giving the team one operating system for process and context was becoming a weekly problem, and Document collaboration was the first part of the rollout that made the team stop second-guessing the switch. The collaboration features in Notion are incredible. Real-time editing, comments, and permissions made remote team management seamless. PerksNest's offer was the perfect entry point. The tool stuck because it improved day-to-day execution, not because it looked good in onboarding or vendor calls.",
+    "helpful": 0,
+    "created_at": "2026-04-23T00:00:00.000Z"
+  },
+  {
+    "id": "fb38f7b0-3e5f-5b83-9888-c9ec6121e475",
+    "deal_id": "miro",
+    "user_id": "baa8f295-c0d6-5ae3-8f73-60cf27036ba3",
+    "user_name": "Isabella Romano",
+    "rating": 5,
+    "comment": "We brought Miro in when giving the team one operating system for process and context was becoming a weekly problem, and Wireframing features was the first part of the rollout that made the team stop second-guessing the switch. Miro transformed our design brainstorming. Remote collaboration works seamlessly. The $1K credits covered our annual usage. The tool stuck because it improved day-to-day execution, not because it looked good in onboarding or vendor calls.",
+    "helpful": 0,
+    "created_at": "2026-04-23T00:00:00.000Z"
+  },
+  {
+    "id": "ebdd9ab4-e423-5957-beda-4ab3cdd8cf92",
+    "deal_id": "miro",
+    "user_id": "7a5e09da-c0d8-5b2c-9601-f387aacdef5b",
+    "user_name": "Noah Cooper",
+    "rating": 5,
+    "comment": "We did not add Miro for vanity metrics; we added it because giving the team one operating system for process and context needed a real fix, and Wireframing features delivered that first. Used Miro for user flows, roadmaps, and wireframes. Infinite canvas is perfect. Templates accelerated our planning. That mix of measurable ROI and low friction is why we kept it in the stack after the offer period instead of treating it like a temporary experiment.",
+    "helpful": 0,
+    "created_at": "2026-04-23T00:00:00.000Z"
+  },
+  {
+    "id": "d172fab1-f3e6-53a0-858c-9159907b4dc1",
+    "deal_id": "miro",
+    "user_id": "9f846904-b6f4-526d-b63d-073052c78ba0",
+    "user_name": "Zara Patel",
+    "rating": 4,
+    "comment": "From a ux designer perspective, Miro started paying for itself once we were serious about keeping cross-functional work visible without five disconnected tools, and Templates library solved the part of the workflow that kept creating follow-up work. Great collaboration tool. Performance on large boards can be sluggish. Worth it for team workflows. It took a bit of iteration to get the workflow dialed in, but the result was strong enough that nobody wanted to go back.",
+    "helpful": 0,
+    "created_at": "2026-04-23T00:00:00.000Z"
+  },
+  {
+    "id": "af571c6d-8079-5b06-ad9a-0d2fdf86b4c8",
+    "deal_id": "linear",
+    "user_id": "12745e3b-a10a-59cb-b608-149052f4feb7",
+    "user_name": "Daniel Kim",
+    "rating": 5,
+    "comment": "By the time we rolled out Linear, giving the team leverage without building more internal overhead was already slowing us down, and 6 months free subscription gave us a cleaner operating rhythm almost immediately. Linear's speed transformed our workflow. The 6-month free access let the team experience the productivity boost. We're now a paying customer. It is one of the few startup perks we kept without much debate because the operational payoff showed up in the first month, not six months later.",
+    "helpful": 0,
+    "created_at": "2026-04-23T00:00:00.000Z"
+  },
+  {
+    "id": "1b778ba1-940d-56c3-9ccb-eb244e589542",
+    "deal_id": "linear",
+    "user_id": "5493bd95-a047-56b9-a12c-7b20d265fa8b",
+    "user_name": "Grace Wu",
+    "rating": 5,
+    "comment": "By the time we rolled out Linear, removing repetitive engineering work from weekly operations was already slowing us down, and API gave us a cleaner operating rhythm almost immediately. Issue management was never this smooth. Automation features saved us from repetitive tasks. Team loves the interface. It is one of the few startup perks we kept without much debate because the operational payoff showed up in the first month, not six months later.",
+    "helpful": 0,
+    "created_at": "2026-04-23T00:00:00.000Z"
+  },
+  {
+    "id": "5b54e8b0-81ec-5e41-9bea-e0d245763352",
+    "deal_id": "linear",
+    "user_id": "0ecf5822-b15f-5ac2-b36f-c1528f45709e",
+    "user_name": "Hassan Mohamed",
+    "rating": 5,
+    "comment": "We brought Linear in when speeding up workflows that had been blocked by manual setup was becoming a weekly problem, and GitHub integration was the first part of the rollout that made the team stop second-guessing the switch. Best project management tool for engineers. No fluff, just what we need. GitHub integration is perfect. The tool stuck because it improved day-to-day execution, not because it looked good in onboarding or vendor calls.",
+    "helpful": 0,
+    "created_at": "2026-04-23T00:00:00.000Z"
+  },
+  {
+    "id": "c0fcec2a-64e5-5ba4-b4a7-763e80a5ad20",
+    "deal_id": "atlassian",
+    "user_id": "875cc2d5-bb36-5637-8e0f-0a474c0f8a11",
+    "user_name": "Rebecca Foster",
+    "rating": 5,
+    "comment": "What pushed us toward Atlassian was the need to get better at speeding up workflows that had been blocked by manual setup, and CI/CD handled the exact part of the process that had become messy. Jira and Confluence together transformed our team organization. The startup discount was substantial. Automation rules save us time daily. The biggest win was how quickly the team trusted it once it was live, which is why community license free felt like real leverage and not just a headline discount.",
+    "helpful": 0,
+    "created_at": "2026-04-23T00:00:00.000Z"
+  },
+  {
+    "id": "f98ce80d-f488-515f-afc2-d5dcae4d41c2",
+    "deal_id": "atlassian",
+    "user_id": "43a383ba-7571-58ce-b7aa-727e2bae6e3a",
+    "user_name": "Leo Martinez",
+    "rating": 5,
+    "comment": "By the time we rolled out Atlassian, giving the team leverage without building more internal overhead was already slowing us down, and Confluence gave us a cleaner operating rhythm almost immediately. Bitbucket integration with Jira is seamless. Pipelines simplified our CI/CD setup. Team loves the integration. It is one of the few startup perks we kept without much debate because the operational payoff showed up in the first month, not six months later.",
+    "helpful": 0,
+    "created_at": "2026-04-23T00:00:00.000Z"
+  },
+  {
+    "id": "2351ccb6-c052-5a04-b496-9858f9023876",
+    "deal_id": "atlassian",
+    "user_id": "1982ddb9-3f99-52d5-9fcb-bebe3d120f2c",
+    "user_name": "Yasmin Hassan",
+    "rating": 4,
+    "comment": "We brought Atlassian in when removing repetitive engineering work from weekly operations was becoming a weekly problem, and Up to $10,000 in value was the first part of the rollout that made the team stop second-guessing the switch. Comprehensive toolset. Can be overwhelming initially. Learning curve worth the investment. There are still edges to smooth out, yet the benefit is obvious enough in weekly operations that it earned its place.",
+    "helpful": 0,
+    "created_at": "2026-04-23T00:00:00.000Z"
+  },
+  {
+    "id": "2b0d9db7-340f-5b06-932b-c63dd1323147",
+    "deal_id": "whimsical",
+    "user_id": "3095311f-4758-539f-968d-4116dfe8395f",
+    "user_name": "Olivia Green",
+    "rating": 5,
+    "comment": "We brought Whimsical in when collaborating on visual work without version chaos was becoming a weekly problem, and Flowchart creation was the first part of the rollout that made the team stop second-guessing the switch. Whimsical's wireframing is faster than Figma for quick concepts. The 12-month free access was perfect. Team loves the interface. The tool stuck because it improved day-to-day execution, not because it looked good in onboarding or vendor calls.",
+    "helpful": 0,
+    "created_at": "2026-04-23T00:00:00.000Z"
+  },
+  {
+    "id": "aea85e24-6e78-507f-bf7d-abe9863ac1e3",
+    "deal_id": "whimsical",
+    "user_id": "c2da48f7-08d7-52a7-92a8-f68f5719f212",
+    "user_name": "Connor Roberts",
+    "rating": 5,
+    "comment": "We brought Whimsical in when collaborating on visual work without version chaos was becoming a weekly problem, and Flowchart creation was the first part of the rollout that made the team stop second-guessing the switch. Used Whimsical for user flows and feature planning. Real-time collaboration works beautifully. Templates are well-designed. The tool stuck because it improved day-to-day execution, not because it looked good in onboarding or vendor calls.",
+    "helpful": 0,
+    "created_at": "2026-04-23T00:00:00.000Z"
+  },
+  {
+    "id": "fb737901-a4e5-5859-a1b5-b05fb05e14b8",
+    "deal_id": "whimsical",
+    "user_id": "5638cdbe-41b0-5da9-9716-273697b11254",
+    "user_name": "Mia Petrov",
+    "rating": 4,
+    "comment": "We brought Whimsical in when collaborating on visual work without version chaos was becoming a weekly problem, and Export to multiple formats was the first part of the rollout that made the team stop second-guessing the switch. Great for quick visual planning. Less feature-rich than design tools but perfect for what we need. There are still edges to smooth out, yet the benefit is obvious enough in weekly operations that it earned its place.",
+    "helpful": 0,
+    "created_at": "2026-04-23T00:00:00.000Z"
+  },
+  {
+    "id": "7334fa8a-6802-56a2-a8c0-64899b69ab5d",
+    "deal_id": "lightfield-crm",
+    "user_id": "5bd3ee3b-57b3-56ce-897e-68119b31d95b",
+    "user_name": "Julia Torres",
+    "rating": 5,
+    "comment": "We tested Lightfield CRM because we were tired of losing time to getting sales and marketing into the same operating rhythm, and Mobile access made the value obvious much faster than I expected. Lightfield's simplicity is perfect for our startup stage. The 6-month free trial was generous. Pipeline tracking keeps us organized. It ended up removing more follow-up and cleanup work than I expected, which is what makes the savings feel tangible.",
+    "helpful": 0,
+    "created_at": "2026-04-23T00:00:00.000Z"
+  },
+  {
+    "id": "e8fe9157-9f24-5154-982e-d0a2fe7e6a8f",
+    "deal_id": "lightfield-crm",
+    "user_id": "f7f7ca08-840c-5e07-a9b6-e800de51d237",
+    "user_name": "Kevin Murphy",
+    "rating": 5,
+    "comment": "From a founder perspective, Lightfield CRM started paying for itself once we were serious about making pipeline visibility reliable enough to manage against, and Sales pipeline tracking solved the part of the workflow that kept creating follow-up work. No CRM bloat, just what we need. Interface is intuitive. Team was productive in days not weeks. We were able to validate it under real volume before budget became the main conversation, and that changed the quality of the decision completely.",
+    "helpful": 0,
+    "created_at": "2026-04-23T00:00:00.000Z"
+  },
+  {
+    "id": "7fbaa674-e92c-57a1-8ab6-b62bcc87ad6c",
+    "deal_id": "lightfield-crm",
+    "user_id": "ac068178-7546-5e57-a1ba-6abb91c5e55a",
+    "user_name": "Priya Singh",
+    "rating": 4,
+    "comment": "Our team adopted Lightfield CRM at the point where getting sales and marketing into the same operating rhythm was already affecting execution, and Mobile access changed the workflow more than the vendor pitch did. Good CRM for startups. Limited customization. Good enough for our current stage. There is still a little tuning involved, but the day-to-day workflow is better enough that we kept it after the initial trial.",
+    "helpful": 0,
+    "created_at": "2026-04-23T00:00:00.000Z"
+  },
+  {
+    "id": "ef5d0088-6bca-513d-9606-aaff9aef5aa2",
+    "deal_id": "canva",
+    "user_id": "ea17cb95-aa82-53aa-be64-ce0a9b21c4e1",
+    "user_name": "Monica Chen",
+    "rating": 5,
+    "comment": "We did not add Canva for vanity metrics; we added it because collaborating on visual work without version chaos needed a real fix, and Content calendar delivered that first. Canva made us look professional without hiring designers. The startup discount means amazing ROI. Templates saved so much time. That mix of measurable ROI and low friction is why we kept it in the stack after the offer period instead of treating it like a temporary experiment.",
+    "helpful": 0,
+    "created_at": "2026-04-23T00:00:00.000Z"
+  },
+  {
+    "id": "acff122d-0be0-59af-8a09-021fc779932e",
+    "deal_id": "canva",
+    "user_id": "a14bafea-3f64-5081-bf90-301200a724f8",
+    "user_name": "Alex Patel",
+    "rating": 5,
+    "comment": "The reason Canva stuck for us is that it helped with collaborating on visual work without version chaos without turning setup into another side project, especially around Drag-and-drop editor. Non-designers can create beautiful materials. Brand kit ensures consistency. AI magic feature is impressive. Once the workflow was in place, the team stopped working around the process and actually started relying on it.",
+    "helpful": 0,
+    "created_at": "2026-04-23T00:00:00.000Z"
+  },
+  {
+    "id": "189bd09f-35dc-5aaa-83ad-c33bfa4ac497",
+    "deal_id": "canva",
+    "user_id": "3d4c4d89-f03e-5f54-b624-d5d1476970c8",
+    "user_name": "Samara Williams",
+    "rating": 4,
+    "comment": "We brought Canva in when improving handoff quality between design and engineering was becoming a weekly problem, and Video editing was the first part of the rollout that made the team stop second-guessing the switch. Great design tool for non-designers. Professional designers might find it limiting. Perfect for our stage. There are still edges to smooth out, yet the benefit is obvious enough in weekly operations that it earned its place.",
+    "helpful": 0,
+    "created_at": "2026-04-23T00:00:00.000Z"
+  },
+  {
+    "id": "e92437de-3c29-56bf-a7d3-d1dff390c1f9",
+    "deal_id": "intercom",
+    "user_id": "4b2c553a-fc90-5022-a5a9-51aacd63a4b4",
+    "user_name": "Melissa Hart",
+    "rating": 5,
+    "comment": "We tested Intercom because we were tired of losing time to reducing context loss across meetings and follow-up, and Team collaboration made the value obvious much faster than I expected. Intercom's customer messaging platform transformed our support. The free year on Advanced helped us deliver exceptional customer experiences that directly increased retention. It ended up removing more follow-up and cleanup work than I expected, which is what makes the savings feel tangible.",
+    "helpful": 0,
+    "created_at": "2026-04-23T00:00:00.000Z"
+  },
+  {
+    "id": "2da30ce5-5da8-5d04-9b9f-d894e9f4478a",
+    "deal_id": "intercom",
+    "user_id": "7e5963a5-1cac-547a-a916-a31097f45fdf",
+    "user_name": "Raj Patel",
+    "rating": 5,
+    "comment": "We tested Intercom because we were tired of losing time to standardizing collaboration across distributed teams, and Team collaboration made the value obvious much faster than I expected. We automated 70% of our customer support responses using Intercom's AI. The PerksNest credit covered the setup and training. Support costs dropped 40%. It ended up removing more follow-up and cleanup work than I expected, which is what makes the savings feel tangible.",
+    "helpful": 0,
+    "created_at": "2026-04-23T00:00:00.000Z"
+  },
+  {
+    "id": "5b177916-cc90-5849-8271-1dcb1fc255e2",
+    "deal_id": "intercom",
+    "user_id": "c15494da-86b0-5815-9303-fd87d2eaebe4",
+    "user_name": "Nina Anderson",
+    "rating": 5,
+    "comment": "Our team adopted Intercom at the point where standardizing collaboration across distributed teams was already affecting execution, and Mobile app changed the workflow more than the vendor pitch did. Intercom's targeted campaigns to specific user segments improved our onboarding completion rate by 25%. The PerksNest deal let us implement it quickly. What made it easy to keep after the trial was that early stage plan gave us enough room to test it on a live workflow instead of judging it from a polished demo.",
+    "helpful": 0,
+    "created_at": "2026-04-23T00:00:00.000Z"
+  },
+  {
+    "id": "cd9b3fee-a2f9-5724-8380-d80177baf972",
+    "deal_id": "intercom",
+    "user_id": "6b43be6c-31fa-54d3-8c14-f7fee61b23a2",
+    "user_name": "Hassan Ahmed",
+    "rating": 5,
+    "comment": "We did not add Intercom for vanity metrics; we added it because reducing context loss across meetings and follow-up needed a real fix, and In-app messaging delivered that first. We use Intercom for customer support, onboarding, and product announcements. The PerksNest credit covered everything for a year. That mix of measurable ROI and low friction is why we kept it in the stack after the offer period instead of treating it like a temporary experiment.",
+    "helpful": 0,
+    "created_at": "2026-04-23T00:00:00.000Z"
+  },
+  {
+    "id": "f295978e-f291-5396-ab02-f0e45c83626f",
+    "deal_id": "intercom",
+    "user_id": "a858981d-5038-5876-8f39-c5a631d500a3",
+    "user_name": "Rebecca Foster",
+    "rating": 5,
+    "comment": "The reason Intercom stuck for us is that it helped with reducing context loss across meetings and follow-up without turning setup into another side project, especially around Knowledge base. Intercom's beautiful chat widget and messaging system improved our Net Promoter Score by 15 points. The PerksNest year-free deal was amazing. Once the workflow was in place, the team stopped working around the process and actually started relying on it.",
+    "helpful": 0,
+    "created_at": "2026-04-23T00:00:00.000Z"
+  },
+  {
+    "id": "de9a19eb-3b4c-53ad-ae8b-04f8a8eb9e07",
+    "deal_id": "hubspot",
+    "user_id": "09b26f54-454e-52a3-8046-5efd0b058c34",
+    "user_name": "Elena Gonzalez",
+    "rating": 5,
+    "comment": "The reason HubSpot stuck for us is that it helped with reducing admin around leads, follow-ups, and reporting without turning setup into another side project, especially around Email campaigns. HubSpot CRM unified our sales and marketing teams perfectly. The 30% discount for a year gave us runway to prove ROI before the full investment. It's been worth every penny. Once the workflow was in place, the team stopped working around the process and actually started relying on it.",
+    "helpful": 0,
+    "created_at": "2026-04-23T00:00:00.000Z"
+  },
+  {
+    "id": "80618502-930a-5a75-a447-9f4679423eae",
+    "deal_id": "hubspot",
+    "user_id": "806d08c6-74d2-59ed-ae8a-a80ac740926e",
+    "user_name": "Thomas Mueller",
+    "rating": 5,
+    "comment": "We did not add HubSpot for vanity metrics; we added it because getting sales and marketing into the same operating rhythm needed a real fix, and Approximately $7,000 in value delivered that first. The HubSpot onboarding workflow templates saved us months of setup. Combined with PerksNest's discount, we had a CRM deployed in 2 weeks instead of 3 months. That mix of measurable ROI and low friction is why we kept it in the stack after the offer period instead of treating it like a temporary experiment.",
+    "helpful": 0,
+    "created_at": "2026-04-23T00:00:00.000Z"
+  },
+  {
+    "id": "6a321c8a-a24b-59fc-9f8c-20b98c9de2c7",
+    "deal_id": "hubspot",
+    "user_id": "f06c1c13-f867-59d7-8b50-cb77e4ca89b7",
+    "user_name": "Maria Santos",
+    "rating": 5,
+    "comment": "Working as sales operations at Growth Agency, HubSpot started paying for itself once we were serious about reducing admin around leads, follow-ups, and reporting, and CRM database solved the part of the workflow that kept creating follow-up work. HubSpot's reporting helped us understand our sales pipeline for the first time. The PerksNest discount meant we could invest in training and adoption. We were able to validate it under real volume before budget became the main conversation, and that changed the quality of the decision completely.",
+    "helpful": 0,
+    "created_at": "2026-04-23T00:00:00.000Z"
+  },
+  {
+    "id": "25a97fb3-17fa-5833-8471-05dcd32b9da4",
+    "deal_id": "hubspot",
+    "user_id": "730fdfe8-afc5-5659-b1c6-e7ed8e0c22ce",
+    "user_name": "John Peterson",
+    "rating": 5,
+    "comment": "By the time we rolled out HubSpot, getting sales and marketing into the same operating rhythm was already slowing us down, and Approximately $7,000 in value gave us a cleaner operating rhythm almost immediately. We replaced Salesforce with HubSpot using the PerksNest deal. Simpler interface, better support, and 50% lower cost. Our sales team is happier too. It is one of the few startup perks we kept without much debate because the operational payoff showed up in the first month, not six months later.",
+    "helpful": 0,
+    "created_at": "2026-04-23T00:00:00.000Z"
+  },
+  {
+    "id": "d057bf8e-bfd4-5131-a3e4-096d8f9fa3f1",
+    "deal_id": "hubspot",
+    "user_id": "d6dd9ebd-2bf3-56cf-8ed1-6127401b07be",
+    "user_name": "Susan Martinez",
+    "rating": 5,
+    "comment": "Working as sales director at Enterprise Software, HubSpot started paying for itself once we were serious about reducing admin around leads, follow-ups, and reporting, and CRM database solved the part of the workflow that kept creating follow-up work. HubSpot's email tracking and sequences improved our response rates by 35%. The PerksNest discount covered the tool cost and then some from improved sales. We were able to validate it under real volume before budget became the main conversation, and that changed the quality of the decision completely.",
+    "helpful": 0,
+    "created_at": "2026-04-23T00:00:00.000Z"
+  },
+  {
+    "id": "690d9faa-4204-5e2b-9027-163bbe47c620",
+    "deal_id": "zendesk",
+    "user_id": "c8863276-16ad-5867-8124-73d4c4dfc6d5",
+    "user_name": "Michelle Zhang",
+    "rating": 5,
+    "comment": "Our team adopted Zendesk at the point where handling higher ticket volume without making the team feel underwater was already affecting execution, and Team collaboration changed the workflow more than the vendor pitch did. Zendesk organized our support process. The 6-month free access gave time to prove value. Customers appreciate the responsiveness. What made it easy to keep after the trial was that startup program benefits gave us enough room to test it on a live workflow instead of judging it from a polished demo.",
+    "helpful": 0,
+    "created_at": "2026-04-23T00:00:00.000Z"
+  },
+  {
+    "id": "7bd747b1-18da-5342-bee8-9c25dabb7b88",
+    "deal_id": "zendesk",
+    "user_id": "107b1b99-2265-5536-8a73-b79dd44e8052",
+    "user_name": "Chris Bailey",
+    "rating": 5,
+    "comment": "The reason Zendesk stuck for us is that it helped with handling higher ticket volume without making the team feel underwater without turning setup into another side project, especially around Chat and messaging. Scaling support without hiring dozens of people. Automation handles repetitive issues. Multi-channel support is seamless. Once the workflow was in place, the team stopped working around the process and actually started relying on it.",
+    "helpful": 0,
+    "created_at": "2026-04-23T00:00:00.000Z"
+  },
+  {
+    "id": "8123c161-ff92-508b-9529-79efcad34fc6",
+    "deal_id": "zendesk",
+    "user_id": "22c5125c-b3d3-57e4-a223-3d2e4a8a0165",
+    "user_name": "Amanda Foster",
+    "rating": 4,
+    "comment": "We brought Zendesk in when reducing repeat work in support operations was becoming a weekly problem, and Knowledge base was the first part of the rollout that made the team stop second-guessing the switch. Excellent support platform. Setup and configuration takes planning. Once configured, workflow is efficient. There are still edges to smooth out, yet the benefit is obvious enough in weekly operations that it earned its place.",
+    "helpful": 0,
+    "created_at": "2026-04-23T00:00:00.000Z"
+  },
+  {
+    "id": "710a7f59-8bc4-5a96-8abb-92f3058ced70",
+    "deal_id": "salesforce",
+    "user_id": "b25dfd9c-7a0d-582b-a475-53882fd03187",
+    "user_name": "Dr. Richard Thompson",
+    "rating": 5,
+    "comment": "Our team adopted Salesforce at the point where getting sales and marketing into the same operating rhythm was already affecting execution, and Sales cloud platform changed the workflow more than the vendor pitch did. Salesforce's CRM capabilities are unmatched. Customization lets us build our exact workflows. Startup pricing made adoption easy. What made it easy to keep after the trial was that startup program gave us enough room to test it on a live workflow instead of judging it from a polished demo.",
+    "helpful": 0,
+    "created_at": "2026-04-23T00:00:00.000Z"
+  },
+  {
+    "id": "32dcc86c-3daf-5f7c-a4e8-630844e828a4",
+    "deal_id": "salesforce",
+    "user_id": "03d6bb6a-9650-5359-b6a8-1c6dd315eadc",
+    "user_name": "Natasha Petrov",
+    "rating": 5,
+    "comment": "What pushed us toward Salesforce was the need to get better at reducing admin around leads, follow-ups, and reporting, and Marketing automation handled the exact part of the process that had become messy. Scaling sales team required CRM that could grow with us. Salesforce delivered. Reporting capabilities are exceptional. The biggest win was how quickly the team trusted it once it was live, which is why startup program felt like real leverage and not just a headline discount.",
+    "helpful": 0,
+    "created_at": "2026-04-23T00:00:00.000Z"
+  },
+  {
+    "id": "7c56e817-2cdf-5c71-837b-bfdc0bdb408e",
+    "deal_id": "salesforce",
+    "user_id": "3c60a49e-c6a8-592c-a694-8f53731e0252",
+    "user_name": "Ethan Brooks",
+    "rating": 4,
+    "comment": "By the time we rolled out Salesforce, making pipeline visibility reliable enough to manage against was already slowing us down, and Marketing automation gave us a cleaner operating rhythm almost immediately. Powerful platform but complex. Implementation requires planning. Salesforce support is professional. We had to refine the setup a bit, but the improvement in execution was real and easy to defend internally.",
+    "helpful": 0,
+    "created_at": "2026-04-23T00:00:00.000Z"
+  },
+  {
+    "id": "e2ea21af-d900-51b9-b316-e152fc60ba13",
+    "deal_id": "stripe-atlas",
+    "user_id": "dbc4ac87-e2f8-5ce5-8792-e8e1bcb5b99a",
+    "user_name": "Liu Zhang",
+    "rating": 5,
+    "comment": "We tested Stripe Atlas because we were tired of losing time to keeping payments reliable while volume was climbing, and Banking infrastructure made the value obvious much faster than I expected. Atlas made establishing US presence effortless. Incorporation was painless. The $150K perks provided immediate value. It ended up removing more follow-up and cleanup work than I expected, which is what makes the savings feel tangible.",
+    "helpful": 0,
+    "created_at": "2026-04-23T00:00:00.000Z"
+  },
+  {
+    "id": "0422645e-d81c-50e9-a0d4-87031f848e0c",
+    "deal_id": "stripe-atlas",
+    "user_id": "14e75193-620f-5935-8658-7bc7bcbd3122",
+    "user_name": "Sophia Anderson",
+    "rating": 5,
+    "comment": "Our team adopted Stripe Atlas at the point where reducing payment overhead before revenue fully caught up was already affecting execution, and Legal documentation changed the workflow more than the vendor pitch did. Comprehensive startup foundation service. Banking setup was quick. Access to quality partners through perks was valuable. What made it easy to keep after the trial was that company formation + credits gave us enough room to test it on a live workflow instead of judging it from a polished demo.",
+    "helpful": 0,
+    "created_at": "2026-04-23T00:00:00.000Z"
+  },
+  {
+    "id": "49957e2c-f045-5648-acaa-69767ec24991",
+    "deal_id": "stripe-atlas",
+    "user_id": "1a4beb63-78f5-5ccb-a714-d3d79017fa5c",
+    "user_name": "Marcus Johnson",
+    "rating": 4,
+    "comment": "We did not add Stripe Atlas for vanity metrics; we added it because keeping payments reliable while volume was climbing needed a real fix, and Perks marketplace delivered that first. Great service for international founders. Some tax questions required additional consultation. Overall highly valuable. The learning curve was manageable compared with the time it saves now, which is why it remained part of the stack.",
+    "helpful": 0,
+    "created_at": "2026-04-23T00:00:00.000Z"
+  },
+  {
+    "id": "349fccf9-212b-5819-b192-1d8ed6e306d5",
+    "deal_id": "brex",
+    "user_id": "78465428-36f0-5655-bf73-682cc449777d",
+    "user_name": "Vanessa Torres",
+    "rating": 5,
+    "comment": "Our team adopted Brex at the point where reducing approval and reconciliation work that used to sit in spreadsheets was already affecting execution, and Curated startup perks changed the workflow more than the vendor pitch did. Brex corporate card simplified our spending management. Startup perks provided immediate value. Team loves the receipt capture. What made it easy to keep after the trial was that business card & banking gave us enough room to test it on a live workflow instead of judging it from a polished demo.",
+    "helpful": 0,
+    "created_at": "2026-04-23T00:00:00.000Z"
+  },
+  {
+    "id": "ea6496b3-d077-5022-a717-70c9dc1242f9",
+    "deal_id": "brex",
+    "user_id": "ba97bbb3-f2bc-50fe-a7d3-fe6a70c37e45",
+    "user_name": "Kevin Zhang",
+    "rating": 5,
+    "comment": "We did not add Brex for vanity metrics; we added it because reducing approval and reconciliation work that used to sit in spreadsheets needed a real fix, and Virtual card numbers delivered that first. Integration with accounting software was seamless. Cash back adds up. Spending controls give finance team visibility. That mix of measurable ROI and low friction is why we kept it in the stack after the offer period instead of treating it like a temporary experiment.",
+    "helpful": 0,
+    "created_at": "2026-04-23T00:00:00.000Z"
+  },
+  {
+    "id": "cc735e59-16eb-561a-84e2-91164e95acc5",
+    "deal_id": "brex",
+    "user_id": "3bb2454c-e9e8-5413-a9f0-d81ed2e981b5",
+    "user_name": "Rachel Green",
+    "rating": 4,
+    "comment": "We tested Brex because we were tired of losing time to giving finance enough visibility without slowing operators down, and Corporate card benefits made the value obvious much faster than I expected. Great financial infrastructure. Rewards are valuable. Application process was thorough. The rollout needed some refinement, but once we got through that, the gains were clear in real work.",
+    "helpful": 0,
+    "created_at": "2026-04-23T00:00:00.000Z"
+  },
+  {
+    "id": "c0ff71e9-f948-5320-bd87-ecce250cd7f8",
+    "deal_id": "ramp",
+    "user_id": "4f1ffd88-1ff0-5748-9f97-474f8690bd21",
+    "user_name": "Dr. Ananya Patel",
+    "rating": 5,
+    "comment": "What pushed us toward Ramp was the need to get better at giving finance enough visibility without slowing operators down, and Fraud detection handled the exact part of the process that had become messy. Ramp's expense management saved our finance team hours monthly. Startup perks provide ongoing value. Fraud detection gives peace of mind. The biggest win was how quickly the team trusted it once it was live, which is why startup benefits felt like real leverage and not just a headline discount.",
+    "helpful": 0,
+    "created_at": "2026-04-23T00:00:00.000Z"
+  },
+  {
+    "id": "4bc0f2a4-fd7d-5abc-9dab-44e7d1655db6",
+    "deal_id": "ramp",
+    "user_id": "5db863e3-4e60-5a6e-969c-f8869f894a38",
+    "user_name": "James Wilson",
+    "rating": 5,
+    "comment": "By the time we rolled out Ramp, making spend control and month-end cleaner was already slowing us down, and Team expense policies gave us a cleaner operating rhythm almost immediately. Automated expense reports changed our workflow. Integration with accounting was smooth. Team loves the ease of use. It is one of the few startup perks we kept without much debate because the operational payoff showed up in the first month, not six months later.",
+    "helpful": 0,
+    "created_at": "2026-04-23T00:00:00.000Z"
+  },
+  {
+    "id": "7884171e-cf43-5b38-a1e9-8c8c5383d03f",
+    "deal_id": "ramp",
+    "user_id": "d8292b60-36ca-5500-af49-36de573e561e",
+    "user_name": "Sophie Chen",
+    "rating": 4,
+    "comment": "By the time we rolled out Ramp, making spend control and month-end cleaner was already slowing us down, and Real-time spend controls gave us a cleaner operating rhythm almost immediately. Great financial infrastructure tool. Learning the dashboard takes time. Support team is helpful. We had to refine the setup a bit, but the improvement in execution was real and easy to defend internally.",
+    "helpful": 0,
+    "created_at": "2026-04-23T00:00:00.000Z"
+  },
+  {
+    "id": "f305b6b7-6d00-597e-9ca0-94f34014bb8b",
+    "deal_id": "revolut-business",
+    "user_id": "f9c663ad-b05c-5ffc-817b-3483f964515f",
+    "user_name": "Henrik Larson",
+    "rating": 5,
+    "comment": "The reason Revolut Business stuck for us is that it helped with making spend control and month-end cleaner without turning setup into another side project, especially around Business cards. Revolut Business solved our multi-currency needs. The 6-month free plan was perfect for setup. Fees are competitive. Once the workflow was in place, the team stopped working around the process and actually started relying on it.",
+    "helpful": 0,
+    "created_at": "2026-04-23T00:00:00.000Z"
+  },
+  {
+    "id": "fe97d077-7619-5b09-9e43-54d773ee987d",
+    "deal_id": "revolut-business",
+    "user_id": "23463068-5e18-54a1-b2b0-6c1bcbd84898",
+    "user_name": "Mei Chen",
+    "rating": 5,
+    "comment": "We tested Revolut Business because we were tired of losing time to making spend control and month-end cleaner, and Team controls made the value obvious much faster than I expected. International payments are smooth. Exchange rates are excellent. Team card management is flexible. It ended up removing more follow-up and cleanup work than I expected, which is what makes the savings feel tangible.",
+    "helpful": 0,
+    "created_at": "2026-04-23T00:00:00.000Z"
+  },
+  {
+    "id": "21fcecde-950c-57d1-9f62-271ae21d7ebf",
+    "deal_id": "revolut-business",
+    "user_id": "9c43ee8e-51de-5d33-9bf4-8dab9adde1fb",
+    "user_name": "Stefan Mueller",
+    "rating": 4,
+    "comment": "We tested Revolut Business because we were tired of losing time to reducing approval and reconciliation work that used to sit in spreadsheets, and Competitive exchange rates made the value obvious much faster than I expected. Great for international teams. Support could be faster. Overall very satisfied with service. The rollout needed some refinement, but once we got through that, the gains were clear in real work.",
+    "helpful": 0,
+    "created_at": "2026-04-23T00:00:00.000Z"
+  },
+  {
+    "id": "c9f513de-334f-5f50-a8c6-ce8be4a2e232",
+    "deal_id": "gusto",
+    "user_id": "9bd21943-f28c-5a07-baee-cf98aa943777",
+    "user_name": "Rebecca Williams",
+    "rating": 5,
+    "comment": "What pushed us toward Gusto was the need to get better at supporting a distributed team without brittle HR operations, and Direct deposit handled the exact part of the process that had become messy. Gusto simplified our first payroll runs. Compliance handling gave us peace of mind. The startup discount was appreciated. The biggest win was how quickly the team trusted it once it was live, which is why startup program felt like real leverage and not just a headline discount.",
+    "helpful": 0,
+    "created_at": "2026-04-23T00:00:00.000Z"
+  },
+  {
+    "id": "4c91d371-3ab3-5165-9a02-8e8a2af08846",
+    "deal_id": "gusto",
+    "user_id": "37904be2-61ae-5287-82e5-b12ca1168607",
+    "user_name": "Michael Chang",
+    "rating": 5,
+    "comment": "We tested Gusto because we were tired of losing time to supporting a distributed team without brittle HR operations, and Employee onboarding made the value obvious much faster than I expected. Didn't have to hire HR person thanks to Gusto. Benefits administration is simple. Tax compliance is handled. It ended up removing more follow-up and cleanup work than I expected, which is what makes the savings feel tangible.",
+    "helpful": 0,
+    "created_at": "2026-04-23T00:00:00.000Z"
+  },
+  {
+    "id": "1c8e77a4-576c-5b23-9d09-1e72a6014303",
+    "deal_id": "gusto",
+    "user_id": "4f182ef5-9a23-59e9-ba8f-2168c50225d0",
+    "user_name": "Jessica Martinez",
+    "rating": 4,
+    "comment": "What pushed us toward Gusto was the need to get better at supporting a distributed team without brittle HR operations, and Direct deposit handled the exact part of the process that had become messy. Great payroll solution. Some HR features could be more comprehensive. Support is helpful. It was not perfect on day one, although the underlying value showed up quickly enough that the team stayed with it.",
+    "helpful": 0,
+    "created_at": "2026-04-23T00:00:00.000Z"
+  },
+  {
+    "id": "49a51fe6-9bc2-52b0-a951-4a9a611376bf",
+    "deal_id": "revsh",
+    "user_id": "0da3b81b-6184-574c-86c8-a545790bc284",
+    "user_name": "Priya Sharma",
+    "rating": 5,
+    "comment": "By the time we rolled out RevSh, giving finance enough visibility without slowing operators down was already slowing us down, and $1,000 grant and 25% discount gave us a cleaner operating rhythm almost immediately. RevSh made managing partner revenue splits transparent. The $1K grant and discount provided immediate value. It is one of the few startup perks we kept without much debate because the operational payoff showed up in the first month, not six months later.",
+    "helpful": 0,
+    "created_at": "2026-04-23T00:00:00.000Z"
+  },
+  {
+    "id": "4504c94f-b5c9-5e78-b5aa-149378c881b0",
+    "deal_id": "revsh",
+    "user_id": "1363a69d-1fee-5957-b894-6a17c7da08ed",
+    "user_name": "David Kim",
+    "rating": 5,
+    "comment": "We did not add RevSh for vanity metrics; we added it because making spend control and month-end cleaner needed a real fix, and Revenue sharing tools delivered that first. Automated payouts eliminated manual calculations. Reporting is transparent. Partners appreciate the clarity. That mix of measurable ROI and low friction is why we kept it in the stack after the offer period instead of treating it like a temporary experiment.",
+    "helpful": 0,
+    "created_at": "2026-04-23T00:00:00.000Z"
+  },
+  {
+    "id": "202fe277-b44f-579d-bfc3-bd8e7fb82adf",
+    "deal_id": "revsh",
+    "user_id": "897eb162-9450-51b0-8f40-b282aff59ecb",
+    "user_name": "Elena Rossi",
+    "rating": 4,
+    "comment": "Our team adopted RevSh at the point where reducing approval and reconciliation work that used to sit in spreadsheets was already affecting execution, and Easy integration changed the workflow more than the vendor pitch did. Good partnership tool. Integration required some setup. Worth it for partnership clarity. There is still a little tuning involved, but the day-to-day workflow is better enough that we kept it after the initial trial.",
+    "helpful": 0,
+    "created_at": "2026-04-23T00:00:00.000Z"
+  },
+  {
+    "id": "34d23624-c860-562c-9b8a-679990ecfc17",
+    "deal_id": "backblaze",
+    "user_id": "7a3ae3cc-9438-58d1-aac6-6e2fab8f90b5",
+    "user_name": "Dr. Rajesh Patel",
+    "rating": 5,
+    "comment": "The reason Backblaze stuck for us is that it helped with making restore confidence part of the workflow instead of an afterthought without turning setup into another side project, especially around Cloud storage platform. Backblaze's $100K credits covered years of storage. Reliability and uptime have been exceptional. Cost per GB is excellent. Once the workflow was in place, the team stopped working around the process and actually started relying on it.",
+    "helpful": 0,
+    "created_at": "2026-04-23T00:00:00.000Z"
+  },
+  {
+    "id": "833d70ad-bb8e-5b46-884a-0560c2a772c0",
+    "deal_id": "backblaze",
+    "user_id": "3530b752-a821-5799-8f67-898f04dc7701",
+    "user_name": "Laura Chen",
+    "rating": 5,
+    "comment": "The reason Backblaze stuck for us is that it helped with getting backup operations reliable enough to ignore until needed without turning setup into another side project, especially around API. Storing petabytes of data reliably. Geographic redundancy gives peace of mind. API is straightforward. Once the workflow was in place, the team stopped working around the process and actually started relying on it.",
+    "helpful": 0,
+    "created_at": "2026-04-23T00:00:00.000Z"
+  },
+  {
+    "id": "17ab6385-6a4f-5017-9e00-c64a153d6f0c",
+    "deal_id": "backblaze",
+    "user_id": "5e7e1a9b-b65e-50aa-be1b-41a506273ebb",
+    "user_name": "Marcus Green",
+    "rating": 4,
+    "comment": "What pushed us toward Backblaze was the need to get better at making restore confidence part of the workflow instead of an afterthought, and Geographic redundancy handled the exact part of the process that had become messy. Solid storage platform. Dashboard could be more intuitive. Support team is knowledgeable. It was not perfect on day one, although the underlying value showed up quickly enough that the team stayed with it.",
+    "helpful": 0,
+    "created_at": "2026-04-23T00:00:00.000Z"
+  },
+  {
+    "id": "2a686bec-4d9a-50db-a63a-8c2c8b47f4aa",
+    "deal_id": "zoho",
+    "user_id": "010bfd58-b2d2-5907-b935-2082f4e302a4",
+    "user_name": "Anita Desai",
+    "rating": 5,
+    "comment": "We brought Zoho in when speeding up workflows that had been blocked by manual setup was becoming a weekly problem, and CRM platform was the first part of the rollout that made the team stop second-guessing the switch. Zoho suite provided all tools we needed without tool fragmentation. The 1-year free access was generous. Integration between tools is seamless. The tool stuck because it improved day-to-day execution, not because it looked good in onboarding or vendor calls.",
+    "helpful": 0,
+    "created_at": "2026-04-23T00:00:00.000Z"
+  },
+  {
+    "id": "fbc9cc69-807e-5361-a220-34ce526cdbf8",
+    "deal_id": "zoho",
+    "user_id": "d2b2ad92-fcd5-5b63-9f70-a739bd515c6c",
+    "user_name": "Michael Park",
+    "rating": 5,
+    "comment": "As founder, Zoho started paying for itself once we were serious about removing repetitive engineering work from weekly operations, and Team collaboration solved the part of the workflow that kept creating follow-up work. Consolidated 5 different tools into Zoho. Cost savings are significant. Learning each module takes time but worth it. We were able to validate it under real volume before budget became the main conversation, and that changed the quality of the decision completely.",
+    "helpful": 0,
+    "created_at": "2026-04-23T00:00:00.000Z"
+  },
+  {
+    "id": "8ad302d6-3265-5fa5-ba35-8d8bcb5c93b6",
+    "deal_id": "zoho",
+    "user_id": "d6a33c65-88a0-5566-aff0-e0bf7e605807",
+    "user_name": "Sophie Turner",
+    "rating": 4,
+    "comment": "What pushed us toward Zoho was the need to get better at speeding up workflows that had been blocked by manual setup, and CRM platform handled the exact part of the process that had become messy. Good integrated suite. UI could be more polished. Support is responsive. It was not perfect on day one, although the underlying value showed up quickly enough that the team stayed with it.",
+    "helpful": 0,
+    "created_at": "2026-04-23T00:00:00.000Z"
+  },
+  {
+    "id": "1f5d7fd9-8c58-5c02-bdb8-afa0b99957f6",
+    "deal_id": "typeform",
+    "user_id": "8210bf79-40a8-5d5e-ad0d-f33e13600c2f",
+    "user_name": "Victoria Chen",
+    "rating": 5,
+    "comment": "By the time we rolled out Typeform, running intake and research without spreadsheet cleanup was already slowing us down, and Mobile optimization gave us a cleaner operating rhythm almost immediately. Typeform forms converted better than standard HTML. The 75% discount made sophisticated lead gen affordable. Analytics are helpful. It is one of the few startup perks we kept without much debate because the operational payoff showed up in the first month, not six months later.",
+    "helpful": 0,
+    "created_at": "2026-04-23T00:00:00.000Z"
+  },
+  {
+    "id": "16e07365-da83-5331-9055-02c66f8f839d",
+    "deal_id": "typeform",
+    "user_id": "d0dba38a-e944-5e24-bcec-974b616c57bd",
+    "user_name": "Alex Murphy",
+    "rating": 5,
+    "comment": "We tested Typeform because we were tired of losing time to collecting higher-quality inputs without hurting conversion, and Quiz templates made the value obvious much faster than I expected. Beautiful survey experience. Customers love the interface. Integration with CRM was seamless. It ended up removing more follow-up and cleanup work than I expected, which is what makes the savings feel tangible.",
+    "helpful": 0,
+    "created_at": "2026-04-23T00:00:00.000Z"
+  },
+  {
+    "id": "7a21c0bb-c452-5f7a-ae8c-916d1ee2f954",
+    "deal_id": "typeform",
+    "user_id": "9cdc9f7e-b2f4-5a2d-905e-f8757e32c3cd",
+    "user_name": "Priya Gupta",
+    "rating": 4,
+    "comment": "We tested Typeform because we were tired of losing time to collecting higher-quality inputs without hurting conversion, and Up to 75% discount available made the value obvious much faster than I expected. Great form tool. Learning all features takes time. Worth investment for conversion rate. The rollout needed some refinement, but once we got through that, the gains were clear in real work.",
+    "helpful": 0,
+    "created_at": "2026-04-23T00:00:00.000Z"
+  },
+  {
+    "id": "f412bbb2-04c5-5cbb-adc8-4fa147ffd790",
+    "deal_id": "deel",
+    "user_id": "bbf0b574-7a29-509f-bb2e-5175c2d77022",
+    "user_name": "Sophia Garcia",
+    "rating": 5,
+    "comment": "We tested Deel because we were tired of losing time to supporting a distributed team without brittle HR operations, and Compliance handling made the value obvious much faster than I expected. Deel made hiring internationally seamless. Compliance and tax handling is accurate. The startup discount saves thousands. It ended up removing more follow-up and cleanup work than I expected, which is what makes the savings feel tangible.",
+    "helpful": 0,
+    "created_at": "2026-04-23T00:00:00.000Z"
+  },
+  {
+    "id": "05f90e08-7026-5b33-8a90-8af9f1544df5",
+    "deal_id": "deel",
+    "user_id": "29f3c168-01a2-5a09-ba46-b01c8e3d7784",
+    "user_name": "Dr. James Patterson",
+    "rating": 5,
+    "comment": "We brought Deel in when supporting a distributed team without brittle HR operations was becoming a weekly problem, and Compliance handling was the first part of the rollout that made the team stop second-guessing the switch. Scaled team across 15 countries thanks to Deel. Payroll is automatic. Support team understands global hiring. The tool stuck because it improved day-to-day execution, not because it looked good in onboarding or vendor calls.",
+    "helpful": 0,
+    "created_at": "2026-04-23T00:00:00.000Z"
+  },
+  {
+    "id": "64f29f17-b9e0-5507-a750-5e5edd07d4a3",
+    "deal_id": "deel",
+    "user_id": "7323d668-302c-5efb-ad63-a16ce8716405",
+    "user_name": "Amelia Foster",
+    "rating": 4,
+    "comment": "By the time we rolled out Deel, managing hiring and payroll across more locations was already slowing us down, and Tax documentation gave us a cleaner operating rhythm almost immediately. Great global hiring solution. Learning all features takes time. Documentation is comprehensive. We had to refine the setup a bit, but the improvement in execution was real and easy to defend internally.",
+    "helpful": 0,
+    "created_at": "2026-04-23T00:00:00.000Z"
+  },
+  {
+    "id": "7cfe3798-4aed-5adc-b1c0-ab6c77d4614f",
+    "deal_id": "box-ai",
+    "user_id": "0e513d83-1b83-5247-9bf9-8147013295a6",
+    "user_name": "Dr. Rebecca Montgomery",
+    "rating": 5,
+    "comment": "Our team adopted Box at the point where keeping documents searchable and organized as the team grew was already affecting execution, and Workflow automation changed the workflow more than the vendor pitch did. Box's enterprise tools and AI capabilities impressed our customers. GTM support accelerated sales. Benefits package was substantial. What made it easy to keep after the trial was that startup program gave us enough room to test it on a live workflow instead of judging it from a polished demo.",
+    "helpful": 0,
+    "created_at": "2026-04-23T00:00:00.000Z"
+  },
+  {
+    "id": "5739d331-14b0-52bc-9a27-4f4d61d3ee90",
+    "deal_id": "box-ai",
+    "user_id": "614740a8-a027-5da7-85bb-87e3bff7f3f0",
+    "user_name": "Michael Torres",
+    "rating": 5,
+    "comment": "What pushed us toward Box was the need to get better at reducing friction around secure file collaboration, and Integration ecosystem handled the exact part of the process that had become messy. AI-powered search works exceptionally. Collaboration features are enterprise-grade. Customer adoption has been smooth. The biggest win was how quickly the team trusted it once it was live, which is why startup program felt like real leverage and not just a headline discount.",
+    "helpful": 0,
+    "created_at": "2026-04-23T00:00:00.000Z"
+  },
+  {
+    "id": "04ea79e6-76a3-5d14-8033-9bb597f60489",
+    "deal_id": "box-ai",
+    "user_id": "bb66a0f9-138d-57af-98e6-75f201490537",
+    "user_name": "Jennifer Chen",
+    "rating": 4,
+    "comment": "In my role as product manager, Box started paying for itself once we were serious about reducing friction around secure file collaboration, and Cloud content storage solved the part of the workflow that kept creating follow-up work. Powerful enterprise platform. Learning all features takes time. Support is professional. It took a bit of iteration to get the workflow dialed in, but the result was strong enough that nobody wanted to go back.",
+    "helpful": 0,
+    "created_at": "2026-04-23T00:00:00.000Z"
+  },
+  {
+    "id": "5a2e0a64-7680-564a-b140-86429fb967e9",
+    "deal_id": "statsig",
+    "user_id": "1a044037-23dc-5c8c-af6b-8101bb61e415",
+    "user_name": "Tom Harrison",
+    "rating": 5,
+    "comment": "What pushed us toward Statsig was the need to get better at finding growth bottlenecks without waiting on analyst bandwidth, and API handled the exact part of the process that had become messy. Statsig's feature flags enable safe deployments. Experimentation framework accelerated our learning. The $50K credits covered 18 months. The biggest win was how quickly the team trusted it once it was live, which is why free pro plan felt like real leverage and not just a headline discount.",
+    "helpful": 0,
+    "created_at": "2026-04-23T00:00:00.000Z"
+  },
+  {
+    "id": "53f13aa6-8f3a-56b2-a155-be6ecf3a613b",
+    "deal_id": "statsig",
+    "user_id": "f9c8f6fc-1b5a-5b48-bcb1-4d56aec34b76",
+    "user_name": "Maya Patel",
+    "rating": 5,
+    "comment": "We brought Statsig in when making experimentation faster than reporting cleanup was becoming a weekly problem, and Metric analysis was the first part of the rollout that made the team stop second-guessing the switch. A/B testing framework is powerful. Metric analysis guides decisions. Dashboard is intuitive. The tool stuck because it improved day-to-day execution, not because it looked good in onboarding or vendor calls.",
+    "helpful": 0,
+    "created_at": "2026-04-23T00:00:00.000Z"
+  },
+  {
+    "id": "00d56657-73f1-5b07-ba4f-c451e2dc7450",
+    "deal_id": "statsig",
+    "user_id": "c43e9b54-ac1f-5380-a35a-c4b24bc94686",
+    "user_name": "Lucas Santos",
+    "rating": 4,
+    "comment": "Our team adopted Statsig at the point where turning raw events into decisions the product team could actually trust was already affecting execution, and Real-time dashboards changed the workflow more than the vendor pitch did. Great feature flag platform. Learning analytics takes time. Worth investment for experimentation rigor. There is still a little tuning involved, but the day-to-day workflow is better enough that we kept it after the initial trial.",
+    "helpful": 0,
+    "created_at": "2026-04-23T00:00:00.000Z"
+  },
+  {
+    "id": "3c6a2c7b-3eec-5a72-869a-5aab0a956616",
+    "deal_id": "circleci",
+    "user_id": "b3c09984-d3dd-518c-a48f-4987afe4e2a9",
+    "user_name": "Dr. Steven Lee",
+    "rating": 5,
+    "comment": "We did not add CircleCI for vanity metrics; we added it because making build feedback fast enough for daily shipping needed a real fix, and Approximately $5,000 in value delivered that first. CircleCI automated our deployment process. The 400K free minutes eliminated build bottlenecks. Setup was straightforward. That mix of measurable ROI and low friction is why we kept it in the stack after the offer period instead of treating it like a temporary experiment.",
+    "helpful": 0,
+    "created_at": "2026-04-23T00:00:00.000Z"
+  },
+  {
+    "id": "e0f17615-641d-5f32-b440-ea03483864de",
+    "deal_id": "circleci",
+    "user_id": "9fa75d9e-eaaf-54de-9349-567b086f8003",
+    "user_name": "Rachel Wu",
+    "rating": 5,
+    "comment": "We brought CircleCI in when keeping releases steady as commit volume increased was becoming a weekly problem, and Integration was the first part of the rollout that made the team stop second-guessing the switch. Parallel builds dramatically reduced deployment time. GitHub integration is seamless. Team productivity increased. The tool stuck because it improved day-to-day execution, not because it looked good in onboarding or vendor calls.",
+    "helpful": 0,
+    "created_at": "2026-04-23T00:00:00.000Z"
+  },
+  {
+    "id": "0b3de55a-d572-57d6-a30d-6dad6fcce167",
+    "deal_id": "circleci",
+    "user_id": "a4ebd983-a8c6-53f0-aec2-5b9e41e1e43c",
+    "user_name": "Kevin Park",
+    "rating": 4,
+    "comment": "We brought CircleCI in when keeping releases steady as commit volume increased was becoming a weekly problem, and Build caching was the first part of the rollout that made the team stop second-guessing the switch. Solid CI/CD platform. Some advanced configuration takes learning. Documentation is helpful. There are still edges to smooth out, yet the benefit is obvious enough in weekly operations that it earned its place.",
+    "helpful": 0,
+    "created_at": "2026-04-23T00:00:00.000Z"
+  },
+  {
+    "id": "cee298f3-ecc3-56e8-96ae-3abc18b6ff71",
+    "deal_id": "scaleway",
+    "user_id": "360f589d-31a2-5e22-985a-faa907b0aa7d",
+    "user_name": "Sophie Martin",
+    "rating": 5,
+    "comment": "By the time we rolled out Scaleway, scaling customer traffic without constantly redesigning the stack was already slowing us down, and European data centers gave us a cleaner operating rhythm almost immediately. Scaleway's European focus and GDPR compliance were essential. The €36K credits covered infrastructure nicely. Performance is reliable. It is one of the few startup perks we kept without much debate because the operational payoff showed up in the first month, not six months later.",
+    "helpful": 0,
+    "created_at": "2026-04-23T00:00:00.000Z"
+  },
+  {
+    "id": "6d6470e1-caec-5f0f-8e14-849fd6887434",
+    "deal_id": "scaleway",
+    "user_id": "988351ce-3bc7-58bc-93ea-b0daecbd3295",
+    "user_name": "Klaus Weber",
+    "rating": 5,
+    "comment": "By the time we rolled out Scaleway, scaling customer traffic without constantly redesigning the stack was already slowing us down, and Object storage gave us a cleaner operating rhythm almost immediately. Privacy and data sovereignty matter to us. Scaleway delivers. Pricing is more competitive than hyperscalers. It is one of the few startup perks we kept without much debate because the operational payoff showed up in the first month, not six months later.",
+    "helpful": 0,
+    "created_at": "2026-04-23T00:00:00.000Z"
+  },
+  {
+    "id": "195646f0-9d89-578b-b6a4-0009d4bf6288",
+    "deal_id": "scaleway",
+    "user_id": "04e7907c-a6d1-56bd-8bf0-858f82ec019f",
+    "user_name": "Alessandro Rossi",
+    "rating": 4,
+    "comment": "The reason Scaleway stuck for us is that it helped with scaling customer traffic without constantly redesigning the stack without turning setup into another side project, especially around GDPR compliant. Good European alternative. Interface could be more polished. Support is responsive. Even with some setup overhead, it delivered enough practical value that we kept expanding how we use it.",
+    "helpful": 0,
+    "created_at": "2026-04-23T00:00:00.000Z"
+  },
+  {
+    "id": "2bb3a083-d545-51d7-9378-50f0548bc5ad",
+    "deal_id": "gitlab",
+    "user_id": "45c1beb7-4232-569f-abea-bdef9df63007",
+    "user_name": "Dr. Mikhail Sokolov",
+    "rating": 5,
+    "comment": "By the time we rolled out GitLab, removing repetitive engineering work from weekly operations was already slowing us down, and 1 year free Ultimate licenses gave us a cleaner operating rhythm almost immediately. GitLab's all-in-one platform eliminated tool fragmentation. The 1-year free Ultimate licenses were substantial. Security scanning catches issues early. It is one of the few startup perks we kept without much debate because the operational payoff showed up in the first month, not six months later.",
+    "helpful": 0,
+    "created_at": "2026-04-23T00:00:00.000Z"
+  },
+  {
+    "id": "16e35906-81f8-5c0e-8c58-cd63c7ad9561",
+    "deal_id": "gitlab",
+    "user_id": "3a6c56fd-e083-5065-aa8b-5f3b481c425d",
+    "user_name": "Yuki Tanaka",
+    "rating": 5,
+    "comment": "In my role as devops lead, GitLab started paying for itself once we were serious about speeding up workflows that had been blocked by manual setup, and Git repository hosting solved the part of the workflow that kept creating follow-up work. Pipelines are powerful and flexible. Container registry integration is seamless. Team productivity improved. We were able to validate it under real volume before budget became the main conversation, and that changed the quality of the decision completely.",
+    "helpful": 0,
+    "created_at": "2026-04-23T00:00:00.000Z"
+  },
+  {
+    "id": "7e778689-f2bb-5272-b013-64a7b870d077",
+    "deal_id": "gitlab",
+    "user_id": "494ca20d-8fb5-5a6a-8b11-5953a0b23cb2",
+    "user_name": "Carla Santos",
+    "rating": 4,
+    "comment": "Our team adopted GitLab at the point where removing repetitive engineering work from weekly operations was already affecting execution, and Merge requests workflow changed the workflow more than the vendor pitch did. Comprehensive platform. Interface can be overwhelming. Learning all features takes time. There is still a little tuning involved, but the day-to-day workflow is better enough that we kept it after the initial trial.",
+    "helpful": 0,
+    "created_at": "2026-04-23T00:00:00.000Z"
+  },
+  {
+    "id": "0dbae527-b200-523c-8240-308bd1de4948",
+    "deal_id": "alchemy",
+    "user_id": "fc5824d6-bf69-50db-ab3d-1d4548b23d0a",
+    "user_name": "Dr. Satoshi Kumar",
+    "rating": 5,
+    "comment": "We did not add Alchemy for vanity metrics; we added it because keeping blockchain infrastructure dependable during traffic swings needed a real fix, and Monitoring tools delivered that first. Alchemy eliminated blockchain infrastructure complexity. APIs are clean and well-documented. The Web3 credits covered development. That mix of measurable ROI and low friction is why we kept it in the stack after the offer period instead of treating it like a temporary experiment.",
+    "helpful": 0,
+    "created_at": "2026-04-23T00:00:00.000Z"
+  },
+  {
+    "id": "c0688377-3f7a-5c3a-956f-32622c491060",
+    "deal_id": "alchemy",
+    "user_id": "710b669f-6e70-53a2-8c81-1002d87e036f",
+    "user_name": "Vitalik Chen",
+    "rating": 5,
+    "comment": "Our team adopted Alchemy at the point where reducing operational drag around on-chain product work was already affecting execution, and Enhanced APIs changed the workflow more than the vendor pitch did. Building Web3 apps is so much easier with Alchemy. Multi-chain support is excellent. Support team understands blockchain. What made it easy to keep after the trial was that startup credits gave us enough room to test it on a live workflow instead of judging it from a polished demo.",
+    "helpful": 0,
+    "created_at": "2026-04-23T00:00:00.000Z"
+  },
+  {
+    "id": "98462531-21c7-5ed5-a53f-f23c0d2ee931",
+    "deal_id": "alchemy",
+    "user_id": "b117f617-e192-587c-9931-8ed3c7b0319b",
+    "user_name": "Jade Morgan",
+    "rating": 4,
+    "comment": "The reason Alchemy stuck for us is that it helped with shipping Web3 features without RPC instability without turning setup into another side project, especially around Node infrastructure. Great for Web3 development. Learning blockchain concepts is challenging. Alchemy's APIs help tremendously. Even with some setup overhead, it delivered enough practical value that we kept expanding how we use it.",
+    "helpful": 0,
+    "created_at": "2026-04-23T00:00:00.000Z"
+  },
+  {
+    "id": "7f8a42ef-803b-5a7f-845e-86baf82ec38d",
+    "deal_id": "snowflake",
+    "user_id": "bf3ded52-1813-5301-838e-83f86b36fb8a",
+    "user_name": "Dr. Patricia Lewis",
+    "rating": 5,
+    "comment": "The reason Snowflake stuck for us is that it helped with scaling data workflows without creating more maintenance work without turning setup into another side project, especially around Cloud data warehouse. Snowflake's scalable architecture handled our growing data. The startup credits covered over a year of costs. Query performance is exceptional. Once the workflow was in place, the team stopped working around the process and actually started relying on it.",
+    "helpful": 0,
+    "created_at": "2026-04-23T00:00:00.000Z"
+  },
+  {
+    "id": "baa3ff03-89b7-5b83-9338-c1d683b7473b",
+    "deal_id": "snowflake",
+    "user_id": "766c2f97-5efc-5147-9d55-b1afdb872862",
+    "user_name": "James Anderson",
+    "rating": 5,
+    "comment": "We brought Snowflake in when keeping schema changes from slowing product work was becoming a weekly problem, and Approximately $20,000 in value was the first part of the rollout that made the team stop second-guessing the switch. SQL analytics at scale is powerful. Data sharing is a killer feature. Team productivity increased dramatically. The tool stuck because it improved day-to-day execution, not because it looked good in onboarding or vendor calls.",
+    "helpful": 0,
+    "created_at": "2026-04-23T00:00:00.000Z"
+  },
+  {
+    "id": "2dc3beca-21a3-5257-90dc-40ef92772815",
+    "deal_id": "snowflake",
+    "user_id": "54dbb158-f610-54ba-b247-7c0f242745e8",
+    "user_name": "Monica Zhang",
+    "rating": 4,
+    "comment": "We tested Snowflake because we were tired of losing time to scaling data workflows without creating more maintenance work, and Enterprise features made the value obvious much faster than I expected. Excellent data platform. Cost management requires attention. Worth the investment for analytics capability. The rollout needed some refinement, but once we got through that, the gains were clear in real work.",
+    "helpful": 0,
+    "created_at": "2026-04-23T00:00:00.000Z"
+  },
+  {
+    "id": "fd567219-aae8-550a-ba94-77e63dcfd530",
+    "deal_id": "new-relic",
+    "user_id": "42428dc1-ceba-5845-be62-d52c245fe58e",
+    "user_name": "Grace Wong",
+    "rating": 5,
+    "comment": "By the time we rolled out New Relic, seeing what broke without stitching together three dashboards was already slowing us down, and AI-powered insights gave us a cleaner operating rhythm almost immediately. New Relic's observability platform gives us complete visibility. The 100GB free data is generous. Alerts prevent issues before customers notice. It is one of the few startup perks we kept without much debate because the operational payoff showed up in the first month, not six months later.",
+    "helpful": 0,
+    "created_at": "2026-04-23T00:00:00.000Z"
+  },
+  {
+    "id": "83e449f5-d76b-557f-b434-15fd340a6e34",
+    "deal_id": "new-relic",
+    "user_id": "f601a584-af84-58d7-98e8-9ba001c8b20c",
+    "user_name": "Marcus Thompson",
+    "rating": 5,
+    "comment": "From a devops lead perspective, New Relic started paying for itself once we were serious about catching issues before users reported them, and 100GB free data per month solved the part of the workflow that kept creating follow-up work. Distributed tracing through microservices is invaluable. Dashboard customization is flexible. Performance insights are actionable. We were able to validate it under real volume before budget became the main conversation, and that changed the quality of the decision completely.",
+    "helpful": 0,
+    "created_at": "2026-04-23T00:00:00.000Z"
+  },
+  {
+    "id": "19d48527-1a1d-5bde-a680-2e386c4a5c69",
+    "deal_id": "new-relic",
+    "user_id": "b59b8ed3-beb9-52d4-89c2-75d592d60266",
+    "user_name": "Elena Petrov",
+    "rating": 4,
+    "comment": "What pushed us toward New Relic was the need to get better at seeing what broke without stitching together three dashboards, and AI-powered insights handled the exact part of the process that had become messy. Comprehensive monitoring tool. Learning all features takes time. Documentation and support are helpful. It was not perfect on day one, although the underlying value showed up quickly enough that the team stayed with it.",
+    "helpful": 0,
+    "created_at": "2026-04-23T00:00:00.000Z"
+  },
+  {
+    "id": "c19751e9-e182-5a1b-be52-e7347d412e2f",
+    "deal_id": "cleura",
+    "user_id": "0db7b01a-08e9-501e-a826-dbd651fe4f8b",
+    "user_name": "Hans Mueller",
+    "rating": 5,
+    "comment": "The reason Cleura stuck for us is that it helped with keeping infrastructure spend predictable while still shipping quickly without turning setup into another side project, especially around Privacy-focused infrastructure. Cleura's privacy focus aligns with our values. The cloud credits provided good infrastructure support. European hosting matters to us. Once the workflow was in place, the team stopped working around the process and actually started relying on it.",
+    "helpful": 0,
+    "created_at": "2026-04-23T00:00:00.000Z"
+  },
+  {
+    "id": "c885ae22-9ba1-5b91-b3ba-941ff6b790e4",
+    "deal_id": "cleura",
+    "user_id": "609c5e05-2faa-5027-9c05-b3534ae1eb5a",
+    "user_name": "Anna Andersen",
+    "rating": 5,
+    "comment": "We tested Cleura because we were tired of losing time to running production and staging without adding DevOps overhead too early, and Object storage made the value obvious much faster than I expected. GDPR compliance is built-in. Data sovereignty is respected. Support team understands European requirements. It ended up removing more follow-up and cleanup work than I expected, which is what makes the savings feel tangible.",
+    "helpful": 0,
+    "created_at": "2026-04-23T00:00:00.000Z"
+  },
+  {
+    "id": "b6c14d0d-0432-5cde-a843-3a6cd650742e",
+    "deal_id": "cleura",
+    "user_id": "62a19c17-2a03-542a-8e1d-cec757060c7d",
+    "user_name": "Sofia Silva",
+    "rating": 4,
+    "comment": "The reason Cleura stuck for us is that it helped with running production and staging without adding DevOps overhead too early without turning setup into another side project, especially around Approximately $10,000 in value. Good privacy-focused alternative. Feature set is smaller than hyperscalers. Perfect for our needs. Even with some setup overhead, it delivered enough practical value that we kept expanding how we use it.",
+    "helpful": 0,
+    "created_at": "2026-04-23T00:00:00.000Z"
+  },
+  {
+    "id": "422b0495-0cf2-5227-8ac3-d9aef8148584",
+    "deal_id": "fireworks-ai",
+    "user_id": "b51d1c8d-716e-503b-aa5d-8734afe3c7a3",
+    "user_name": "Dr. Aisha Patel",
+    "rating": 5,
+    "comment": "By the time we rolled out Fireworks AI, shipping production AI use cases without fragile glue code was already slowing us down, and Fast inference speeds gave us a cleaner operating rhythm almost immediately. Fireworks' inference speeds are impressive. The AI credits covered months of experimentation. Cost per inference is excellent. It is one of the few startup perks we kept without much debate because the operational payoff showed up in the first month, not six months later.",
+    "helpful": 0,
+    "created_at": "2026-04-23T00:00:00.000Z"
+  },
+  {
+    "id": "4d94e864-61d8-5901-8c90-582a890bcff2",
+    "deal_id": "fireworks-ai",
+    "user_id": "a3800594-d0de-5ee5-9efc-35e8277d18e3",
+    "user_name": "David Kim",
+    "rating": 5,
+    "comment": "From a ai product manager perspective, Fireworks AI started paying for itself once we were serious about moving AI features from experiments into something customers could depend on, and Approximately $5,000 in value solved the part of the workflow that kept creating follow-up work. Building AI features is affordable with Fireworks. Model variety is good. API is straightforward. We were able to validate it under real volume before budget became the main conversation, and that changed the quality of the decision completely.",
+    "helpful": 0,
+    "created_at": "2026-04-23T00:00:00.000Z"
+  },
+  {
+    "id": "40061158-c8f9-5e62-93f8-3549bc9c4c92",
+    "deal_id": "fireworks-ai",
+    "user_id": "00f0abfb-e5c8-58f0-96d4-92f2f3f9ae1c",
+    "user_name": "Sophie Chen",
+    "rating": 4,
+    "comment": "We did not add Fireworks AI for vanity metrics; we added it because testing model-backed workflows without letting cost spiral needed a real fix, and Open-source model serving delivered that first. Great AI infrastructure. Documentation could be more comprehensive. Support team is responsive. The learning curve was manageable compared with the time it saves now, which is why it remained part of the stack.",
+    "helpful": 0,
+    "created_at": "2026-04-23T00:00:00.000Z"
+  },
+  {
+    "id": "cf20d5bc-abac-531f-baa0-657730d800db",
+    "deal_id": "infura",
+    "user_id": "7df134d6-f6ab-5391-9e42-c57101fef8d6",
+    "user_name": "Dr. James Nakamoto",
+    "rating": 5,
+    "comment": "As blockchain developer, Infura started paying for itself once we were serious about keeping blockchain infrastructure dependable during traffic swings, and Reliable infrastructure solved the part of the workflow that kept creating follow-up work. Infura's Ethereum APIs are reliable. API credits covered our development. Building DeFi apps is straightforward. We were able to validate it under real volume before budget became the main conversation, and that changed the quality of the decision completely.",
+    "helpful": 0,
+    "created_at": "2026-04-23T00:00:00.000Z"
+  },
+  {
+    "id": "5883eaf6-79c9-55dc-b8cf-3906259f8c2f",
+    "deal_id": "infura",
+    "user_id": "ef318ce4-d9fb-533f-b623-3b2a9319f1b4",
+    "user_name": "Cassandra Wong",
+    "rating": 5,
+    "comment": "By the time we rolled out Infura, shipping Web3 features without RPC instability was already slowing us down, and Approximately $3,000 in value gave us a cleaner operating rhythm almost immediately. IPFS storage integration is seamless. NFT APIs work great. Documentation is developer-friendly. It is one of the few startup perks we kept without much debate because the operational payoff showed up in the first month, not six months later.",
+    "helpful": 0,
+    "created_at": "2026-04-23T00:00:00.000Z"
+  },
+  {
+    "id": "e8b3b406-5def-561e-a6af-dd7ec768a2c6",
+    "deal_id": "infura",
+    "user_id": "a3041312-30f3-5239-8888-88e473efdd0b",
+    "user_name": "Marcus Stone",
+    "rating": 4,
+    "comment": "What pushed us toward Infura was the need to get better at shipping Web3 features without RPC instability, and IPFS storage handled the exact part of the process that had become messy. Good blockchain infrastructure. Some advanced features have learning curve. Support is helpful. It was not perfect on day one, although the underlying value showed up quickly enough that the team stayed with it.",
+    "helpful": 0,
+    "created_at": "2026-04-23T00:00:00.000Z"
+  },
+  {
+    "id": "b30b2c70-1352-52a3-b86e-a3cb2ce8d441",
+    "deal_id": "inworld-ai",
+    "user_id": "68123a0a-e4a7-5ed7-a9ca-bd417e1dc18e",
+    "user_name": "Professor Elena Vasquez",
+    "rating": 5,
+    "comment": "What pushed us toward Inworld AI was the need to get better at testing model-backed workflows without letting cost spiral, and API handled the exact part of the process that had become messy. Inworld AI created amazing character interactions. The AI credits covered development costs. Interactive experiences feel alive. The biggest win was how quickly the team trusted it once it was live, which is why platform access felt like real leverage and not just a headline discount.",
+    "helpful": 0,
+    "created_at": "2026-04-23T00:00:00.000Z"
+  },
+  {
+    "id": "5c5b8271-1bc3-556f-81d8-acad150e8088",
+    "deal_id": "inworld-ai",
+    "user_id": "e94e2c91-d893-5ad7-ad2d-ce11b92ef9d1",
+    "user_name": "Yuki Tanaka",
+    "rating": 5,
+    "comment": "From a game developer perspective, Inworld AI started paying for itself once we were serious about moving AI features from experiments into something customers could depend on, and Conversational AI solved the part of the workflow that kept creating follow-up work. Building NPCs with personality is now straightforward. Memory systems add depth. API is developer-friendly. We were able to validate it under real volume before budget became the main conversation, and that changed the quality of the decision completely.",
+    "helpful": 0,
+    "created_at": "2026-04-23T00:00:00.000Z"
+  },
+  {
+    "id": "cd0042a6-8d62-5dc8-a09e-ba95bf27173f",
+    "deal_id": "inworld-ai",
+    "user_id": "8877870e-f767-5efd-92ad-6a9cf1e9af3e",
+    "user_name": "Marcus Johnson",
+    "rating": 4,
+    "comment": "What pushed us toward Inworld AI was the need to get better at moving AI features from experiments into something customers could depend on, and Character creation tools handled the exact part of the process that had become messy. Great conversational AI tool. Learning all features takes time. Community is supportive. It was not perfect on day one, although the underlying value showed up quickly enough that the team stayed with it.",
+    "helpful": 0,
+    "created_at": "2026-04-23T00:00:00.000Z"
+  },
+  {
+    "id": "83f68a85-390c-5fe2-990d-63df7cc34e6b",
+    "deal_id": "oracle",
+    "user_id": "03c2cb6f-8ecb-5c5a-9d02-04cffba56799",
+    "user_name": "Dr. Robert Hayes",
+    "rating": 5,
+    "comment": "We tested Oracle because we were tired of losing time to keeping infrastructure spend predictable while still shipping quickly, and Compute services made the value obvious much faster than I expected. Oracle's startup credits enabled enterprise-grade infrastructure. Cloud services are reliable. Support is professional. It ended up removing more follow-up and cleanup work than I expected, which is what makes the savings feel tangible.",
+    "helpful": 0,
+    "created_at": "2026-04-23T00:00:00.000Z"
+  },
+  {
+    "id": "1a4c608b-d2f0-5c06-a273-9cec64678450",
+    "deal_id": "oracle",
+    "user_id": "13342d63-001e-5f3c-8d3d-dc959484348e",
+    "user_name": "Jennifer Lopez",
+    "rating": 5,
+    "comment": "We did not add Oracle for vanity metrics; we added it because keeping infrastructure spend predictable while still shipping quickly needed a real fix, and Approximately $100,000 in value delivered that first. Building on Oracle infrastructure instilled confidence in enterprise customers. Database services are powerful. Startup program support exceeded expectations. That mix of measurable ROI and low friction is why we kept it in the stack after the offer period instead of treating it like a temporary experiment.",
+    "helpful": 0,
+    "created_at": "2026-04-23T00:00:00.000Z"
+  },
+  {
+    "id": "ef07e760-623b-5aa9-927c-198517798857",
+    "deal_id": "oracle",
+    "user_id": "31cb12ec-498e-54f3-adab-a8a9d16961a7",
+    "user_name": "Vikram Singh",
+    "rating": 4,
+    "comment": "From a backend lead perspective, Oracle started paying for itself once we were serious about keeping infrastructure spend predictable while still shipping quickly, and Cloud storage solved the part of the workflow that kept creating follow-up work. Enterprise-grade infrastructure. Some services require learning. Oracle's documentation and support help. It took a bit of iteration to get the workflow dialed in, but the result was strong enough that nobody wanted to go back.",
+    "helpful": 0,
+    "created_at": "2026-04-23T00:00:00.000Z"
+  },
+  {
+    "id": "34ea69de-bf2d-5a27-b4a4-748362210879",
+    "deal_id": "siemens",
+    "user_id": "ab48742d-5d3e-5e5f-9f40-c5d61d3260d5",
+    "user_name": "Dr. Hans Mueller",
+    "rating": 5,
+    "comment": "What pushed us toward Siemens was the need to get better at removing repetitive engineering work from weekly operations, and Industry connections handled the exact part of the process that had become messy. Siemens tools are industry-leading. Access to expertise and partnerships accelerated our development. Industrial connections are invaluable. The biggest win was how quickly the team trusted it once it was live, which is why startup program felt like real leverage and not just a headline discount.",
+    "helpful": 0,
+    "created_at": "2026-04-23T00:00:00.000Z"
+  },
+  {
+    "id": "3e3fc7e3-d56f-5ad6-8e7e-8e82f093440f",
+    "deal_id": "siemens",
+    "user_id": "5eeab650-95b2-52f5-ac2d-d41ed7bb59d8",
+    "user_name": "Anna Chen",
+    "rating": 5,
+    "comment": "In my role as cto, Siemens started paying for itself once we were serious about speeding up workflows that had been blocked by manual setup, and Approximately $20,000 in value solved the part of the workflow that kept creating follow-up work. Digital twin technology from Siemens transformed our simulations. Mentorship from Siemens was outstanding. Tools are enterprise-grade. We were able to validate it under real volume before budget became the main conversation, and that changed the quality of the decision completely.",
+    "helpful": 0,
+    "created_at": "2026-04-23T00:00:00.000Z"
+  },
+  {
+    "id": "a2bcd397-e204-5bf5-b70c-528707d19255",
+    "deal_id": "siemens",
+    "user_id": "7ba169af-f35e-5c9d-a27c-0fad071c49e5",
+    "user_name": "Marco Santini",
+    "rating": 4,
+    "comment": "We tested Siemens because we were tired of losing time to giving the team leverage without building more internal overhead, and Automation tools made the value obvious much faster than I expected. Excellent industrial partnership. Learning Siemens tools takes time. Worth investment for manufacturing startups. The rollout needed some refinement, but once we got through that, the gains were clear in real work.",
+    "helpful": 0,
+    "created_at": "2026-04-23T00:00:00.000Z"
+  },
+  {
+    "id": "ff74e7a3-58cd-5c88-907f-7673d56770d5",
+    "deal_id": "together-ai",
+    "user_id": "11baf5e1-40c6-5fec-b410-e3bf178d5e19",
+    "user_name": "Dr. Priya Sharma",
+    "rating": 5,
+    "comment": "We did not add Together AI for vanity metrics; we added it because moving AI features from experiments into something customers could depend on needed a real fix, and Approximately $10,000 in value delivered that first. Together AI's GPU resources enabled serious model training. The $10K credits covered months of experimentation. Infrastructure is reliable. That mix of measurable ROI and low friction is why we kept it in the stack after the offer period instead of treating it like a temporary experiment.",
+    "helpful": 0,
+    "created_at": "2026-04-23T00:00:00.000Z"
+  },
+  {
+    "id": "2cbd3ce0-d6bd-58fc-bf51-5efeaced3958",
+    "deal_id": "together-ai",
+    "user_id": "3571c1a1-d05c-5eb1-8341-b69b601f8815",
+    "user_name": "Kai Chen",
+    "rating": 5,
+    "comment": "From a ml engineer perspective, Together AI started paying for itself once we were serious about moving AI features from experiments into something customers could depend on, and Batch processing solved the part of the workflow that kept creating follow-up work. Training language models became affordable. Inference speeds are excellent. Support team understands ML needs. We were able to validate it under real volume before budget became the main conversation, and that changed the quality of the decision completely.",
+    "helpful": 0,
+    "created_at": "2026-04-23T00:00:00.000Z"
+  },
+  {
+    "id": "6ece198e-be70-55f3-850e-7b0fc9a32650",
+    "deal_id": "together-ai",
+    "user_id": "c2a10a46-5c17-55f5-83ee-942565045b90",
+    "user_name": "Elena Rodriguez",
+    "rating": 4,
+    "comment": "By the time we rolled out Together AI, shipping production AI use cases without fragile glue code was already slowing us down, and Inference API gave us a cleaner operating rhythm almost immediately. Great GPU infrastructure. Learning optimization takes time. Documentation is helpful. We had to refine the setup a bit, but the improvement in execution was real and easy to defend internally.",
+    "helpful": 0,
+    "created_at": "2026-04-23T00:00:00.000Z"
+  },
+  {
+    "id": "b526611d-a890-5049-b6ca-9124d760c306",
+    "deal_id": "wiz",
+    "user_id": "4a527ccf-d8f3-5d4a-abc5-0bd1ba1ec56f",
+    "user_name": "Dr. Sarah Williams",
+    "rating": 5,
+    "comment": "Our team adopted Wiz at the point where making security reviews less painful for a small team was already affecting execution, and Compliance checking changed the workflow more than the vendor pitch did. Wiz provided comprehensive cloud security visibility. Vulnerability scanning caught critical issues. The startup tools access was valuable. What made it easy to keep after the trial was that startup program gave us enough room to test it on a live workflow instead of judging it from a polished demo.",
+    "helpful": 0,
+    "created_at": "2026-04-23T00:00:00.000Z"
+  },
+  {
+    "id": "70f2dc4f-62c8-5e36-b496-de13cd2a2178",
+    "deal_id": "wiz",
+    "user_id": "ce34bceb-1ca6-59b5-b5ba-483040a03b63",
+    "user_name": "Michael Park",
+    "rating": 5,
+    "comment": "Our team adopted Wiz at the point where tightening risk posture before bigger customer audits was already affecting execution, and Approximately $5,000 in value changed the workflow more than the vendor pitch did. Misconfiguration detection improved our security posture significantly. Compliance checking is thorough. Dashboard is intuitive. What made it easy to keep after the trial was that startup program gave us enough room to test it on a live workflow instead of judging it from a polished demo.",
+    "helpful": 0,
+    "created_at": "2026-04-23T00:00:00.000Z"
+  },
+  {
+    "id": "16d22dc0-abed-52a7-8840-6a7b8bcfffbe",
+    "deal_id": "wiz",
+    "user_id": "676ba453-80e5-5b42-a4c3-59e54e8915e8",
+    "user_name": "Jessica Chen",
+    "rating": 4,
+    "comment": "The reason Wiz stuck for us is that it helped with tightening risk posture before bigger customer audits without turning setup into another side project, especially around Threat detection. Great cloud security tool. Learning all features takes time. Support is responsive. Even with some setup overhead, it delivered enough practical value that we kept expanding how we use it.",
+    "helpful": 0,
+    "created_at": "2026-04-23T00:00:00.000Z"
+  },
+  {
+    "id": "cd973684-9af1-5ed3-b273-e002a7de1941",
+    "deal_id": "0x",
+    "user_id": "7ec22dbf-c833-5851-9e13-d88a6adf90f4",
+    "user_name": "Dr. Satoshi Kim",
+    "rating": 5,
+    "comment": "We tested 0x Protocol because we were tired of losing time to keeping blockchain infrastructure dependable during traffic swings, and DEX infrastructure made the value obvious much faster than I expected. 0x Protocol is incredibly powerful for building DeFi. The $5K credits covered our development. Infrastructure is reliable. It ended up removing more follow-up and cleanup work than I expected, which is what makes the savings feel tangible.",
+    "helpful": 0,
+    "created_at": "2026-04-23T00:00:00.000Z"
+  },
+  {
+    "id": "d0656a60-2c3d-5473-93d7-0ad64e6d5318",
+    "deal_id": "0x",
+    "user_id": "3875768d-581b-5b3f-9b9f-67113054eeba",
+    "user_name": "Victoria Lee",
+    "rating": 5,
+    "comment": "We did not add 0x Protocol for vanity metrics; we added it because reducing operational drag around on-chain product work needed a real fix, and Documentation delivered that first. Building DEX features with 0x is straightforward. Liquidity access is comprehensive. Support team understands DeFi. That mix of measurable ROI and low friction is why we kept it in the stack after the offer period instead of treating it like a temporary experiment.",
+    "helpful": 0,
+    "created_at": "2026-04-23T00:00:00.000Z"
+  },
+  {
+    "id": "e4d35f69-00ca-5a79-9415-a6a05b6163f6",
+    "deal_id": "0x",
+    "user_id": "86e0fb75-17f5-5adf-9b8e-841be5cb850f",
+    "user_name": "Marcus Wang",
+    "rating": 4,
+    "comment": "The reason 0x Protocol stuck for us is that it helped with keeping blockchain infrastructure dependable during traffic swings without turning setup into another side project, especially around DeFi tools. Good DeFi infrastructure. Learning curve for complex operations. Documentation helps. Even with some setup overhead, it delivered enough practical value that we kept expanding how we use it.",
+    "helpful": 0,
+    "created_at": "2026-04-23T00:00:00.000Z"
+  },
+  {
+    "id": "b57934e8-27dd-5967-8fe1-9638c5b95869",
+    "deal_id": "browserbase",
+    "user_id": "19e32966-6527-5b73-8631-a8a5c3a023f4",
+    "user_name": "Dr. Alex Petrov",
+    "rating": 5,
+    "comment": "Our team adopted Browserbase at the point where replacing brittle manual workflows with something the team could actually own was already affecting execution, and Web scraping tools changed the workflow more than the vendor pitch did. Browserbase handled complex browser automation. The automation credits covered months of usage. Infrastructure is reliable. What made it easy to keep after the trial was that startup program gave us enough room to test it on a live workflow instead of judging it from a polished demo.",
+    "helpful": 0,
+    "created_at": "2026-04-23T00:00:00.000Z"
+  },
+  {
+    "id": "06bd3b3b-7684-54a8-ab78-c9b56816c48f",
+    "deal_id": "browserbase",
+    "user_id": "36e0a712-d010-58cf-9ab8-f0ffa8bdf2b9",
+    "user_name": "Lily Wong",
+    "rating": 5,
+    "comment": "We did not add Browserbase for vanity metrics; we added it because turning operational cleanup into a process instead of a weekly scramble needed a real fix, and Developer API delivered that first. Web scraping at scale is now manageable. JavaScript execution works perfectly. Documentation is clear. That mix of measurable ROI and low friction is why we kept it in the stack after the offer period instead of treating it like a temporary experiment.",
+    "helpful": 0,
+    "created_at": "2026-04-23T00:00:00.000Z"
+  },
+  {
+    "id": "d1058f00-17f1-57a1-937c-4e9a42700abc",
+    "deal_id": "browserbase",
+    "user_id": "6d2b032d-6e8a-573e-b309-1b50c8697c2f",
+    "user_name": "James Anderson",
+    "rating": 4,
+    "comment": "We brought Browserbase in when automating repetitive work without introducing another maintenance burden was becoming a weekly problem, and Web scraping tools was the first part of the rollout that made the team stop second-guessing the switch. Good automation infrastructure. Learning API takes time. Support is responsive. There are still edges to smooth out, yet the benefit is obvious enough in weekly operations that it earned its place.",
+    "helpful": 0,
+    "created_at": "2026-04-23T00:00:00.000Z"
+  },
+  {
+    "id": "cbf6bce7-b9ae-5ab6-937d-3bbe91366d67",
+    "deal_id": "mercury",
+    "user_id": "fdc6cd3d-8d93-55fc-a776-7cd4109fadf2",
+    "user_name": "Victoria Lopez",
+    "rating": 5,
+    "comment": "We brought Mercury in when making spend control and month-end cleaner was becoming a weekly problem, and Spending controls was the first part of the rollout that made the team stop second-guessing the switch. Mercury's perks ecosystem provided immediate value. Business banking is straightforward. Startup community is supportive. The tool stuck because it improved day-to-day execution, not because it looked good in onboarding or vendor calls.",
+    "helpful": 0,
+    "created_at": "2026-04-23T00:00:00.000Z"
+  },
+  {
+    "id": "6b77ef10-0b5c-5cff-b525-3e06fae46f06",
+    "deal_id": "mercury",
+    "user_id": "77ad5748-7a10-5b57-b2f3-f001b479beff",
+    "user_name": "David Thompson",
+    "rating": 5,
+    "comment": "Our team adopted Mercury at the point where making spend control and month-end cleaner was already affecting execution, and Exclusive deals changed the workflow more than the vendor pitch did. Banking for startups is now simple. Perks marketplace saves money. Accounting integration is seamless. What made it easy to keep after the trial was that banking + perks gave us enough room to test it on a live workflow instead of judging it from a polished demo.",
+    "helpful": 0,
+    "created_at": "2026-04-23T00:00:00.000Z"
+  },
+  {
+    "id": "cf4008a2-a099-5bcb-a741-772a36904241",
+    "deal_id": "mercury",
+    "user_id": "caa220f8-3d51-54e4-ab77-fe65b53e35fd",
+    "user_name": "Sophie Chen",
+    "rating": 4,
+    "comment": "What pushed us toward Mercury was the need to get better at reducing approval and reconciliation work that used to sit in spreadsheets, and Financial management handled the exact part of the process that had become messy. Good startup banking solution. Learning all perks takes time. Support team is helpful. It was not perfect on day one, although the underlying value showed up quickly enough that the team stayed with it.",
+    "helpful": 0,
+    "created_at": "2026-04-23T00:00:00.000Z"
+  }
+]
