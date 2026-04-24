@@ -28,6 +28,7 @@ import { useAuth } from "@/lib/auth";
 import { dealsData } from "@/data/deals";
 import SafeImage from "./SafeImage";
 import { FEATURES } from "@/lib/feature-flags";
+import NotificationBell from "./NotificationBell";
 
 // Category Data from original MegaMenu - Fully Enriched
 const categories = [
@@ -340,6 +341,7 @@ const MainNavbar = () => {
                 </>
             ) : (
                 <div className="relative flex items-center gap-3">
+                   <NotificationBell />
                    <button
                     type="button"
                     onClick={() => setProfileMenuOpen((open) => !open)}

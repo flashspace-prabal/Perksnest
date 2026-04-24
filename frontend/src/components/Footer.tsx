@@ -14,7 +14,7 @@ const footerLinks = {
     { name: "Press", href: "mailto:press@perksnest.co?subject=Press Inquiry" },
   ],
   resources: [
-    { name: "Help Center", href: "mailto:support@perksnest.co" },
+    { name: "Help Center", href: "mailto:info@perksnest.co" },
     { name: "Community", href: "/deals" },
     { name: "Become a Partner", href: "/partner" },
 ],

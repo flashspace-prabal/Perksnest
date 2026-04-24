@@ -46,6 +46,28 @@ export interface ContactMessagePayload {
   website?: string;
 }
 
+export interface NotificationEntry {
+  id: string;
+  userId: string;
+  type: string;
+  title: string;
+  message: string;
+  read: boolean;
+  createdAt: string;
+}
+
+function mapNotificationEntry(row: Record<string, unknown>): NotificationEntry {
+  return {
+    id: String(row.id || ""),
+    userId: String(row.userId || row.user_id || ""),
+    type: String(row.type || "system"),
+    title: String(row.title || "Notification"),
+    message: String(row.message || ""),
+    read: Boolean(row.read),
+    createdAt: String(row.createdAt || row.created_at || new Date().toISOString()),
+  };
+}
+
 function mapReferralEntry(row: Record<string, unknown>): ReferralEntry {
   return {
     code: String(row.code || ''),
@@ -495,4 +517,27 @@ export async function getAllReviews() {
 
 export async function submitContactMessage(payload: ContactMessagePayload) {
   return apiCall('/api/contact', 'POST', payload, 0);
+}
+
+export async function getNotifications() {
+  const response = await apiCall('/api/notifications', 'GET', undefined, 1);
+  return {
+    ...response,
+    notifications: Array.isArray(response?.notifications)
+      ? response.notifications.map((row: Record<string, unknown>) => mapNotificationEntry(row))
+      : [],
+    unreadCount: Number(response?.unreadCount || 0),
+  };
+}
+
+export async function markNotificationRead(id: string) {
+  const response = await apiCall(`/api/notifications/${encodeURIComponent(id)}/read`, 'PATCH', undefined, 1);
+  return {
+    ...response,
+    notification: response?.notification ? mapNotificationEntry(response.notification as Record<string, unknown>) : null,
+  };
+}
+
+export async function markAllNotificationsRead() {
+  return apiCall('/api/notifications/read-all', 'PATCH', undefined, 1);
 }

@@ -62,8 +62,17 @@ app.post("/api/webhooks/stripe", express.raw({ type: "application/json" }), asyn
 
     if (userId) {
       try {
-        const { error } = await db.from("users").update({ plan: "premium" }).eq("id", userId);
+        const existingUser = await getUserProfileById(userId);
+        const { data: updatedUser, error } = await db
+          .from("users")
+          .update({ plan: "premium" })
+          .eq("id", userId)
+          .select("*")
+          .maybeSingle();
         if (error) throw error;
+        if (existingUser && existingUser.plan !== "premium") {
+          await handlePremiumActivationExperience(updatedUser || existingUser);
+        }
         console.log(`Successfully upgraded user ${userId} to premium via webhook`);
       } catch (err) {
         console.error("Failed to update user plan:", err);
@@ -81,6 +90,7 @@ const allowedOrigins = (process.env.CORS_ORIGINS || process.env.CORS_ORIGIN || "
   .split(",")
   .map((value) => value.trim())
   .filter(Boolean);
+const APP_BASE_URL = (process.env.APP_URL || process.env.FRONTEND_URL || allowedOrigins[0] || "").replace(/\/$/, "");
 
 app.use(
   cors({
@@ -262,6 +272,361 @@ ${message}`;
     text,
     html,
   });
+}
+
+function escapeHtml(value) {
+  return String(value || "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
+
+function renderEmailLayout({ eyebrow, title, intro, sections = [], ctaLabel, ctaHref, footer }) {
+  const sectionMarkup = sections
+    .map(
+      (section) => `
+        <div style="margin-top:16px;padding:18px;border:1px solid #eadcf0;border-radius:18px;background:#faf6fc;">
+          <div style="font-size:13px;font-weight:700;color:#5c2169;margin-bottom:8px;">${escapeHtml(section.title)}</div>
+          <div style="font-size:15px;line-height:1.7;color:#475569;">${escapeHtml(section.body)}</div>
+        </div>
+      `
+    )
+    .join("");
+
+  const ctaMarkup =
+    ctaLabel && ctaHref
+      ? `
+        <div style="margin-top:24px;">
+          <a href="${escapeHtml(ctaHref)}" style="display:inline-block;padding:14px 22px;border-radius:999px;background:#5c2169;color:#ffffff;text-decoration:none;font-size:14px;font-weight:700;">
+            ${escapeHtml(ctaLabel)}
+          </a>
+        </div>
+      `
+      : "";
+
+  return `
+    <div style="margin:0;padding:24px;background:#f6f0f8;font-family:Arial,sans-serif;color:#0f172a;">
+      <div style="max-width:640px;margin:0 auto;background:#ffffff;border:1px solid #eadcf0;border-radius:28px;overflow:hidden;">
+        <div style="padding:32px 28px;background:linear-gradient(180deg,#fbf6fd 0%,#ffffff 100%);">
+          <div style="display:inline-block;padding:8px 14px;border-radius:999px;background:#5c2169;color:#ffffff;font-size:12px;font-weight:700;letter-spacing:0.04em;">
+            ${escapeHtml(eyebrow)}
+          </div>
+          <h1 style="margin:18px 0 12px;font-size:30px;line-height:1.15;color:#140b1a;">${escapeHtml(title)}</h1>
+          <p style="margin:0;font-size:16px;line-height:1.7;color:#475569;">${escapeHtml(intro)}</p>
+          ${sectionMarkup}
+          ${ctaMarkup}
+        </div>
+        <div style="padding:0 28px 28px;font-size:13px;line-height:1.7;color:#64748b;">
+          ${escapeHtml(footer || "You're receiving this email because of activity on your PerksNest account.")}
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+async function sendTransactionalEmail({ to, subject, text, html, replyTo }) {
+  if (!contactTransporter || !EMAIL_USER) {
+    console.warn(`[EMAIL] Skipping email "${subject}" because SMTP is not configured.`);
+    return false;
+  }
+  if (!to) {
+    return false;
+  }
+
+  await contactTransporter.sendMail({
+    from: process.env.EMAIL_FROM || EMAIL_USER,
+    to,
+    replyTo: replyTo || process.env.EMAIL_FROM || EMAIL_USER,
+    subject,
+    text,
+    html,
+  });
+
+  return true;
+}
+
+function mapNotification(row) {
+  return {
+    id: String(row.id || ""),
+    user_id: String(row.user_id || ""),
+    type: String(row.type || "system"),
+    title: String(row.title || "Notification"),
+    message: String(row.message || ""),
+    read: Boolean(row.read),
+    created_at: String(row.created_at || nowIso()),
+  };
+}
+
+async function listNotificationsForUser(userId, limit = 50) {
+  const { data, error } = await db
+    .from("notifications")
+    .select("*")
+    .eq("user_id", userId)
+    .order("created_at", { ascending: false })
+    .limit(limit);
+
+  if (error) throw error;
+  return safeArray(data).map(mapNotification);
+}
+
+async function emitNotificationsRefresh(userId) {
+  if (!userId) return;
+
+  try {
+    const notifications = await listNotificationsForUser(userId, 20);
+    io.to(`user:${userId}`).emit("notifications:update", {
+      success: true,
+      notifications,
+      unreadCount: notifications.filter((notification) => !notification.read).length,
+    });
+  } catch (error) {
+    console.warn("[NOTIFICATIONS] Failed to emit refresh:", toErrorMessage(error));
+  }
+}
+
+async function createNotification({ userId, type, title, message }) {
+  const normalizedUserId = String(userId || "").trim();
+  const normalizedType = String(type || "system").trim();
+  const normalizedTitle = String(title || "").trim();
+  const normalizedMessage = String(message || "").trim();
+
+  if (!normalizedUserId || !normalizedTitle || !normalizedMessage) {
+    return null;
+  }
+
+  const duplicateSince = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
+  const { data: existingRows, error: existingError } = await db
+    .from("notifications")
+    .select("*")
+    .eq("user_id", normalizedUserId)
+    .eq("type", normalizedType)
+    .eq("title", normalizedTitle)
+    .eq("message", normalizedMessage)
+    .gte("created_at", duplicateSince)
+    .order("created_at", { ascending: false })
+    .limit(1);
+
+  if (existingError) throw existingError;
+
+  if (Array.isArray(existingRows) && existingRows[0]) {
+    return mapNotification(existingRows[0]);
+  }
+
+  const { data, error } = await db
+    .from("notifications")
+    .insert({
+      user_id: normalizedUserId,
+      type: normalizedType,
+      title: normalizedTitle,
+      message: normalizedMessage,
+      read: false,
+    })
+    .select("*")
+    .single();
+
+  if (error) throw error;
+
+  const notification = mapNotification(data);
+  await emitNotificationsRefresh(normalizedUserId);
+  return notification;
+}
+
+async function markNotificationAsRead(userId, notificationId) {
+  const { data, error } = await db
+    .from("notifications")
+    .update({ read: true })
+    .eq("id", notificationId)
+    .eq("user_id", userId)
+    .select("*")
+    .maybeSingle();
+
+  if (error) throw error;
+  if (!data) return null;
+
+  const notification = mapNotification(data);
+  await emitNotificationsRefresh(userId);
+  return notification;
+}
+
+async function markAllNotificationsAsRead(userId) {
+  const { error } = await db
+    .from("notifications")
+    .update({ read: true })
+    .eq("user_id", userId)
+    .eq("read", false);
+
+  if (error) throw error;
+  await emitNotificationsRefresh(userId);
+}
+
+async function getDealLabel(dealId) {
+  const normalizedDealId = String(dealId || "").trim();
+  if (!normalizedDealId) return "this deal";
+
+  const lookupTables = ["deals", "partner_deals"];
+  for (const table of lookupTables) {
+    const { data, error } = await db.from(table).select("*").eq("id", normalizedDealId).maybeSingle();
+    if (error) {
+      console.warn(`[NOTIFICATIONS] Failed to look up ${table} for deal ${normalizedDealId}:`, error.message || error);
+      continue;
+    }
+    if (data) {
+      return String(data.name || data.title || data.company_name || normalizedDealId);
+    }
+  }
+
+  return normalizedDealId;
+}
+
+function buildDealLink(dealId) {
+  if (!APP_BASE_URL || !dealId) return APP_BASE_URL || "";
+  return `${APP_BASE_URL}/deals/${encodeURIComponent(String(dealId))}`;
+}
+
+async function notifyDealClaimed(userId, dealId) {
+  const dealLabel = await getDealLabel(dealId);
+  return createNotification({
+    userId,
+    type: "deal_claimed",
+    title: "Deal Claimed Successfully",
+    message: `You have successfully claimed the ${dealLabel}. Open your dashboard anytime to continue with the access steps.`,
+  });
+}
+
+async function notifyPremiumActivated(userId) {
+  return createNotification({
+    userId,
+    type: "premium_activated",
+    title: "Premium Activated",
+    message: "You now have access to all premium deals, member-only savings, and priority support.",
+  });
+}
+
+async function sendDealClaimEmail({ user, dealId }) {
+  const recipient = String(user?.email || "").trim();
+  if (!recipient) return false;
+
+  const userName = String(user?.name || recipient.split("@")[0] || "there").trim();
+  const dealLabel = await getDealLabel(dealId);
+  const dealLink = buildDealLink(dealId);
+  const subject = "Your Deal is Ready 🎉";
+  const text = `Hi ${userName},
+
+You have successfully claimed the ${dealLabel}.
+
+Next steps:
+- Open the deal page to review the redemption instructions
+- Use the same PerksNest account email when completing signup
+- Reach out if you need help redeeming the offer
+
+${dealLink || "Visit PerksNest to continue."}
+`;
+
+  const html = renderEmailLayout({
+    eyebrow: "Deal Claimed",
+    title: `${dealLabel} is ready for you`,
+    intro: `Hi ${userName}, your claim is confirmed. We saved the ${dealLabel} offer to your account so you can come back and redeem it whenever you're ready.`,
+    sections: [
+      {
+        title: "What to do next",
+        body: "Open the deal page to review the redemption instructions and required signup steps.",
+      },
+      {
+        title: "Helpful tip",
+        body: "Use the same email address tied to your PerksNest account when redeeming the offer to keep everything matched correctly.",
+      },
+    ],
+    ctaLabel: dealLink ? "View this deal" : "",
+    ctaHref: dealLink,
+    footer: "Need help with redemption? Reply to this email and the PerksNest team will guide you.",
+  });
+
+  return sendTransactionalEmail({
+    to: recipient,
+    subject,
+    text,
+    html,
+  });
+}
+
+async function sendPremiumActivatedEmail(user) {
+  const recipient = String(user?.email || "").trim();
+  if (!recipient) return false;
+
+  const userName = String(user?.name || recipient.split("@")[0] || "there").trim();
+  const premiumLink = APP_BASE_URL ? `${APP_BASE_URL}/deals` : "";
+  const subject = "Welcome to PerksNest Premium 🚀";
+  const text = `Hi ${userName},
+
+Welcome to PerksNest Premium.
+
+You now have access to:
+- premium-only deals
+- deeper savings across the marketplace
+- priority support when you need help
+
+${premiumLink || "Visit PerksNest to explore your premium deals."}
+`;
+
+  const html = renderEmailLayout({
+    eyebrow: "Premium Activated",
+    title: "Welcome to PerksNest Premium",
+    intro: `Hi ${userName}, your premium plan is now active and your account has been upgraded with access to our full premium deal catalog.`,
+    sections: [
+      {
+        title: "Benefits unlocked",
+        body: "You can now browse premium-only offers, unlock deeper partner discounts, and get faster support when something needs attention.",
+      },
+      {
+        title: "Best next step",
+        body: "Head back into the marketplace and start with the tools you plan to buy in the next 30 days so you can capture the biggest savings first.",
+      },
+    ],
+    ctaLabel: premiumLink ? "Explore premium deals" : "",
+    ctaHref: premiumLink,
+    footer: "Thanks for upgrading to PerksNest Premium. We're excited to help you save more on the tools your team already needs.",
+  });
+
+  return sendTransactionalEmail({
+    to: recipient,
+    subject,
+    text,
+    html,
+  });
+}
+
+async function handleDealClaimExperience(user, dealId) {
+  if (!user?.id || !dealId) return;
+
+  try {
+    await notifyDealClaimed(user.id, dealId);
+  } catch (error) {
+    console.warn("[NOTIFICATIONS] Failed to create deal claim notification:", toErrorMessage(error));
+  }
+
+  try {
+    await sendDealClaimEmail({ user, dealId });
+  } catch (error) {
+    console.warn("[EMAIL] Failed to send deal claim email:", toErrorMessage(error));
+  }
+}
+
+async function handlePremiumActivationExperience(user) {
+  if (!user?.id) return;
+
+  try {
+    await notifyPremiumActivated(user.id);
+  } catch (error) {
+    console.warn("[NOTIFICATIONS] Failed to create premium activation notification:", toErrorMessage(error));
+  }
+
+  try {
+    await sendPremiumActivatedEmail(user);
+  } catch (error) {
+    console.warn("[EMAIL] Failed to send premium activation email:", toErrorMessage(error));
+  }
 }
 
 const isValidUUID = (str) => {
@@ -1232,10 +1597,16 @@ app.patch("/api/auth/plan", async (req, res) => {
       res.status(400).json({ success: false, error: "Missing userId or plan" });
       return;
     }
+    const { data: existingUser, error: existingUserError } = await db.from("users").select("*").eq("id", userId).maybeSingle();
+    if (existingUserError) throw existingUserError;
+
     const { data, error } = await db.from("users").update({ plan }).eq("id", userId).select("*").single();
     if (error) throw error;
     if (plan !== "free") {
       await convertReferralForUser({ id: userId, email: data.email });
+    }
+    if (plan === "premium" && existingUser?.plan !== "premium") {
+      await handlePremiumActivationExperience(data);
     }
     res.json({ success: true, user: mapUser(data) });
   } catch (error) {
@@ -1258,7 +1629,8 @@ app.post("/api/auth/claim-deal", async (req, res) => {
 
     const claimedDeals = safeArray(user.claimed_deals);
     console.log(`[AUTH-CLAIM] Current claimed deals: ${JSON.stringify(claimedDeals)}`);
-    const updated = claimedDeals.includes(dealId) ? claimedDeals : [...claimedDeals, dealId];
+    const alreadyClaimed = claimedDeals.includes(dealId);
+    const updated = alreadyClaimed ? claimedDeals : [...claimedDeals, dealId];
 
     const { data: updatedUser, error: updateError } = await db
       .from("users")
@@ -1269,6 +1641,9 @@ app.post("/api/auth/claim-deal", async (req, res) => {
     if (updateError) throw updateError;
 
     await db.from("claim_events").upsert({ user_id: userId, deal_id: dealId, claimed_at: new Date().toISOString() }, { onConflict: "user_id,deal_id" });
+    if (!alreadyClaimed) {
+      await handleDealClaimExperience(updatedUser, dealId);
+    }
     console.log(`[AUTH-CLAIM] Claim stored successfully for ${dealId}`);
     res.json({ success: true, user: mapUser(updatedUser), claimedDeals: updated });
   } catch (error) {
@@ -1357,6 +1732,63 @@ app.post("/api/auth/oauth-sync", async (req, res) => {
   }
 });
 
+app.get("/api/notifications", async (req, res) => {
+  try {
+    const userId = await getRequestUserId(req);
+    if (!userId) {
+      return res.status(401).json({ success: false, error: "Authentication required" });
+    }
+
+    const notifications = await listNotificationsForUser(userId);
+    res.json({
+      success: true,
+      notifications,
+      unreadCount: notifications.filter((notification) => !notification.read).length,
+    });
+  } catch (error) {
+    console.error("[NOTIFICATIONS] GET ERROR:", error);
+    res.status(500).json({ success: false, error: formatSupabaseError(error) });
+  }
+});
+
+app.patch("/api/notifications/read-all", async (req, res) => {
+  try {
+    const userId = await getRequestUserId(req);
+    if (!userId) {
+      return res.status(401).json({ success: false, error: "Authentication required" });
+    }
+
+    await markAllNotificationsAsRead(userId);
+    res.json({ success: true });
+  } catch (error) {
+    console.error("[NOTIFICATIONS] READ ALL ERROR:", error);
+    res.status(500).json({ success: false, error: formatSupabaseError(error) });
+  }
+});
+
+app.patch("/api/notifications/:id/read", async (req, res) => {
+  try {
+    const userId = await getRequestUserId(req);
+    const notificationId = String(req.params.id || "").trim();
+    if (!userId) {
+      return res.status(401).json({ success: false, error: "Authentication required" });
+    }
+    if (!notificationId) {
+      return res.status(400).json({ success: false, error: "Notification ID is required" });
+    }
+
+    const notification = await markNotificationAsRead(userId, notificationId);
+    if (!notification) {
+      return res.status(404).json({ success: false, error: "Notification not found" });
+    }
+
+    res.json({ success: true, notification });
+  } catch (error) {
+    console.error("[NOTIFICATIONS] MARK READ ERROR:", error);
+    res.status(500).json({ success: false, error: formatSupabaseError(error) });
+  }
+});
+
 app.get("/api/deals", async (_, res) => {
   try {
     const { data, error } = await db.from("deals").select("*").order("created_at", { ascending: false });
@@ -1424,6 +1856,10 @@ app.post("/api/deals/claim", async (req, res) => {
     await db
       .from("claim_events")
       .upsert({ user_id: userId, deal_id: dealId, claimed_at: new Date().toISOString() }, { onConflict: "user_id,deal_id" });
+
+    if (!alreadyClaimed) {
+      await handleDealClaimExperience(updatedUser, dealId);
+    }
 
     console.log(`[CLAIM] Claim event recorded. Returning response...`);
     res.json({ success: true, user: mapUser(updatedUser), claimedDeals: updated });
@@ -2622,6 +3058,9 @@ app.post("/api/verify-payment", async (req, res) => {
     }
 
     try {
+      const { data: existingUser, error: existingUserError } = await db.from("users").select("*").eq("id", userId).maybeSingle();
+      if (existingUserError) throw existingUserError;
+
       // Verify signature using crypto
       const crypto = require("crypto");
       const expectedSignature = crypto
@@ -2701,6 +3140,9 @@ app.post("/api/verify-payment", async (req, res) => {
       }
 
       console.log(`[PAYMENT] User ${userId} successfully upgraded to premium`);
+      if (existingUser?.plan !== "premium") {
+        await handlePremiumActivationExperience(updatedUser);
+      }
 
       res.json({
         success: true,
@@ -2881,6 +3323,10 @@ io.use(async (socket, next) => {
 });
 
 io.on("connection", (socket) => {
+  if (socket.data.user?.id) {
+    socket.join(`user:${socket.data.user.id}`);
+  }
+
   socket.on("join_ticket", async ({ ticketId }) => {
     try {
       const ticket = await getTicketWithMessages(ticketId);

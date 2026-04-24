@@ -37,8 +37,8 @@ const contactMethods = [
   {
     title: "Email support",
     description: "The fastest way to reach the team for deal, billing, or platform questions.",
-    value: "support@perksnest.co",
-    href: "mailto:support@perksnest.co",
+    value: "info@perksnest.co",
+    href: "mailto:info@perksnest.co",
     icon: Mail,
   },
   {
@@ -265,8 +265,8 @@ const Contact = () => {
                   <h2 className="mt-5 text-2xl font-semibold text-slate-950">Message sent successfully</h2>
                   <p className="mx-auto mt-3 max-w-xl text-sm leading-6 text-slate-600">
                     We’ll get back to you soon. If your request is urgent, you can also email{" "}
-                    <a href="mailto:support@perksnest.co" className="font-semibold text-[#5c2169] hover:underline">
-                      support@perksnest.co
+                    <a href="mailto:info@perksnest.co" className="font-semibold text-[#5c2169] hover:underline">
+                      info@perksnest.co
                     </a>.
                   </p>
                   <Button

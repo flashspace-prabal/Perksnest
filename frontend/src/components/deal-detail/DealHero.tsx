@@ -5,6 +5,7 @@ import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { ComprehensiveDealDetail } from "@/data/deal-details-schema";
 import { generateAvatarUrl, getAvatarColor } from "@/lib/avatar-generator";
 import { DealPageReview } from "@/lib/deal-review-normalizer";
+import { getReviewerAvatar } from "@/lib/reviewer-avatars";
 import { generateSocialProofNames } from "@/lib/social-proof-names";
 
 interface DealHeroProps {
@@ -179,7 +180,7 @@ export const DealHero: React.FC<DealHeroProps> = ({
                 <div className="flex items-center gap-4">
                   <Avatar className="w-14 h-14 shadow-md border-2 border-blue-200 flex-shrink-0">
                     <AvatarImage 
-                      src={dealTestimonial.avatar} 
+                      src={getReviewerAvatar(dealTestimonial.author, dealTestimonial.avatar, `${deal.id}:hero-testimonial`)} 
                       alt={dealTestimonial.author}
                       className="object-cover"
                     />

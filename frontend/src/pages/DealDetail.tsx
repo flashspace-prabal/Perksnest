@@ -22,6 +22,7 @@ import { getDealClaims, getUserClaims } from "@/lib/api";
 import { getDeal } from "@/lib/deals";
 import { useSeo } from "@/lib/seo";
 import { isPremiumDeal, isFreeDeal } from "@/lib/deal-types";
+import { getReviewerAvatar } from "@/lib/reviewer-avatars";
 
 import notionLogo from "@/assets/logos/notion.png";
 import stripeLogo from "@/assets/logos/stripe.svg";
@@ -454,7 +455,7 @@ const DealDetail = () => {
                     </p>
                     <div className="flex items-center gap-3">
                       <img 
-                        src={review.avatar || "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=40&h=40&fit=crop&crop=face"} 
+                        src={getReviewerAvatar(review.author, review.avatar, `${dealId}:${review.quote}`)} 
                         alt={review.author}
                         className="w-10 h-10 rounded-full object-cover"
                       />
@@ -473,7 +474,7 @@ const DealDetail = () => {
                     </p>
                     <div className="flex items-center gap-3">
                       <img 
-                        src={deal.testimonial.avatar} 
+                        src={getReviewerAvatar(deal.testimonial.author, deal.testimonial.avatar, `${dealId}:testimonial`)} 
                         alt={deal.testimonial.author}
                         className="w-10 h-10 rounded-full"
                       />
@@ -653,7 +654,7 @@ const DealDetail = () => {
                 <TabsContent value="resources" className="pt-8">
                   <h2 className="text-2xl font-bold mb-6">Resources</h2>
                   <div className="space-y-4">
-                    <a href={`mailto:support@perksnest.co?subject=Help with ${deal.name} deal`} className="flex items-center gap-3 p-4 border border-border rounded-xl hover:border-primary transition-colors">
+                    <a href={`mailto:info@perksnest.co?subject=Help with ${deal.name} deal`} className="flex items-center gap-3 p-4 border border-border rounded-xl hover:border-primary transition-colors">
                       <span className="text-2xl">📧</span>
                       <div><p className="font-medium">Contact Support</p><p className="text-sm text-muted-foreground">Get help with this deal</p></div>
                     </a>

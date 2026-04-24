@@ -52,7 +52,7 @@ const HelpCenter = () => {
               </p>
               <Button
                 className="w-full"
-                onClick={() => window.location.href = 'mailto:support@perksnest.co?subject=Support Request'}
+                onClick={() => window.location.href = 'mailto:info@perksnest.co?subject=Support Request'}
               >
                 Email Us
               </Button>

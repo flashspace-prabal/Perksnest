@@ -85,6 +85,43 @@ const maleNameOverrides = new Set([
 const normalizedLocalAvatar = (value: string) =>
   value.startsWith("/assets/testimonials/") ? value : "";
 
+const illustrationAvatarHosts = [
+  "api.dicebear.com",
+  "dicebear.com",
+  "ui-avatars.com",
+  "robohash.org",
+  "adorable.io",
+  "avatars.dicebear.com",
+];
+
+const illustrationAvatarPatterns = [
+  "/avataaars/",
+  "/bottts/",
+  "/adventurer/",
+  "/micah/",
+  "/open-peeps/",
+  "/personas/",
+  "/initials/",
+  "/identicon/",
+  "/pixel-art/",
+];
+
+function isIllustrationAvatar(value: string) {
+  const normalizedValue = value.trim().toLowerCase();
+  if (!normalizedValue) return false;
+
+  try {
+    const url = new URL(normalizedValue);
+    if (illustrationAvatarHosts.some((host) => url.hostname === host || url.hostname.endsWith(`.${host}`))) {
+      return true;
+    }
+  } catch {
+    // Keep checking plain strings and relative paths below.
+  }
+
+  return illustrationAvatarPatterns.some((pattern) => normalizedValue.includes(pattern));
+}
+
 const normalizeToken = (token: string) => token.toLowerCase().replace(/[^a-z]/g, "");
 
 function getFirstGivenName(name: string) {
@@ -120,7 +157,7 @@ export function getReviewerAvatar(name: string, preferredAvatar?: string | null,
   if (localAvatar) return localAvatar;
 
   const remoteAvatar = preferredAvatar?.trim() || "";
-  if (remoteAvatar) return remoteAvatar;
+  if (remoteAvatar && !isIllustrationAvatar(remoteAvatar)) return remoteAvatar;
 
   const avatarPool = getLikelyGender(name) === "female" ? womenAvatars : menAvatars;
   const avatarSeed = `${seedValue || ""}:${name}`.toLowerCase();
