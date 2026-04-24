@@ -105,6 +105,28 @@ export default function NotificationBell() {
   }, [isAuthenticated, user?.id]);
 
   useEffect(() => {
+    if (!isAuthenticated || !user) {
+      return;
+    }
+
+    const handleNotificationCreated = (event: Event) => {
+      const notification = (event as CustomEvent<{ notification?: Record<string, unknown> }>).detail?.notification;
+      if (!notification) return;
+
+      const normalizedNotification = normalizeNotification(notification);
+      setNotifications((current) => {
+        if (current.some((item) => item.id === normalizedNotification.id)) {
+          return current.map((item) => (item.id === normalizedNotification.id ? normalizedNotification : item));
+        }
+        return [normalizedNotification, ...current];
+      });
+    };
+
+    window.addEventListener("perksnest:notification-created", handleNotificationCreated);
+    return () => window.removeEventListener("perksnest:notification-created", handleNotificationCreated);
+  }, [isAuthenticated, user?.id]);
+
+  useEffect(() => {
     if (!open) return;
 
     const handlePointerDown = (event: MouseEvent) => {

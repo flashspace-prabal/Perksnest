@@ -156,8 +156,18 @@ export function useRazorpayPayment(
             const verifyData = await verifyResponse.json();
             console.log('[PAYMENT] Payment verified successfully');
 
+            if (verifyData.notification) {
+              window.dispatchEvent(
+                new CustomEvent('perksnest:notification-created', {
+                  detail: { notification: verifyData.notification },
+                })
+              );
+            }
+
             // Step 7: Success - update user data and redirect
-            toast.success('🎉 Payment successful! You are now a Premium member.');
+            toast.success('Premium Activated 🎉', {
+              description: 'You now have access to all premium deals.',
+            });
             
             // Update user in localStorage for quick UI update
             if (verifyData.user) {

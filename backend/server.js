@@ -422,6 +422,7 @@ async function createNotification({ userId, type, title, message }) {
       title: normalizedTitle,
       message: normalizedMessage,
       read: false,
+      created_at: nowIso(),
     })
     .select("*")
     .single();
@@ -499,8 +500,8 @@ async function notifyPremiumActivated(userId) {
   return createNotification({
     userId,
     type: "premium_activated",
-    title: "Premium Activated",
-    message: "You now have access to all premium deals, member-only savings, and priority support.",
+    title: "Premium Activated 🎉",
+    message: "You now have access to all premium deals.",
   });
 }
 
@@ -615,9 +616,10 @@ async function handleDealClaimExperience(user, dealId) {
 
 async function handlePremiumActivationExperience(user) {
   if (!user?.id) return;
+  let notification = null;
 
   try {
-    await notifyPremiumActivated(user.id);
+    notification = await notifyPremiumActivated(user.id);
   } catch (error) {
     console.warn("[NOTIFICATIONS] Failed to create premium activation notification:", toErrorMessage(error));
   }
@@ -627,6 +629,8 @@ async function handlePremiumActivationExperience(user) {
   } catch (error) {
     console.warn("[EMAIL] Failed to send premium activation email:", toErrorMessage(error));
   }
+
+  return notification;
 }
 
 const isValidUUID = (str) => {
@@ -3140,14 +3144,16 @@ app.post("/api/verify-payment", async (req, res) => {
       }
 
       console.log(`[PAYMENT] User ${userId} successfully upgraded to premium`);
+      let notification = null;
       if (existingUser?.plan !== "premium") {
-        await handlePremiumActivationExperience(updatedUser);
+        notification = await handlePremiumActivationExperience(updatedUser);
       }
 
       res.json({
         success: true,
         message: "Payment verified and user upgraded to premium",
         user: mapUser(updatedUser),
+        notification,
       });
     } catch (verifyError) {
       console.error("[PAYMENT] Verification error:", verifyError);
