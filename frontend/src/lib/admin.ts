@@ -12,8 +12,22 @@ export type AdminUser = {
   avatar?: string | null;
   createdAt?: string;
   created_at?: string;
+  subscriptionStatus?: string;
+  totalDealsClaimed?: number;
   notes?: string;
   email_verified?: boolean;
+};
+
+export type AdminClaimedDeal = {
+  id: string;
+  userId: string;
+  dealId: string;
+  dealName: string;
+  dealType: 'free' | 'premium';
+  dateClaimed: string;
+  claimedAt: string;
+  status: 'active' | 'redeemed' | 'expired' | string;
+  deal?: Record<string, unknown>;
 };
 
 export type AdminPartnerDeal = {

@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Navigate, useLocation } from "react-router-dom";
+import { Navigate, useLocation, useNavigate } from "react-router-dom";
 import { AdminHeader, AdminSidebar } from "@/components/admin/AdminSidebar";
 import { AdminDashboardLive } from "@/components/admin/AdminDashboardLive";
 import { AdminUsersLive } from "@/components/admin/AdminUsersLive";
@@ -11,18 +11,25 @@ import { AdminWhiteLabelLive } from "@/components/admin/AdminWhiteLabelLive";
 import { AdminSettings } from "@/components/admin/AdminSettings";
 import { useAuth } from "@/lib/auth";
 
+const adminTabs = ["dashboard", "users", "deals", "partners", "tickets", "revenue", "whitelabel", "settings"];
+
+function getAdminTabFromPath(pathname: string) {
+  if (pathname.startsWith("/admin/add-deal")) return "deals";
+  const segment = pathname.split("/")[2] || "dashboard";
+  return adminTabs.includes(segment) ? segment : "dashboard";
+}
+
 const AdminPortal = () => {
   // SEO: unique page title
   document.title = "Admin Portal | PerksNest";
 
   const { user, logout, isAdmin } = useAuth();
   const location = useLocation();
-  const [activeTab, setActiveTab] = useState(location.pathname.startsWith("/admin/add-deal") ? "deals" : "dashboard");
+  const navigate = useNavigate();
+  const [activeTab, setActiveTab] = useState(getAdminTabFromPath(location.pathname));
 
   useEffect(() => {
-    if (location.pathname.startsWith("/admin/add-deal")) {
-      setActiveTab("deals");
-    }
+    setActiveTab(getAdminTabFromPath(location.pathname));
   }, [location.pathname]);
 
   // Authentication guard - only admin role can access
@@ -88,11 +95,17 @@ const AdminPortal = () => {
     }
   };
 
+  const handleTabChange = (tab: string) => {
+    setActiveTab(tab);
+    if (tab === "dashboard") navigate("/admin");
+    else navigate(`/admin/${tab}`);
+  };
+
   return (
     <div className="min-h-screen bg-muted/30">
       <AdminHeader />
       <div className="flex flex-col md:flex-row">
-        <AdminSidebar activeTab={activeTab} onTabChange={setActiveTab} />
+        <AdminSidebar activeTab={activeTab} onTabChange={handleTabChange} />
         <main className="flex-1 min-w-0 p-4 sm:p-6">
           {renderContent()}
         </main>

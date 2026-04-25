@@ -206,18 +206,37 @@ export async function getAdminStats() {
   }
 }
 
-export async function getAdminUsers(page: number = 1, limit: number = 50, search: string = '', filters?: { role?: string; status?: string; plan?: string }) {
+export async function getAdminUsers(page: number = 1, limit: number = 50, search: string = '', filters?: { role?: string; status?: string; plan?: string; date?: string; activity?: string }) {
   const params = new URLSearchParams({ page: String(page), limit: String(limit) });
   if (search) params.append('search', search);
   if (filters?.role && filters.role !== 'all') params.append('role', filters.role);
   if (filters?.status && filters.status !== 'all') params.append('status', filters.status);
   if (filters?.plan && filters.plan !== 'all') params.append('plan', filters.plan);
+  if (filters?.date && filters.date !== 'all') params.append('date', filters.date);
+  if (filters?.activity && filters.activity !== 'all') params.append('activity', filters.activity);
   try {
     return await apiCall(`/api/admin/users?${params.toString()}`, 'GET', undefined, 2);
   } catch (error) {
     console.warn('Admin users API failed', error);
     return { users: [], total: 0 };
   }
+}
+
+export async function getAdminUser(userId: string) {
+  return apiCall(`/api/admin/users/${encodeURIComponent(userId)}`, 'GET', undefined, 2);
+}
+
+export async function getAdminUserClaimedDeals(
+  userId: string,
+  page: number = 1,
+  limit: number = 10,
+  filters?: { sort?: string; dealType?: string; status?: string },
+) {
+  const params = new URLSearchParams({ page: String(page), limit: String(limit) });
+  if (filters?.sort) params.append('sort', filters.sort);
+  if (filters?.dealType && filters.dealType !== 'all') params.append('dealType', filters.dealType);
+  if (filters?.status && filters.status !== 'all') params.append('status', filters.status);
+  return apiCall(`/api/admin/users/${encodeURIComponent(userId)}/claimed-deals?${params.toString()}`, 'GET', undefined, 2);
 }
 
 export async function getDealClaims(dealId: string) {

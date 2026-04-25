@@ -667,6 +667,161 @@ const mapUser = (row) => ({
   createdAt: row.created_at || new Date().toISOString(),
 });
 
+const mapAdminUserSummary = (row, claimCount = 0) => ({
+  ...mapUser(row),
+  created_at: row.created_at || new Date().toISOString(),
+  subscriptionStatus: ["premium", "enterprise"].includes(row.plan || "free") && (row.status || "active") === "active" ? "active" : "inactive",
+  totalDealsClaimed: Number(claimCount || 0),
+});
+
+const normalizeDealType = (row) => {
+  const rawType = String(row?.type || row?.deal_type || row?.plan || "").trim().toLowerCase();
+  if (rawType === "premium" || row?.is_free === false || row?.isFree === false) return "premium";
+  return "free";
+};
+
+const mapAdminClaimedDeal = (claim, deal) => {
+  const claimedAt = claim.claimed_at || claim.created_at || nowIso();
+  return {
+    id: String(claim.id || `${claim.user_id || "user"}-${claim.deal_id}`),
+    userId: String(claim.user_id || ""),
+    dealId: String(claim.deal_id || ""),
+    dealName: deal?.name || deal?.title || deal?.company_name || String(claim.deal_id || "Unknown deal"),
+    dealType: normalizeDealType(deal),
+    dateClaimed: claimedAt,
+    claimedAt,
+    status: String(claim.status || "active"),
+    deal,
+  };
+};
+
+async function fetchClaimRowsForUser(userId) {
+  const normalizedUserId = String(userId || "").trim();
+  if (!normalizedUserId) return [];
+
+  const rowsFromUserClaimArray = async () => {
+    const { data: user, error } = await db
+      .from("users")
+      .select("id,claimed_deals,created_at")
+      .eq("id", normalizedUserId)
+      .maybeSingle();
+    if (error) throw error;
+
+    return safeArray(user?.claimed_deals).map((dealId, index) => ({
+      id: `${normalizedUserId}-${dealId}`,
+      user_id: normalizedUserId,
+      deal_id: String(dealId),
+      claimed_at: user?.created_at || nowIso(),
+      status: "active",
+      source: "users.claimed_deals",
+      sort_index: index,
+    }));
+  };
+
+  const normalizedResult = await db
+    .from("claimed_deals")
+    .select("*")
+    .eq("user_id", normalizedUserId)
+    .order("claimed_at", { ascending: false });
+
+  if (!normalizedResult.error) {
+    const rows = safeArray(normalizedResult.data);
+    if (rows.length > 0) return rows;
+    return rowsFromUserClaimArray();
+  }
+
+  const canFallback = ["42P01", "PGRST106", "PGRST205"].includes(normalizedResult.error.code);
+  if (!canFallback) throw normalizedResult.error;
+
+  const legacyResult = await db
+    .from("claim_events")
+    .select("*")
+    .eq("user_id", normalizedUserId)
+    .order("claimed_at", { ascending: false });
+  if (legacyResult.error) throw legacyResult.error;
+  const legacyRows = safeArray(legacyResult.data).map((claim) => ({ ...claim, status: claim.status || "active" }));
+  if (legacyRows.length > 0) return legacyRows;
+  return rowsFromUserClaimArray();
+}
+
+async function getClaimCountsByUserId(userIds) {
+  const ids = safeArray(userIds).map((id) => String(id || "")).filter(Boolean);
+  const counts = new Map(ids.map((id) => [id, 0]));
+  if (ids.length === 0) return counts;
+
+  const normalizedResult = await db.from("claimed_deals").select("user_id").in("user_id", ids);
+  if (!normalizedResult.error) {
+    safeArray(normalizedResult.data).forEach((row) => {
+      const userId = String(row.user_id || "");
+      counts.set(userId, (counts.get(userId) || 0) + 1);
+    });
+    const missingIds = ids.filter((id) => (counts.get(id) || 0) === 0);
+    if (missingIds.length > 0) {
+      const { data: users, error } = await db.from("users").select("id,claimed_deals").in("id", missingIds);
+      if (error) throw error;
+      safeArray(users).forEach((user) => {
+        counts.set(String(user.id), safeArray(user.claimed_deals).length);
+      });
+    }
+    return counts;
+  }
+
+  const canFallback = ["42P01", "PGRST106", "PGRST205"].includes(normalizedResult.error.code);
+  if (!canFallback) throw normalizedResult.error;
+
+  const legacyResult = await db.from("claim_events").select("user_id").in("user_id", ids);
+  if (legacyResult.error) throw legacyResult.error;
+  safeArray(legacyResult.data).forEach((row) => {
+    const userId = String(row.user_id || "");
+    counts.set(userId, (counts.get(userId) || 0) + 1);
+  });
+  const missingIds = ids.filter((id) => (counts.get(id) || 0) === 0);
+  if (missingIds.length > 0) {
+    const { data: users, error } = await db.from("users").select("id,claimed_deals").in("id", missingIds);
+    if (error) throw error;
+    safeArray(users).forEach((user) => {
+      counts.set(String(user.id), safeArray(user.claimed_deals).length);
+    });
+  }
+  return counts;
+}
+
+async function enrichClaimedDeals(claimRows) {
+  const dealIds = [...new Set(safeArray(claimRows).map((claim) => String(claim.deal_id || "")).filter(Boolean))];
+  const dealsById = new Map();
+  if (dealIds.length > 0) {
+    const [platformResult, partnerResult] = await Promise.all([
+      db.from("deals").select("*").in("id", dealIds),
+      db.from("partner_deals").select("*").in("id", dealIds),
+    ]);
+
+    if (platformResult.error && !["42P01", "PGRST106", "PGRST205"].includes(platformResult.error.code)) throw platformResult.error;
+    if (partnerResult.error && !["42P01", "PGRST106", "PGRST205"].includes(partnerResult.error.code)) throw partnerResult.error;
+
+    safeArray(platformResult.data).forEach((deal) => dealsById.set(String(deal.id), deal));
+    safeArray(partnerResult.data).forEach((deal) => dealsById.set(String(deal.id), deal));
+  }
+
+  return safeArray(claimRows).map((claim) => mapAdminClaimedDeal(claim, dealsById.get(String(claim.deal_id || ""))));
+}
+
+async function recordClaimedDealRow({ userId, dealId, status = "active" }) {
+  const normalizedUserId = String(userId || "").trim();
+  const normalizedDealId = String(dealId || "").trim();
+  if (!normalizedUserId || !normalizedDealId) return;
+
+  const { error } = await db
+    .from("claimed_deals")
+    .upsert(
+      { user_id: normalizedUserId, deal_id: normalizedDealId, claimed_at: nowIso(), status },
+      { onConflict: "user_id,deal_id" }
+    );
+
+  if (error && !["42P01", "PGRST106", "PGRST205"].includes(error.code)) {
+    throw error;
+  }
+}
+
 function createAppSession(session, user) {
   return {
     access_token: session?.access_token || "",
@@ -1644,6 +1799,7 @@ app.post("/api/auth/claim-deal", async (req, res) => {
     if (updateError) throw updateError;
 
     await db.from("claim_events").upsert({ user_id: userId, deal_id: dealId, claimed_at: new Date().toISOString() }, { onConflict: "user_id,deal_id" });
+    await recordClaimedDealRow({ userId, dealId });
     if (!alreadyClaimed) {
       await handleDealClaimExperience(updatedUser, dealId);
     }
@@ -2081,6 +2237,7 @@ app.post("/api/deals/claim", async (req, res) => {
     await db
       .from("claim_events")
       .upsert({ user_id: userId, deal_id: dealId, claimed_at: new Date().toISOString() }, { onConflict: "user_id,deal_id" });
+    await recordClaimedDealRow({ userId, dealId });
 
     if (!alreadyClaimed) {
       await handleDealClaimExperience(updatedUser, dealId);
@@ -2258,7 +2415,7 @@ app.get("/api/admin/stats", async (req, res) => {
   }
 });
 
-app.get("/api/admin/users", async (req, res) => {
+app.get(["/api/admin/users", "/admin/users"], async (req, res) => {
   const context = await requireAdminContext(req, res);
   if (!context) return;
 
@@ -2268,27 +2425,50 @@ app.get("/api/admin/users", async (req, res) => {
   const status = String(req.query.status || "").trim();
   const role = String(req.query.role || "").trim();
   const plan = String(req.query.plan || "").trim();
+  const dateFilter = String(req.query.date || "").trim();
+  const activity = String(req.query.activity || "").trim();
   const from = Math.max((page - 1) * limit, 0);
-  const to = from + limit - 1;
 
   try {
-    let query = db.from("users").select("*", { count: "exact" }).order("created_at", { ascending: false }).range(from, to);
+    let query = db.from("users").select("*", { count: "exact" }).order("created_at", { ascending: false });
     if (search) {
       query = query.or(`email.ilike.%${search}%,name.ilike.%${search}%`);
     }
     if (status) query = query.eq("status", status);
-    if (role) query = query.or(`role.eq.${role},roles.cs.{${role}}`);
+    if (role === "admin") query = query.or("role.eq.admin,roles.cs.{admin}");
+    else if (role === "free") query = query.eq("plan", "free").not("role", "eq", "admin");
+    else if (role === "premium") query = query.in("plan", ["premium", "enterprise"]).not("role", "eq", "admin");
+    else if (role) query = query.or(`role.eq.${role},roles.cs.{${role}}`);
     if (plan) query = query.eq("plan", plan);
-    const { data, error, count } = await query;
+    if (dateFilter === "7d") query = query.gte("created_at", new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString());
+    if (dateFilter === "30d") query = query.gte("created_at", new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString());
+    if (dateFilter === "90d") query = query.gte("created_at", new Date(Date.now() - 90 * 24 * 60 * 60 * 1000).toISOString());
+
+    const { data: matchingUsers, error } = await query;
     if (error) throw error;
+
+    const matchingUserIds = safeArray(matchingUsers).map((user) => user.id);
+    const claimCounts = await getClaimCountsByUserId(matchingUserIds);
+    let filteredUsers = safeArray(matchingUsers);
+    if (activity === "most-active") {
+      filteredUsers = [...filteredUsers].sort((a, b) => (claimCounts.get(String(b.id)) || 0) - (claimCounts.get(String(a.id)) || 0));
+    } else if (activity === "no-activity") {
+      filteredUsers = filteredUsers.filter((user) => (claimCounts.get(String(user.id)) || 0) === 0);
+    } else if (activity === "claimed") {
+      filteredUsers = filteredUsers.filter((user) => (claimCounts.get(String(user.id)) || 0) > 0);
+    }
+
+    const pageUsers = filteredUsers.slice(from, from + limit);
+    const pageClaimCounts = await getClaimCountsByUserId(pageUsers.map((user) => user.id));
 
     const allUsersResult = await db.from("users").select("id,plan,role,roles,status,created_at");
     if (allUsersResult.error) throw allUsersResult.error;
     const allUsers = safeArray(allUsersResult.data);
+    const allClaimCounts = await getClaimCountsByUserId(allUsers.map((user) => user.id));
 
     res.json({
-      users: (data || []).map(mapUser),
-      total: count || 0,
+      users: pageUsers.map((user) => mapAdminUserSummary(user, pageClaimCounts.get(String(user.id)) || 0)),
+      total: filteredUsers.length,
       page,
       limit,
       stats: {
@@ -2302,10 +2482,79 @@ app.get("/api/admin/users", async (req, res) => {
           return Date.now() - new Date(user.created_at).getTime() <= 30 * 24 * 60 * 60 * 1000;
         }).length,
         pendingVerification: allUsers.filter((user) => user.status === "pending").length,
+        withActivity: allUsers.filter((user) => (allClaimCounts.get(String(user.id)) || 0) > 0).length,
+        noActivity: allUsers.filter((user) => (allClaimCounts.get(String(user.id)) || 0) === 0).length,
       },
     });
   } catch (error) {
     res.status(500).json({ users: [], total: 0, error: "Failed to fetch users", details: error.message });
+  }
+});
+
+app.get(["/api/admin/users/:userId", "/admin/users/:userId"], async (req, res) => {
+  try {
+    const context = await requireAdminContext(req, res);
+    if (!context) return;
+
+    const { data: user, error } = await db.from("users").select("*").eq("id", req.params.userId).maybeSingle();
+    if (error) throw error;
+    if (!user) {
+      res.status(404).json({ success: false, error: "User not found" });
+      return;
+    }
+
+    const claimRows = await fetchClaimRowsForUser(user.id);
+    res.json({
+      success: true,
+      user: mapAdminUserSummary(user, claimRows.length),
+    });
+  } catch (error) {
+    console.error("ERROR:", error);
+    res.status(500).json({ success: false, error: (error instanceof Error ? error.message : String(error)) });
+  }
+});
+
+app.get(["/api/admin/users/:userId/claimed-deals", "/admin/users/:userId/claimed-deals"], async (req, res) => {
+  try {
+    const context = await requireAdminContext(req, res);
+    if (!context) return;
+
+    const page = Number(req.query.page || 1);
+    const limit = Number(req.query.limit || 10);
+    const sort = String(req.query.sort || "latest").trim();
+    const dealType = String(req.query.dealType || "").trim();
+    const status = String(req.query.status || "").trim();
+    const from = Math.max((page - 1) * limit, 0);
+
+    const user = await getUserProfileById(req.params.userId);
+    if (!user) {
+      res.status(404).json({ success: false, error: "User not found" });
+      return;
+    }
+
+    const claimRows = await fetchClaimRowsForUser(req.params.userId);
+    let claimedDeals = await enrichClaimedDeals(claimRows);
+    if (dealType) claimedDeals = claimedDeals.filter((claim) => claim.dealType === dealType);
+    if (status) claimedDeals = claimedDeals.filter((claim) => claim.status === status);
+
+    if (sort === "deal-type") {
+      claimedDeals = [...claimedDeals].sort((a, b) => a.dealType.localeCompare(b.dealType) || new Date(b.claimedAt).getTime() - new Date(a.claimedAt).getTime());
+    } else if (sort === "date-asc") {
+      claimedDeals = [...claimedDeals].sort((a, b) => new Date(a.claimedAt).getTime() - new Date(b.claimedAt).getTime());
+    } else {
+      claimedDeals = [...claimedDeals].sort((a, b) => new Date(b.claimedAt).getTime() - new Date(a.claimedAt).getTime());
+    }
+
+    res.json({
+      success: true,
+      claimedDeals: claimedDeals.slice(from, from + limit),
+      total: claimedDeals.length,
+      page,
+      limit,
+    });
+  } catch (error) {
+    console.error("ERROR:", error);
+    res.status(500).json({ success: false, claimedDeals: [], total: 0, error: (error instanceof Error ? error.message : String(error)) });
   }
 });
 

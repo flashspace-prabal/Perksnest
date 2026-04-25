@@ -1,14 +1,20 @@
 import { useEffect, useMemo, useState } from "react";
 import {
+  ArrowUpDown,
+  Calendar,
   ChevronLeft,
   ChevronRight,
   Download,
   Edit,
+  ExternalLink,
+  Eye,
   MoreVertical,
   Search,
+  ShieldCheck,
   Trash2,
   UserPlus,
 } from "lucide-react";
+import { useNavigate, useParams } from "react-router-dom";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -37,8 +43,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { createAdminUser, deleteAdminUser, getAdminUsers, updateAdminUser } from "@/lib/api";
-import type { AdminUser } from "@/lib/admin";
+import { createAdminUser, deleteAdminUser, getAdminUser, getAdminUserClaimedDeals, getAdminUsers, updateAdminUser } from "@/lib/api";
+import type { AdminClaimedDeal, AdminUser } from "@/lib/admin";
 import { relativeDateLabel } from "@/lib/admin";
 
 const ITEMS_PER_PAGE = 10;
@@ -68,9 +74,212 @@ const emptyStats = {
   free: 0,
   newThisMonth: 0,
   pendingVerification: 0,
+  withActivity: 0,
+  noActivity: 0,
 };
 
+function AdminUserDetailView({ userId, onBack }: { userId: string; onBack: () => void }) {
+  const [user, setUser] = useState<AdminUser | null>(null);
+  const [claimedDeals, setClaimedDeals] = useState<AdminClaimedDeal[]>([]);
+  const [total, setTotal] = useState(0);
+  const [page, setPage] = useState(1);
+  const [sort, setSort] = useState("latest");
+  const [dealType, setDealType] = useState("all");
+  const [status, setStatus] = useState("all");
+  const [loading, setLoading] = useState(true);
+  const [claimsLoading, setClaimsLoading] = useState(true);
+  const [error, setError] = useState("");
+  const totalPages = Math.max(1, Math.ceil(total / ITEMS_PER_PAGE));
+
+  useEffect(() => {
+    const loadProfile = async () => {
+      try {
+        setLoading(true);
+        setError("");
+        const response = await getAdminUser(userId);
+        setUser(response.user || null);
+      } catch (err) {
+        console.error("Failed to load user profile:", err);
+        setError("Failed to load user profile.");
+      } finally {
+        setLoading(false);
+      }
+    };
+    loadProfile();
+  }, [userId]);
+
+  useEffect(() => {
+    const loadClaims = async () => {
+      try {
+        setClaimsLoading(true);
+        const response = await getAdminUserClaimedDeals(userId, page, ITEMS_PER_PAGE, { sort, dealType, status });
+        setClaimedDeals(Array.isArray(response.claimedDeals) ? response.claimedDeals : []);
+        setTotal(Number(response.total || 0));
+      } catch (err) {
+        console.error("Failed to load claimed deals:", err);
+        setClaimedDeals([]);
+        setTotal(0);
+      } finally {
+        setClaimsLoading(false);
+      }
+    };
+    loadClaims();
+  }, [userId, page, sort, dealType, status]);
+
+  const exportCsv = () => {
+    const header = ["Deal Name", "Deal ID", "Deal Type", "Date Claimed", "Status"];
+    const csv = [header, ...claimedDeals.map((claim) => [
+      claim.dealName,
+      claim.dealId,
+      claim.dealType,
+      claim.claimedAt ? new Date(claim.claimedAt).toLocaleString() : "",
+      claim.status,
+    ])]
+      .map((row) => row.map((value) => `"${String(value ?? "").replace(/"/g, '""')}"`).join(","))
+      .join("\n");
+
+    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `perksnest-user-${userId}-claimed-deals.csv`;
+    link.click();
+    URL.revokeObjectURL(url);
+  };
+
+  const getRoleBadge = (value?: string, plan?: string) => {
+    if (value === "admin") return <Badge className="bg-slate-900 text-white hover:bg-slate-900">Admin</Badge>;
+    if (plan === "premium" || plan === "enterprise") return <Badge className="bg-primary text-primary-foreground">Premium</Badge>;
+    return <Badge variant="secondary">Free</Badge>;
+  };
+
+  const getClaimStatusBadge = (value?: string) => {
+    if (value === "redeemed") return <Badge className="bg-blue-100 text-blue-700 hover:bg-blue-100">Redeemed</Badge>;
+    if (value === "expired") return <Badge className="bg-red-100 text-red-700 hover:bg-red-100">Expired</Badge>;
+    return <Badge className="bg-green-100 text-green-700 hover:bg-green-100">Active</Badge>;
+  };
+
+  if (loading) {
+    return <Card><CardContent className="p-8 text-center text-sm text-muted-foreground">Loading user profile...</CardContent></Card>;
+  }
+
+  if (error || !user) {
+    return (
+      <Card>
+        <CardContent className="p-8 text-center space-y-4">
+          <p className="text-sm text-destructive">{error || "User not found."}</p>
+          <Button variant="outline" onClick={onBack}>Back to Users</Button>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  return (
+    <div className="space-y-6">
+      <div className="flex items-center justify-between gap-4">
+        <div>
+          <Button variant="ghost" className="mb-2 px-0" onClick={onBack}>
+            <ChevronLeft className="h-4 w-4 mr-1" />
+            Users
+          </Button>
+          <h1 className="text-2xl font-bold">{user.name}</h1>
+          <p className="text-muted-foreground">{user.email}</p>
+        </div>
+        <Button variant="outline" onClick={exportCsv} disabled={claimsLoading || claimedDeals.length === 0}>
+          <Download className="h-4 w-4 mr-2" />
+          Export CSV
+        </Button>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <Card><CardContent className="p-4"><p className="text-xs text-muted-foreground">Role</p><div className="mt-2">{getRoleBadge(user.role, user.plan)}</div></CardContent></Card>
+        <Card><CardContent className="p-4"><p className="text-xs text-muted-foreground">Subscription</p><p className="mt-2 font-semibold capitalize">{user.subscriptionStatus || (user.plan === "free" ? "inactive" : "active")}</p></CardContent></Card>
+        <Card><CardContent className="p-4"><p className="text-xs text-muted-foreground">Join Date</p><p className="mt-2 font-semibold">{user.createdAt ? new Date(user.createdAt).toLocaleDateString() : "N/A"}</p></CardContent></Card>
+        <Card><CardContent className="p-4"><p className="text-xs text-muted-foreground">Total Claimed</p><p className="mt-2 font-semibold">{user.totalDealsClaimed || total}</p></CardContent></Card>
+      </div>
+
+      <Card>
+        <CardContent className="p-4 grid grid-cols-1 md:grid-cols-3 gap-4">
+          <Select value={sort} onValueChange={(value) => { setSort(value); setPage(1); }}>
+            <SelectTrigger><SelectValue placeholder="Sort" /></SelectTrigger>
+            <SelectContent>
+              <SelectItem value="latest">Latest first</SelectItem>
+              <SelectItem value="deal-type">By deal type</SelectItem>
+              <SelectItem value="date-asc">Oldest first</SelectItem>
+            </SelectContent>
+          </Select>
+          <Select value={dealType} onValueChange={(value) => { setDealType(value); setPage(1); }}>
+            <SelectTrigger><SelectValue placeholder="Deal type" /></SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Types</SelectItem>
+              <SelectItem value="free">Free</SelectItem>
+              <SelectItem value="premium">Premium</SelectItem>
+            </SelectContent>
+          </Select>
+          <Select value={status} onValueChange={(value) => { setStatus(value); setPage(1); }}>
+            <SelectTrigger><SelectValue placeholder="Status" /></SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Status</SelectItem>
+              <SelectItem value="active">Active</SelectItem>
+              <SelectItem value="redeemed">Redeemed</SelectItem>
+              <SelectItem value="expired">Expired</SelectItem>
+            </SelectContent>
+          </Select>
+        </CardContent>
+      </Card>
+
+      <section className="space-y-3">
+        <div className="flex items-center justify-between">
+          <h2 className="text-lg font-semibold">Claimed Deals History</h2>
+          <p className="text-sm text-muted-foreground">{total} claims</p>
+        </div>
+        {claimsLoading && <Card><CardContent className="p-8 text-center text-sm text-muted-foreground">Loading claimed deals...</CardContent></Card>}
+        {!claimsLoading && claimedDeals.length === 0 && <Card><CardContent className="p-8 text-center text-sm text-muted-foreground">No claimed deals found.</CardContent></Card>}
+        {!claimsLoading && claimedDeals.map((claim) => (
+          <Card key={claim.id}>
+            <CardContent className="p-4">
+              <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+                <div className="space-y-2">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <h3 className="font-semibold">{claim.dealName}</h3>
+                    <Badge variant={claim.dealType === "premium" ? "default" : "secondary"} className="capitalize">{claim.dealType}</Badge>
+                    {getClaimStatusBadge(claim.status)}
+                  </div>
+                  <div className="flex flex-wrap gap-4 text-sm text-muted-foreground">
+                    <span className="inline-flex items-center gap-1"><ShieldCheck className="h-4 w-4" />{claim.dealId}</span>
+                    <span className="inline-flex items-center gap-1"><Calendar className="h-4 w-4" />{claim.claimedAt ? new Date(claim.claimedAt).toLocaleString() : "N/A"}</span>
+                  </div>
+                </div>
+                <Button variant="outline" size="sm" onClick={() => window.open(`/deals/${encodeURIComponent(claim.dealId)}`, "_blank", "noopener,noreferrer")}>
+                  <ExternalLink className="h-4 w-4 mr-2" />
+                  Deal
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        ))}
+        <div className="flex items-center justify-between pt-2">
+          <p className="text-sm text-muted-foreground">
+            Showing {total === 0 ? 0 : ((page - 1) * ITEMS_PER_PAGE) + 1}-{Math.min(page * ITEMS_PER_PAGE, total)} of {total}
+          </p>
+          <div className="flex items-center gap-2">
+            <Button variant="outline" size="sm" disabled={page === 1 || claimsLoading} onClick={() => setPage((current) => current - 1)}>
+              <ChevronLeft className="h-4 w-4" />
+            </Button>
+            <span className="text-sm text-muted-foreground">Page {page} of {totalPages}</span>
+            <Button variant="outline" size="sm" disabled={page >= totalPages || claimsLoading} onClick={() => setPage((current) => current + 1)}>
+              <ChevronRight className="h-4 w-4" />
+            </Button>
+          </div>
+        </div>
+      </section>
+    </div>
+  );
+}
+
 export const AdminUsersLive = () => {
+  const navigate = useNavigate();
+  const { userId } = useParams();
   const [users, setUsers] = useState<AdminUser[]>([]);
   const [stats, setStats] = useState(emptyStats);
   const [total, setTotal] = useState(0);
@@ -80,6 +289,8 @@ export const AdminUsersLive = () => {
   const [plan, setPlan] = useState("all");
   const [role, setRole] = useState("all");
   const [status, setStatus] = useState("all");
+  const [dateFilter, setDateFilter] = useState("all");
+  const [activity, setActivity] = useState("all");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -100,7 +311,7 @@ export const AdminUsersLive = () => {
     try {
       setLoading(true);
       setError("");
-      const response = await getAdminUsers(page, ITEMS_PER_PAGE, debouncedSearch, { plan, role, status });
+      const response = await getAdminUsers(page, ITEMS_PER_PAGE, debouncedSearch, { plan, role, status, date: dateFilter, activity });
       setUsers(Array.isArray(response.users) ? response.users : []);
       setTotal(Number(response.total || 0));
       setStats({ ...emptyStats, ...(response.stats || {}) });
@@ -117,14 +328,15 @@ export const AdminUsersLive = () => {
 
   useEffect(() => {
     loadUsers();
-  }, [page, debouncedSearch, plan, role, status]);
+  }, [page, debouncedSearch, plan, role, status, dateFilter, activity]);
 
   const totalPages = Math.max(1, Math.ceil(total / ITEMS_PER_PAGE));
 
   const rows = useMemo(() => users.map((user) => ({
     ...user,
-    claims: Array.isArray(user.claimedDeals) ? user.claimedDeals.length : 0,
+    claims: Number(user.totalDealsClaimed ?? (Array.isArray(user.claimedDeals) ? user.claimedDeals.length : 0)),
     joined: relativeDateLabel(user.createdAt || user.created_at),
+    joinedDate: user.createdAt || user.created_at,
   })), [users]);
 
   const resetDialog = () => {
@@ -231,11 +443,12 @@ export const AdminUsersLive = () => {
   };
 
   const exportCsv = () => {
-    const header = ["Name", "Email", "Role", "Plan", "Status", "Claimed Deals", "Referral Count"];
+    const header = ["Name", "Email", "Role", "Signup Date", "Plan", "Status", "Claimed Deals", "Referral Count"];
     const csv = [header, ...rows.map((user) => [
       user.name,
       user.email,
       user.role,
+      user.joinedDate ? new Date(user.joinedDate).toLocaleDateString() : "",
       user.plan,
       user.status || "active",
       String(user.claims),
@@ -266,12 +479,16 @@ export const AdminUsersLive = () => {
     return <Badge variant="secondary">Free</Badge>;
   };
 
+  if (userId) {
+    return <AdminUserDetailView userId={userId} onBack={() => navigate("/admin/users")} />;
+  }
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold">User Management</h1>
-          <p className="text-muted-foreground">Live user search, filters, pagination, and CRUD.</p>
+          <p className="text-muted-foreground">Track users, signup activity, subscriptions, and claimed deals.</p>
         </div>
         <div className="flex gap-2">
           <Button variant="outline" onClick={exportCsv} disabled={loading || rows.length === 0}>
@@ -288,10 +505,10 @@ export const AdminUsersLive = () => {
       <div className="grid grid-cols-2 md:grid-cols-6 gap-4">
         <Card><CardContent className="p-4"><p className="text-xs text-muted-foreground">Total Users</p><p className="text-xl font-bold">{stats.total}</p></CardContent></Card>
         <Card><CardContent className="p-4"><p className="text-xs text-muted-foreground">Active</p><p className="text-xl font-bold text-green-600">{stats.active}</p></CardContent></Card>
-        <Card><CardContent className="p-4"><p className="text-xs text-muted-foreground">Pro/Enterprise</p><p className="text-xl font-bold text-primary">{stats.premium}</p></CardContent></Card>
+        <Card><CardContent className="p-4"><p className="text-xs text-muted-foreground">Premium</p><p className="text-xl font-bold text-primary">{stats.premium}</p></CardContent></Card>
         <Card><CardContent className="p-4"><p className="text-xs text-muted-foreground">Free</p><p className="text-xl font-bold">{stats.free}</p></CardContent></Card>
-        <Card><CardContent className="p-4"><p className="text-xs text-muted-foreground">New This Month</p><p className="text-xl font-bold text-blue-600">{stats.newThisMonth}</p></CardContent></Card>
-        <Card><CardContent className="p-4"><p className="text-xs text-muted-foreground">Pending Verify</p><p className="text-xl font-bold text-yellow-600">{stats.pendingVerification}</p></CardContent></Card>
+        <Card><CardContent className="p-4"><p className="text-xs text-muted-foreground">With Claims</p><p className="text-xl font-bold text-blue-600">{stats.withActivity}</p></CardContent></Card>
+        <Card><CardContent className="p-4"><p className="text-xs text-muted-foreground">No Activity</p><p className="text-xl font-bold text-yellow-600">{stats.noActivity}</p></CardContent></Card>
       </div>
 
       <Card>
@@ -300,31 +517,31 @@ export const AdminUsersLive = () => {
             <Search className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
             <Input className="pl-10" placeholder="Search by name or email..." value={search} onChange={(event) => setSearch(event.target.value)} />
           </div>
-          <Select value={plan} onValueChange={(value) => { setPlan(value); setPage(1); }}>
-            <SelectTrigger><SelectValue placeholder="Plan" /></SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Plans</SelectItem>
-              <SelectItem value="free">Free</SelectItem>
-              <SelectItem value="premium">Premium</SelectItem>
-              <SelectItem value="enterprise">Enterprise</SelectItem>
-            </SelectContent>
-          </Select>
           <Select value={role} onValueChange={(value) => { setRole(value); setPage(1); }}>
             <SelectTrigger><SelectValue placeholder="Role" /></SelectTrigger>
             <SelectContent>
               <SelectItem value="all">All Roles</SelectItem>
-              <SelectItem value="customer">Customer</SelectItem>
-              <SelectItem value="partner">Partner</SelectItem>
+              <SelectItem value="free">Free</SelectItem>
+              <SelectItem value="premium">Premium</SelectItem>
               <SelectItem value="admin">Admin</SelectItem>
             </SelectContent>
           </Select>
-          <Select value={status} onValueChange={(value) => { setStatus(value); setPage(1); }}>
-            <SelectTrigger><SelectValue placeholder="Status" /></SelectTrigger>
+          <Select value={dateFilter} onValueChange={(value) => { setDateFilter(value); setPage(1); }}>
+            <SelectTrigger><SelectValue placeholder="Signup date" /></SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">All Status</SelectItem>
-              <SelectItem value="active">Active</SelectItem>
-              <SelectItem value="pending">Pending</SelectItem>
-              <SelectItem value="suspended">Suspended</SelectItem>
+              <SelectItem value="all">Any Signup</SelectItem>
+              <SelectItem value="7d">Last 7 days</SelectItem>
+              <SelectItem value="30d">Last 30 days</SelectItem>
+              <SelectItem value="90d">Last 90 days</SelectItem>
+            </SelectContent>
+          </Select>
+          <Select value={activity} onValueChange={(value) => { setActivity(value); setPage(1); }}>
+            <SelectTrigger><SelectValue placeholder="Activity" /></SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Activity</SelectItem>
+              <SelectItem value="most-active">Most Active</SelectItem>
+              <SelectItem value="claimed">Has Claims</SelectItem>
+              <SelectItem value="no-activity">No Activity</SelectItem>
             </SelectContent>
           </Select>
         </CardContent>
@@ -336,13 +553,13 @@ export const AdminUsersLive = () => {
             <table className="w-full">
               <thead>
                 <tr className="border-b bg-muted/50 text-left">
-                  <th className="p-4 font-medium">User</th>
-                  <th className="p-4 font-medium">Plan</th>
+                  <th className="p-4 font-medium">Name</th>
+                  <th className="p-4 font-medium">Email</th>
                   <th className="p-4 font-medium">Role</th>
-                  <th className="p-4 font-medium">Status</th>
-                  <th className="p-4 font-medium hidden md:table-cell">Claims</th>
-                  <th className="p-4 font-medium hidden lg:table-cell">Referrals</th>
-                  <th className="p-4 font-medium hidden xl:table-cell">Joined</th>
+                  <th className="p-4 font-medium hidden md:table-cell">Signup Date</th>
+                  <th className="p-4 font-medium hidden lg:table-cell">
+                    <span className="inline-flex items-center gap-1">Deals Claimed <ArrowUpDown className="h-3 w-3" /></span>
+                  </th>
                   <th className="p-4 w-12" />
                 </tr>
               </thead>
@@ -357,18 +574,16 @@ export const AdminUsersLive = () => {
                         <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary font-semibold">
                           {user.name?.charAt(0)?.toUpperCase() || "U"}
                         </div>
-                        <div>
+                        <button className="text-left" onClick={() => navigate(`/admin/users/${user.id}`)}>
                           <p className="font-medium">{user.name}</p>
-                          <p className="text-sm text-muted-foreground">{user.email}</p>
-                        </div>
+                          <p className="text-xs text-muted-foreground md:hidden">{user.email}</p>
+                        </button>
                       </div>
                     </td>
-                    <td className="p-4">{getPlanBadge(user.plan)}</td>
-                    <td className="p-4"><Badge variant="outline" className="capitalize">{user.role}</Badge></td>
-                    <td className="p-4">{getStatusBadge(user.status)}</td>
-                    <td className="p-4 hidden md:table-cell">{user.claims}</td>
-                    <td className="p-4 hidden lg:table-cell">{user.referralCount || 0}</td>
-                    <td className="p-4 hidden xl:table-cell text-sm text-muted-foreground">{user.joined}</td>
+                    <td className="p-4 text-sm text-muted-foreground">{user.email}</td>
+                    <td className="p-4">{user.role === "admin" ? <Badge className="bg-slate-900 text-white hover:bg-slate-900">Admin</Badge> : getPlanBadge(user.plan)}</td>
+                    <td className="p-4 hidden md:table-cell text-sm text-muted-foreground">{user.joinedDate ? new Date(user.joinedDate).toLocaleDateString() : user.joined}</td>
+                    <td className="p-4 hidden lg:table-cell font-medium">{user.claims}</td>
                     <td className="p-4">
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
@@ -377,6 +592,9 @@ export const AdminUsersLive = () => {
                           </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
+                          <DropdownMenuItem onClick={() => navigate(`/admin/users/${user.id}`)}>
+                            <Eye className="h-4 w-4 mr-2" /> View Profile
+                          </DropdownMenuItem>
                           <DropdownMenuItem onClick={() => openEdit(user)}>
                             <Edit className="h-4 w-4 mr-2" /> Edit
                           </DropdownMenuItem>
