@@ -20,6 +20,7 @@ import { getExtendedDealInfo } from "@/data/extended-deals";
 import { getPartnerDeals, PartnerDeal } from "@/lib/store";
 import { getDealClaims, getUserClaims } from "@/lib/api";
 import { getDeal } from "@/lib/deals";
+import { normalizeMemberCount } from "@/lib/member-count";
 import { useSeo } from "@/lib/seo";
 import { isPremiumDeal, isFreeDeal } from "@/lib/deal-types";
 import { getReviewerAvatar } from "@/lib/reviewer-avatars";
@@ -187,7 +188,7 @@ const DealDetail = () => {
     websiteUrl: partnerDeal.websiteUrl,
     promoCode: partnerDeal.promoCode,
     isFree: true,
-    memberCount: partnerDeal.claims || 0,
+    memberCount: normalizeMemberCount(partnerDeal, partnerDeal.id),
   } : null);
   const extendedInfo = dealId ? getDealExtendedInfo(dealId) : null;
 

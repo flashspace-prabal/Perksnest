@@ -77,22 +77,22 @@ export const AdminHeader = () => {
 
 export const AdminSidebar = ({ activeTab, onTabChange }: AdminSidebarProps) => {
   return (
-    <aside className="hidden md:block w-48 lg:w-64 bg-background border-r min-h-[calc(100vh-73px)] p-3 sm:p-4">
-      <nav className="space-y-1">
+    <aside className="w-full md:w-48 lg:w-64 bg-background border-b md:border-b-0 md:border-r md:min-h-[calc(100vh-73px)] p-3 sm:p-4">
+      <nav className="flex gap-2 overflow-x-auto pb-1 md:block md:space-y-1 md:overflow-visible md:pb-0 scrollbar-hide">
         {sidebarItems.map((item) => {
           const Icon = item.icon;
           return (
             <button
               key={item.id}
               onClick={() => onTabChange(item.id)}
-              className={`w-full flex items-center gap-2 sm:gap-3 px-2 sm:px-3 py-2 rounded-lg text-xs sm:text-sm font-medium transition-colors ${
+              className={`flex min-h-10 shrink-0 items-center gap-2 sm:gap-3 px-3 py-2 rounded-lg text-xs sm:text-sm font-medium transition-colors md:w-full ${
                 activeTab === item.id
                   ? "bg-primary text-primary-foreground"
                   : "text-muted-foreground hover:bg-muted hover:text-foreground"
               }`}
             >
-              <Icon className="h-5 w-5" />
-              {item.label}
+              <Icon className="h-4 w-4 sm:h-5 sm:w-5" />
+              <span className="whitespace-nowrap">{item.label}</span>
             </button>
           );
         })}

@@ -155,12 +155,12 @@ const MainNavbar = () => {
     }`;
 
   return (
-    <header className="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-gray-100">
-      <div className="max-w-7xl mx-auto px-6 lg:px-8">
+    <header className="sticky top-0 z-50 w-full bg-white/95 backdrop-blur-md border-b border-gray-100">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16 sm:h-20">
           {/* Logo */}
           <div className="flex items-center gap-10">
-            <Link to="/" className="text-[#5c2169] font-bold text-2xl tracking-tighter hover:opacity-90 transition-opacity">
+            <Link to="/" className="text-[#5c2169] font-bold text-2xl tracking-tighter hover:opacity-90 transition-opacity whitespace-nowrap">
               perksnest
             </Link>
 
@@ -333,9 +333,10 @@ const MainNavbar = () => {
                 </Link>
                 <Link 
                     to="/signup"
-                    className="flex items-center gap-1.5 px-6 py-2.5 bg-[#5c2169] hover:bg-[#4a1a52] text-white text-[15px] font-bold rounded-full transition-all shadow-lg shadow-[#5c2169]/20 active:scale-95"
+                    className="hidden min-[380px]:flex min-h-10 items-center gap-1.5 px-4 sm:px-6 py-2.5 bg-[#5c2169] hover:bg-[#4a1a52] text-white text-sm sm:text-[15px] font-bold rounded-full transition-all shadow-lg shadow-[#5c2169]/20 active:scale-95 whitespace-nowrap"
                 >
-                    Join PerksNest
+                    <span className="hidden sm:inline">Join PerksNest</span>
+                    <span className="sm:hidden">Join</span>
                     <ArrowRight className="h-4 w-4" />
                 </Link>
                 </>
@@ -393,8 +394,9 @@ const MainNavbar = () => {
 
             {/* Mobile Menu Toggle */}
             <button
-              className="lg:hidden p-2 text-gray-600"
+              className="lg:hidden inline-flex h-10 w-10 items-center justify-center rounded-xl text-gray-600 hover:bg-gray-50"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              aria-label={mobileMenuOpen ? "Close menu" : "Open menu"}
             >
               {mobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
             </button>
@@ -403,8 +405,8 @@ const MainNavbar = () => {
 
         {/* Mobile Menu Navigation */}
         {mobileMenuOpen && (
-          <div className="lg:hidden border-t py-8 space-y-8 animate-in slide-in-from-bottom-4 duration-300">
-            <nav className="flex flex-col gap-6">
+          <div className="lg:hidden max-h-[calc(100dvh-4rem)] overflow-y-auto border-t py-5 sm:py-8 space-y-6 sm:space-y-8 animate-in slide-in-from-bottom-4 duration-300">
+            <nav className="flex flex-col gap-5 sm:gap-6">
               <div className="space-y-4 px-2">
                  
                   <Link to="/deals" className={mobileNavLinkClass("/deals")}>Explore Marketplace</Link>
@@ -416,9 +418,9 @@ const MainNavbar = () => {
               
               <div className="space-y-4 px-2">
                    <p className="text-xs font-bold text-gray-400 uppercase tracking-widest px-4">Categories</p>
-                   <div className="grid grid-cols-2 gap-2 px-2">
+                   <div className="grid grid-cols-1 min-[380px]:grid-cols-2 gap-2 px-2">
                         {categories.map(cat => (
-                            <Link key={cat.id} to={`/deals?category=${cat.id}`} className="p-3 bg-gray-50 rounded-xl text-sm font-medium text-gray-700">{cat.name}</Link>
+                            <Link key={cat.id} to={`/deals?category=${cat.id}`} className="flex min-h-11 items-center p-3 bg-gray-50 rounded-xl text-sm font-medium text-gray-700">{cat.name}</Link>
                         ))}
                    </div>
               </div>

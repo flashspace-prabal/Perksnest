@@ -6,6 +6,7 @@
 import { dealsData, Deal, enrichDeals } from '@/data/deals';
 import { getAllDeals, getDealById } from './api';
 import { createClient } from '@supabase/supabase-js';
+import { normalizeMemberCount } from './member-count';
 
 // Feature flags
 const USE_SUPABASE = true; // Set to false to skip Supabase
@@ -38,12 +39,12 @@ function transformSupabaseDeals(data: any[]): Deal[] {
     id: d.id,
     slug: d.slug,
     name: d.name,
-    company: d.company,
+    company: d.company || d.company_name,
     logo: d.logo,
-    description: d.description,
-    dealText: d.deal_text,
-    savings: d.savings,
-    memberCount: d.member_count || 0,
+    description: d.short_description || d.description,
+    dealText: d.discounted_value || d.deal_text,
+    savings: d.savings_amount || d.savings,
+    memberCount: normalizeMemberCount(d),
     isPremium: d.is_premium || false,
     isFree: d.is_free || false,
     isPick: d.is_pick || false,
@@ -94,13 +95,14 @@ export async function getDeals(): Promise<Deal[]> {
       if (response && response.deals && Array.isArray(response.deals) && response.deals.length > 0) {
         const apiDeals = response.deals.map((d: any) => ({
           id: d.id,
+          slug: d.slug,
           name: d.name,
-          company: d.company,
+          company: d.company || d.company_name,
           logo: d.logo,
-          description: d.description,
-          dealText: d.deal_text || d.dealText,
-          savings: d.savings,
-          memberCount: d.member_count || d.memberCount || 0,
+          description: d.short_description || d.description,
+          dealText: d.discounted_value || d.deal_text || d.dealText,
+          savings: d.savings_amount || d.savings,
+          memberCount: normalizeMemberCount(d),
           isPremium: d.is_premium || d.isPremium,
           isFree: d.is_free || d.isFree,
           isPick: d.is_pick || d.isPick,
@@ -169,12 +171,12 @@ export async function getDeal(dealId: string): Promise<Deal | null> {
           id: d.id,
           slug: d.slug,
           name: d.name,
-          company: d.company,
+          company: d.company || d.company_name,
           logo: d.logo,
-          description: d.description,
-          dealText: d.deal_text || d.dealText,
-          savings: d.savings,
-          memberCount: d.member_count || d.memberCount || 0,
+          description: d.short_description || d.description,
+          dealText: d.discounted_value || d.deal_text || d.dealText,
+          savings: d.savings_amount || d.savings,
+          memberCount: normalizeMemberCount(d),
           isPremium: d.is_premium || d.isPremium,
           isFree: d.is_free || d.isFree,
           isPick: d.is_pick || d.isPick,

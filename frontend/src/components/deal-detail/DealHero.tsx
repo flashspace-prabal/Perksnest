@@ -36,38 +36,30 @@ export const DealHero: React.FC<DealHeroProps> = ({
   const reviewRating = reviews.length
     ? (reviews.reduce((sum, review) => sum + review.rating, 0) / reviews.length).toFixed(1)
     : deal.rating.toFixed(1);
+  const redeemedCount = deal.socialProof?.redeemedCount || deal.memberCount || 15979;
+  const socialProofNames = generateSocialProofNames(deal.id, 5);
 
   return (
     <section className="bg-white border-b border-gray-200">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-12 lg:gap-16">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-14 lg:py-20">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 lg:gap-12 xl:gap-16">
           {/* Left Column: Main Content */}
-          <div className="lg:col-span-2 space-y-12">
+          <div className="lg:col-span-2 space-y-8 sm:space-y-10 lg:space-y-12 min-w-0">
             {/* Logo and Product Name */}
-            <div className="flex items-start gap-6">
+            <div className="flex flex-col min-[420px]:flex-row items-start gap-4 sm:gap-6">
               <img
                 src={deal.logo}
                 alt={deal.name}
-                className="w-20 h-20 rounded-2xl object-cover bg-white border border-gray-200 shadow-sm flex-shrink-0"
+                className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl object-contain bg-white border border-gray-200 shadow-sm flex-shrink-0"
               />
-              <div className="pt-1">
+              <div className="pt-1 min-w-0">
                 <h1 
-                  className="text-5xl sm:text-6xl font-bold text-gray-900 leading-tight mb-3"
-                  style={{
-                    fontFamily: 'Geist, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif',
-                    fontSize: '48px',
-                    lineHeight: '1.2',
-                  }}
+                  className="break-anywhere text-3xl sm:text-4xl lg:text-5xl font-bold text-gray-900 leading-tight mb-3"
                 >
                   {deal.name}
                 </h1>
                 <p 
-                  className="text-xl text-gray-600"
-                  style={{
-                    fontFamily: 'Geist, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif',
-                    fontSize: '16px',
-                    fontWeight: '400',
-                  }}
+                  className="text-base sm:text-lg text-gray-600 leading-7"
                 >
                   {deal.title}
                 </p>
@@ -77,12 +69,7 @@ export const DealHero: React.FC<DealHeroProps> = ({
             {/* Rich Description & Benefits */}
             <div className="space-y-8">
               <p 
-                className="text-lg text-gray-700 leading-relaxed max-w-2xl"
-                style={{
-                  fontFamily: 'Geist, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif',
-                  fontSize: '16px',
-                  lineHeight: '1.6',
-                }}
+                className="text-base sm:text-lg text-gray-700 leading-7 sm:leading-8 max-w-3xl"
               >
                 {deal.shortDescription}
               </p>
@@ -91,14 +78,10 @@ export const DealHero: React.FC<DealHeroProps> = ({
               {deal.general?.useCases && deal.general.useCases.length > 0 && (
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   {deal.general.useCases.slice(0, 4).map((useCase: string, idx: number) => (
-                    <div key={idx} className="flex items-start gap-3 p-3 rounded-lg bg-gray-50 border border-gray-100">
+                    <div key={idx} className="flex items-start gap-3 p-3 rounded-lg bg-gray-50 border border-gray-100 min-w-0">
                       <span className="text-green-600 font-bold text-lg flex-shrink-0 mt-0.5">✓</span>
                       <span 
-                        className="text-gray-700"
-                        style={{
-                          fontFamily: 'Geist, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif',
-                          fontSize: '14px',
-                        }}
+                        className="text-sm text-gray-700 leading-6"
                       >
                         {useCase}
                       </span>
@@ -110,13 +93,13 @@ export const DealHero: React.FC<DealHeroProps> = ({
 
             {/* Social Proof - Enhanced */}
             <div className="border-t border-b border-gray-200 py-8">
-              <div className="grid grid-cols-2 gap-8">
+              <div className="grid grid-cols-1 min-[420px]:grid-cols-2 gap-6 sm:gap-8">
                 <div>
-                  <p className="text-5xl font-bold text-gray-900 mb-2">
-                    {deal.socialProof?.redeemedCount?.toLocaleString() || '15,979'}
+                  <p className="text-4xl sm:text-5xl font-bold text-gray-900 mb-2">
+                    {redeemedCount.toLocaleString()}
                   </p>
                   <p 
-                    className="text-gray-600"
+                    className="text-sm sm:text-base text-gray-600"
                     style={{
                       fontFamily: 'Geist, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif',
                       fontSize: '14px',
@@ -125,7 +108,7 @@ export const DealHero: React.FC<DealHeroProps> = ({
                     Redeemed deals
                   </p>
                   <p 
-                    className="text-sm text-gray-500 mt-2"
+                    className="text-xs sm:text-sm text-gray-500 mt-2"
                     style={{
                       fontFamily: 'Geist, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif',
                       fontSize: '12px',
@@ -135,40 +118,37 @@ export const DealHero: React.FC<DealHeroProps> = ({
                   </p>
                 </div>
 
-                {deal.socialProof?.avatars && deal.socialProof?.avatars.length > 0 && (
-                  <div className="flex flex-col justify-start">
-                    <div className="flex -space-x-2 mb-3">
-                      {/* Generate real people avatars for social proof based on deal */}
-                      {generateSocialProofNames(deal.id, 5).map((name, idx) => (
-                        <Avatar key={idx} className="w-12 h-12 border-2 border-white shadow-md">
-                          <AvatarImage 
-                            src={generateAvatarUrl(name)} 
-                            alt={name}
-                            className="object-cover"
-                          />
-                          <AvatarFallback>{name.split(" ")[0][0]}</AvatarFallback>
-                        </Avatar>
-                      ))}
-                    </div>
-                    <p 
-                      className="text-gray-700 font-medium"
-                      style={{
-                        fontFamily: 'Geist, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif',
-                        fontSize: '14px',
-                      }}
-                    >
-                      Join thousands of founders
-                    </p>
+                <div className="flex flex-col justify-start">
+                  <div className="flex -space-x-2 mb-3">
+                    {socialProofNames.map((name, idx) => (
+                      <Avatar key={idx} className="w-12 h-12 border-2 border-white shadow-md">
+                        <AvatarImage 
+                          src={generateAvatarUrl(name)} 
+                          alt={name}
+                          className="object-cover"
+                        />
+                        <AvatarFallback>{name.split(" ")[0][0]}</AvatarFallback>
+                      </Avatar>
+                    ))}
                   </div>
-                )}
+                  <p 
+                    className="text-sm text-gray-700 font-medium"
+                    style={{
+                      fontFamily: 'Geist, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif',
+                      fontSize: '14px',
+                    }}
+                  >
+                    Join thousands of founders
+                  </p>
+                </div>
               </div>
             </div>
 
             {/* Premium Testimonial Block */}
             {dealTestimonial && (
-              <div className="bg-gradient-to-br from-blue-50 to-indigo-50 border border-blue-200 rounded-2xl p-8 shadow-sm">
+              <div className="bg-gradient-to-br from-blue-50 to-indigo-50 border border-blue-200 rounded-2xl p-5 sm:p-8 shadow-sm">
                 <p 
-                  className="text-lg text-gray-800 italic mb-6 leading-relaxed"
+                  className="text-base sm:text-lg text-gray-800 italic mb-6 leading-7"
                   style={{
                     fontFamily: 'Geist, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif',
                     fontSize: '16px',
@@ -217,17 +197,17 @@ export const DealHero: React.FC<DealHeroProps> = ({
           </div>
 
           {/* Right Column: Sticky Deal Card - Premium Edition */}
-          <div className="lg:sticky lg:top-24 h-fit">
-            <div className="bg-white rounded-3xl shadow-lg border border-gray-200 p-8 space-y-8">
+          <div className="lg:sticky lg:top-24 h-fit min-w-0">
+            <div className="bg-white rounded-2xl sm:rounded-3xl shadow-lg border border-gray-200 p-5 sm:p-6 lg:p-8 space-y-6 lg:space-y-8">
               {/* Deal Card Header */}
               <div className="space-y-4">
                 <div className="flex items-center gap-3">
                   <img
                     src={deal.logo}
                     alt={deal.name}
-                    className="w-14 h-14 rounded-xl object-cover border border-gray-100"
+                    className="w-12 h-12 sm:w-14 sm:h-14 rounded-xl object-contain border border-gray-100"
                   />
-                  <div>
+                  <div className="min-w-0">
                     <h3 
                       className="font-bold text-gray-900"
                       style={{
@@ -264,11 +244,11 @@ export const DealHero: React.FC<DealHeroProps> = ({
                 >
                   Save up to
                 </p>
-                <p className="text-5xl font-bold text-gray-900">
+                <p className="break-anywhere text-3xl sm:text-4xl lg:text-5xl font-bold text-gray-900">
                   {deal.dealHighlight.savings}
                 </p>
                 <p 
-                  className="text-lg font-semibold text-gray-900 pt-2"
+                  className="break-anywhere text-base sm:text-lg font-semibold text-gray-900 pt-2 leading-7"
                   style={{
                     fontFamily: 'Geist, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif',
                     fontSize: '16px',

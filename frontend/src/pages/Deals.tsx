@@ -6,6 +6,7 @@ import CategorySidebar from "@/components/CategorySidebar";
 import { Deal, getExpiryLabel } from "@/data/deals";
 import { getUpvoteCount, getPartnerDeals, PartnerDeal } from "@/lib/store";
 import { getDeals } from "@/lib/deals";
+import { normalizeMemberCount } from "@/lib/member-count";
 import { SkeletonDealCard, SkeletonLoader } from "@/components/SkeletonLoader";
 import { isFreeDeal, isPremiumDeal } from "@/lib/deal-types";
 
@@ -207,7 +208,7 @@ const Deals = () => {
     description: d.description,
     dealText: d.dealText,
     savings: d.savings,
-    memberCount: d.claims || 0,
+    memberCount: normalizeMemberCount(d, d.id),
     isFree: true,
     isPremium: false,
     isPick: false,
@@ -350,6 +351,13 @@ const Deals = () => {
 
           {/* Main Content */}
           <div className="flex-1 min-w-0">
+            <div className="mb-5 lg:hidden">
+              <CategorySidebar
+                activeCategory={activeCategory}
+                categoryCounts={categoryCounts}
+                onCategoryChange={(cat) => { setActiveCategory(cat); setCurrentPage(1); }}
+              />
+            </div>
 
             {/* Search bar */}
             <div className="relative mb-5">

@@ -225,7 +225,8 @@ const Compare = () => {
                 </p>
 
                 {/* Comparison Table */}
-                <div className="bg-background rounded-xl border overflow-hidden">
+                <div className="bg-background rounded-xl border overflow-x-auto">
+                  <div className="min-w-[760px]">
                   <div className="grid grid-cols-4 gap-4 p-4 border-b bg-muted/30">
                     <div></div>
                     <div className="text-center">
@@ -268,6 +269,7 @@ const Compare = () => {
                       <p className="text-sm text-muted-foreground">{rating.description}</p>
                     </div>
                   ))}
+                  </div>
                 </div>
               </div>
 

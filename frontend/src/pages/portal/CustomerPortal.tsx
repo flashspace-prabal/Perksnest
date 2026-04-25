@@ -476,19 +476,19 @@ const CustomerPortal = () => {
 
   return (
     <div className="min-h-screen bg-muted/30">
-      <div className="max-w-7xl mx-auto px-6 py-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
         {/* Profile Header */}
-        <div className="flex items-start gap-6 mb-8">
-          <div className="w-20 h-20 rounded-full bg-gradient-to-br from-primary to-primary/60 flex items-center justify-center text-3xl text-primary-foreground font-bold">
+        <div className="flex flex-col gap-5 mb-8 sm:flex-row sm:items-start sm:gap-6">
+          <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-gradient-to-br from-primary to-primary/60 flex items-center justify-center text-2xl sm:text-3xl text-primary-foreground font-bold shrink-0">
             {user.name.charAt(0)}
           </div>
-          <div className="flex-1">
-            <div className="flex items-center gap-3">
-              <h1 className="text-2xl font-bold">{user.name}</h1>
+          <div className="flex-1 min-w-0">
+            <div className="flex flex-wrap items-center gap-3">
+              <h1 className="break-anywhere text-xl sm:text-2xl font-bold">{user.name}</h1>
               <Badge className={getPlanBadgeClass()}>{getPlanLabel()}</Badge>
             </div>
-            <div className="flex items-center gap-6 mt-2 text-muted-foreground">
-              <span className="flex items-center gap-1">
+            <div className="flex flex-col gap-2 mt-2 text-sm text-muted-foreground sm:flex-row sm:flex-wrap sm:items-center sm:gap-6">
+              <span className="flex min-w-0 items-center gap-1">
                 <Mail className="h-4 w-4" /> {user.email}
               </span>
               <span className="flex items-center gap-1">
@@ -496,7 +496,7 @@ const CustomerPortal = () => {
               </span>
             </div>
           </div>
-          <Button variant="outline" onClick={() => document.getElementById('settings-tab')?.click()}>
+          <Button variant="outline" className="w-full sm:w-auto" onClick={() => document.getElementById('settings-tab')?.click()}>
             <Settings className="h-4 w-4 mr-2" />
             Edit Profile
           </Button>
@@ -559,7 +559,7 @@ const CustomerPortal = () => {
 
         {/* Main Content Tabs */}
         <Tabs defaultValue="claimed" className="space-y-6">
-          <TabsList className="bg-background border">
+          <TabsList className="flex h-auto w-full justify-start gap-1 overflow-x-auto bg-background border p-1 scrollbar-hide sm:w-auto">
             <TabsTrigger value="claimed" className="gap-2">
               <Wallet className="h-4 w-4" />
               My Deals
@@ -591,7 +591,7 @@ const CustomerPortal = () => {
           {/* Claimed Deals Tab */}
           <TabsContent value="claimed">
             <Card>
-              <CardHeader className="flex flex-row items-center justify-between">
+              <CardHeader className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                 <CardTitle>My Claimed Deals</CardTitle>
                 <Link to="/deals">
                   <Button>Browse More Deals</Button>
@@ -610,14 +610,14 @@ const CustomerPortal = () => {
                 ) : (
                   <div className="space-y-4">
                     {claimedDealsWithDetails.map((deal) => (
-                      <div key={deal.id} className="flex items-center justify-between p-4 bg-muted/50 rounded-lg">
-                        <div className="flex items-center gap-4">
+                      <div key={deal.id} className="flex flex-col gap-4 p-4 bg-muted/50 rounded-lg lg:flex-row lg:items-center lg:justify-between">
+                        <div className="flex min-w-0 items-center gap-4">
                           <div className="w-12 h-12 rounded-lg bg-background border flex items-center justify-center overflow-hidden">
                             <img src={deal.logo} alt={deal.vendor} className="w-8 h-8 object-contain" />
                           </div>
-                          <div>
-                            <p className="font-medium">{deal.vendor}</p>
-                            <p className="text-sm text-muted-foreground mb-1">{deal.name}</p>
+                          <div className="min-w-0">
+                            <p className="truncate font-medium">{deal.vendor}</p>
+                            <p className="text-sm text-muted-foreground mb-1 line-clamp-2">{deal.name}</p>
                             <DealSavingsIndicator savings={deal.savings} />
                             <div className="flex items-center gap-3 mt-1 text-sm text-muted-foreground">
                               <span>Claimed {new Date(deal.claimedDate).toLocaleDateString()}</span>
@@ -626,7 +626,7 @@ const CustomerPortal = () => {
                             </div>
                           </div>
                         </div>
-                        <div className="flex items-center gap-4">
+                        <div className="flex flex-wrap items-center gap-3 lg:gap-4">
                           <Badge variant={
                             deal.status === "active" ? "default" :
                             deal.status === "redeemed" ? "secondary" : "outline"
@@ -698,14 +698,14 @@ const CustomerPortal = () => {
                 ) : (
                   <div className="space-y-4">
                     {savedDeals.map((deal) => (
-                      <div key={deal.id} className="flex items-center justify-between p-4 bg-muted/50 rounded-lg hover:bg-muted/70 transition-colors">
-                        <div className="flex items-center gap-4 flex-1">
+                      <div key={deal.id} className="flex flex-col gap-4 p-4 bg-muted/50 rounded-lg hover:bg-muted/70 transition-colors lg:flex-row lg:items-center lg:justify-between">
+                        <div className="flex min-w-0 items-center gap-4 flex-1">
                           <div className="w-12 h-12 rounded-lg bg-background border flex items-center justify-center overflow-hidden shrink-0">
                             <img src={deal.logo} alt={deal.vendor} className="w-8 h-8 object-contain" />
                           </div>
-                          <div className="flex-1">
-                            <p className="font-medium">{deal.vendor}</p>
-                            <p className="text-sm text-muted-foreground">{deal.description}</p>
+                          <div className="flex-1 min-w-0">
+                            <p className="truncate font-medium">{deal.vendor}</p>
+                            <p className="text-sm text-muted-foreground line-clamp-2">{deal.description}</p>
                             <p className="text-sm text-foreground mt-1">{deal.name}</p>
                             <div className="flex items-center gap-2 mt-2">
                               {deal.isPremium && <Badge variant="secondary" className="text-xs">Premium</Badge>}
@@ -714,7 +714,7 @@ const CustomerPortal = () => {
                             </div>
                           </div>
                         </div>
-                        <div className="flex items-center gap-4">
+                        <div className="flex flex-wrap items-center gap-3 lg:gap-4">
                           <p className="text-primary font-semibold">{deal.savings}</p>
                           <div className="flex gap-2">
                             <Button

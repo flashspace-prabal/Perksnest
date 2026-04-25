@@ -8,6 +8,7 @@
     "start": "node server.js",
     "dev": "node server.js",
     "seed:reviews": "node scripts/seed-reviews-supabase.js",
+    "seed:deals": "node scripts/sync-static-deals-supabase.js",
     "test": "jest --runInBand",
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage",

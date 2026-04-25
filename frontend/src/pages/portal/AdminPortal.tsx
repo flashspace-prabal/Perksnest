@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Navigate } from "react-router-dom";
+import { Navigate, useLocation } from "react-router-dom";
 import { AdminHeader, AdminSidebar } from "@/components/admin/AdminSidebar";
 import { AdminDashboardLive } from "@/components/admin/AdminDashboardLive";
 import { AdminUsersLive } from "@/components/admin/AdminUsersLive";
@@ -16,7 +16,14 @@ const AdminPortal = () => {
   document.title = "Admin Portal | PerksNest";
 
   const { user, logout, isAdmin } = useAuth();
-  const [activeTab, setActiveTab] = useState("dashboard");
+  const location = useLocation();
+  const [activeTab, setActiveTab] = useState(location.pathname.startsWith("/admin/add-deal") ? "deals" : "dashboard");
+
+  useEffect(() => {
+    if (location.pathname.startsWith("/admin/add-deal")) {
+      setActiveTab("deals");
+    }
+  }, [location.pathname]);
 
   // Authentication guard - only admin role can access
   if (!user) {
@@ -84,9 +91,9 @@ const AdminPortal = () => {
   return (
     <div className="min-h-screen bg-muted/30">
       <AdminHeader />
-      <div className="flex">
+      <div className="flex flex-col md:flex-row">
         <AdminSidebar activeTab={activeTab} onTabChange={setActiveTab} />
-        <main className="flex-1 p-6">
+        <main className="flex-1 min-w-0 p-4 sm:p-6">
           {renderContent()}
         </main>
       </div>

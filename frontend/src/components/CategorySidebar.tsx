@@ -67,10 +67,10 @@ const CategorySidebar = ({ activeCategory, categoryCounts, onCategoryChange }: C
   };
 
   return (
-    <div className="w-56 shrink-0 hidden lg:block">
-      <div className="sticky top-24">
+    <div className="w-full lg:w-56 shrink-0">
+      <div className="lg:sticky lg:top-24">
         <h3 className="text-base font-semibold text-foreground mb-3">Categories</h3>
-        <nav className="space-y-0.5">
+        <nav className="flex gap-2 overflow-x-auto pb-2 lg:block lg:space-y-0.5 lg:overflow-visible lg:pb-0 scrollbar-hide">
           {categoryTemplates.map((template) => {
             const count = categoryCounts[template.id] || 0;
             const isActive = activeCategory === template.id;
@@ -89,7 +89,7 @@ const CategorySidebar = ({ activeCategory, categoryCounts, onCategoryChange }: C
                       : "text-muted-foreground hover:bg-secondary/60 hover:text-foreground"
                   }`}
                 >
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-2 whitespace-nowrap lg:whitespace-normal">
                     {template.subcategories ? (
                       <span className="text-muted-foreground">
                         {isExpanded ? <ChevronDown className="h-3.5 w-3.5" /> : <ChevronRight className="h-3.5 w-3.5" />}
@@ -107,7 +107,7 @@ const CategorySidebar = ({ activeCategory, categoryCounts, onCategoryChange }: C
                 </button>
 
                 {template.subcategories && isExpanded && (
-                  <div className="ml-5 mt-0.5 space-y-0.5">
+                  <div className="hidden lg:block ml-5 mt-0.5 space-y-0.5">
                     {template.subcategories.map((sub) => (
                       <button
                         key={sub.id}

@@ -9,6 +9,7 @@ import type {
   Review,
 } from "@/data/deal-details-schema";
 import { isPremiumDeal } from "@/lib/deal-types";
+import { normalizeMemberCount } from "@/lib/member-count";
 
 type RawDeal = Partial<ComprehensiveDealDetail> & Record<string, unknown>;
 
@@ -190,6 +191,18 @@ const normalizeResources = (rawDeal: RawDeal, dealName: string): Resource[] => {
 };
 
 const normalizeFeature = (feature: unknown, index: number): Feature | null => {
+  if (typeof feature === "string") {
+    const title = normalizeString(feature);
+    if (!title) return null;
+
+    return {
+      id: `feature-${index + 1}`,
+      icon: index % 3 === 0 ? "Zap" : index % 3 === 1 ? "ShieldCheck" : "Sparkles",
+      title,
+      description: `Includes ${title.toLowerCase()} for startup teams.`,
+    };
+  }
+
   const rawFeature = (feature || {}) as Record<string, unknown>;
   const title = normalizeString(rawFeature.title);
   const description = normalizeString(rawFeature.description);
@@ -294,16 +307,51 @@ export function normalizeComprehensiveDeal(rawDeal: RawDeal, dealId?: string): C
     normalizeString(dealId) ||
     normalizeString(rawDeal.name).toLowerCase().replace(/\s+/g, "-");
   const name = normalizeString(rawDeal.name) || "Deal";
+  const rawDealHighlight = ((rawDeal.dealHighlight || rawDeal.deal_highlight || {}) as Record<string, unknown>) || {};
+  const rawSocialProof = ((rawDeal.socialProof || rawDeal.social_proof || {}) as Record<string, unknown>) || {};
   const rawDeals = ((rawDeal.deals || {}) as Record<string, unknown>) || {};
   const rawGeneral = ((rawDeal.general || rawDeal.generalInfo || {}) as Record<string, unknown>) || {};
+  const rawContent = ((rawDeal.content || {}) as Record<string, unknown>) || {};
   const rawEligibility = rawDeal.eligibility;
+  const rawPricing = (((rawDeal.pricing || {}) as Record<string, unknown>) || {});
+  const pricingPlanFromAdmin =
+    rawPricing.originalPrice || rawPricing.discountedValue || rawPricing.savingsAmount || rawDeal.discounted_value
+      ? [
+          {
+            name: "PerksNest offer",
+            price: normalizeString(rawPricing.discountedValue || rawDeal.discounted_value) || "Special offer",
+            description: normalizeString(rawPricing.savingsAmount || rawDeal.savings_amount || rawDeal.savings) || "Exclusive startup savings.",
+            features: [
+              normalizeString(rawPricing.originalPrice || rawDeal.original_price)
+                ? `Original price: ${normalizeString(rawPricing.originalPrice || rawDeal.original_price)}`
+                : "",
+              normalizeString(rawPricing.savingsAmount || rawDeal.savings_amount || rawDeal.savings)
+                ? `Savings: ${normalizeString(rawPricing.savingsAmount || rawDeal.savings_amount || rawDeal.savings)}`
+                : "",
+            ].filter(Boolean),
+            highlighted: true,
+          },
+        ]
+      : [];
   const pricingSource =
     Array.isArray(rawDeal.pricing)
       ? {
           description: "",
           plans: rawDeal.pricing,
         }
-      : (((rawDeal.pricing || {}) as Record<string, unknown>) || {});
+      : {
+          ...rawPricing,
+          plans: Array.isArray(rawPricing.plans) ? rawPricing.plans : pricingPlanFromAdmin,
+      };
+  const memberCount = normalizeMemberCount(rawDeal as Record<string, any>, resolvedId);
+  const dealHeadline =
+    normalizeString(rawDealHighlight.headline) ||
+    normalizeString(rawDeal.deal_text) ||
+    normalizeString(rawDeal.dealText) ||
+    normalizeString(rawDeal.discounted_value) ||
+    normalizeString(rawDeal.offer) ||
+    normalizeString(rawDeal.tagline) ||
+    `Exclusive ${name} offer`;
 
   return {
     id: resolvedId,
@@ -311,52 +359,65 @@ export function normalizeComprehensiveDeal(rawDeal: RawDeal, dealId?: string): C
     logo: normalizeString(rawDeal.logo),
     rating: Number(rawDeal.rating || 4.5),
     reviewCount: Number(rawDeal.reviewCount || (Array.isArray(rawDeal.reviews) ? rawDeal.reviews.length : 0)),
-    memberCount: Number(rawDeal.memberCount || ((rawDeal.socialProof || {}) as Record<string, unknown>).redeemedCount || 0),
-    title: normalizeString(rawDeal.title) || normalizeString((rawDeal.dealHighlight as Record<string, unknown> | undefined)?.headline) || name,
+    memberCount,
+    title: normalizeString(rawDeal.title) || normalizeString(rawDealHighlight.headline) || name,
     subtitle: normalizeString(rawDeal.subtitle) || normalizeString(rawDeal.shortDescription),
     shortDescription:
       normalizeString(rawDeal.shortDescription) ||
       normalizeString(rawDeal.subtitle) ||
+      normalizeString(rawDeal.short_description) ||
+      normalizeString(rawContent.shortDescription) ||
       normalizeString(rawDeal.description) ||
       `${name} helps startups move faster with a trusted partner offer.`,
     dealHighlight: {
       savings:
-        normalizeString((rawDeal.dealHighlight as Record<string, unknown> | undefined)?.savings) ||
+        normalizeString(rawDealHighlight.savings) ||
+        normalizeString(rawDeal.savings_amount) ||
         normalizeString(rawDeal.savings) ||
         "Special offer",
       headline:
-        normalizeString((rawDeal.dealHighlight as Record<string, unknown> | undefined)?.headline) ||
-        normalizeString(rawDeal.title) ||
-        normalizeString(rawDeal.subtitle) ||
-        normalizeString(rawDeal.description) ||
-        `Exclusive ${name} offer`,
+        dealHeadline,
     },
     socialProof: {
-      redeemedCount: Number(((rawDeal.socialProof || {}) as Record<string, unknown>).redeemedCount || rawDeal.memberCount || 0),
-      avatars: normalizeStringArray(((rawDeal.socialProof || {}) as Record<string, unknown>).avatars),
-      testimonialQuote: normalizeString(((rawDeal.socialProof || {}) as Record<string, unknown>).testimonialQuote) || undefined,
-      testimonialAuthor: normalizeString(((rawDeal.socialProof || {}) as Record<string, unknown>).testimonialAuthor) || undefined,
-      testimonialRole: normalizeString(((rawDeal.socialProof || {}) as Record<string, unknown>).testimonialRole) || undefined,
+      redeemedCount: normalizeMemberCount(
+        {
+          ...rawDeal,
+          memberCount,
+          redeemedCount: rawSocialProof.redeemedCount || rawSocialProof.redeemed_count,
+        } as Record<string, any>,
+        resolvedId
+      ),
+      avatars: normalizeStringArray(rawSocialProof.avatars),
+      testimonialQuote: normalizeString(rawSocialProof.testimonialQuote || rawSocialProof.testimonial_quote) || undefined,
+      testimonialAuthor: normalizeString(rawSocialProof.testimonialAuthor || rawSocialProof.testimonial_author) || undefined,
+      testimonialRole: normalizeString(rawSocialProof.testimonialRole || rawSocialProof.testimonial_role) || undefined,
     },
     deals: {
       title: normalizeString(rawDeals.title || rawDeals.headline) || `About ${name}`,
       explanation:
         normalizeString(rawDeals.explanation) ||
+        normalizeString(rawDeal.full_description) ||
+        normalizeString(rawContent.fullDescription) ||
         normalizeString(rawDeal.shortDescription) ||
+        normalizeString(rawDeal.short_description) ||
         normalizeString(rawDeal.description) ||
         `${name} is a trusted solution for growing startups.`,
       howCanBenefit:
         normalizeString(rawDeals.howCanBenefit) ||
+        normalizeStringArray(rawDeal.benefits).join(" ") ||
+        normalizeStringArray(rawContent.benefits).join(" ") ||
         normalizeStringArray(rawDeals.howCanIBenefit).join(" "),
       howCanIBenefit: normalizeStringArray(rawDeals.howCanIBenefit),
-      whyChooseThis: normalizeStringArray(rawDeals.whyChooseThis),
+      whyChooseThis: normalizeStringArray(rawDeals.whyChooseThis || rawDeal.benefits || rawContent.benefits),
     },
     general: {
       overview:
         normalizeString(rawGeneral.overview) ||
+        normalizeString(rawDeal.full_description) ||
+        normalizeString(rawContent.fullDescription) ||
         normalizeString(rawDeal.description) ||
         `${name} is designed to help teams work faster and scale with confidence.`,
-      useCases: normalizeStringArray(rawGeneral.useCases),
+      useCases: normalizeStringArray(rawGeneral.useCases || rawDeal.benefits || rawContent.benefits),
       features: (Array.isArray(rawGeneral.features) ? rawGeneral.features : [])
         .map(normalizeFeature)
         .filter((feature): feature is Feature => Boolean(feature)),
@@ -377,12 +438,47 @@ export function normalizeComprehensiveDeal(rawDeal: RawDeal, dealId?: string): C
           applicationProcess: normalizeString((rawEligibility as Record<string, unknown> | undefined)?.applicationProcess) || undefined,
           contactEmail: normalizeString((rawEligibility as Record<string, unknown> | undefined)?.contactEmail) || undefined,
         },
-    faq: (Array.isArray(rawDeal.faq) ? rawDeal.faq : [])
+    faq: (Array.isArray(rawDeal.faq) && rawDeal.faq.length > 0
+      ? rawDeal.faq
+      : [
+          {
+            id: "faq-1",
+            question: `How do I claim the ${name} deal?`,
+            answer: `Click the claim button on PerksNest and follow the partner activation flow for ${name}.`,
+          },
+          {
+            id: "faq-2",
+            question: `Who is eligible for ${name}?`,
+            answer: "Eligibility depends on the partner terms, but startup or founder verification may be required.",
+          },
+          {
+            id: "faq-3",
+            question: "What happens after I apply?",
+            answer: "The partner may approve the offer automatically or review your application and email next steps.",
+          },
+        ])
       .map(normalizeFaqItem)
       .filter((item): item is FAQItem => Boolean(item)),
     pricing: {
       description: normalizeString(pricingSource.description) || undefined,
-      plans: (Array.isArray(pricingSource.plans) ? pricingSource.plans : [])
+      plans: (Array.isArray(pricingSource.plans) && pricingSource.plans.length > 0
+        ? pricingSource.plans
+        : [
+            {
+              name: "PerksNest startup offer",
+              price:
+                normalizeString(rawDealHighlight.savings) ||
+                normalizeString(rawDeal.savings_amount) ||
+                normalizeString(rawDeal.savings) ||
+                "Special offer",
+              description: dealHeadline,
+              features: [
+                dealHeadline,
+                ...normalizeStringArray(rawDeal.features).slice(0, 4),
+              ].filter(Boolean),
+              highlighted: true,
+            },
+          ])
         .map(normalizePricingPlan)
         .filter((plan): plan is PricingPlan => Boolean(plan)),
     },
@@ -395,7 +491,7 @@ export function normalizeComprehensiveDeal(rawDeal: RawDeal, dealId?: string): C
     alternatives: (Array.isArray(rawDeal.alternatives) ? rawDeal.alternatives : [])
       .map(normalizeAlternative)
       .filter((alternative): alternative is Alternative => Boolean(alternative)),
-    relatedDeals: (Array.isArray(rawDeal.relatedDeals) ? rawDeal.relatedDeals : [])
+    relatedDeals: (Array.isArray(rawDeal.relatedDeals) ? rawDeal.relatedDeals : Array.isArray(rawDeal.related_deals) ? rawDeal.related_deals : [])
       .map(normalizeRelatedDeal)
       .filter((relatedDeal): relatedDeal is PopularDeal => Boolean(relatedDeal)),
     resources: normalizeResources(rawDeal, name),

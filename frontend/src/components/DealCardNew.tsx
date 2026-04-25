@@ -4,6 +4,7 @@ import { type MouseEvent, useState } from "react";
 import SafeImage from "./SafeImage";
 import { useAuth } from "@/lib/auth";
 import { useBookmarks } from "@/lib/bookmarks";
+import { normalizeMemberCount } from "@/lib/member-count";
 import { toast } from "sonner";
 
 interface DealCardNewProps {
@@ -37,6 +38,7 @@ const DealCardNew = ({
   const { isBookmarked, isBookmarkPending, toggleBookmark } = useBookmarks();
   const bookmarkId = id || slug;
   const href = slug ? `/deals/${slug}` : id ? `/deals/${id}` : '#';
+  const displayMemberCount = normalizeMemberCount({ memberCount, id, slug, name }, slug || id || name);
   const saved = bookmarkId ? isBookmarked(bookmarkId) : false;
   const isSaving = bookmarkId ? isBookmarkPending(bookmarkId) : false;
 
@@ -117,7 +119,7 @@ const DealCardNew = ({
               </h3>
               <p className="text-xs text-gray-500 flex items-center gap-1 mt-0.5">
                 <Users className="h-3 w-3 shrink-0" />
-                Used by {memberCount.toLocaleString()} members
+                Used by {displayMemberCount.toLocaleString()} members
               </p>
             </div>
           </div>

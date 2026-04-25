@@ -1,6 +1,5 @@
 import React from "react";
 import { ComprehensiveDealDetail } from "@/data/deal-details-schema";
-import * as LucideIcons from "lucide-react";
 
 interface GeneralSectionProps {
   deal: ComprehensiveDealDetail;
@@ -115,62 +114,6 @@ export const GeneralSection: React.FC<GeneralSectionProps> = ({ deal }) => {
             </div>
           )}
         </div>
-
-        {/* Key Features - Premium Grid */}
-        {(deal.general?.features || (deal as any).generalInfo?.features) && (deal.general?.features || (deal as any).generalInfo?.features).length > 0 && (
-          <div>
-            <h2 
-              className="text-3xl sm:text-4xl font-bold text-gray-900 mb-10"
-              style={{
-                fontFamily: 'Geist, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif',
-              }}
-            >
-              Key features
-            </h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-              {(deal.general?.features || (deal as any).generalInfo?.features).map((feature: any) => {
-                const IconComponent = feature.icon
-                  ? (LucideIcons[feature.icon as keyof typeof LucideIcons] as any)
-                  : null;
-
-                return (
-                  <div 
-                    key={feature.id} 
-                    className="rounded-2xl border border-gray-200 p-8 hover:border-gray-300 hover:shadow-lg transition"
-                  >
-                    <div className="flex gap-4 items-start">
-                      {IconComponent && (
-                        <div className="p-3 bg-blue-100 rounded-xl flex-shrink-0">
-                          <IconComponent className="w-6 h-6 text-blue-600" />
-                        </div>
-                      )}
-                      <div>
-                        <h4 
-                          className="text-lg font-bold text-gray-900 mb-2"
-                          style={{
-                            fontFamily: 'Geist, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif',
-                          }}
-                        >
-                          {feature.title}
-                        </h4>
-                        <p 
-                          className="text-gray-600"
-                          style={{
-                            fontFamily: 'Geist, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif',
-                            fontSize: '14px',
-                            lineHeight: '1.6',
-                          }}
-                        >
-                          {feature.description}
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-        )}
       </div>
     </section>
   );

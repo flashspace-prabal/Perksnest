@@ -20,19 +20,19 @@ const CompareHero: React.FC<{ deal1: ComprehensiveDealDetail; deal2: Comprehensi
   deal2,
 }) => (
   <div className="border-b border-[#eadcf0] bg-[radial-gradient(circle_at_top,rgba(92,33,105,0.10),transparent_30%),linear-gradient(180deg,#ffffff_0%,#fbf7fd_100%)]">
-    <div className="mx-auto max-w-6xl px-6 py-10 sm:py-14">
+    <div className="mx-auto max-w-6xl px-4 py-10 sm:px-6 sm:py-14">
       {/* Breadcrumb */}
       <div className="mb-6 text-sm font-medium text-slate-500">
         Deals &gt; Comparison &gt; {deal1.name} vs {deal2.name}
       </div>
 
       {/* Hero Title */}
-      <h1 className="max-w-4xl text-4xl font-black tracking-tight text-slate-950 sm:text-6xl">
+      <h1 className="max-w-4xl text-3xl font-black tracking-tight text-slate-950 sm:text-5xl lg:text-6xl">
         {deal1.name} vs {deal2.name}:<br />
         choose the right startup tool
       </h1>
 
-      <p className="mt-5 max-w-3xl text-lg leading-8 text-slate-600">
+      <p className="mt-5 max-w-3xl text-base leading-7 text-slate-600 sm:text-lg sm:leading-8">
         Compare use cases, pricing signals, integrations, performance, founder reviews, and PerksNest deal value before you claim.
       </p>
 
@@ -49,13 +49,13 @@ const CompareHero: React.FC<{ deal1: ComprehensiveDealDetail; deal2: Comprehensi
 );
 
 const DealCard: React.FC<{ deal: ComprehensiveDealDetail }> = ({ deal }) => (
-  <div className="rounded-[1.75rem] border border-[#eadcf0] bg-white p-6 shadow-[0_18px_55px_rgba(92,33,105,0.10)]">
+  <div className="rounded-[1.5rem] sm:rounded-[1.75rem] border border-[#eadcf0] bg-white p-4 sm:p-6 shadow-[0_18px_55px_rgba(92,33,105,0.10)]">
     <div className="flex items-center gap-4 mb-4">
       <div className="flex h-16 w-16 items-center justify-center rounded-2xl border border-[#eadcf0] bg-white p-2 shadow-sm">
         <img src={deal.logo} alt={deal.name} className="h-full w-full object-contain" />
       </div>
-      <div>
-        <h3 className="text-xl font-black text-slate-950">{deal.name}</h3>
+      <div className="min-w-0">
+        <h3 className="break-anywhere text-lg sm:text-xl font-black text-slate-950">{deal.name}</h3>
         <p className="mt-1 flex items-center gap-1.5 text-sm text-slate-500">
           <Users className="h-4 w-4" />
           {deal.memberCount?.toLocaleString() || "Startup"} members
@@ -68,7 +68,7 @@ const DealCard: React.FC<{ deal: ComprehensiveDealDetail }> = ({ deal }) => (
         <BadgeDollarSign className="h-4 w-4" />
         Deal value
       </p>
-      <div className="mt-1 text-3xl font-black">
+      <div className="mt-1 break-anywhere text-2xl sm:text-3xl font-black">
       {deal.dealHighlight?.savings || "Special Deal"}
       </div>
     </div>
@@ -100,8 +100,8 @@ const ComparisonTable: React.FC<{ deal1: ComprehensiveDealDetail; deal2: Compreh
   };
 
   return (
-    <div className="overflow-hidden rounded-[1.75rem] border border-[#eadcf0] bg-white shadow-[0_18px_55px_rgba(92,33,105,0.08)]">
-      <table className="w-full">
+    <div className="overflow-x-auto rounded-[1.75rem] border border-[#eadcf0] bg-white shadow-[0_18px_55px_rgba(92,33,105,0.08)]">
+      <table className="w-full min-w-[760px]">
         <thead>
           <tr className="border-b border-[#eadcf0] bg-[#fbf7fd]">
             <th className="px-6 py-4 text-left text-sm font-black text-slate-950">Feature</th>

@@ -5,6 +5,7 @@ import ExpiryBadge from "@/components/ExpiryBadge";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { getAverageRating } from "@/lib/reviews";
+import { normalizeMemberCount } from "@/lib/member-count";
 
 interface DealCardProps {
   name: string;
@@ -38,6 +39,7 @@ const DealCard = ({
   featured = false,
 }: DealCardProps) => {
   const dealId = id || name.toLowerCase().replace(/\s+/g, '-');
+  const displayMemberCount = normalizeMemberCount({ memberCount, id, name }, dealId);
   const [avgRating, setAvgRating] = useState(0);
   useEffect(() => { getAverageRating(dealId).then(setAvgRating); }, [dealId]);
 
@@ -108,7 +110,7 @@ Save up to {savings}
       <div className="flex items-center justify-between pt-5 border-t border-border">
         <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
           <Users className="h-4 w-4" />
-          <span>{memberCount.toLocaleString()} members</span>
+          <span>{displayMemberCount.toLocaleString()} members</span>
           <ExpiryBadge expiresAt={expiresAt} />
           <UpvoteButton dealId={id} compact />
         </div>

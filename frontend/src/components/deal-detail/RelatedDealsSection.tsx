@@ -3,7 +3,7 @@ import { AlertCircle, ArrowRight, Crown, Sparkles, Users } from "lucide-react";
 import { Link } from "react-router-dom";
 import { SkeletonDealCard } from "@/components/SkeletonLoader";
 import { Button } from "@/components/ui/button";
-import { getAllDeals } from "@/lib/api";
+import { getDeals } from "@/lib/deals";
 import type { Deal } from "@/data/deals";
 import type { ComprehensiveDealDetail } from "@/data/deal-details-schema";
 
@@ -19,28 +19,6 @@ interface RelatedDealsSectionProps {
   deal: ComprehensiveDealDetail | RelatedDealsInput;
 }
 
-const mapApiDeal = (raw: Record<string, unknown>): Deal => ({
-  id: String(raw.id || ""),
-  slug: typeof raw.slug === "string" ? raw.slug : undefined,
-  name: String(raw.name || "Untitled Deal"),
-  company: typeof raw.company === "string" ? raw.company : undefined,
-  logo: String(raw.logo || ""),
-  description: String(raw.description || "Explore this startup-friendly software deal."),
-  dealText: String(raw.deal_text || raw.dealText || "Exclusive deal"),
-  savings: String(raw.savings || "Special offer"),
-  memberCount: Number(raw.member_count || raw.memberCount || 0),
-  isPremium: Boolean(raw.is_premium || raw.isPremium),
-  isFree: Boolean(raw.is_free || raw.isFree),
-  isPick: Boolean(raw.is_pick || raw.isPick),
-  category: String(raw.category || ""),
-  subcategory: typeof raw.subcategory === "string" ? raw.subcategory : undefined,
-  redeemUrl: typeof raw.redeem_url === "string" ? raw.redeem_url : typeof raw.redeemUrl === "string" ? raw.redeemUrl : undefined,
-  website: typeof raw.website === "string" ? raw.website : undefined,
-  promoCode: typeof raw.promo_code === "string" ? raw.promo_code : typeof raw.promoCode === "string" ? raw.promoCode : undefined,
-  expiresAt: typeof raw.expires_at === "string" ? raw.expires_at : typeof raw.expiresAt === "string" ? raw.expiresAt : undefined,
-  steps: Array.isArray(raw.steps) ? (raw.steps as string[]) : undefined,
-});
-
 const getDealHref = (deal: Deal) => `/deals/${deal.slug || deal.id}`;
 
 export const RelatedDealsSection: React.FC<RelatedDealsSectionProps> = ({ deal }) => {
@@ -48,9 +26,9 @@ export const RelatedDealsSection: React.FC<RelatedDealsSectionProps> = ({ deal }
   const [isLoading, setIsLoading] = useState(true);
   const [hasError, setHasError] = useState(false);
 
-  const preferredDealIds = useMemo(
-    () => (deal.relatedDeals || []).map((item) => item.id).filter(Boolean),
-    [deal]
+  const preferredDealIdsKey = useMemo(
+    () => (deal.relatedDeals || []).map((item) => item.id).filter(Boolean).join("|"),
+    [deal.relatedDeals]
   );
 
   useEffect(() => {
@@ -61,17 +39,15 @@ export const RelatedDealsSection: React.FC<RelatedDealsSectionProps> = ({ deal }
       setHasError(false);
 
       try {
-        const response = await getAllDeals();
-        const apiDeals = Array.isArray(response?.deals)
-          ? response.deals.map((item: Record<string, unknown>) => mapApiDeal(item))
-          : [];
+        const allDeals = await getDeals();
 
-        if (!apiDeals.length) {
-          throw new Error("No deals returned from backend");
+        if (!allDeals.length) {
+          throw new Error("No deals available");
         }
 
+        const preferredDealIds = preferredDealIdsKey ? preferredDealIdsKey.split("|") : [];
         const normalizedCurrentName = deal.name.toLowerCase();
-        const basePool = apiDeals.filter(
+        const basePool = allDeals.filter(
           (item) => item.id !== deal.id && item.slug !== deal.id && item.name.toLowerCase() !== normalizedCurrentName
         );
 
@@ -90,7 +66,10 @@ export const RelatedDealsSection: React.FC<RelatedDealsSectionProps> = ({ deal }
         const fallbackMatches = [...basePool].sort((a, b) => (b.memberCount || 0) - (a.memberCount || 0));
 
         const merged = [...preferredMatches, ...subcategoryMatches, ...categoryMatches, ...fallbackMatches];
-        const deduped = merged.filter((item, index, list) => list.findIndex((entry) => entry.id === item.id) === index);
+        const deduped = merged.filter((item, index, list) => {
+          const key = item.slug || item.id;
+          return list.findIndex((entry) => (entry.slug || entry.id) === key) === index;
+        });
         const selected = deduped.slice(0, 3);
 
         if (isMounted) {
@@ -114,7 +93,7 @@ export const RelatedDealsSection: React.FC<RelatedDealsSectionProps> = ({ deal }
     return () => {
       isMounted = false;
     };
-  }, [deal.id, deal.name, deal.category, deal.subcategory, preferredDealIds]);
+  }, [deal.id, deal.name, deal.category, deal.subcategory, preferredDealIdsKey]);
 
   return (
     <section id="related-section" className="border-b border-gray-200 bg-[linear-gradient(180deg,#faf8fc_0%,#ffffff_100%)] py-16">

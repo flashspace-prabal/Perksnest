@@ -2,6 +2,7 @@
 // Generated on 2026-04-17T07:33:24.371Z
 
 import { isPremiumDeal, isFreeDeal } from "@/lib/deal-types";
+import { normalizeMemberCount } from "@/lib/member-count";
 
 export interface Deal {
   id: string;
@@ -2983,6 +2984,7 @@ export const enrichDeal = (deal: Deal): Deal => {
     ...deal,
     isPremium: isPremiumDeal(deal.id),
     isFree: isFreeDeal(deal.id),
+    memberCount: normalizeMemberCount(deal, deal.id),
   };
 };
 

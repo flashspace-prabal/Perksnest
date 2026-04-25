@@ -104,6 +104,7 @@ const App = () => (
 
                   {/* Clean portal URLs */}
                   <Route path="/admin" element={<ProtectedRoute requiredRole="admin"><AdminPortal /></ProtectedRoute>} />
+                  <Route path="/admin/add-deal" element={<ProtectedRoute requiredRole="admin"><AdminPortal /></ProtectedRoute>} />
                   <Route path="/partner" element={<ProtectedRoute requiredRole="partner"><PartnerPortal /></ProtectedRoute>} />
                   <Route path="/customer" element={<ProtectedRoute requiredRole="customer"><CustomerPortal /></ProtectedRoute>} />
                   <Route path="/customer/tickets" element={<ProtectedRoute requiredRole="customer"><Tickets /></ProtectedRoute>} />

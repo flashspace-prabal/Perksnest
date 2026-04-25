@@ -187,11 +187,11 @@ const Contact = () => {
     <div className="bg-[#fbf8fd] text-slate-900">
       <section className="relative overflow-hidden border-b border-[#eadcf0] bg-[radial-gradient(circle_at_top,rgba(92,33,105,0.16),transparent_48%),linear-gradient(180deg,#ffffff_0%,#f8f2fb_100%)]">
         <div className="absolute inset-x-0 top-0 h-40 bg-[linear-gradient(90deg,rgba(92,33,105,0.08),rgba(170,118,186,0.04),rgba(92,33,105,0.08))]" />
-        <div className="relative mx-auto max-w-6xl px-6 py-20 text-center sm:py-24 lg:px-8 lg:py-28">
+        <div className="relative mx-auto max-w-6xl px-4 py-14 text-center sm:px-6 sm:py-20 lg:px-8 lg:py-28">
           <Badge className="mb-6 rounded-full bg-[#5c2169] px-4 py-1.5 text-white shadow-lg shadow-[#5c2169]/15">
             Founder-friendly support
           </Badge>
-          <h1 className="mx-auto max-w-3xl text-4xl font-bold tracking-tight text-slate-950 sm:text-5xl lg:text-6xl">
+          <h1 className="mx-auto max-w-3xl text-3xl font-bold tracking-tight text-slate-950 sm:text-5xl lg:text-6xl">
             Get in Touch
           </h1>
           <p className="mx-auto mt-6 max-w-2xl text-base leading-7 text-slate-600 sm:text-lg">
@@ -210,7 +210,7 @@ const Contact = () => {
         </div>
       </section>
 
-      <section className="mx-auto max-w-6xl px-6 py-16 lg:px-8 lg:py-20">
+      <section className="mx-auto max-w-6xl px-4 py-12 sm:px-6 lg:px-8 lg:py-20">
         <div className="grid gap-6 md:grid-cols-3">
           {contactMethods.map((method) => {
             const Icon = method.icon;
@@ -232,7 +232,7 @@ const Contact = () => {
                     href={method.href}
                     target={method.href.startsWith("http") ? "_blank" : undefined}
                     rel={method.href.startsWith("http") ? "noreferrer" : undefined}
-                    className="inline-flex items-center gap-2 font-semibold text-[#5c2169] transition-colors hover:text-[#4a1a52]"
+                    className="inline-flex items-center gap-2 break-anywhere font-semibold text-[#5c2169] transition-colors hover:text-[#4a1a52]"
                   >
                     {method.value}
                     <ExternalLink className="h-4 w-4" />
@@ -244,14 +244,14 @@ const Contact = () => {
         </div>
       </section>
 
-      <section className="mx-auto max-w-6xl px-6 pb-16 lg:px-8 lg:pb-20">
+      <section className="mx-auto max-w-6xl px-4 pb-12 sm:px-6 lg:px-8 lg:pb-20">
         <div className="grid gap-8 lg:grid-cols-[1.1fr_0.9fr]">
           <Card className="overflow-hidden rounded-[32px] border-[#eadcf0] bg-white shadow-[0_26px_80px_rgba(92,33,105,0.10)]">
             <CardHeader className="border-b border-[#f0e5f4] bg-[linear-gradient(180deg,rgba(248,242,251,0.95),rgba(255,255,255,0.95))] pb-6">
               <Badge variant="outline" className="w-fit rounded-full border-[#d9bfdc] bg-white text-[#5c2169]">
                 Contact form
               </Badge>
-              <CardTitle className="text-3xl text-slate-950">Send us a message</CardTitle>
+              <CardTitle className="text-2xl sm:text-3xl text-slate-950">Send us a message</CardTitle>
               <CardDescription className="max-w-2xl text-sm leading-6 text-slate-600">
                 Share a few details and we’ll route your message to the right person. For the fastest reply, include the deal name or account email if your question is account-specific.
               </CardDescription>
@@ -373,7 +373,7 @@ const Contact = () => {
                     <Button
                       type="submit"
                       disabled={isFormDisabled}
-                      className="h-12 rounded-full bg-[#5c2169] px-6 text-sm font-semibold shadow-lg shadow-[#5c2169]/20 transition-transform hover:scale-[1.01] hover:bg-[#4a1a52]"
+                      className="h-12 w-full rounded-full bg-[#5c2169] px-6 text-sm font-semibold shadow-lg shadow-[#5c2169]/20 transition-transform hover:scale-[1.01] hover:bg-[#4a1a52] sm:w-auto"
                     >
                       {isSubmitting ? "Sending..." : "Send message"}
                       <Send className="ml-2 h-4 w-4" />
@@ -428,7 +428,7 @@ const Contact = () => {
       </section>
 
       <section className="border-t border-[#eadcf0] bg-white">
-        <div className="mx-auto max-w-6xl px-6 py-16 lg:px-8">
+        <div className="mx-auto max-w-6xl px-4 py-12 sm:px-6 lg:px-8 lg:py-16">
           <div className="mb-10">
             <Badge variant="outline" className="rounded-full border-[#d9bfdc] text-[#5c2169]">
               FAQ

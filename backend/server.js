@@ -1226,7 +1226,7 @@ async function buildAdminStats() {
     reviewsResult,
   ] = await Promise.all([
     db.from("users").select("id,plan,role,roles,status,created_at,claimed_deals"),
-    db.from("deals").select("id,name,category,savings,active,created_at"),
+    db.from("deals").select("id,name,category,savings,created_at"),
     db.from("partner_deals").select("*"),
     db.from("claim_events").select("id,deal_id,claimed_at"),
     db.from("wl_clients").select("mrr,status,members").order("created_at", { ascending: false }),
@@ -1246,9 +1246,8 @@ async function buildAdminStats() {
 
   const approvedPartnerDeals = partnerDeals.filter((deal) => deal.status === "approved");
   const pendingPartnerDeals = partnerDeals.filter((deal) => deal.status === "pending");
-  const activePlatformDeals = platformDeals.filter((deal) => deal.active !== false);
   const allVisibleDeals = [
-    ...activePlatformDeals.map((deal) => ({
+    ...platformDeals.map((deal) => ({
       id: deal.id,
       savings: deal.savings,
       category: deal.category || "other",
@@ -1320,7 +1319,7 @@ async function buildAdminStats() {
     enterpriseUsers,
     freeUsers,
     totalDeals: platformDeals.length + approvedPartnerDeals.length,
-    activeDeals: activePlatformDeals.length + approvedPartnerDeals.length,
+    activeDeals: platformDeals.length + approvedPartnerDeals.length,
     pendingApproval: pendingPartnerDeals.length,
     totalMembers: totalUsers,
     totalSavings,
@@ -1795,22 +1794,244 @@ app.patch("/api/notifications/:id/read", async (req, res) => {
 
 app.get("/api/deals", async (_, res) => {
   try {
-    const { data, error } = await db.from("deals").select("*").order("created_at", { ascending: false });
+    const { data, error } = await db
+      .from("deals")
+      .select("*")
+      .order("created_at", { ascending: false });
     if (error) throw error;
-    res.json({ deals: data || [] });
+    res.json({ deals: safeArray(data).map(enrichDealResponse) });
   } catch {
     const { data } = await db.from("partner_deals").select("*").eq("status", "approved");
-    res.json({ deals: data || [] });
+    res.json({ deals: safeArray(data).map(enrichDealResponse) });
   }
 });
+
+function normalizeResponseFeatures(row) {
+  const source = Array.isArray(row?.features) && row.features.length > 0
+    ? row.features
+    : [
+        row?.deal_text || row?.discounted_value || "Exclusive startup offer",
+        "Startup-friendly onboarding",
+        "Founder-focused savings",
+        "Partner activation support",
+      ];
+
+  return source
+    .map((feature, index) => {
+      if (typeof feature === "string") {
+        return {
+          id: `feature-${index + 1}`,
+          icon: index % 3 === 0 ? "Zap" : index % 3 === 1 ? "ShieldCheck" : "Sparkles",
+          title: feature,
+          description: `${row?.name || "This deal"} includes ${feature.toLowerCase()} for startup teams.`,
+        };
+      }
+
+      if (feature && typeof feature === "object") {
+        const title = String(feature.title || feature.name || feature.description || `Feature ${index + 1}`);
+        return {
+          id: String(feature.id || `feature-${index + 1}`),
+          icon: String(feature.icon || "Sparkles"),
+          title,
+          description: String(feature.description || `${row?.name || "This deal"} includes ${title.toLowerCase()}.`),
+        };
+      }
+
+      return null;
+    })
+    .filter(Boolean)
+    .slice(0, 8);
+}
+
+const responsePricingByDeal = {
+  cloudflare: [
+    { name: "Free", price: "$0", billingPeriod: "month", description: "Basic CDN, DNS, SSL, and DDoS protection for personal sites.", features: ["Free SSL", "Global CDN", "Basic DDoS protection"] },
+    { name: "Pro", price: "$20", billingPeriod: "month", description: "Performance and security features for professional websites.", features: ["WAF rules", "Image optimization", "More page rules"] },
+    { name: "Business", price: "$200", billingPeriod: "month", description: "Advanced security, performance, and support for production businesses.", features: ["Advanced DDoS protection", "Prioritized support", "PCI compliance features"] },
+  ],
+  digitalocean: [
+    { name: "Basic Droplets", price: "From $4", billingPeriod: "month", description: "Simple virtual machines for apps, APIs, and staging environments.", features: ["SSD storage", "Bandwidth included", "Predictable monthly pricing"] },
+    { name: "App Platform", price: "From $5", billingPeriod: "month", description: "Managed app hosting with builds, deploys, and scaling.", features: ["Managed deployments", "HTTPS included", "Horizontal scaling"] },
+    { name: "Managed Databases", price: "From $15", billingPeriod: "month", description: "Managed database options for production applications.", features: ["Automated backups", "High availability options", "Monitoring"] },
+  ],
+  vercel: [
+    { name: "Hobby", price: "$0", billingPeriod: "month", description: "Free personal projects and prototypes.", features: ["Preview deployments", "Global CDN", "Serverless functions"] },
+    { name: "Pro", price: "$20", billingPeriod: "user/month", description: "Team projects with higher limits and collaboration.", features: ["Team seats", "More bandwidth", "Advanced analytics"] },
+    { name: "Enterprise", price: "Custom", billingPeriod: "contract", description: "Advanced security, governance, and scale for larger teams.", features: ["SAML/SSO", "Enterprise support", "Custom limits"] },
+  ],
+  render: [
+    { name: "Static Sites", price: "$0", billingPeriod: "month", description: "Free static site hosting with automatic deploys.", features: ["Global CDN", "HTTPS", "Git deploys"] },
+    { name: "Web Services", price: "From $7", billingPeriod: "month", description: "Managed web services for production apps.", features: ["Autoscaling options", "Private services", "Zero-downtime deploys"] },
+    { name: "Databases", price: "From $7", billingPeriod: "month", description: "Managed PostgreSQL instances for application data.", features: ["Backups", "Monitoring", "Persistent disks"] },
+  ],
+  openai: [
+    { name: "API", price: "Usage-based", billingPeriod: "tokens", description: "Pay per model input, output, and tool usage.", features: ["Text and vision models", "Embeddings", "Realtime and batch options"] },
+    { name: "ChatGPT Plus", price: "$20", billingPeriod: "month", description: "Individual ChatGPT plan with higher limits.", features: ["Advanced models", "File analysis", "Image generation"] },
+    { name: "ChatGPT Team", price: "From $25", billingPeriod: "user/month", description: "Workspace plan for teams billed annually.", features: ["Shared workspace", "Admin controls", "Higher message limits"] },
+  ],
+  anthropic: [
+    { name: "Claude API", price: "Usage-based", billingPeriod: "tokens", description: "Model API pricing based on input and output tokens.", features: ["Claude models", "Prompt caching", "Batch processing"] },
+    { name: "Claude Pro", price: "$20", billingPeriod: "month", description: "Individual Claude subscription with higher usage.", features: ["More usage", "Priority access", "Projects"] },
+    { name: "Claude Team", price: "$30", billingPeriod: "user/month", description: "Team workspace with admin and collaboration controls.", features: ["Team management", "Shared projects", "Central billing"] },
+  ],
+  notion: [
+    { name: "Free", price: "$0", billingPeriod: "month", description: "Personal workspace and basic collaboration.", features: ["Pages and blocks", "Basic integrations", "Templates"] },
+    { name: "Plus", price: "$10", billingPeriod: "user/month", description: "Small-team workspace with more file uploads and history.", features: ["Unlimited blocks for teams", "30-day page history", "Guest collaboration"] },
+    { name: "Business", price: "$20", billingPeriod: "user/month", description: "Advanced permissions, security, and workspace controls.", features: ["SAML SSO", "Private teamspaces", "Advanced analytics"] },
+  ],
+  github: [
+    { name: "Free", price: "$0", billingPeriod: "month", description: "Public and private repos for individuals and small teams.", features: ["GitHub Actions minutes", "Issues and projects", "Community support"] },
+    { name: "Team", price: "$4", billingPeriod: "user/month", description: "Team collaboration with protected branches and code owners.", features: ["Pull request reviews", "Code owners", "Required reviewers"] },
+    { name: "Enterprise", price: "$21", billingPeriod: "user/month", description: "Enterprise security, compliance, and administration.", features: ["SAML SSO", "Advanced security", "Audit logs"] },
+  ],
+  supabase: [
+    { name: "Free", price: "$0", billingPeriod: "month", description: "Hosted Postgres and backend services for prototypes.", features: ["Postgres database", "Auth", "Storage"] },
+    { name: "Pro", price: "$25", billingPeriod: "project/month", description: "Production projects with more compute and no pause.", features: ["Daily backups", "Higher limits", "Email support"] },
+    { name: "Team", price: "$599", billingPeriod: "month", description: "Organization controls and advanced support for teams.", features: ["SSO", "SOC2 documents", "Priority support"] },
+  ],
+  mongodb: [
+    { name: "M0 Free", price: "$0", billingPeriod: "month", description: "Free shared Atlas cluster for learning and prototypes.", features: ["512 MB storage", "Shared RAM", "Atlas UI"] },
+    { name: "Dedicated", price: "From $57", billingPeriod: "month", description: "Dedicated Atlas clusters for production workloads.", features: ["Backups", "Autoscaling", "Global clusters"] },
+    { name: "Serverless", price: "Usage-based", billingPeriod: "reads/writes/storage", description: "Scale-to-zero database option for variable traffic.", features: ["Pay per operation", "Automatic scaling", "No capacity planning"] },
+  ],
+  hubspot: [
+    { name: "Free Tools", price: "$0", billingPeriod: "month", description: "Free CRM, marketing, sales, and service tools.", features: ["CRM contacts", "Forms", "Email marketing basics"] },
+    { name: "Starter", price: "From $20", billingPeriod: "month", description: "Starter hubs for small teams needing automation and branding control.", features: ["Remove HubSpot branding", "Simple automation", "Email support"] },
+    { name: "Professional", price: "From $800", billingPeriod: "month", description: "Advanced automation, reporting, and scale across hubs.", features: ["Workflows", "Custom reporting", "Campaign tools"] },
+  ],
+  "stripe-atlas": [
+    { name: "Atlas setup", price: "$500", billingPeriod: "one-time", description: "Company formation package for Delaware C-Corps.", features: ["Incorporation", "EIN filing support", "Founder stock docs"] },
+    { name: "Stripe Payments", price: "2.9% + 30¢", billingPeriod: "card transaction", description: "Standard online card payment processing.", features: ["Cards and wallets", "Disputes", "Fraud tools"] },
+    { name: "Custom pricing", price: "Custom", billingPeriod: "volume", description: "Volume pricing for larger payment businesses.", features: ["Volume discounts", "Custom rates", "Dedicated support"] },
+  ],
+  salesforce: [
+    { name: "Starter Suite", price: "$25", billingPeriod: "user/month", description: "Starter CRM suite for sales, service, and marketing.", features: ["Lead management", "Email tools", "Dashboards"] },
+    { name: "Pro Suite", price: "$100", billingPeriod: "user/month", description: "More automation and customization for growing teams.", features: ["Forecasting", "Automation", "Custom apps"] },
+    { name: "Enterprise", price: "$165", billingPeriod: "user/month", description: "Advanced CRM customization and platform features.", features: ["Workflow automation", "Advanced permissions", "API access"] },
+  ],
+};
+
+const responsePricingByCategory = {
+  cloud: [
+    { name: "Free tier", price: "$0", billingPeriod: "month", description: "Entry-level free usage for trials, prototypes, or always-free services.", features: ["Free usage limits", "Basic monitoring", "Self-serve docs"] },
+    { name: "Pay-as-you-go", price: "Usage-based", billingPeriod: "resources used", description: "Standard cloud pricing based on compute, storage, bandwidth, and managed services.", features: ["No upfront commitment", "Scale up/down", "Metered billing"] },
+    { name: "Enterprise / committed use", price: "Custom", billingPeriod: "contract", description: "Discounted committed usage, support, or enterprise agreements.", features: ["Volume discounts", "Support plans", "Governance controls"] },
+  ],
+  infrastructure: [
+    { name: "Free / developer", price: "$0", billingPeriod: "month", description: "Developer tier for testing and small projects.", features: ["Basic usage", "Community support", "Self-serve setup"] },
+    { name: "Team / pro", price: "From $20", billingPeriod: "month", description: "Production tier for teams and live apps.", features: ["Higher limits", "Team controls", "Better performance"] },
+    { name: "Enterprise", price: "Custom", billingPeriod: "contract", description: "Advanced reliability, security, compliance, and support.", features: ["SLA", "SSO", "Dedicated support"] },
+  ],
+  ai: [
+    { name: "Free / trial", price: "$0", billingPeriod: "limited usage", description: "Starter access for evaluation and experiments.", features: ["Limited usage", "Basic models", "Self-serve docs"] },
+    { name: "API / Pro", price: "Usage-based", billingPeriod: "usage", description: "Paid usage based on API calls, tokens, minutes, or generated media.", features: ["Production API", "Higher limits", "Usage billing"] },
+    { name: "Business / Enterprise", price: "Custom", billingPeriod: "contract", description: "Higher limits, security, and support for business deployments.", features: ["Custom limits", "Priority support", "Security reviews"] },
+  ],
+  database: [
+    { name: "Free", price: "$0", billingPeriod: "month", description: "Free hosted database tier for prototypes and development.", features: ["Shared resources", "Basic backups", "Limited storage"] },
+    { name: "Production", price: "From $25", billingPeriod: "month", description: "Managed production database with backups and higher limits.", features: ["Backups", "Monitoring", "Higher compute"] },
+    { name: "Enterprise", price: "Custom", billingPeriod: "contract", description: "Advanced scale, security, compliance, and dedicated support.", features: ["SLA", "Private networking", "Dedicated support"] },
+  ],
+};
+
+function buildResponsePricing(row) {
+  const id = row.slug || row.id || "";
+  const name = row.name || "This product";
+  const category = String(row.category || "").toLowerCase();
+  const plans = responsePricingByDeal[id] || responsePricingByCategory[category] || [
+    { name: "Free / trial", price: "$0", billingPeriod: "limited access", description: "Starter access for evaluation.", features: ["Self-serve setup", "Basic features", "Community resources"] },
+    { name: "Team", price: "Custom", billingPeriod: "month", description: "Standard paid plan for teams.", features: ["Team workspace", "Higher limits", "Support"] },
+    { name: "Enterprise", price: "Custom", billingPeriod: "contract", description: "Enterprise plan with advanced security and support.", features: ["SSO", "Admin controls", "Dedicated support"] },
+  ];
+
+  return {
+    description: `${name} standard pricing shown separately from the PerksNest startup offer. Confirm current rates on the partner website before purchase.`,
+    plans: plans.map((plan, index) => ({
+      ...plan,
+      highlighted: index === 1,
+    })),
+  };
+}
+
+function enrichDealResponse(row = {}) {
+  const features = normalizeResponseFeatures(row);
+  const dealText = row.deal_text || row.dealText || row.discounted_value || "Exclusive startup offer";
+  const savings = row.savings || row.savings_amount || "Special offer";
+  const description = row.description || row.short_description || `${row.name || "This deal"} helps startups move faster.`;
+  const steps = safeArray(row.steps).length > 0
+    ? safeArray(row.steps)
+    : ["Open the partner offer from PerksNest.", "Create or sign in to your partner account.", "Complete any required startup verification."];
+  const eligibility = safeArray(row.eligibility).length > 0
+    ? safeArray(row.eligibility)
+    : ["Startup or early-stage business profile", "Valid company or founder account", "One redemption per eligible company unless stated otherwise"];
+  const storedHighlight = row.deal_highlight && typeof row.deal_highlight === "object" && (row.deal_highlight.savings || row.deal_highlight.headline)
+    ? row.deal_highlight
+    : null;
+  const storedDeals = row.deals && typeof row.deals === "object" && (row.deals.title || row.deals.explanation)
+    ? row.deals
+    : null;
+  const storedGeneral = row.general && typeof row.general === "object" && (row.general.overview || safeArray(row.general.useCases).length > 0)
+    ? row.general
+    : null;
+  const storedPricing = row.pricing && typeof row.pricing === "object" && safeArray(row.pricing.plans).length > 0
+    ? row.pricing
+    : null;
+
+  return {
+    ...row,
+    features,
+    deal_highlight: storedHighlight || {
+      savings,
+      headline: dealText,
+    },
+    social_proof: row.social_proof || {
+      redeemedCount: Number(row.member_count || row.claims || 0),
+    },
+    deals: storedDeals || {
+      title: `${row.name || "Deal"} startup offer`,
+      explanation: description,
+      howCanBenefit: `${row.name || "This deal"} can help startups reduce spend while testing production-ready workflows.`,
+      howCanIBenefit: steps,
+      whyChooseThis: features.slice(0, 5).map((feature) => feature.title),
+    },
+    general: storedGeneral || {
+      overview: description,
+      useCases: features.slice(0, 4).map((feature) => feature.title),
+      features,
+      website: row.website || row.redeem_url || undefined,
+    },
+    faq: safeArray(row.faq).length > 0 ? row.faq : [
+      {
+        id: "faq-1",
+        question: `How do I claim the ${row.name || "deal"} offer?`,
+        answer: `Click the claim button on PerksNest, follow the partner flow, and complete any required verification. Typical steps: ${steps.join(" ")}`,
+      },
+      {
+        id: "faq-2",
+        question: `Who is eligible for ${row.name || "this offer"}?`,
+        answer: eligibility.join(" "),
+      },
+      {
+        id: "faq-3",
+        question: "What happens after I apply?",
+        answer: "The partner may activate credits automatically or review your application manually. Watch your email for approval and next steps.",
+      },
+    ],
+    pricing: storedPricing || buildResponsePricing(row),
+  };
+}
 
 app.get("/api/deals/:dealId", async (req, res) => {
   const { dealId } = req.params;
   try {
-    const { data, error } = await db.from("deals").select("*").eq("id", dealId).maybeSingle();
+    const { data, error } = await db
+      .from("deals")
+      .select("*")
+      .or(`id.eq.${dealId},slug.eq.${dealId}`)
+      .maybeSingle();
     if (error) throw error;
     if (data) {
-      res.json({ deal: data });
+      res.json({ deal: enrichDealResponse(data) });
       return;
     }
     const { data: partner } = await db.from("partner_deals").select("*").eq("id", dealId).maybeSingle();
@@ -1818,7 +2039,7 @@ app.get("/api/deals/:dealId", async (req, res) => {
       res.status(404).json({ error: "Deal not found" });
       return;
     }
-    res.json({ deal: partner });
+    res.json({ deal: enrichDealResponse(partner) });
   } catch (error) {
     res.status(500).json({ error: "Failed to fetch deal", details: error.message });
   }
@@ -2799,15 +3020,257 @@ app.patch("/api/admin/partner-deals/:dealId/status", async (req, res) => {
   }
 });
 
+function slugifyDealName(value) {
+  return String(value || "")
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "")
+    .slice(0, 120);
+}
+
+function isValidHttpUrl(value) {
+  if (!value) return true;
+  try {
+    const parsed = new URL(String(value));
+    return ["http:", "https:"].includes(parsed.protocol);
+  } catch {
+    return false;
+  }
+}
+
+function isValidAssetUrl(value) {
+  if (!value) return true;
+  return isValidHttpUrl(value) || /^data:image\/(png|jpe?g|webp|gif|svg\+xml);base64,/i.test(String(value));
+}
+
+function normalizeDealList(value) {
+  if (!Array.isArray(value)) return [];
+  return value.map((item) => String(item || "").trim()).filter(Boolean);
+}
+
+function normalizeObjectList(value) {
+  if (!Array.isArray(value)) return [];
+  return value.filter((item) => item && typeof item === "object");
+}
+
+const baseAdminDealColumns = new Set([
+  "id",
+  "slug",
+  "name",
+  "company",
+  "logo",
+  "description",
+  "deal_text",
+  "savings",
+  "member_count",
+  "is_premium",
+  "is_free",
+  "is_pick",
+  "featured",
+  "category",
+  "subcategory",
+  "last_added",
+  "expires_at",
+  "collection",
+  "redeem_url",
+  "promo_code",
+  "steps",
+  "eligibility",
+  "features",
+  "reviews",
+  "website",
+  "expires_in",
+  "created_at",
+  "updated_at",
+]);
+
+const optionalAdminDealColumns = [
+  "short_description",
+  "full_description",
+  "deal_highlight",
+  "social_proof",
+  "deals",
+  "general",
+  "faq",
+  "pricing",
+  "alternatives",
+  "related_deals",
+  "resources",
+];
+
+let writableDealColumnsCache = null;
+
+async function getWritableDealColumns() {
+  if (writableDealColumnsCache) return writableDealColumnsCache;
+  const writable = new Set(baseAdminDealColumns);
+
+  await Promise.all(optionalAdminDealColumns.map(async (column) => {
+    const { error } = await db.from("deals").select(column).limit(1);
+    if (!error) writable.add(column);
+  }));
+
+  writableDealColumnsCache = writable;
+  return writableDealColumnsCache;
+}
+
+async function filterAdminDealPayloadForDb(data) {
+  const writable = await getWritableDealColumns();
+  return Object.fromEntries(Object.entries(data).filter(([key, value]) => writable.has(key) && value !== undefined));
+}
+
+function validateAndBuildAdminDealPayload(rawPayload = {}, existingId) {
+  const errors = [];
+  const name = String(rawPayload.name || "").trim();
+  const slug = slugifyDealName(rawPayload.slug || name);
+  const company = String(rawPayload.company || name).trim();
+  const logo = String(rawPayload.logo || "").trim();
+  const category = String(rawPayload.category || "other").trim().toLowerCase();
+  const subcategory = String(rawPayload.subcategory || "").trim().toLowerCase() || null;
+  const description = String(rawPayload.description || "").trim();
+  const dealText = String(rawPayload.deal_text || rawPayload.dealText || "").trim();
+  const savings = String(rawPayload.savings || "").trim();
+  const dealType = String(rawPayload.dealType || rawPayload.type || "free").trim().toLowerCase();
+  const benefits = normalizeDealList(rawPayload.eligibility || rawPayload.benefits);
+  const steps = normalizeDealList(rawPayload.steps);
+  const features = normalizeObjectList(rawPayload.features);
+  const faq = normalizeObjectList(rawPayload.faq);
+  const reviews = normalizeObjectList(rawPayload.reviews);
+  const pricing = rawPayload.pricing && typeof rawPayload.pricing === "object" ? rawPayload.pricing : {};
+  const pricingPlans = normalizeObjectList(pricing.plans);
+  const redeemUrl = String(rawPayload.redeem_url || rawPayload.redeemUrl || "").trim();
+  const website = String(rawPayload.website || redeemUrl).trim();
+  const promoCode = String(rawPayload.promo_code || rawPayload.promoCode || "").trim() || null;
+  const collection = String(rawPayload.collection || "").trim() || null;
+  const expiresAt = String(rawPayload.expires_at || rawPayload.expiresAt || "").trim() || null;
+  const expiresIn = String(rawPayload.expires_in || rawPayload.expiresIn || "").trim() || null;
+  const memberCount = Number(rawPayload.member_count || rawPayload.memberCount || 0);
+  const featured = Boolean(rawPayload.featured);
+  const isPick = Boolean(rawPayload.is_pick || rawPayload.isPick);
+
+  if (!name) errors.push("Deal name is required.");
+  if (!slug) errors.push("Slug is required.");
+  if (!company) errors.push("Company name is required.");
+  if (!category) errors.push("Category is required.");
+  if (!description) errors.push("Description is required.");
+  if (!dealText) errors.push("Deal text is required.");
+  if (!savings) errors.push("Savings is required.");
+  if (!redeemUrl) errors.push("Claim URL is required.");
+  if (!["free", "premium"].includes(dealType)) errors.push("Deal type must be free or premium.");
+  if (benefits.length === 0) errors.push("Add at least one key benefit.");
+  if (features.length === 0) errors.push("Add at least one detail page feature.");
+  if (pricingPlans.length === 0) errors.push("Add at least one pricing plan.");
+  if (faq.length === 0) errors.push("Add at least one FAQ.");
+  if (reviews.length === 0) errors.push("Add at least one review.");
+  if (steps.length === 0) errors.push("Add at least one redemption step.");
+
+  if (!isValidAssetUrl(logo)) {
+    errors.push("Logo must be a valid http(s) URL or uploaded image.");
+  }
+  if (!isValidHttpUrl(redeemUrl)) errors.push("Claim URL must be a valid http(s) URL.");
+  if (!isValidHttpUrl(website)) errors.push("Website must be a valid http(s) URL.");
+  if (expiresAt && Number.isNaN(new Date(expiresAt).getTime())) {
+    errors.push("Expiration date is invalid.");
+  }
+
+  if (errors.length > 0) {
+    return { ok: false, errors };
+  }
+
+  const pricingData = {
+    description: String(pricing.description || `${name} partner pricing and startup offer details.`).trim(),
+    plans: pricingPlans,
+  };
+  const dealHighlight = rawPayload.deal_highlight && typeof rawPayload.deal_highlight === "object"
+    ? rawPayload.deal_highlight
+    : {
+      savings,
+      headline: dealText,
+    };
+  const general = rawPayload.general && typeof rawPayload.general === "object"
+    ? rawPayload.general
+    : {
+      overview: description,
+      useCases: benefits.slice(0, 4),
+      website: website || redeemUrl,
+    };
+
+  const data = {
+      id: existingId ? undefined : slug,
+      slug,
+      name,
+      company,
+      logo: logo || null,
+      description,
+      deal_text: dealText,
+      savings,
+      member_count: Number.isFinite(memberCount) ? memberCount : 0,
+      is_premium: dealType === "premium",
+      is_free: dealType === "free",
+      is_pick: isPick,
+      featured,
+      category,
+      subcategory,
+      last_added: existingId ? undefined : nowIso(),
+      expires_at: expiresAt,
+      collection,
+      redeem_url: redeemUrl,
+      promo_code: promoCode,
+      steps,
+      eligibility: benefits,
+      features,
+      reviews,
+      short_description: description,
+      full_description: description,
+      deal_highlight: dealHighlight,
+      social_proof: {
+        redeemedCount: Number.isFinite(memberCount) ? memberCount : 0,
+      },
+      deals: {
+        title: `${name} startup offer`,
+        explanation: description,
+        howCanBenefit: `${name} can help startups save ${savings} while adopting ${company}.`,
+        howCanIBenefit: steps,
+        whyChooseThis: features.map((feature) => feature.title).filter(Boolean).slice(0, 5),
+      },
+      general,
+      faq,
+      pricing: pricingData,
+      website: website || redeemUrl,
+      expires_in: expiresIn,
+      updated_at: nowIso(),
+      ...(existingId ? {} : { created_at: nowIso() }),
+    };
+
+  return {
+    ok: true,
+    data: Object.fromEntries(Object.entries(data).filter(([, value]) => value !== undefined)),
+  };
+}
+
 app.post("/api/admin/deals", async (req, res) => {
   try {
     const context = await requireAdminContext(req, res);
     if (!context) return;
-    const { data, error } = await db.from("deals").insert(req.body).select("*").single();
-    if (error) throw error;
+    console.log("[ADMIN DEAL CREATE] Incoming payload:", JSON.stringify(req.body || {}));
+
+    const validation = validateAndBuildAdminDealPayload(req.body);
+    if (!validation.ok) {
+      res.status(400).json({ success: false, error: validation.errors.join(" ") });
+      return;
+    }
+
+    const payload = await filterAdminDealPayloadForDb(validation.data);
+    const { data, error } = await db.from("deals").insert(payload).select("*").single();
+    console.log("[ADMIN DEAL CREATE] DB response:", JSON.stringify({ data, error }));
+    if (error) {
+      const isDuplicate = error.code === "23505";
+      return res.status(isDuplicate ? 409 : 500).json({ success: false, error: formatSupabaseError(error) });
+    }
     res.json({ success: true, deal: data });
   } catch (error) {
-    res.status(500).json({ success: false, error: error.message });
+    console.error("[ADMIN DEAL CREATE] ERROR:", error);
+    res.status(500).json({ success: false, error: formatSupabaseError(error) });
   }
 });
 
@@ -2815,11 +3278,25 @@ app.put("/api/admin/deals/:dealId", async (req, res) => {
   try {
     const context = await requireAdminContext(req, res);
     if (!context) return;
-    const { data, error } = await db.from("deals").update(req.body).eq("id", req.params.dealId).select("*").single();
-    if (error) throw error;
+    console.log("[ADMIN DEAL UPDATE] Incoming payload:", JSON.stringify({ dealId: req.params.dealId, body: req.body || {} }));
+
+    const validation = validateAndBuildAdminDealPayload(req.body, req.params.dealId);
+    if (!validation.ok) {
+      res.status(400).json({ success: false, error: validation.errors.join(" ") });
+      return;
+    }
+
+    const payload = await filterAdminDealPayloadForDb(validation.data);
+    const { data, error } = await db.from("deals").update(payload).eq("id", req.params.dealId).select("*").single();
+    console.log("[ADMIN DEAL UPDATE] DB response:", JSON.stringify({ data, error }));
+    if (error) {
+      const isDuplicate = error.code === "23505";
+      return res.status(isDuplicate ? 409 : 500).json({ success: false, error: formatSupabaseError(error) });
+    }
     res.json({ success: true, deal: data });
   } catch (error) {
-    res.status(500).json({ success: false, error: error.message });
+    console.error("[ADMIN DEAL UPDATE] ERROR:", error);
+    res.status(500).json({ success: false, error: formatSupabaseError(error) });
   }
 });
 
@@ -2827,11 +3304,35 @@ app.delete("/api/admin/deals/:dealId", async (req, res) => {
   try {
     const context = await requireAdminContext(req, res);
     if (!context) return;
-    const { error } = await db.from("deals").delete().eq("id", req.params.dealId);
+    const dealId = String(req.params.dealId || "").trim();
+    if (!dealId) {
+      res.status(400).json({ success: false, error: "Deal ID is required" });
+      return;
+    }
+
+    let lookup = await db.from("deals").select("id,slug").eq("id", dealId).maybeSingle();
+    if (lookup.error) throw lookup.error;
+    if (!lookup.data) {
+      lookup = await db.from("deals").select("id,slug").eq("slug", dealId).maybeSingle();
+      if (lookup.error) throw lookup.error;
+    }
+    if (!lookup.data) {
+      res.status(404).json({ success: false, error: "Deal not found" });
+      return;
+    }
+
+    const dealKeys = [...new Set([lookup.data.id, lookup.data.slug, dealId].map((value) => String(value || "").trim()).filter(Boolean))];
+    for (const table of ["bookmarks", "claim_events", "reviews"]) {
+      const { error } = await db.from(table).delete().in("deal_id", dealKeys);
+      if (error) throw error;
+    }
+
+    const { data, error } = await db.from("deals").delete().eq("id", lookup.data.id).select("id").single();
     if (error) throw error;
-    res.json({ success: true });
+    res.json({ success: true, deletedId: data.id });
   } catch (error) {
-    res.status(500).json({ success: false, error: error.message });
+    console.error("[ADMIN DEAL DELETE] ERROR:", error);
+    res.status(500).json({ success: false, error: formatSupabaseError(error) });
   }
 });
 

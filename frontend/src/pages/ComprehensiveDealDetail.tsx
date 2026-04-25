@@ -32,7 +32,7 @@ import { getComprehensiveDealByIdFromMaster } from "@/data/index-all-deals";
 import { dealsData } from "@/data/deals";
 import { convertBasicDealToComprehensive } from "@/lib/deal-converter";
 import { normalizeComprehensiveDeal } from "@/lib/comprehensive-deal-normalizer";
-import { getDealReviews } from "@/lib/api";
+import { getDealById, getDealReviews } from "@/lib/api";
 import { normalizeApiDealReviews, normalizeDealReviewCollection, DealPageReview } from "@/lib/deal-review-normalizer";
 import { dealReviews } from "@/data/reviews";
 import { createClient } from "@supabase/supabase-js";
@@ -74,6 +74,16 @@ const DEAL_TABS = [
  */
 async function getComprehensiveDealData(dealId: string): Promise<ComprehensiveDealDetail | null> {
   try {
+    const response = await getDealById(dealId);
+    if (response?.deal) {
+      console.log("Loaded deal from Supabase API:", dealId);
+      return normalizeComprehensiveDeal(response.deal as Record<string, unknown>, dealId);
+    }
+  } catch (error) {
+    console.warn("Supabase API fetch failed, falling back to direct/static data:", error);
+  }
+
+  try {
     // Try Supabase first
     const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
     const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
@@ -85,7 +95,7 @@ async function getComprehensiveDealData(dealId: string): Promise<ComprehensiveDe
         const { data, error } = await supabase
           .from("deals")
           .select("*")
-          .eq("id", dealId)
+          .or(`id.eq.${dealId},slug.eq.${dealId}`)
           .maybeSingle();
 
         if (!error && data) {
@@ -120,7 +130,7 @@ async function getComprehensiveDealData(dealId: string): Promise<ComprehensiveDe
   }
 
   // Fallback to basic deals data - convert to comprehensive format
-  const basicDeal = dealsData.find((d) => d.id === dealId);
+  const basicDeal = dealsData.find((d) => d.id === dealId || d.slug === dealId);
   if (basicDeal) {
     console.log("✅ Converting basic deal to comprehensive:", dealId);
     return normalizeComprehensiveDeal(convertBasicDealToComprehensive(basicDeal) as Record<string, unknown>, dealId);
@@ -407,6 +417,9 @@ export const ComprehensiveDealDetailPage: React.FC = () => {
       {/* Deals Section */}
       <DealsSection deal={deal} />
 
+      {/* General Information */}
+      <GeneralSection deal={deal} />
+
       {/* FAQ Section */}
       <FAQSection deal={deal} />
 
@@ -418,9 +431,6 @@ export const ComprehensiveDealDetailPage: React.FC = () => {
 
       {/* Reviews Section */}
       <ReviewsSection reviews={dealPageReviews} isLoading={isReviewsLoading} />
-
-      {/* General Information */}
-      <GeneralSection deal={deal} />
 
       {/* Related/Also Likes Section */}
       <RelatedDealsSection deal={deal} />
