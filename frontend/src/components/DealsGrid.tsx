@@ -184,7 +184,7 @@ const DealsGrid = () => {
         {/* Load More */}
         <div className="flex justify-center mt-14">
           <Button size="lg" variant="outline" className="gap-2 border-primary text-primary hover:bg-primary hover:text-primary-foreground">
-            View all 563 deals
+            View all 200+ deals
             <ArrowRight className="h-4 w-4" />
           </Button>
         </div>

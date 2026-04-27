@@ -32,7 +32,7 @@ const Communities = () => {
 
   const benefits = isAccelerators ? [
     "White-label platform under your brand",
-    "All 563+ deals for your portfolio companies",
+    "All 200+ deals for your portfolio companies",
     "Custom deal additions for your ecosystem",
     "Dedicated account manager",
     "Portfolio performance analytics",

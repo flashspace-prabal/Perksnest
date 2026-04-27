@@ -11,7 +11,7 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sh
 import { toast } from "sonner";
 import { apiCall } from "@/lib/api";
 import { useAuth } from "@/lib/auth";
-import { subscribeToTicketRoom } from "@/lib/ticket-socket";
+import { subscribeToTicketEvents, subscribeToTicketRoom } from "@/lib/ticket-socket";
 
 interface Message {
   id: string;
@@ -50,6 +50,31 @@ export const AdminTickets = () => {
 
   useEffect(() => {
     loadTickets();
+  }, []);
+
+  useEffect(() => {
+    return subscribeToTicketEvents({
+      onCreated: (ticket) => {
+        const nextTicket = ticket as Ticket;
+        setTickets((current) => {
+          if (current.some((item) => item.id === nextTicket.id)) return current;
+          return [nextTicket, ...current];
+        });
+      },
+      onUpdated: (ticket) => {
+        const nextTicket = ticket as Partial<Ticket>;
+        if (!nextTicket.id) return;
+        setTickets((current) =>
+          current.map((item) => item.id === nextTicket.id ? { ...item, ...nextTicket } : item)
+        );
+        setSelectedTicket((current) =>
+          current?.id === nextTicket.id ? { ...current, ...nextTicket } : current
+        );
+      },
+      onError: (message) => {
+        console.error("Admin ticket socket error:", message);
+      },
+    });
   }, []);
 
   useEffect(() => {

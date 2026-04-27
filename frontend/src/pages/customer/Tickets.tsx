@@ -11,11 +11,12 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Textarea } from "@/components/ui/textarea";
 import { useAuth } from "@/lib/auth";
 import { toast } from "sonner";
-import { apiCall, getTickets } from "@/lib/api";
+import { apiCall, getAllDeals, getTickets, getUserClaims } from "@/lib/api";
 
 interface Ticket {
   id: string;
   subject: string;
+  deal_id?: string | null;
   message: string;
   status: "open" | "pending" | "closed";
   priority: "low" | "medium" | "high";
@@ -26,6 +27,12 @@ interface Ticket {
   updated_at: string;
 }
 
+interface DealOption {
+  id: string;
+  slug?: string;
+  name: string;
+}
+
 const TICKETS_PER_PAGE = 10;
 
 const Tickets = () => {
@@ -34,6 +41,7 @@ const Tickets = () => {
   const navigate = useNavigate();
   const { user, isAuthenticated } = useAuth();
   const [tickets, setTickets] = useState<Ticket[]>([]);
+  const [deals, setDeals] = useState<DealOption[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
@@ -42,8 +50,7 @@ const Tickets = () => {
 
   // New ticket form
   const [subject, setSubject] = useState("");
-  const [type, setType] = useState<"billing" | "technical" | "general">("general");
-  const [priority, setPriority] = useState<"low" | "medium" | "high">("medium");
+  const [dealId, setDealId] = useState("");
   const [description, setDescription] = useState("");
 
   useEffect(() => {
@@ -53,6 +60,7 @@ const Tickets = () => {
       return;
     }
     loadTickets();
+    loadDeals();
   }, [isAuthenticated, navigate]);
 
   const loadTickets = async () => {
@@ -68,8 +76,39 @@ const Tickets = () => {
     }
   };
 
+  const loadDeals = async () => {
+    try {
+      const [dealsResponse, claimsResponse] = await Promise.all([getAllDeals(), getUserClaims()]);
+      const claimRows = Array.isArray((claimsResponse as { claims?: unknown[] })?.claims)
+        ? (claimsResponse as { claims: Array<{ deal_id?: unknown }> }).claims
+        : Array.isArray(claimsResponse)
+          ? claimsResponse
+          : [];
+      const claimedDealIds = new Set([
+        ...(user?.claimedDeals || []),
+        ...claimRows
+          .map((claim) => String((claim as { deal_id?: unknown })?.deal_id || ""))
+          .filter(Boolean),
+      ]);
+
+      const nextDeals = Array.isArray(dealsResponse.deals)
+        ? dealsResponse.deals
+            .map((deal: Record<string, unknown>) => ({
+              id: String(deal.id || deal.slug || ""),
+              slug: deal.slug ? String(deal.slug) : undefined,
+              name: String(deal.name || deal.company || deal.id || "Untitled deal"),
+            }))
+            .filter((deal: DealOption) => deal.id && deal.name && claimedDealIds.has(deal.id))
+        : [];
+      setDeals(nextDeals);
+    } catch (error) {
+      console.error("Failed to load deals:", error);
+      toast.error("Failed to load deals");
+    }
+  };
+
   const handleCreateTicket = async () => {
-    if (!subject.trim() || !description.trim()) {
+    if (!subject.trim() || !dealId || !description.trim()) {
       toast.error("Please fill in all required fields");
       return;
     }
@@ -78,16 +117,14 @@ const Tickets = () => {
       setCreating(true);
       await apiCall("/api/tickets", "POST", {
         subject: subject.trim(),
-        type,
-        priority,
-        description: description.trim(),
+        dealId,
+        message: description.trim(),
       });
 
       toast.success("Ticket created successfully!");
       setNewTicketOpen(false);
       setSubject("");
-      setType("general");
-      setPriority("medium");
+      setDealId("");
       setDescription("");
       loadTickets();
     } catch (error) {
@@ -311,36 +348,21 @@ const Tickets = () => {
                 onChange={(e) => setSubject(e.target.value)}
               />
             </div>
-            <div className="grid grid-cols-2 gap-3">
-              <div>
-                <Label>Type *</Label>
-                <Select value={type} onValueChange={(v: any) => setType(v)}>
-                  <SelectTrigger className="mt-1">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="general">General</SelectItem>
-                    <SelectItem value="billing">Billing</SelectItem>
-                    <SelectItem value="technical">Technical</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              <div>
-                <Label>Priority *</Label>
-                <Select value={priority} onValueChange={(v: any) => setPriority(v)}>
-                  <SelectTrigger className="mt-1">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="low">Low</SelectItem>
-                    <SelectItem value="medium">Medium</SelectItem>
-                    <SelectItem value="high">High</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
+            <div>
+              <Label>Deal *</Label>
+              <Select value={dealId} onValueChange={setDealId}>
+                <SelectTrigger className="mt-1">
+                  <SelectValue placeholder="Select a deal" />
+                </SelectTrigger>
+                <SelectContent>
+                  {deals.map((deal) => (
+                    <SelectItem key={deal.id} value={deal.id}>{deal.name}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
             <div>
-              <Label>Description *</Label>
+              <Label>Message *</Label>
               <Textarea
                 className="mt-1 min-h-[120px]"
                 placeholder="Provide details about your issue or question..."

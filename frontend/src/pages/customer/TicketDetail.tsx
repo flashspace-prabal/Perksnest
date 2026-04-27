@@ -7,8 +7,8 @@ import { Badge } from "@/components/ui/badge";
 import { Textarea } from "@/components/ui/textarea";
 import { useAuth } from "@/lib/auth";
 import { toast } from "sonner";
-import { updateTicketStatus, getTicketById } from "@/lib/api";
-import { sendTicketSocketMessage, subscribeToTicketRoom } from "@/lib/ticket-socket";
+import { getTicketById, replyToTicket } from "@/lib/api";
+import { subscribeToTicketEvents, subscribeToTicketRoom } from "@/lib/ticket-socket";
 
 interface Message {
   id: string;
@@ -39,7 +39,6 @@ const TicketDetail = () => {
   const [loading, setLoading] = useState(true);
   const [replyText, setReplyText] = useState("");
   const [sending, setSending] = useState(false);
-  const [closing, setClosing] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -68,7 +67,6 @@ const TicketDetail = () => {
           if (exists) return current;
           return {
             ...current,
-            status: "open",
             updated_at: payload.message.created_at,
             messages: [...(current.messages || []), payload.message],
           };
@@ -77,6 +75,19 @@ const TicketDetail = () => {
       onError: (message) => {
         console.error("Ticket socket error:", message);
       },
+    });
+  }, [isAuthenticated, ticketId]);
+
+  useEffect(() => {
+    if (!ticketId || !isAuthenticated) return;
+
+    return subscribeToTicketEvents({
+      onUpdated: (updatedTicket) => {
+        const nextTicket = updatedTicket as Partial<Ticket>;
+        if (nextTicket.id !== ticketId) return;
+        setTicket((current) => current ? { ...current, ...nextTicket } : current);
+      },
+      onError: (message) => console.error("Ticket socket error:", message),
     });
   }, [isAuthenticated, ticketId]);
 
@@ -102,7 +113,20 @@ const TicketDetail = () => {
 
     try {
       setSending(true);
-      sendTicketSocketMessage(String(ticketId), replyText.trim());
+      const message = replyText.trim();
+      const response = await replyToTicket(String(ticketId), message);
+      if (response?.message) {
+        setTicket((current) => {
+          if (!current) return current;
+          const exists = current.messages?.some((item) => item.id === response.message.id);
+          if (exists) return current;
+          return {
+            ...current,
+            updated_at: response.message.created_at,
+            messages: [...(current.messages || []), response.message],
+          };
+        });
+      }
       setReplyText("");
       toast.success("Reply sent successfully!");
     } catch (error) {
@@ -110,20 +134,6 @@ const TicketDetail = () => {
       toast.error("Failed to send reply");
     } finally {
       setSending(false);
-    }
-  };
-
-  const handleCloseTicket = async () => {
-    try {
-      setClosing(true);
-      await updateTicketStatus(String(ticketId), "closed");
-      toast.success("Ticket closed successfully!");
-      loadTicket();
-    } catch (error) {
-      console.error("Failed to close ticket:", error);
-      toast.error("Failed to close ticket");
-    } finally {
-      setClosing(false);
     }
   };
 
@@ -287,15 +297,7 @@ const TicketDetail = () => {
                     }
                   }}
                 />
-                <div className="flex flex-col sm:flex-row justify-between gap-3">
-                  <Button
-                    variant="outline"
-                    onClick={handleCloseTicket}
-                    disabled={closing}
-                    className="w-full sm:w-auto"
-                  >
-                    {closing ? "Closing..." : "Close Ticket"}
-                  </Button>
+                <div className="flex flex-col sm:flex-row justify-end gap-3">
                   <Button onClick={handleSendReply} disabled={sending} className="gap-2 w-full sm:w-auto">
                     <Send className="h-4 w-4" />
                     {sending ? "Sending..." : "Send Reply"}

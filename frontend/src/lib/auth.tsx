@@ -11,6 +11,7 @@ export interface User {
   id: string;
   email: string;
   name: string;
+  emailPreferences: boolean;
   plan: UserPlan;
   role: UserRole;
   referralCode: string;
@@ -31,6 +32,7 @@ interface AuthContextType {
   login: (email: string, password: string) => Promise<boolean>;
   register: (email: string, password: string, name: string, referrerCode?: string) => Promise<boolean>;
   logout: () => void;
+  updateProfile: (fields: { name?: string; emailPreferences?: boolean }) => Promise<void>;
   updatePlan: (plan: UserPlan) => Promise<void>;
   claimDeal: (dealId: string) => Promise<void>;
   refetchClaimedDeals: () => Promise<void>;
@@ -116,6 +118,11 @@ const rowToUser = (row: Record<string, unknown>): User => ({
   id: row.id as string,
   email: row.email as string,
   name: (row.name as string) || (row.email as string)?.split('@')[0] || 'User',
+  emailPreferences: typeof row.emailPreferences === 'boolean'
+    ? row.emailPreferences
+    : typeof row.email_preferences === 'boolean'
+      ? row.email_preferences
+      : readEmailPreferencesFromNotes(row.notes),
   plan: ((row.plan as UserPlan) || 'free'),
   role: ((row.role as UserRole) || 'customer'),
   referralCode: (row.referralCode as string) || (row.referral_code as string) || '',
@@ -126,6 +133,20 @@ const rowToUser = (row: Record<string, unknown>): User => ({
   status: (row.status as string) || 'active',
   avatar: (row.avatar as string) || null,
 });
+
+function readEmailPreferencesFromNotes(notes: unknown): boolean {
+  if (!notes) return true;
+  if (typeof notes === 'object' && notes !== null && 'emailPreferences' in notes) {
+    return (notes as { emailPreferences?: unknown }).emailPreferences !== false;
+  }
+  if (typeof notes !== 'string') return true;
+  try {
+    const parsed = JSON.parse(notes) as { emailPreferences?: unknown };
+    return parsed.emailPreferences !== false;
+  } catch {
+    return true;
+  }
+}
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
@@ -308,6 +329,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUser(rowToUser(response.user));
   };
 
+  const updateProfile = async (fields: { name?: string; emailPreferences?: boolean }) => {
+    if (!user) throw new Error('User not authenticated');
+    const response = await authApi<{ success: boolean; user: Record<string, unknown> }>(
+      "/api/users/me",
+      "PATCH",
+      fields,
+      user.id
+    );
+    setUser(rowToUser(response.user));
+  };
+
   const claimDeal = async (dealId: string) => {
     if (!user) throw new Error('User not authenticated');
     if (user.claimedDeals.includes(dealId)) return;
@@ -362,6 +394,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         login,
         register,
         logout,
+        updateProfile,
         updatePlan,
         claimDeal,
         refetchClaimedDeals,

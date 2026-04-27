@@ -16,7 +16,7 @@ import {
 } from "lucide-react";
 
 const categories = [
-  { id: "all", name: "All Deals", icon: Zap, count: 563 },
+  { id: "all", name: "All Deals", icon: Zap, count: 200 },
   { id: "ai", name: "AI", icon: Sparkles, count: 89 },
   { id: "project", name: "Project Management", icon: FolderKanban, count: 67 },
   { id: "data", name: "Data & Analytics", icon: BarChart3, count: 45 },

@@ -23,7 +23,7 @@ const plans = [
     period: "forever",
     icon: Zap,
     features: [
-      "Access to 324 free deals",
+      "Access to 100+ free deals",
       "Basic deal notifications",
       "Community support",
       "No credit card required",
@@ -41,7 +41,7 @@ const plans = [
     icon: Crown,
     features: [
       "Everything in Free, plus:",
-      "Access to ALL deals (563+)",
+      "Access to ALL deals (200+)",
       "New premium deals weekly",
       "Private Slack community",
       "Priority 7/7 support",
@@ -78,11 +78,11 @@ const plans = [
 const faqs = [
   {
     question: "What's included in the free plan?",
-    answer: "The free plan gives you access to 324+ verified free deals from top SaaS companies. You can bookmark deals, receive basic notifications, and access our community support. No credit card required.",
+    answer: "The free plan gives you access to 100+ verified free deals from top SaaS companies. You can bookmark deals, receive basic notifications, and access our community support. No credit card required.",
   },
   {
     question: "How does the Pro plan work?",
-    answer: "Pro gives you unlimited access to all 563+ deals on our platform, including premium deals that can save you up to $350,000. You also get priority support, access to our private Slack community, and advanced features like deal comparison.",
+    answer: "Pro gives you unlimited access to all 200+ deals on our platform, including premium deals that can save you up to $350,000. You also get priority support, access to our private Slack community, and advanced features like deal comparison.",
   },
   {
     question: "Can I cancel my subscription anytime?",
@@ -111,7 +111,7 @@ const faqs = [
 ];
 
 const comparisonFeatures = [
-  { feature: "Free deals access", free: "324+", pro: "563+", enterprise: "563+" },
+  { feature: "Free deals access", free: "100+", pro: "200+", enterprise: "200+" },
   { feature: "Premium deals", free: false, pro: true, enterprise: true },
   { feature: "Deal notifications", free: "Basic", pro: "Priority", enterprise: "Custom" },
   { feature: "Support", free: "Community", pro: "7/7 Priority", enterprise: "Dedicated" },

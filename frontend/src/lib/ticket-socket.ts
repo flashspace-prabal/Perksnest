@@ -19,20 +19,35 @@ type TicketMessage = NonNullable<TicketMessagePayload["message"]>;
 
 let socket: Socket | null = null;
 
+function getCookie(name: string) {
+  const nameEq = `${name}=`;
+  return document.cookie
+    .split(";")
+    .map((cookie) => cookie.trim())
+    .find((cookie) => cookie.startsWith(nameEq))
+    ?.slice(nameEq.length);
+}
+
 function getToken() {
   try {
-    const session = JSON.parse(localStorage.getItem("pn_session") || "{}");
+    const rawSession = localStorage.getItem("pn_session") || decodeURIComponent(getCookie("pn_session") || "");
+    const session = rawSession ? JSON.parse(rawSession) : {};
     return session.access_token || "";
   } catch {
     return "";
   }
 }
 
+function getUserId() {
+  return localStorage.getItem("perksnest_user_id") || "";
+}
+
 export function getTicketSocket() {
   const token = getToken();
-  if (!token) return null;
+  const userId = getUserId();
+  if (!token && !userId) return null;
 
-  if (socket?.connected && (socket.auth as any)?.token === token) {
+  if (socket?.connected && (socket.auth as any)?.token === token && (socket.auth as any)?.userId === userId) {
     return socket;
   }
 
@@ -41,7 +56,7 @@ export function getTicketSocket() {
   }
 
   socket = io(SOCKET_BASE_URL, {
-    auth: { token },
+    auth: { token, userId },
     transports: ["websocket"],
   });
 
@@ -100,4 +115,30 @@ export function sendTicketSocketMessage(ticketId: string, message: string) {
   }
 
   socketInstance.emit("send_message", { ticketId, message });
+}
+
+export function subscribeToTicketEvents(handlers: {
+  onCreated?: (ticket: unknown) => void;
+  onUpdated?: (ticket: unknown) => void;
+  onError?: (message: string) => void;
+}) {
+  const socketInstance = getTicketSocket();
+  if (!socketInstance) {
+    handlers.onError?.("Authentication required");
+    return () => {};
+  }
+
+  const handleCreated = (ticket: unknown) => handlers.onCreated?.(ticket);
+  const handleUpdated = (ticket: unknown) => handlers.onUpdated?.(ticket);
+  const handleError = (payload: TicketMessagePayload) => handlers.onError?.(payload.error || "Ticket connection failed");
+
+  socketInstance.on("ticket:created", handleCreated);
+  socketInstance.on("ticket:updated", handleUpdated);
+  socketInstance.on("ticket_error", handleError);
+
+  return () => {
+    socketInstance.off("ticket:created", handleCreated);
+    socketInstance.off("ticket:updated", handleUpdated);
+    socketInstance.off("ticket_error", handleError);
+  };
 }

@@ -23,6 +23,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Progress } from "@/components/ui/progress";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Switch } from "@/components/ui/switch";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useAuth } from "@/lib/auth";
 import { useBookmarks } from "@/lib/bookmarks";
@@ -35,6 +37,7 @@ import { buildReferralLink } from "@/lib/referrals";
 import { API_BASE_URL } from "@/lib/runtime";
 import SavingsInsights, { DealSavingsIndicator } from "@/components/dashboard/SavingsInsights";
 import { FEATURES } from "@/lib/feature-flags";
+import { subscribeToTicketEvents } from "@/lib/ticket-socket";
 
 interface TicketSummary {
   id: string;
@@ -45,12 +48,21 @@ interface TicketSummary {
   updatedAt?: string;
 }
 
+const normalizeTicketSummary = (ticket: Partial<TicketSummary> & { created_at?: string; updated_at?: string; description?: string }): TicketSummary => ({
+  id: String(ticket.id || ""),
+  subject: String(ticket.subject || "Untitled ticket"),
+  message: String(ticket.message || ticket.description || ""),
+  status: (ticket.status as TicketSummary["status"]) || "open",
+  createdAt: String(ticket.createdAt || ticket.created_at || new Date().toISOString()),
+  updatedAt: ticket.updatedAt || ticket.updated_at,
+});
+
 const CustomerPortal = () => {
   // SEO: unique page title
   document.title = "My Account | PerksNest";
 
   const navigate = useNavigate();
-  const { user, isAuthenticated, updatePlan, logout, claimDeal, refetchClaimedDeals } = useAuth();
+  const { user, isAuthenticated, updatePlan, updateProfile, logout, claimDeal, refetchClaimedDeals } = useAuth();
   const {
     bookmarkedDealIds,
     isLoading: areBookmarksLoading,
@@ -60,10 +72,12 @@ const CustomerPortal = () => {
   const [copiedCode, setCopiedCode] = useState<string | null>(null);
   const [editedName, setEditedName] = useState("");
   const [editedEmail, setEditedEmail] = useState("");
+  const [emailPreferences, setEmailPreferences] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
   const [tickets, setTickets] = useState<TicketSummary[]>([]);
   const [newTicketSubject, setNewTicketSubject] = useState("");
+  const [newTicketDealId, setNewTicketDealId] = useState("");
   const [newTicketMessage, setNewTicketMessage] = useState("");
   const [isCreatingTicket, setIsCreatingTicket] = useState(false);
   const [catalogDeals, setCatalogDeals] = useState<Deal[]>([]);
@@ -92,8 +106,9 @@ const CustomerPortal = () => {
     if (user) {
       setEditedName(user.name);
       setEditedEmail(user.email);
+      setEmailPreferences(user.emailPreferences !== false);
     }
-  }, [user]);
+  }, [user?.id]);
 
   // Refetch claimed deals from server when component mounts or user changes
   useEffect(() => {
@@ -116,6 +131,28 @@ const CustomerPortal = () => {
         .catch(err => console.error('Failed to fetch tickets:', err));
     }
   }, [user]);
+
+  useEffect(() => {
+    if (!user?.id || !isAuthenticated) return;
+
+    return subscribeToTicketEvents({
+      onCreated: (ticket) => {
+        const nextTicket = normalizeTicketSummary(ticket as Partial<TicketSummary> & { created_at?: string; updated_at?: string; description?: string });
+        setTickets((current) => {
+          if (current.some((item) => item.id === nextTicket.id)) return current;
+          return [nextTicket, ...current];
+        });
+      },
+      onUpdated: (ticket) => {
+        const nextTicket = normalizeTicketSummary(ticket as Partial<TicketSummary> & { created_at?: string; updated_at?: string; description?: string });
+        if (!nextTicket.id) return;
+        setTickets((current) =>
+          current.map((item) => item.id === nextTicket.id ? { ...item, ...nextTicket } : item)
+        );
+      },
+      onError: (message) => console.error("Ticket socket error:", message),
+    });
+  }, [user?.id, isAuthenticated]);
 
   useEffect(() => {
     if (!FEATURES.referrals || !user?.id) {
@@ -330,31 +367,19 @@ const CustomerPortal = () => {
   };
 
   const handleSaveSettings = async () => {
+    const nextName = editedName.trim();
+    if (nextName.length < 2) {
+      toast.error("Please enter a valid name");
+      return;
+    }
+
     setIsSaving(true);
     try {
-      // Update user in Supabase via API
-      const response = await fetch(`${API_BASE_URL}/api/users/me`, {
-        method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${user?.id}`
-        },
-        body: JSON.stringify({
-          name: editedName,
-          email: editedEmail,
-        })
+      await updateProfile({
+        name: nextName,
+        emailPreferences,
       });
-
-      if (!response.ok) {
-        throw new Error('Failed to update user');
-      }
-
-      // Update local auth context
-      if (user) {
-        const updatedUser = { ...user, name: editedName, email: editedEmail };
-        // Re-login to refresh auth state (ideally would have updateUser function)
-      }
-
+      setEditedName(nextName);
       toast.success("Settings updated successfully!");
     } catch (error) {
       console.error('Settings update error:', error);
@@ -365,8 +390,8 @@ const CustomerPortal = () => {
   };
 
   const handleCreateTicket = async () => {
-    if (!newTicketSubject.trim() || !newTicketMessage.trim()) {
-      toast.error("Please fill in both subject and message");
+    if (!newTicketSubject.trim() || !newTicketDealId || !newTicketMessage.trim()) {
+      toast.error("Please select a claimed deal and fill in subject and message");
       return;
     }
 
@@ -374,12 +399,18 @@ const CustomerPortal = () => {
     try {
       const result = await createTicket({
         subject: newTicketSubject,
+        dealId: newTicketDealId,
         message: newTicketMessage,
         priority: 'medium'
       });
 
+      if (!result?.success) {
+        throw new Error(String(result?.message || result?.error || "Failed to create ticket"));
+      }
+
       toast.success("Ticket created successfully!");
       setNewTicketSubject("");
+      setNewTicketDealId("");
       setNewTicketMessage("");
 
       // Refresh tickets
@@ -860,6 +891,21 @@ const CustomerPortal = () => {
                       />
                     </div>
                     <div>
+                      <label className="text-sm font-medium mb-2 block">Claimed Deal</label>
+                      <Select value={newTicketDealId} onValueChange={setNewTicketDealId}>
+                        <SelectTrigger>
+                          <SelectValue placeholder={claimedDealsWithDetails.length > 0 ? "Select a claimed deal" : "No claimed deals yet"} />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {claimedDealsWithDetails.map((deal) => (
+                            <SelectItem key={deal.id} value={deal.id}>
+                              {deal.vendor}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div>
                       <label className="text-sm font-medium mb-2 block">Message</label>
                       <textarea
                         className="w-full min-h-[120px] px-3 py-2 border border-border rounded-lg resize-none"
@@ -947,26 +993,15 @@ const CustomerPortal = () => {
                     </h2>
                     <p className="text-purple-100 max-w-md mb-8">
                       {hasActivePremiumSubscription 
-                        ? 'Enjoy unlimited access to all 563+ exclusive SaaS deals and priority founder support.' 
-                        : 'Get access to our full database of 563+ curated perks and save thousands on your tech stack.'}
+                        ? 'Enjoy unlimited access to all 200+ exclusive SaaS deals and priority founder support.' 
+                        : 'Get access to our full database of 200+ curated perks and save thousands on your tech stack.'}
                     </p>
                     
                     {!hasActivePremiumSubscription && (
                       <Button 
                         size="lg"
                         className="bg-white text-[#5c2169] hover:bg-gray-100 font-bold px-8 shadow-2xl hover:scale-105 transition-all"
-                        onClick={async () => {
-                          try {
-                            const res = await fetch(`${API_BASE_URL}/api/checkout`, {
-                              method: 'POST',
-                              headers: { 'Content-Type': 'application/json' },
-                              body: JSON.stringify({ userId: user.id, email: user.email, name: user.name, period: 'annual' }),
-                            });
-                            const data = await res.json();
-                            if (data.url) window.location.href = data.url;
-                            else toast.error('Could not start checkout');
-                          } catch { toast.error('Checkout unavailable'); }
-                        }}
+                        onClick={() => navigate('/pricing')}
                       >
                         <Sparkles className="mr-2 h-5 w-5" />
                         Upgrade to Premium — $20/mo
@@ -1046,7 +1081,7 @@ const CustomerPortal = () => {
                   </CardHeader>
                   <CardContent className="space-y-4">
                     {[
-                      { text: 'All 563+ deals unlocked', included: true },
+                      { text: 'All 200+ deals unlocked', included: true },
                       { text: 'New premium deals weekly', included: true },
                       { text: 'Priority founder support', included: hasActivePremiumSubscription },
                       { text: 'Private Slack community', included: hasActivePremiumSubscription },
@@ -1119,9 +1154,10 @@ const CustomerPortal = () => {
                       <label className="text-sm font-medium mb-2 block">Email</label>
                       <Input
                         value={editedEmail}
-                        onChange={(e) => setEditedEmail(e.target.value)}
                         type="email"
+                        disabled
                       />
+                      <p className="mt-1 text-xs text-muted-foreground">Email cannot be changed from settings.</p>
                     </div>
                     <div>
                       <label className="text-sm font-medium mb-2 block">User ID</label>
@@ -1142,12 +1178,24 @@ const CustomerPortal = () => {
                       <Input value={new Date(user.createdAt).toLocaleDateString()} disabled />
                     </div>
                   </div>
+                  <div className="flex items-center justify-between rounded-lg border p-4">
+                    <div>
+                      <p className="text-sm font-medium">Email Preferences</p>
+                      <p className="text-sm text-muted-foreground">Allow PerksNest to send account and deal update emails.</p>
+                    </div>
+                    <Switch
+                      checked={emailPreferences}
+                      onCheckedChange={setEmailPreferences}
+                      aria-label="Toggle email preferences"
+                    />
+                  </div>
                   <div className="flex justify-end gap-3">
                     <Button
                       variant="outline"
                       onClick={() => {
                         setEditedName(user.name);
                         setEditedEmail(user.email);
+                        setEmailPreferences(user.emailPreferences !== false);
                       }}
                       disabled={isSaving}
                     >
@@ -1155,7 +1203,7 @@ const CustomerPortal = () => {
                     </Button>
                     <Button
                       onClick={handleSaveSettings}
-                      disabled={isSaving || (editedName === user.name && editedEmail === user.email)}
+                      disabled={isSaving || (editedName.trim() === user.name && emailPreferences === (user.emailPreferences !== false))}
                     >
                       {isSaving ? "Saving..." : "Save Changes"}
                     </Button>

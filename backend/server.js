@@ -656,6 +656,7 @@ const mapUser = (row) => ({
   id: row.id,
   email: row.email,
   name: row.name || (row.email || "").split("@")[0] || "User",
+  emailPreferences: readEmailPreferencesFromNotes(row.notes),
   plan: row.plan || "free",
   role: row.role || "customer",
   referralCode: row.referral_code || "",
@@ -666,6 +667,34 @@ const mapUser = (row) => ({
   avatar: row.avatar || null,
   createdAt: row.created_at || new Date().toISOString(),
 });
+
+function readEmailPreferencesFromNotes(notes) {
+  if (!notes) return true;
+  if (typeof notes === "object" && Object.prototype.hasOwnProperty.call(notes, "emailPreferences")) {
+    return notes.emailPreferences !== false;
+  }
+  if (typeof notes !== "string") return true;
+  try {
+    const parsed = JSON.parse(notes);
+    return parsed?.emailPreferences !== false;
+  } catch {
+    return true;
+  }
+}
+
+function writeEmailPreferencesToNotes(notes, enabled) {
+  let parsed = {};
+  if (notes && typeof notes === "object") {
+    parsed = { ...notes };
+  } else if (typeof notes === "string" && notes.trim()) {
+    try {
+      parsed = JSON.parse(notes);
+    } catch {
+      parsed = { adminNotes: notes };
+    }
+  }
+  return JSON.stringify({ ...parsed, emailPreferences: enabled !== false });
+}
 
 const mapAdminUserSummary = (row, claimCount = 0) => ({
   ...mapUser(row),
@@ -1291,6 +1320,7 @@ const mapTicket = (row) => ({
   user_id: row.user_id,
   user_name: row.user_name || "User",
   user_email: row.user_email || "",
+  deal_id: row.deal_id || null,
   subject: row.subject,
   status: row.status || "open",
   priority: row.priority || "medium",
@@ -1302,6 +1332,35 @@ const mapTicket = (row) => ({
   updatedAt: row.updated_at,
   message: row.description || "",
 });
+
+let ticketsWritableColumnsCache = null;
+
+async function getTicketsWritableColumns() {
+  if (ticketsWritableColumnsCache) return ticketsWritableColumnsCache;
+
+  const columns = new Set([
+    "user_id",
+    "user_name",
+    "user_email",
+    "user_role",
+    "subject",
+    "description",
+    "type",
+    "priority",
+    "status",
+  ]);
+
+  const { error } = await db.from("tickets").select("deal_id").limit(1);
+  if (!error) columns.add("deal_id");
+
+  ticketsWritableColumnsCache = columns;
+  return ticketsWritableColumnsCache;
+}
+
+async function filterTicketPayloadForDb(payload) {
+  const writable = await getTicketsWritableColumns();
+  return Object.fromEntries(Object.entries(payload).filter(([key]) => writable.has(key)));
+}
 
 const mapTicketMessage = (row) => ({
   id: row.id,
@@ -2729,18 +2788,35 @@ app.delete("/api/admin/users/:userId", async (req, res) => {
 
 app.patch("/api/users/me", async (req, res) => {
   try {
-    const userId = await getRequestUserId(req);
-    const { name, email } = req.body || {};
-    if (!userId) {
-      res.status(400).json({ success: false, error: "Missing userId" });
+    const context = await getAuthenticatedRequestContext(req);
+    const userId = context?.userId;
+    const { name, emailPreferences } = req.body || {};
+    if (!userId || !context?.user) {
+      res.status(401).json({ success: false, error: "Authentication required" });
       return;
     }
+
+    const updatePayload = {};
+    if (typeof name === "string") {
+      const trimmedName = name.trim();
+      if (trimmedName.length < 2) {
+        res.status(400).json({ success: false, error: "Name must be at least 2 characters" });
+        return;
+      }
+      updatePayload.name = trimmedName;
+    }
+    if (typeof emailPreferences === "boolean") {
+      updatePayload.notes = writeEmailPreferencesToNotes(context.user.notes, emailPreferences);
+    }
+
+    if (Object.keys(updatePayload).length === 0) {
+      res.json({ success: true, user: mapUser(context.user) });
+      return;
+    }
+
     const { data, error } = await db
       .from("users")
-      .update({
-        ...(name ? { name } : {}),
-        ...(email ? { email: String(email).toLowerCase().trim() } : {}),
-      })
+      .update(updatePayload)
       .eq("id", userId)
       .select("*")
       .single();
@@ -3649,20 +3725,35 @@ app.post("/api/tickets", async (req, res) => {
     const context = await getAuthenticatedRequestContext(req);
     if (!context?.userId) return res.status(401).json({ success: false, error: "Authentication required" });
 
-    const { subject, message, type, priority } = req.body;
-    const { data: ticket, error: ticketError } = await db.from("tickets").insert({
+    const { subject, message, description, dealId, deal_id, type, priority } = req.body || {};
+    const normalizedSubject = String(subject || "").trim();
+    const normalizedMessage = String(message ?? description ?? "").trim();
+    const normalizedDealId = String(dealId || deal_id || "").trim();
+    const normalizedType = ["billing", "technical", "general"].includes(String(type)) ? String(type) : "general";
+    const normalizedPriority = ["low", "medium", "high"].includes(String(priority)) ? String(priority) : "medium";
+
+    if (!normalizedSubject || !normalizedMessage || !normalizedDealId) {
+      return res.status(400).json({ success: false, error: "Subject, deal, and message are required" });
+    }
+
+    const payload = await filterTicketPayloadForDb({
       user_id: context.userId,
       user_name: context.user?.name || "User",
       user_email: context.user?.email || "",
       user_role: context.user?.role || "customer",
-      subject: String(subject).trim(),
-      description: String(message).trim(),
-      type: type || "general",
-      priority: priority || "medium",
+      deal_id: normalizedDealId,
+      subject: normalizedSubject,
+      description: normalizedMessage,
+      type: normalizedType,
+      priority: normalizedPriority,
       status: "open",
-    }).select("*").single();
+    });
+
+    const { data: ticket, error: ticketError } = await db.from("tickets").insert(payload).select("*").single();
 
     if (ticketError) throw ticketError;
+    io.to("admin:tickets").emit("ticket:created", ticket);
+    io.to(`user:${context.userId}`).emit("ticket:created", ticket);
     res.json({ success: true, ticket });
   } catch (error) {
     console.error("ERROR:", error);
@@ -3694,6 +3785,9 @@ app.post("/api/tickets/:id/reply", async (req, res) => {
     const ticket = await getTicketWithMessages(req.params.id);
     if (!ticket) return res.status(404).json({ success: false, error: "Ticket not found" });
     if (!canAccessTicket(ticket, context.user)) return res.status(403).json({ success: false, error: "Forbidden" });
+    if (ticket.status === "closed" && !isAdminUser(context.user)) {
+      return res.status(403).json({ success: false, error: "This ticket is closed" });
+    }
 
     const data = await insertTicketMessageRecord({
       ticketId: req.params.id,
@@ -3703,10 +3797,12 @@ app.post("/api/tickets/:id/reply", async (req, res) => {
       message: req.body.message,
     });
     
-    await db.from("tickets").update({ updated_at: new Date().toISOString(), status: "open" }).eq("id", req.params.id);
+    const { data: updatedTicket } = await db.from("tickets").update({ updated_at: new Date().toISOString(), status: "open" }).eq("id", req.params.id).select("*").single();
     const mapped = mapTicketMessage(data);
     io.to(String(req.params.id)).emit("receive_message", { success: true, message: mapped });
     io.to(String(req.params.id)).emit("ticket:message", mapped);
+    io.to("admin:tickets").emit("ticket:updated", updatedTicket || { id: req.params.id, status: "open", updated_at: new Date().toISOString() });
+    io.to(`user:${ticket.user_id}`).emit("ticket:updated", updatedTicket || { id: req.params.id, status: "open", updated_at: new Date().toISOString() });
 
     res.json({ success: true, message: mapped });
   } catch (error) {
@@ -3723,6 +3819,7 @@ app.patch("/api/tickets/:id/status", async (req, res) => {
     const ticket = await getTicketWithMessages(req.params.id);
     if (!ticket) return res.status(404).json({ success: false, error: "Ticket not found" });
     if (!canAccessTicket(ticket, context.user)) return res.status(403).json({ success: false, error: "Forbidden" });
+    if (!isAdminUser(context.user)) return res.status(403).json({ success: false, error: "Only admins can update ticket status" });
 
     const { status } = req.body;
     if (!status) return res.status(400).json({ success: false, error: "Status required" });
@@ -3734,6 +3831,9 @@ app.patch("/api/tickets/:id/status", async (req, res) => {
       .single();
 
     if (error) throw error;
+    io.to(String(req.params.id)).emit("ticket:updated", data);
+    io.to("admin:tickets").emit("ticket:updated", data);
+    io.to(`user:${ticket.user_id}`).emit("ticket:updated", data);
     res.json({ success: true, ticket: data });
   } catch (error) {
     console.error("ERROR:", error);
@@ -4018,9 +4118,13 @@ app.put("/api/admin/tickets/:id", async (req, res) => {
     const updates = {};
     if (status) updates.status = status;
     if (priority) updates.priority = priority;
+    updates.updated_at = new Date().toISOString();
 
     const { data, error } = await db.from("tickets").update(updates).eq("id", req.params.id).select("*").single();
     if (error) throw error;
+    io.to(String(req.params.id)).emit("ticket:updated", data);
+    io.to("admin:tickets").emit("ticket:updated", data);
+    io.to(`user:${data.user_id}`).emit("ticket:updated", data);
 
     res.json({ success: true, ticket: data });
   } catch (error) {
@@ -4077,12 +4181,18 @@ app.post("/api/admin/tickets/:id/reply", async (req, res) => {
       updated_at: new Date().toISOString(), 
       status: req.body.status || "open" 
     }).eq("id", ticketId);
+    const { data: updatedTicket } = await db.from("tickets").select("*").eq("id", ticketId).maybeSingle();
 
     // 4. Real-time broadcast (Defensive)
     try {
       console.log(`[ADMIN REPLY] Broadcasting update for ticket ${ticketId} via socket`);
       io.to(String(ticketId)).emit("receive_message", { success: true, message: mapped });
       io.to(String(ticketId)).emit("ticket:message", mapped);
+      if (updatedTicket) {
+        io.to(String(ticketId)).emit("ticket:updated", updatedTicket);
+        io.to("admin:tickets").emit("ticket:updated", updatedTicket);
+        io.to(`user:${updatedTicket.user_id}`).emit("ticket:updated", updatedTicket);
+      }
     } catch (socketErr) {
       console.warn("[ADMIN REPLY] Real-time broadcast failed (non-critical):", socketErr);
       // We don't throw here so the user still gets a success response for the DB write
@@ -4106,15 +4216,32 @@ io.use(async (socket, next) => {
       socket.handshake.auth?.token ||
       socket.handshake.headers.authorization?.replace(/^Bearer\s+/i, "") ||
       null;
+    const userId = socket.handshake.auth?.userId || null;
 
-    if (!token) {
+    if (!token && !userId) {
       next(new Error("Authentication required"));
       return;
     }
 
-    const context = await getAuthenticatedProfileFromToken(token);
-    socket.data.user = context.user;
-    socket.data.authUser = context.authUser;
+    if (token) {
+      try {
+        const context = await getAuthenticatedProfileFromToken(token);
+        socket.data.user = context.user;
+        socket.data.authUser = context.authUser;
+      } catch (tokenError) {
+        if (!userId) throw tokenError;
+        const user = await getUserProfileById(userId);
+        if (!user) throw tokenError;
+        socket.data.user = user;
+      }
+    } else {
+      const user = await getUserProfileById(userId);
+      if (!user) {
+        next(new Error("Unauthorized"));
+        return;
+      }
+      socket.data.user = user;
+    }
     next();
   } catch (error) {
     console.error("ERROR:", error);
@@ -4126,6 +4253,9 @@ io.on("connection", (socket) => {
   if (socket.data.user?.id) {
     socket.join(`user:${socket.data.user.id}`);
   }
+  if (isAdminUser(socket.data.user)) {
+    socket.join("admin:tickets");
+  }
 
   socket.on("join_ticket", async ({ ticketId }) => {
     try {
@@ -4136,6 +4266,10 @@ io.on("connection", (socket) => {
       }
       if (!canAccessTicket(ticket, socket.data.user)) {
         socket.emit("ticket_error", { success: false, error: "Forbidden" });
+        return;
+      }
+      if (ticket.status === "closed" && !isAdminUser(socket.data.user)) {
+        socket.emit("ticket_error", { success: false, error: "This ticket is closed" });
         return;
       }
 
@@ -4172,10 +4306,12 @@ io.on("connection", (socket) => {
         message,
       });
 
-      await db.from("tickets").update({ updated_at: new Date().toISOString(), status: "open" }).eq("id", ticketId);
+      const { data: updatedTicket } = await db.from("tickets").update({ updated_at: new Date().toISOString(), status: "open" }).eq("id", ticketId).select("*").single();
       const mapped = mapTicketMessage(data);
       io.to(String(ticketId)).emit("receive_message", { success: true, message: mapped });
       io.to(String(ticketId)).emit("ticket:message", mapped);
+      io.to("admin:tickets").emit("ticket:updated", updatedTicket || { id: ticketId, status: "open", updated_at: new Date().toISOString() });
+      io.to(`user:${ticket.user_id}`).emit("ticket:updated", updatedTicket || { id: ticketId, status: "open", updated_at: new Date().toISOString() });
     } catch (error) {
       console.error("ERROR:", error);
       socket.emit("ticket_error", { success: false, error: (error instanceof Error ? error.message : String(error)) });
