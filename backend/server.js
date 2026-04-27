@@ -695,28 +695,63 @@ const mapAdminClaimedDeal = (claim, deal) => {
   };
 };
 
+async function buildClaimRowsFromUserArrays(userIds) {
+  const ids = [...new Set(safeArray(userIds).map((id) => String(id || "").trim()).filter(Boolean))];
+  if (ids.length === 0) return [];
+
+  const { data: users, error } = await db
+    .from("users")
+    .select("id,claimed_deals,created_at")
+    .in("id", ids);
+  if (error) throw error;
+
+  return safeArray(users).flatMap((user) => {
+    const userId = String(user.id || "");
+    return [...new Set(safeArray(user.claimed_deals).map((dealId) => String(dealId || "").trim()).filter(Boolean))]
+      .map((dealId) => ({
+        id: `${userId}-${dealId}`,
+        user_id: userId,
+        deal_id: dealId,
+        claimed_at: user.created_at || nowIso(),
+        status: "active",
+        source: "users.claimed_deals",
+      }));
+  });
+}
+
+async function backfillClaimedDealsFromUserArrays(userIds) {
+  const ids = [...new Set(safeArray(userIds).map((id) => String(id || "").trim()).filter(Boolean))];
+  if (ids.length === 0) return [];
+
+  const legacyRows = await buildClaimRowsFromUserArrays(ids);
+  const rows = legacyRows.map(({ id, source, ...row }) => row);
+
+  if (rows.length === 0) return;
+
+  const { error: upsertError } = await db
+    .from("claimed_deals")
+    .upsert(rows, { onConflict: "user_id,deal_id" });
+  if (upsertError) throw upsertError;
+
+  console.log("[ADMIN CLAIMED DEALS] Backfilled claimed_deals from users.claimed_deals:", {
+    userIds: ids,
+    rows: rows.length,
+  });
+
+  return legacyRows;
+}
+
 async function fetchClaimRowsForUser(userId) {
   const normalizedUserId = String(userId || "").trim();
   if (!normalizedUserId) return [];
 
-  const rowsFromUserClaimArray = async () => {
-    const { data: user, error } = await db
-      .from("users")
-      .select("id,claimed_deals,created_at")
-      .eq("id", normalizedUserId)
-      .maybeSingle();
-    if (error) throw error;
-
-    return safeArray(user?.claimed_deals).map((dealId, index) => ({
-      id: `${normalizedUserId}-${dealId}`,
-      user_id: normalizedUserId,
-      deal_id: String(dealId),
-      claimed_at: user?.created_at || nowIso(),
-      status: "active",
-      source: "users.claimed_deals",
-      sort_index: index,
-    }));
-  };
+  let legacyRows = [];
+  try {
+    legacyRows = await backfillClaimedDealsFromUserArrays([normalizedUserId]) || [];
+  } catch (error) {
+    console.warn("[ADMIN CLAIMED DEALS] Backfill failed; using users.claimed_deals fallback for this response:", formatSupabaseError(error));
+    legacyRows = await buildClaimRowsFromUserArrays([normalizedUserId]);
+  }
 
   const normalizedResult = await db
     .from("claimed_deals")
@@ -724,24 +759,20 @@ async function fetchClaimRowsForUser(userId) {
     .eq("user_id", normalizedUserId)
     .order("claimed_at", { ascending: false });
 
-  if (!normalizedResult.error) {
-    const rows = safeArray(normalizedResult.data);
-    if (rows.length > 0) return rows;
-    return rowsFromUserClaimArray();
+  console.log("[ADMIN CLAIMED DEALS] claimed_deals DB response:", {
+    userId: normalizedUserId,
+    count: safeArray(normalizedResult.data).length,
+    error: normalizedResult.error ? formatSupabaseError(normalizedResult.error) : null,
+    rows: safeArray(normalizedResult.data),
+  });
+
+  if (normalizedResult.error) {
+    console.warn("[ADMIN CLAIMED DEALS] claimed_deals read failed; using users.claimed_deals fallback for this response:", formatSupabaseError(normalizedResult.error));
+    return legacyRows;
   }
 
-  const canFallback = ["42P01", "PGRST106", "PGRST205"].includes(normalizedResult.error.code);
-  if (!canFallback) throw normalizedResult.error;
-
-  const legacyResult = await db
-    .from("claim_events")
-    .select("*")
-    .eq("user_id", normalizedUserId)
-    .order("claimed_at", { ascending: false });
-  if (legacyResult.error) throw legacyResult.error;
-  const legacyRows = safeArray(legacyResult.data).map((claim) => ({ ...claim, status: claim.status || "active" }));
-  if (legacyRows.length > 0) return legacyRows;
-  return rowsFromUserClaimArray();
+  const normalizedRows = safeArray(normalizedResult.data);
+  return normalizedRows.length > 0 ? normalizedRows : legacyRows;
 }
 
 async function getClaimCountsByUserId(userIds) {
@@ -749,40 +780,36 @@ async function getClaimCountsByUserId(userIds) {
   const counts = new Map(ids.map((id) => [id, 0]));
   if (ids.length === 0) return counts;
 
+  let legacyRows = [];
+  try {
+    legacyRows = await backfillClaimedDealsFromUserArrays(ids) || [];
+  } catch (error) {
+    console.warn("[ADMIN CLAIMED DEALS] Count backfill failed; using users.claimed_deals fallback for missing counts:", formatSupabaseError(error));
+    legacyRows = await buildClaimRowsFromUserArrays(ids);
+  }
+
   const normalizedResult = await db.from("claimed_deals").select("user_id").in("user_id", ids);
-  if (!normalizedResult.error) {
-    safeArray(normalizedResult.data).forEach((row) => {
+  if (normalizedResult.error) {
+    console.warn("[ADMIN CLAIMED DEALS] Count read failed; using users.claimed_deals fallback:", formatSupabaseError(normalizedResult.error));
+    legacyRows.forEach((row) => {
       const userId = String(row.user_id || "");
       counts.set(userId, (counts.get(userId) || 0) + 1);
     });
-    const missingIds = ids.filter((id) => (counts.get(id) || 0) === 0);
-    if (missingIds.length > 0) {
-      const { data: users, error } = await db.from("users").select("id,claimed_deals").in("id", missingIds);
-      if (error) throw error;
-      safeArray(users).forEach((user) => {
-        counts.set(String(user.id), safeArray(user.claimed_deals).length);
-      });
-    }
     return counts;
   }
 
-  const canFallback = ["42P01", "PGRST106", "PGRST205"].includes(normalizedResult.error.code);
-  if (!canFallback) throw normalizedResult.error;
-
-  const legacyResult = await db.from("claim_events").select("user_id").in("user_id", ids);
-  if (legacyResult.error) throw legacyResult.error;
-  safeArray(legacyResult.data).forEach((row) => {
+  safeArray(normalizedResult.data).forEach((row) => {
     const userId = String(row.user_id || "");
     counts.set(userId, (counts.get(userId) || 0) + 1);
   });
-  const missingIds = ids.filter((id) => (counts.get(id) || 0) === 0);
-  if (missingIds.length > 0) {
-    const { data: users, error } = await db.from("users").select("id,claimed_deals").in("id", missingIds);
-    if (error) throw error;
-    safeArray(users).forEach((user) => {
-      counts.set(String(user.id), safeArray(user.claimed_deals).length);
-    });
-  }
+
+  legacyRows.forEach((row) => {
+    const userId = String(row.user_id || "");
+    if ((counts.get(userId) || 0) === 0) {
+      counts.set(userId, legacyRows.filter((claim) => String(claim.user_id || "") === userId).length);
+    }
+  });
+
   return counts;
 }
 
@@ -790,15 +817,30 @@ async function enrichClaimedDeals(claimRows) {
   const dealIds = [...new Set(safeArray(claimRows).map((claim) => String(claim.deal_id || "")).filter(Boolean))];
   const dealsById = new Map();
   if (dealIds.length > 0) {
-    const [platformResult, partnerResult] = await Promise.all([
+    const uuidDealIds = dealIds.filter((dealId) => isValidUUID(dealId));
+    const [platformByIdResult, platformBySlugResult, partnerResult] = await Promise.all([
       db.from("deals").select("*").in("id", dealIds),
-      db.from("partner_deals").select("*").in("id", dealIds),
+      db.from("deals").select("*").in("slug", dealIds),
+      uuidDealIds.length > 0
+        ? db.from("partner_deals").select("*").in("id", uuidDealIds)
+        : Promise.resolve({ data: [], error: null }),
     ]);
 
-    if (platformResult.error && !["42P01", "PGRST106", "PGRST205"].includes(platformResult.error.code)) throw platformResult.error;
-    if (partnerResult.error && !["42P01", "PGRST106", "PGRST205"].includes(partnerResult.error.code)) throw partnerResult.error;
+    if (platformByIdResult.error && !["42P01", "42703", "PGRST106", "PGRST205"].includes(platformByIdResult.error.code)) {
+      console.warn("[ADMIN CLAIMED DEALS] Failed to enrich deals by id:", formatSupabaseError(platformByIdResult.error));
+    }
+    if (platformBySlugResult.error && !["42P01", "42703", "PGRST106", "PGRST205"].includes(platformBySlugResult.error.code)) {
+      console.warn("[ADMIN CLAIMED DEALS] Failed to enrich deals by slug:", formatSupabaseError(platformBySlugResult.error));
+    }
+    if (partnerResult.error && !["42P01", "PGRST106", "PGRST205"].includes(partnerResult.error.code)) {
+      console.warn("[ADMIN CLAIMED DEALS] Failed to enrich partner deals:", formatSupabaseError(partnerResult.error));
+    }
 
-    safeArray(platformResult.data).forEach((deal) => dealsById.set(String(deal.id), deal));
+    safeArray(platformByIdResult.data).forEach((deal) => dealsById.set(String(deal.id), deal));
+    safeArray(platformBySlugResult.data).forEach((deal) => {
+      dealsById.set(String(deal.id), deal);
+      if (deal.slug) dealsById.set(String(deal.slug), deal);
+    });
     safeArray(partnerResult.data).forEach((deal) => dealsById.set(String(deal.id), deal));
   }
 
@@ -2534,6 +2576,7 @@ app.get(["/api/admin/users/:userId/claimed-deals", "/admin/users/:userId/claimed
 
     const claimRows = await fetchClaimRowsForUser(req.params.userId);
     let claimedDeals = await enrichClaimedDeals(claimRows);
+    const totalClaimed = claimedDeals.length;
     if (dealType) claimedDeals = claimedDeals.filter((claim) => claim.dealType === dealType);
     if (status) claimedDeals = claimedDeals.filter((claim) => claim.status === status);
 
@@ -2549,6 +2592,7 @@ app.get(["/api/admin/users/:userId/claimed-deals", "/admin/users/:userId/claimed
       success: true,
       claimedDeals: claimedDeals.slice(from, from + limit),
       total: claimedDeals.length,
+      totalClaimed,
       page,
       limit,
     });

@@ -49,6 +49,12 @@ import { relativeDateLabel } from "@/lib/admin";
 
 const ITEMS_PER_PAGE = 10;
 
+type AdminClaimedDealsResponse = {
+  claimedDeals?: AdminClaimedDeal[] | null;
+  total?: number | string | null;
+  totalClaimed?: number | string | null;
+};
+
 type UserForm = {
   name: string;
   email: string;
@@ -82,6 +88,7 @@ function AdminUserDetailView({ userId, onBack }: { userId: string; onBack: () =>
   const [user, setUser] = useState<AdminUser | null>(null);
   const [claimedDeals, setClaimedDeals] = useState<AdminClaimedDeal[]>([]);
   const [total, setTotal] = useState(0);
+  const [totalClaimed, setTotalClaimed] = useState(0);
   const [page, setPage] = useState(1);
   const [sort, setSort] = useState("latest");
   const [dealType, setDealType] = useState("all");
@@ -112,13 +119,18 @@ function AdminUserDetailView({ userId, onBack }: { userId: string; onBack: () =>
     const loadClaims = async () => {
       try {
         setClaimsLoading(true);
-        const response = await getAdminUserClaimedDeals(userId, page, ITEMS_PER_PAGE, { sort, dealType, status });
-        setClaimedDeals(Array.isArray(response.claimedDeals) ? response.claimedDeals : []);
-        setTotal(Number(response.total || 0));
+        const response = await getAdminUserClaimedDeals(userId, page, ITEMS_PER_PAGE, { sort, dealType, status }) as AdminClaimedDealsResponse;
+        const nextClaimedDeals = Array.isArray(response?.claimedDeals) ? response.claimedDeals.filter(Boolean) : [];
+        const nextFilteredTotal = Number(response?.total ?? nextClaimedDeals.length);
+        const nextTotalClaimed = Number(response?.totalClaimed ?? nextFilteredTotal);
+        setClaimedDeals(nextClaimedDeals);
+        setTotal(Number.isFinite(nextFilteredTotal) ? nextFilteredTotal : 0);
+        setTotalClaimed(Number.isFinite(nextTotalClaimed) ? nextTotalClaimed : 0);
       } catch (err) {
         console.error("Failed to load claimed deals:", err);
         setClaimedDeals([]);
         setTotal(0);
+        setTotalClaimed(0);
       } finally {
         setClaimsLoading(false);
       }
@@ -195,7 +207,7 @@ function AdminUserDetailView({ userId, onBack }: { userId: string; onBack: () =>
         <Card><CardContent className="p-4"><p className="text-xs text-muted-foreground">Role</p><div className="mt-2">{getRoleBadge(user.role, user.plan)}</div></CardContent></Card>
         <Card><CardContent className="p-4"><p className="text-xs text-muted-foreground">Subscription</p><p className="mt-2 font-semibold capitalize">{user.subscriptionStatus || (user.plan === "free" ? "inactive" : "active")}</p></CardContent></Card>
         <Card><CardContent className="p-4"><p className="text-xs text-muted-foreground">Join Date</p><p className="mt-2 font-semibold">{user.createdAt ? new Date(user.createdAt).toLocaleDateString() : "N/A"}</p></CardContent></Card>
-        <Card><CardContent className="p-4"><p className="text-xs text-muted-foreground">Total Claimed</p><p className="mt-2 font-semibold">{user.totalDealsClaimed || total}</p></CardContent></Card>
+        <Card><CardContent className="p-4"><p className="text-xs text-muted-foreground">Total Claimed</p><p className="mt-2 font-semibold">{claimsLoading ? "..." : totalClaimed}</p></CardContent></Card>
       </div>
 
       <Card>

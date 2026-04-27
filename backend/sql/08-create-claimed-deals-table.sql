@@ -40,3 +40,25 @@ BEGIN
       updated_at = now();
   END IF;
 END $$;
+
+-- Backfill from the older users.claimed_deals array when present.
+DO $$
+BEGIN
+  IF EXISTS (
+    SELECT 1
+    FROM information_schema.columns
+    WHERE table_schema = 'perksnest'
+      AND table_name = 'users'
+      AND column_name = 'claimed_deals'
+  ) THEN
+    INSERT INTO perksnest.claimed_deals (user_id, deal_id, claimed_at, status)
+    SELECT u.id, deal_id, COALESCE(u.created_at, now()), 'active'
+    FROM perksnest.users u
+    CROSS JOIN LATERAL unnest(u.claimed_deals) AS deal_id
+    WHERE deal_id IS NOT NULL
+      AND trim(deal_id) <> ''
+    ON CONFLICT (user_id, deal_id) DO UPDATE SET
+      claimed_at = LEAST(perksnest.claimed_deals.claimed_at, EXCLUDED.claimed_at),
+      updated_at = now();
+  END IF;
+END $$;
