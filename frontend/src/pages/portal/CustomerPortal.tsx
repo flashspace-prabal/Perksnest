@@ -64,6 +64,43 @@ const normalizeTicketSummary = (ticket: Partial<TicketSummary> & { created_at?: 
   updatedAt: ticket.updatedAt || ticket.updated_at,
 });
 
+const parseCurrencyValue = (value: unknown, allowPlainNumber = false): number => {
+  if (typeof value === "number") {
+    return Number.isFinite(value) && value > 0 ? value : 0;
+  }
+
+  if (typeof value !== "string") return 0;
+
+  const currencyMatches = [...value.matchAll(/[$€£₹]\s*([0-9][0-9,]*(?:\.\d+)?)(\s*[kK])?/g)];
+  if (currencyMatches.length > 0) {
+    return Math.max(
+      ...currencyMatches.map((match) => {
+        const parsed = Number.parseFloat(match[1].replace(/,/g, ""));
+        return Number.isFinite(parsed) ? parsed * (match[2] ? 1000 : 1) : 0;
+      })
+    );
+  }
+
+  if (!allowPlainNumber || value.includes("%")) return 0;
+
+  const normalized = value.replace(/[^0-9.]+/g, "");
+  const parsed = Number.parseFloat(normalized);
+  return Number.isFinite(parsed) && parsed > 0 ? parsed : 0;
+};
+
+const getDealSavingsValue = (deal: Deal): number => {
+  const directSavings = parseCurrencyValue(deal.savings, true);
+  if (directSavings > 0) return directSavings;
+
+  const searchableText = [
+    ...(deal.features ?? []),
+    deal.description,
+    deal.dealText,
+  ];
+
+  return searchableText.reduce((best, text) => Math.max(best, parseCurrencyValue(text)), 0);
+};
+
 const CustomerPortal = () => {
   // SEO: unique page title
   document.title = "My Account | PerksNest";
@@ -270,13 +307,18 @@ const CustomerPortal = () => {
     }));
 
     const lookup = new Map<string, Deal>();
+    const addDeal = (key: string | undefined, deal: Deal) => {
+      if (!key) return;
+
+      const currentDeal = lookup.get(key);
+      if (!currentDeal || getDealSavingsValue(deal) > getDealSavingsValue(currentDeal)) {
+        lookup.set(key, deal);
+      }
+    };
+
     [...partnerDealsMapped, ...catalogDeals, ...dealsData].forEach(deal => {
-      if (!lookup.has(deal.id)) {
-        lookup.set(deal.id, deal);
-      }
-      if (deal.slug && !lookup.has(deal.slug)) {
-        lookup.set(deal.slug, deal);
-      }
+      addDeal(deal.id, deal);
+      addDeal(deal.slug, deal);
     });
 
     return lookup;
@@ -305,7 +347,7 @@ const CustomerPortal = () => {
           claimedDate: claimEventsByDealId[claimedDealId] || user?.createdAt || new Date().toISOString(),
           status: "active" as const,
           expiresDate: new Date(Date.now() + 180 * 24 * 60 * 60 * 1000).toISOString(),
-          savings: parseInt(String(deal.savings || "0").replace(/[$,]/g, ''), 10) || 0,
+          savings: getDealSavingsValue(deal),
           redemptionCode: `${deal.id.toUpperCase()}-${user?.referralCode || "PN"}`
         };
       })

@@ -61,7 +61,7 @@ export function getTicketSocket() {
   });
 
   socket.on("connect", () => {
-    console.log("✅ Socket connected to:", SOCKET_BASE_URL);
+    console.log("socket connected");
   });
 
   socket.on("connect_error", (error) => {
