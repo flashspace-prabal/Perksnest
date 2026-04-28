@@ -115,7 +115,7 @@ const Tickets = () => {
 
     try {
       setCreating(true);
-      await apiCall("/api/tickets", "POST", {
+      const response = await apiCall("/api/tickets", "POST", {
         subject: subject.trim(),
         dealId,
         message: description.trim(),
@@ -126,7 +126,13 @@ const Tickets = () => {
       setSubject("");
       setDealId("");
       setDescription("");
-      loadTickets();
+      if (response?.ticket) {
+        setTickets((current) => [
+          response.ticket as Ticket,
+          ...current.filter((ticket) => ticket.id !== response.ticket.id),
+        ]);
+      }
+      void loadTickets();
     } catch (error) {
       console.error("Failed to create ticket:", error);
       toast.error("Failed to create ticket");

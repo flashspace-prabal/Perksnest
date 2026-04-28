@@ -3711,7 +3711,12 @@ app.get("/api/tickets", async (req, res) => {
     const context = await getAuthenticatedRequestContext(req);
     if (!context?.userId) return res.status(401).json({ success: false, error: "Authentication required" });
 
-    const { data, error } = await db.from("tickets").select("*").eq("user_id", context.userId).order("updated_at", { ascending: false });
+    const { data, error } = await db
+      .from("tickets")
+      .select("id,user_id,user_name,user_email,deal_id,subject,status,priority,type,description,created_at,updated_at")
+      .eq("user_id", context.userId)
+      .order("updated_at", { ascending: false })
+      .limit(100);
     if (error) throw error;
     res.json({ tickets: data || [] });
   } catch (error) {

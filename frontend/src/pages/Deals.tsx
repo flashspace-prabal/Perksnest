@@ -10,6 +10,10 @@ import { normalizeMemberCount } from "@/lib/member-count";
 import { SkeletonDealCard, SkeletonLoader } from "@/components/SkeletonLoader";
 import { isFreeDeal, isPremiumDeal } from "@/lib/deal-types";
 
+const devLog = (...args: unknown[]) => {
+  if (import.meta.env.DEV) console.log(...args);
+};
+
 const DEALS_PER_PAGE = 9;
 const filterOptions = ["Most popular", "Most upvoted", "Expiring soon", "Premium", "Free", "Recently added"];
 
@@ -184,10 +188,10 @@ const Deals = () => {
   // Fetch deals from API
   useEffect(() => {
     setIsLoading(true);
-    console.log('Deals.tsx: Starting to fetch deals...');
+    devLog('Deals.tsx: Starting to fetch deals...');
     getDeals()
       .then(deals => {
-        console.log(`Deals.tsx: Received ${deals.length} deals from getDeals()`, deals);
+        devLog(`Deals.tsx: Received ${deals.length} deals from getDeals()`, deals);
         setDealsData(deals);
       })
       .catch(err => {
@@ -221,7 +225,7 @@ const Deals = () => {
   
   // Log deal stats
   useEffect(() => {
-    console.log(`Deals.tsx: Partner deals: ${partnerDealsMapped.length}, Regular deals: ${dealsData.length}, Total: ${allDeals.length}`);
+    devLog(`Deals.tsx: Partner deals: ${partnerDealsMapped.length}, Regular deals: ${dealsData.length}, Total: ${allDeals.length}`);
   }, [allDeals.length, partnerDealsMapped.length, dealsData.length]);
 
   useEffect(() => {

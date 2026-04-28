@@ -43,5 +43,3 @@ export const DEALS_BY_CATEGORY = {
   ecommerce: ["shopify", "webflow"],
   development: ["linear", "github"],
 };
-
-console.log(`✅ Loaded ${TOTAL_DEALS_COUNT} comprehensive deals`);

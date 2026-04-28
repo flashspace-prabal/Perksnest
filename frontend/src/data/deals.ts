@@ -26,6 +26,7 @@ export interface Deal {
   isPremium?: boolean;
   collection?: string;
   isPick?: boolean;
+  featured?: boolean;
   slug?: string;
   company?: string;
   subcategory?: string;
@@ -2724,8 +2725,8 @@ export const deals: Deal[] = [
     "logo": "https://www.google.com/s2/favicons?domain=siemens.com&sz=128",
     "description": "Siemens offers industrial software tools and partnerships for startups in industrial automation, manufacturing, and industrial IoT enabling access to enterprise industrial infrastructure. Perfect for startups in industrial space, Siemens provides tools and partnership opportunities. With industrial tools access and partnership connections, teams gain significant value. Siemens' industrial focus makes it ideal for hardware and industrial startups.",
     "dealText": "Startup program",
-    "redeemUrl": "https://www.siemens.com/innovation/startups",
-    "website": "https://www.siemens.com/innovation/startups",
+    "redeemUrl": "https://www.siemens.com/en-us/company/innovation/startups/",
+    "website": "https://www.siemens.com/en-us/company/innovation/startups/",
     "savings": "Variable",
     "category": "tools",
     "features": [

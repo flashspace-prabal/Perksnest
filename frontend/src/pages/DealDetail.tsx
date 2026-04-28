@@ -32,6 +32,13 @@ import brevoLogo from "@/assets/logos/brevo.ico";
 import makeLogo from "@/assets/logos/make.ico";
 import React from "react";
 
+const devLog = (...args: unknown[]) => {
+  if (import.meta.env.DEV) console.log(...args);
+};
+const devWarn = (...args: unknown[]) => {
+  if (import.meta.env.DEV) console.warn(...args);
+};
+
 interface DealDetailData extends Deal {
   websiteUrl?: string;
   promoCode?: string;
@@ -141,7 +148,7 @@ const DealDetail = () => {
         const found = partnerDealsData.find(d => d.id === dealId && d.status === 'approved');
         setPartnerDeal(found || null);
       })
-      .catch(err => console.warn('Failed to fetch partner deals metadata:', err));
+      .catch(err => devWarn('Failed to fetch partner deals metadata:', err));
 
     getDealClaims(dealId)
       .then(claimData => {
@@ -149,15 +156,15 @@ const DealDetail = () => {
           setClaimCount(claimData.count);
         }
       })
-      .catch(err => console.warn('Failed to fetch deal claims metadata:', err));
+      .catch(err => devWarn('Failed to fetch deal claims metadata:', err));
 
     if (isAuthenticated) {
       getUserClaims()
         .then(claims => {
-          console.log('[DealDetail] Fetched user claims:', claims);
+          devLog('[DealDetail] Fetched user claims:', claims);
           setServerClaimedDeals(normalizeClaimedDeals(claims));
         })
-        .catch(err => console.warn('Failed to fetch user claims metadata:', err));
+        .catch(err => devWarn('Failed to fetch user claims metadata:', err));
     }
   }, [dealId, isAuthenticated]);
 
@@ -166,7 +173,7 @@ const DealDetail = () => {
     if (isAuthenticated) {
       getUserClaims()
         .then(data => {
-          console.log('[DealDetail] Updated user claims:', data);
+          devLog('[DealDetail] Updated user claims:', data);
           setServerClaimedDeals(normalizeClaimedDeals(data));
         })
         .catch(err => {
@@ -268,10 +275,10 @@ const DealDetail = () => {
 
     setIsClaiming(true);
     try {
-      console.log(`[DealDetail] Claiming deal: ${dealId}`);
+      devLog(`[DealDetail] Claiming deal: ${dealId}`);
       
       await claimDeal(dealId);
-      console.log('[DealDetail] Auth claim completed successfully');
+      devLog('[DealDetail] Auth claim completed successfully');
 
       // Update local server state immediately
       setServerClaimedDeals(current =>
@@ -287,10 +294,10 @@ const DealDetail = () => {
       try {
         await refetchClaimedDeals();
         const claims = await getUserClaims();
-        console.log('[DealDetail] Claims after claim:', claims);
+        devLog('[DealDetail] Claims after claim:', claims);
         setServerClaimedDeals(normalizeClaimedDeals(claims));
       } catch (refreshError) {
-        console.warn('[DealDetail] Failed to refetch claims after claim:', refreshError);
+        devWarn('[DealDetail] Failed to refetch claims after claim:', refreshError);
       }
 
       // Send confirmation email
@@ -300,7 +307,7 @@ const DealDetail = () => {
 
       // Navigate after a short delay for better UX
       setTimeout(() => {
-        console.log('[DealDetail] Navigating to redeem page');
+        devLog('[DealDetail] Navigating to redeem page');
         navigate(`/deals/${dealId}/redeem`);
       }, 800);
     } catch (error: unknown) {

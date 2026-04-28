@@ -13,6 +13,12 @@ const USE_SUPABASE = true; // Set to false to skip Supabase
 const USE_API = true; // Set to false to skip API
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL || '';
 const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY || '';
+const devLog = (...args: unknown[]) => {
+  if (import.meta.env.DEV) console.log(...args);
+};
+const devWarn = (...args: unknown[]) => {
+  if (import.meta.env.DEV) console.warn(...args);
+};
 
 // Initialize Supabase client
 let supabase: ReturnType<typeof createClient> | null = null;
@@ -58,8 +64,7 @@ function transformSupabaseDeals(data: any[]): Deal[] {
     promoCode: d.promo_code,
     steps: d.steps || [],
     website: d.website,
-    eligibility: d.eligibility || [],
-    expiresIn: d.expires_in,
+    features: d.features || [],
   }));
 }
 
@@ -78,12 +83,12 @@ export async function getDeals(): Promise<Deal[]> {
 
         if (error) throw error;
         if (data && data.length > 0) {
-          console.log(`✅ Loaded ${data.length} deals from Supabase`);
+          devLog(`✅ Loaded ${data.length} deals from Supabase`);
           return dedupeDeals(transformSupabaseDeals(data));
         }
       }
     } catch (error) {
-      console.warn('Failed to fetch deals from Supabase, trying API:', error);
+      devWarn('Failed to fetch deals from Supabase, trying API:', error);
     }
   }
 
@@ -106,10 +111,9 @@ export async function getDeals(): Promise<Deal[]> {
           isPremium: d.is_premium || d.isPremium,
           isFree: d.is_free || d.isFree,
           isPick: d.is_pick || d.isPick,
-          featured: d.featured,
+          featured: Boolean(d.featured),
           category: d.category,
           subcategory: d.subcategory,
-          lastAdded: d.last_added || d.lastAdded,
           expiresAt: d.expires_at || d.expiresAt,
           collection: d.collection,
           redeemUrl: d.redeem_url || d.redeemUrl,
@@ -120,16 +124,16 @@ export async function getDeals(): Promise<Deal[]> {
           expiresIn: d.expires_in || d.expiresIn,
         }));
 
-        console.log(`✅ Loaded ${apiDeals.length} deals from API`);
+        devLog(`✅ Loaded ${apiDeals.length} deals from API`);
         return dedupeDeals([...apiDeals]);
       }
     } catch (error) {
-      console.warn('Failed to fetch deals from API, using static data:', error);
+      devWarn('Failed to fetch deals from API, using static data:', error);
     }
   }
 
   // Fallback to static data
-  console.log('📦 Using static deals data');
+  devLog('📦 Using static deals data');
   return dedupeDeals([...enrichDeals(dealsData)]);
 }
 
@@ -150,12 +154,12 @@ export async function getDeal(dealId: string): Promise<Deal | null> {
 
         if (error && error.code !== 'PGRST116') throw error; // PGRST116 = no rows
         if (data) {
-          console.log(`✅ Loaded deal ${dealId} from Supabase`);
+          devLog(`✅ Loaded deal ${dealId} from Supabase`);
           return transformSupabaseDeals([data])[0];
         }
       }
     } catch (error) {
-      console.warn(`Failed to fetch deal ${dealId} from Supabase, trying API:`, error);
+      devWarn(`Failed to fetch deal ${dealId} from Supabase, trying API:`, error);
     }
   }
 
@@ -166,7 +170,7 @@ export async function getDeal(dealId: string): Promise<Deal | null> {
 
       if (response && response.deal) {
         const d = response.deal;
-        console.log(`✅ Loaded deal ${dealId} from API`);
+        devLog(`✅ Loaded deal ${dealId} from API`);
         return {
           id: d.id,
           slug: d.slug,
@@ -180,27 +184,25 @@ export async function getDeal(dealId: string): Promise<Deal | null> {
           isPremium: d.is_premium || d.isPremium,
           isFree: d.is_free || d.isFree,
           isPick: d.is_pick || d.isPick,
-          featured: d.featured,
+          featured: Boolean(d.featured),
           category: d.category,
           subcategory: d.subcategory,
-          lastAdded: d.last_added || d.lastAdded,
           expiresAt: d.expires_at || d.expiresAt,
           collection: d.collection,
           redeemUrl: d.redeem_url || d.redeemUrl,
           promoCode: d.promo_code || d.promoCode,
           steps: d.steps || [],
           website: d.website || d.redeemUrl,
-          eligibility: d.eligibility || [],
-          expiresIn: d.expires_in || d.expiresIn,
+          features: d.features || [],
         };
       }
     } catch (error) {
-      console.warn(`Failed to fetch deal ${dealId} from API, checking static data:`, error);
+      devWarn(`Failed to fetch deal ${dealId} from API, checking static data:`, error);
     }
   }
 
   // Fallback to static data
-  console.log(`📦 Searching for deal ${dealId} in static data`);
+  devLog(`📦 Searching for deal ${dealId} in static data`);
   const staticDeal = dealsData.find(d => d.id === dealId || d.slug === dealId);
   if (staticDeal) {
     const enriched = enrichDeals([staticDeal])[0];
@@ -230,7 +232,7 @@ export async function getDealsBySubcategory(subcategory: string): Promise<Deal[]
  */
 export async function getFeaturedDeals(): Promise<Deal[]> {
   const allDeals = await getDeals();
-  return allDeals.filter(d => d.featured);
+  return allDeals.filter(d => d.featured || (Array.isArray(d.features) && d.features.includes('featured')));
 }
 
 /**

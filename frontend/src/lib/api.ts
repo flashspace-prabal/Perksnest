@@ -1,7 +1,13 @@
 import { API_BASE_URL } from "@/lib/runtime";
 
 const API = API_BASE_URL;
-const API_TIMEOUT = 5000; // 5 second timeout
+const API_TIMEOUT = 15000; // 15 second timeout for production APIs on cold starts
+const devLog = (...args: unknown[]) => {
+  if (import.meta.env.DEV) console.log(...args);
+};
+const devWarn = (...args: unknown[]) => {
+  if (import.meta.env.DEV) console.warn(...args);
+};
 
 export interface ReferralEntry {
   code: string;
@@ -154,7 +160,7 @@ export async function apiCall(path: string, method = 'GET', body?: unknown, retr
       const err = error as { name?: string };
       
       if (err.name === 'AbortError') {
-        console.warn(`API timeout: ${method} ${path} (attempt ${attempt + 1})`);
+        devWarn(`API timeout: ${method} ${path} (attempt ${attempt + 1})`);
       } else {
         console.error(`API call failed: ${method} ${path}`, error);
       }
@@ -176,20 +182,20 @@ export async function apiCall(path: string, method = 'GET', body?: unknown, retr
  */
 export async function claimDeal(dealId: string) {
   try {
-    console.log(`[API] Claiming deal: ${dealId}`);
+    devLog(`[API] Claiming deal: ${dealId}`);
     const response = await apiCall('/api/deals/claim', 'POST', { dealId }, 2);
-    console.log(`[API] Claim response:`, response);
+    devLog(`[API] Claim response:`, response);
     return response;
   } catch (error) {
     // Fallback: save to localStorage if API fails
-    console.warn('Claim API failed, saving to localStorage', error);
+    devWarn('Claim API failed, saving to localStorage', error);
     const session = JSON.parse(localStorage.getItem('pn_session') || '{}');
     if (session.user_id) {
       const claims = JSON.parse(localStorage.getItem('pn_claimed_deals') || '[]');
       if (!claims.includes(dealId)) {
         claims.push(dealId);
         localStorage.setItem('pn_claimed_deals', JSON.stringify(claims));
-        console.log('[API] Saved claim to localStorage fallback');
+        devLog('[API] Saved claim to localStorage fallback');
       }
     }
     return { success: true, fallback: true };
@@ -201,7 +207,7 @@ export async function getAdminStats() {
     const response = await apiCall('/api/admin/stats', 'GET', undefined, 2);
     return response.stats || {};
   } catch (error) {
-    console.warn('Admin stats API failed', error);
+    devWarn('Admin stats API failed', error);
     return {};
   }
 }
@@ -217,7 +223,7 @@ export async function getAdminUsers(page: number = 1, limit: number = 50, search
   try {
     return await apiCall(`/api/admin/users?${params.toString()}`, 'GET', undefined, 2);
   } catch (error) {
-    console.warn('Admin users API failed', error);
+    devWarn('Admin users API failed', error);
     return { users: [], total: 0 };
   }
 }
@@ -244,7 +250,7 @@ export async function getDealClaims(dealId: string) {
     const result = await apiCall(`/api/deals/${dealId}/claims`, 'GET', undefined, 2);
     return result || { count: 0 };
   } catch (error) {
-    console.warn(`Deal claims API failed for ${dealId}`, error);
+    devWarn(`Deal claims API failed for ${dealId}`, error);
     // Return empty claims gracefully - don't fail page load
     return { count: 0, fallback: true };
   }
@@ -252,12 +258,12 @@ export async function getDealClaims(dealId: string) {
 
 export async function getUserClaims() {
   try {
-    console.log('[API] Fetching user claims...');
+    devLog('[API] Fetching user claims...');
     const response = await apiCall('/api/user/claims', 'GET', undefined, 2);
-    console.log('[API] User claims response:', response);
+    devLog('[API] User claims response:', response);
     return response;
   } catch (error) {
-    console.warn('User claims API failed, using localStorage', error);
+    devWarn('User claims API failed, using localStorage', error);
     const claims = JSON.parse(localStorage.getItem('pn_claimed_deals') || '[]');
     return claims;
   }
@@ -272,7 +278,7 @@ export async function refetchUserClaimedDeals() {
     const response = await apiCall('/api/auth/me', 'GET', undefined, 2);
     return response?.user || null;
   } catch (error) {
-    console.warn('Failed to refetch user claimed deals', error);
+    devWarn('Failed to refetch user claimed deals', error);
     return null;
   }
 }
@@ -283,12 +289,12 @@ export async function refetchUserClaimedDeals() {
  */
 export async function getCurrentUser() {
   try {
-    console.log('[API] Fetching current user...');
+    devLog('[API] Fetching current user...');
     const response = await apiCall('/api/auth/me', 'GET', undefined, 2);
-    console.log('[API] Current user:', response);
+    devLog('[API] Current user:', response);
     return response?.user || response || null;
   } catch (error) {
-    console.warn('Failed to fetch current user', error);
+    devWarn('Failed to fetch current user', error);
     return null;
   }
 }
@@ -298,7 +304,7 @@ export async function getAllDeals() {
   try {
     return await apiCall('/api/deals', 'GET', undefined, 2);
   } catch (error) {
-    console.warn('Get deals API failed', error);
+    devWarn('Get deals API failed', error);
     return { deals: [] };
   }
 }
@@ -307,7 +313,7 @@ export async function getDealById(dealId: string) {
   try {
     return await apiCall(`/api/deals/${dealId}`, 'GET', undefined, 2);
   } catch (error) {
-    console.warn(`Get deal API failed for ${dealId}`, error);
+    devWarn(`Get deal API failed for ${dealId}`, error);
     return null;
   }
 }
@@ -316,7 +322,7 @@ export async function getReferralStats() {
   try {
     return await apiCall('/api/referrals/me', 'GET', undefined, 2);
   } catch (error) {
-    console.warn('Referral stats API failed', error);
+    devWarn('Referral stats API failed', error);
     return { referrals: 0, conversions: 0, rewards: 0 };
   }
 }
@@ -334,7 +340,7 @@ export async function getReferralSummary() : Promise<ReferralSummary> {
       totalClicks: Number(response.total_clicks || 0),
     };
   } catch (error) {
-    console.warn('Referral summary API failed', error);
+    devWarn('Referral summary API failed', error);
     return {
       referrals: [],
       totalEarned: 0,
@@ -355,7 +361,7 @@ export async function trackReferralClick(referral: string | { code: string; sour
   try {
     return await apiCall('/api/referrals/click', 'POST', payload, 2);
   } catch (error) {
-    console.warn('Track referral API failed', error);
+    devWarn('Track referral API failed', error);
     return { tracked: true };
   }
 }
@@ -364,7 +370,7 @@ export async function convertReferral(referralCode: string) {
   try {
     return await apiCall('/api/referrals/convert', 'POST', { referralCode }, 2);
   } catch (error) {
-    console.warn('Convert referral API failed', error);
+    devWarn('Convert referral API failed', error);
     return { converted: true };
   }
 }
@@ -381,7 +387,7 @@ export async function getTickets() {
       tickets,
     };
   } catch (error) {
-    console.warn('Get tickets API failed', error);
+    devWarn('Get tickets API failed', error);
     return { tickets: [] };
   }
 }
@@ -390,7 +396,7 @@ export async function createTicket(ticket: Record<string, unknown>) {
   try {
     return await apiCall('/api/tickets', 'POST', ticket, 2);
   } catch (error) {
-    console.warn('Create ticket API failed', error);
+    devWarn('Create ticket API failed', error);
     return { success: false, message: 'Failed to create ticket' };
   }
 }
@@ -427,7 +433,7 @@ export async function getAdminDeals() {
   try {
     return await apiCall('/api/admin/deals', 'GET', undefined, 2);
   } catch (error) {
-    console.warn('Admin deals API failed', error);
+    devWarn('Admin deals API failed', error);
     return { deals: [], partnerDeals: [] };
   }
 }
@@ -436,7 +442,7 @@ export async function getAdminWhiteLabelClients() {
   try {
     return await apiCall('/api/admin/whitelabel/clients', 'GET', undefined, 2);
   } catch (error) {
-    console.warn('Admin white-label clients API failed', error);
+    devWarn('Admin white-label clients API failed', error);
     return { clients: [] };
   }
 }
@@ -520,7 +526,7 @@ export async function getDealReviews(dealId: string) {
 
     return { ...response, reviews: [] };
   } catch (error) {
-    console.warn(`Get reviews API failed for ${dealId}`, error);
+    devWarn(`Get reviews API failed for ${dealId}`, error);
     return { reviews: [], fallback: true };
   }
 }
@@ -529,7 +535,7 @@ export async function getAllReviews() {
   try {
     return await apiCall('/api/deals/reviews', 'GET', undefined, 2);
   } catch (error) {
-    console.warn('Get all reviews API failed', error);
+    devWarn('Get all reviews API failed', error);
     return { reviews: [], fallback: true };
   }
 }

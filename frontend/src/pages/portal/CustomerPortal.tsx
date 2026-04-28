@@ -39,6 +39,13 @@ import SavingsInsights, { DealSavingsIndicator } from "@/components/dashboard/Sa
 import { FEATURES } from "@/lib/feature-flags";
 import { subscribeToTicketEvents } from "@/lib/ticket-socket";
 
+const devLog = (...args: unknown[]) => {
+  if (import.meta.env.DEV) console.log(...args);
+};
+const devWarn = (...args: unknown[]) => {
+  if (import.meta.env.DEV) console.warn(...args);
+};
+
 interface TicketSummary {
   id: string;
   subject: string;
@@ -115,7 +122,7 @@ const CustomerPortal = () => {
     if (user && isAuthenticated) {
       refetchClaimedDeals()
         .then(() => {
-          console.log('Claimed deals refetched successfully');
+          devLog('Claimed deals refetched successfully');
         })
         .catch(err => {
           console.error('Failed to refetch claimed deals:', err);
@@ -211,7 +218,7 @@ const CustomerPortal = () => {
       .then((response) => {
         if (!isMounted) return;
 
-        console.log("[CustomerPortal] Dashboard claims fetch response:", response);
+        devLog("[CustomerPortal] Dashboard claims fetch response:", response);
         const rawClaims = Array.isArray((response as { claims?: unknown[] })?.claims)
           ? (response as { claims: unknown[] }).claims
           : Array.isArray(response)
@@ -286,7 +293,7 @@ const CustomerPortal = () => {
         const deal = allDealLookup.get(claimedDealId);
 
         if (!deal) {
-          console.warn("[CustomerPortal] Missing deal metadata for claimed deal:", claimedDealId);
+          devWarn("[CustomerPortal] Missing deal metadata for claimed deal:", claimedDealId);
           return null;
         }
 
@@ -314,7 +321,7 @@ const CustomerPortal = () => {
         redemptionCode: string;
       }>;
 
-    console.log("[CustomerPortal] Claimed deals prepared for dashboard:", mappedDeals);
+    devLog("[CustomerPortal] Claimed deals prepared for dashboard:", mappedDeals);
     return mappedDeals;
   }, [allDealLookup, claimEventsByDealId, claimedDealIds, user?.createdAt, user?.referralCode]);
 
@@ -425,15 +432,15 @@ const CustomerPortal = () => {
 
   const handleClaimDeal = async (dealId: string) => {
     try {
-      console.log("[CustomerPortal] Claiming deal from dashboard:", dealId);
+      devLog("[CustomerPortal] Claiming deal from dashboard:", dealId);
       await claimDeal(dealId);
       await refetchClaimedDeals();
 
       try {
         const refreshedClaims = await getUserClaims();
-        console.log("[CustomerPortal] Claims after dashboard claim:", refreshedClaims);
+        devLog("[CustomerPortal] Claims after dashboard claim:", refreshedClaims);
       } catch (claimsError) {
-        console.warn("[CustomerPortal] Failed to refetch claims after dashboard claim:", claimsError);
+        devWarn("[CustomerPortal] Failed to refetch claims after dashboard claim:", claimsError);
       }
       
       toast.success("Deal claimed successfully!");

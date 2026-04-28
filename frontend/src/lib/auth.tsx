@@ -1,8 +1,12 @@
-﻿import { createContext, useContext, useEffect, useState, ReactNode } from "react";
+import { createContext, useContext, useEffect, useState, ReactNode } from "react";
 import { supabaseAuth } from "./supabase";
 import { clearStoredReferralCode, getStoredReferralCode } from "@/lib/referrals";
 import { API_BASE_URL } from "@/lib/runtime";
 import { refetchUserClaimedDeals } from "@/lib/api";
+
+const devLog = (...args: unknown[]) => {
+  if (import.meta.env.DEV) console.log(...args);
+};
 
 export type UserPlan = 'free' | 'premium' | 'enterprise';
 export type UserRole = 'customer' | 'partner' | 'admin';
@@ -349,7 +353,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       ? previousUser.claimedDeals
       : [...previousUser.claimedDeals, dealId];
 
-    console.log("[Auth] Claiming deal:", { userId: previousUser.id, dealId });
+    devLog("[Auth] Claiming deal:", { userId: previousUser.id, dealId });
     setUser({ ...previousUser, claimedDeals: optimisticClaimedDeals });
 
     try {
@@ -360,7 +364,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         previousUser.id
       );
       const nextUser = rowToUser(response.user);
-      console.log("[Auth] Claim synced from backend:", {
+      devLog("[Auth] Claim synced from backend:", {
         dealId,
         claimedDeals: nextUser.claimedDeals,
       });

@@ -54,6 +54,13 @@ import { useAuth } from "@/lib/auth";
 import { useBookmarks } from "@/lib/bookmarks";
 import { useSeo } from "@/lib/seo";
 
+const devLog = (...args: unknown[]) => {
+  if (import.meta.env.DEV) console.log(...args);
+};
+const devWarn = (...args: unknown[]) => {
+  if (import.meta.env.DEV) console.warn(...args);
+};
+
 /**
  * Tab configuration for anchor navigation
  */
@@ -76,11 +83,11 @@ async function getComprehensiveDealData(dealId: string): Promise<ComprehensiveDe
   try {
     const response = await getDealById(dealId);
     if (response?.deal) {
-      console.log("Loaded deal from Supabase API:", dealId);
+      devLog("Loaded deal from Supabase API:", dealId);
       return normalizeComprehensiveDeal(response.deal as Record<string, unknown>, dealId);
     }
   } catch (error) {
-    console.warn("Supabase API fetch failed, falling back to direct/static data:", error);
+    devWarn("Supabase API fetch failed, falling back to direct/static data:", error);
   }
 
   try {
@@ -99,21 +106,21 @@ async function getComprehensiveDealData(dealId: string): Promise<ComprehensiveDe
           .maybeSingle();
 
         if (!error && data) {
-          console.log("✅ Loaded deal from Supabase:", dealId);
+          devLog("✅ Loaded deal from Supabase:", dealId);
           return normalizeComprehensiveDeal(data as Record<string, unknown>, dealId);
         }
       } catch (err) {
-        console.log("⚠️ Supabase fetch failed, falling back to static data:", err);
+        devLog("⚠️ Supabase fetch failed, falling back to static data:", err);
       }
     }
   } catch (err) {
-    console.log("⚠️ Supabase initialization failed:", err);
+    devLog("⚠️ Supabase initialization failed:", err);
   }
 
   // Fallback to comprehensive static data (from master index)
   const staticData = getComprehensiveDealByIdFromMaster(dealId);
   if (staticData) {
-    console.log("✅ Loaded deal from comprehensive static data:", dealId);
+    devLog("✅ Loaded deal from comprehensive static data:", dealId);
     return normalizeComprehensiveDeal(staticData as Record<string, unknown>, dealId);
   }
 
@@ -125,18 +132,18 @@ async function getComprehensiveDealData(dealId: string): Promise<ComprehensiveDe
   };
 
   if (legacyDataMap[dealId]) {
-    console.log("✅ Loaded deal from legacy data:", dealId);
+    devLog("✅ Loaded deal from legacy data:", dealId);
     return normalizeComprehensiveDeal(legacyDataMap[dealId] as Record<string, unknown>, dealId);
   }
 
   // Fallback to basic deals data - convert to comprehensive format
   const basicDeal = dealsData.find((d) => d.id === dealId || d.slug === dealId);
   if (basicDeal) {
-    console.log("✅ Converting basic deal to comprehensive:", dealId);
+    devLog("✅ Converting basic deal to comprehensive:", dealId);
     return normalizeComprehensiveDeal(convertBasicDealToComprehensive(basicDeal) as Record<string, unknown>, dealId);
   }
 
-  console.warn("❌ Deal not found:", dealId);
+  devWarn("❌ Deal not found:", dealId);
   return null;
 }
 
@@ -170,7 +177,7 @@ export const ComprehensiveDealDetailPage: React.FC = () => {
           setDeal(dealData);
           setIsClaimed(user?.claimedDeals?.includes(dealId) || false);
         } else {
-          console.warn("Deal not found:", dealId);
+          devWarn("Deal not found:", dealId);
         }
       } catch (error) {
         console.error("Failed to load deal:", error);
@@ -335,7 +342,7 @@ export const ComprehensiveDealDetailPage: React.FC = () => {
         const backendReviews = normalizeApiDealReviews(response, dealId);
         const resolvedReviews = backendReviews.length > 0 ? backendReviews : fallbackDealReviews;
 
-        console.log("[ComprehensiveDealDetail] Reviews source:", {
+        devLog("[ComprehensiveDealDetail] Reviews source:", {
           dealId,
           backendCount: backendReviews.length,
           fallbackCount: fallbackDealReviews.length,
@@ -346,7 +353,7 @@ export const ComprehensiveDealDetailPage: React.FC = () => {
           setDealPageReviews(resolvedReviews);
         }
       } catch (error) {
-        console.warn(`[ComprehensiveDealDetail] Failed to load backend reviews for ${dealId}`, error);
+        devWarn(`[ComprehensiveDealDetail] Failed to load backend reviews for ${dealId}`, error);
         if (!isCancelled) {
           setDealPageReviews(fallbackDealReviews);
         }
