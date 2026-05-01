@@ -179,9 +179,9 @@ export function useRazorpayPayment(
               onSuccess(verifyData.user);
             }
 
-            // Redirect to dashboard after 1.5 seconds
+            // Redirect to the receipt page after 1.5 seconds
             setTimeout(() => {
-              window.location.href = '/customer';
+              window.location.href = '/payment-confirmation';
             }, 1500);
           } catch (verifyError) {
             const errorMsg = verifyError instanceof Error ? verifyError.message : 'Payment verification failed';

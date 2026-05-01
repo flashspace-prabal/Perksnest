@@ -1,12 +1,10 @@
-import { Check, Zap, Crown, Building2, HelpCircle, ArrowRight } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Check, Zap, Crown, Building2, HelpCircle, ArrowRight, CreditCard, Loader2 } from "lucide-react";
+import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { toast } from 'sonner';
 import { useAuth } from "@/lib/auth";
-import { AuthModal } from "@/components/AuthModal";
 import { useState, useEffect } from "react";
-import { API_BASE_URL } from "@/lib/runtime";
 import PremiumUpgradeButton from "@/components/PremiumUpgradeButton";
 import {
   Accordion,
@@ -126,20 +124,67 @@ const comparisonFeatures = [
 ];
 
 const Pricing = () => {
+  const navigate = useNavigate();
+
   useEffect(() => {
     document.title = "Pricing Plans | PerksNest";
   }, []);
 
-  const { user, isAuthenticated } = useAuth();
-  const [authModalOpen, setAuthModalOpen] = useState(false);
-  const [authModalTab, setAuthModalTab] = useState<'login' | 'register'>('login');
+  const { user, isAuthenticated, updatePlan } = useAuth();
+  const [isSimulatingPayment, setIsSimulatingPayment] = useState(false);
 
-  const handlePlanClick = async (planName: string, ctaLink: string) => {
+  const handlePlanClick = async (planName: string) => {
     if (planName === "Free") {
       window.location.href = isAuthenticated ? '/customer' : '/login';
       return;
     }
     // Enterprise — follow link
+  };
+
+  const buildInvoiceDetails = (mode: "simulated" | "razorpay", nextUser = user) => {
+    const issuedAt = new Date();
+    const subtotal = 20;
+    const tax = 0;
+
+    return {
+      invoiceId: `PN-${issuedAt.getFullYear()}-${String(issuedAt.getTime()).slice(-6)}`,
+      orderId: `${mode === "simulated" ? "SIM" : "RZP"}-${issuedAt.getTime()}`,
+      paymentId: `${mode === "simulated" ? "pay_sim" : "pay"}_${Math.random().toString(36).slice(2, 10)}`,
+      issuedAt: issuedAt.toISOString(),
+      customerName: nextUser?.name || "PerksNest Member",
+      customerEmail: nextUser?.email || "",
+      planName: "PerksNest Premium Membership",
+      billingPeriod: "1 year",
+      paymentMethod: mode === "simulated" ? "Development simulated payment" : "Razorpay",
+      subtotal,
+      tax,
+      total: subtotal + tax,
+      currency: "USD",
+      status: "Paid",
+    };
+  };
+
+  const handleSimulatedPayment = async () => {
+    if (!isAuthenticated) {
+      navigate('/login?returnUrl=/pricing');
+      return;
+    }
+
+    try {
+      setIsSimulatingPayment(true);
+      await updatePlan('premium');
+      const invoice = buildInvoiceDetails("simulated");
+      sessionStorage.setItem('perksnest_last_invoice', JSON.stringify(invoice));
+      toast.success('Premium activated in development mode', {
+        description: 'Razorpay checkout was bypassed for testing.',
+      });
+      navigate('/payment-confirmation');
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Unable to simulate payment';
+      toast.error(`Simulated payment failed: ${message}`);
+    } finally {
+      setIsSimulatingPayment(false);
+    }
   };
 
   const getPlanBadge = (planName: string) => {
@@ -148,7 +193,7 @@ const Pricing = () => {
     // Map user.plan to tier names
     const planMap: Record<string, string> = {
       'free': 'Free',
-      'pro': 'Pro',
+      'premium': 'Pro',
       'enterprise': 'Enterprise'
     };
 
@@ -205,28 +250,56 @@ const Pricing = () => {
       }
 
       return (
-        <PremiumUpgradeButton
-          size="lg"
-          fullWidth
-          buttonText="Upgrade to Premium – $20"
-          onSuccess={(user) => {
-            // User is upgraded, redirect to dashboard
-            setTimeout(() => {
-              window.location.href = '/customer';
-            }, 1500);
-          }}
-          onError={(error) => {
-            console.error('Payment error:', error);
-            toast.error(`Payment failed: ${error}`);
-          }}
-        />
+        <div className="space-y-3">
+          <PremiumUpgradeButton
+            size="lg"
+            fullWidth
+            buttonText="Upgrade to Premium - $20"
+            onSuccess={(nextUser) => {
+              const invoice = buildInvoiceDetails("razorpay", nextUser);
+              sessionStorage.setItem('perksnest_last_invoice', JSON.stringify(invoice));
+            }}
+            onError={(error) => {
+              console.error('Payment error:', error);
+              toast.error(`Payment failed: ${error}`);
+            }}
+          />
+
+          {import.meta.env.DEV && (
+            <div className="rounded-lg border border-dashed border-primary-foreground/40 bg-primary-foreground/10 p-3">
+              <div className="mb-2 flex items-center justify-between gap-2">
+                <span className="text-xs font-semibold uppercase tracking-wide text-primary-foreground/80">
+                  Development only
+                </span>
+                <Badge className="bg-primary-foreground text-primary hover:bg-primary-foreground">
+                  Razorpay bypass
+                </Badge>
+              </div>
+              <Button
+                type="button"
+                onClick={handleSimulatedPayment}
+                disabled={isSimulatingPayment}
+                variant="secondary"
+                className="w-full gap-2 bg-primary-foreground text-primary hover:bg-primary-foreground/90"
+                size="lg"
+              >
+                {isSimulatingPayment ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : (
+                  <CreditCard className="h-4 w-4" />
+                )}
+                Simulate payment
+              </Button>
+            </div>
+          )}
+        </div>
       );
     }
 
     // For Free plan, use standard button
     return (
       <Button
-        onClick={() => handlePlanClick(plan.name, plan.ctaLink)}
+        onClick={() => handlePlanClick(plan.name)}
         className={`w-full ${
           plan.highlighted
             ? "bg-primary-foreground text-primary hover:bg-primary-foreground/90"
@@ -305,11 +378,6 @@ const Pricing = () => {
                           {plan.period}
                         </span>
                       </div>
-                      {null && (
-                        <div className={`text-sm mt-1 ${plan.highlighted ? "text-primary-foreground/70" : "text-muted-foreground"}`}>
-                          <span className="line-through">{null}</span> – save 30%
-                        </div>
-                      )}
                     </div>
 
                     <ul className="space-y-3 mb-8 flex-1">

@@ -12,6 +12,7 @@ import Deals from "./pages/Deals";
 import DealRedeem from "./pages/DealRedeem";
 import DealRoute from "./pages/DealRoute";
 import Pricing from "./pages/Pricing";
+import PaymentConfirmation from "./pages/PaymentConfirmation";
 import BlogPage from "./pages/BlogPage";
 import Invite from "./pages/Invite";
 import Newsletter from "./pages/Newsletter";
@@ -72,6 +73,7 @@ const App = () => (
                   <Route path="/deals/:dealId" element={<DealRoute />} />
                   <Route path="/deals/:dealId/redeem" element={<DealRedeem />} />
                   <Route path="/pricing" element={<Pricing />} />
+                  <Route path="/payment-confirmation" element={<PaymentConfirmation />} />
                   <Route path="/contact" element={<Contact />} />
                   <Route path="/blog" element={FEATURES.blog ? <BlogPage /> : <Navigate to="/" replace />} />
                   <Route path="/blog/:postId" element={FEATURES.blog ? <BlogPage /> : <Navigate to="/" replace />} />
