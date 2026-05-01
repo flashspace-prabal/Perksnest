@@ -199,7 +199,7 @@ const StripeHero = ({ isAuthenticated }: { isAuthenticated: boolean }) => {
           <div className="flex flex-wrap items-center gap-6">
             <div className="flex items-center gap-2 text-sm text-gray-600">
               <Check className="h-4 w-4 text-[#5c2169]" />
-              <span>350+ exclusive perks</span>
+              <span>150+ exclusive perks</span>
             </div>
              <div className="flex items-center gap-2 text-sm text-gray-600">
               <Check className="h-4 w-4 text-[#5c2169]" />
