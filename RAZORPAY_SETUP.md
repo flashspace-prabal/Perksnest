@@ -4,7 +4,7 @@ This document describes the complete Razorpay payment workflow for PerksNest Pre
 
 ## Overview
 
-The Razorpay payment workflow enables users to upgrade from Free to Premium tier for $20 (2000 INR paise). The implementation follows a secure backend-verified approach:
+The Razorpay payment workflow enables users to upgrade from Free to Premium tier for $20, converted to INR before creating the Razorpay order. The implementation follows a secure backend-verified approach:
 
 1. **Frontend**: User initiates payment by clicking upgrade button
 2. **Backend**: Creates Razorpay order (only backend knows amounts)
@@ -23,6 +23,8 @@ Both backend and frontend need Razorpay credentials:
 ```env
 RAZORPAY_KEY_ID=rzp_test_RznqZurPHXgoYa
 RAZORPAY_KEY_SECRET=VO6K7cqSn8Luz1HGBeTL2e0k
+PREMIUM_PLAN_USD=20
+USD_TO_INR_RATE=94.87
 ```
 
 **Frontend (.env):**
@@ -72,7 +74,7 @@ Body: {} (empty)
 {
   "success": true,
   "order_id": "order_Ld6S3xaVEzDYAZ",
-  "amount": 2000,
+  "amount": 189740,
   "currency": "INR"
 }
 ```
@@ -295,11 +297,12 @@ VITE_RAZORPAY_KEY=rzp_live_YOUR_LIVE_KEY
 
 ### 3. Update Payment Amount (if needed)
 
-Current amount: **2000 paise (₹20 / ~$0.24 USD)**
+Current amount: **$20 converted to INR**. With the default `USD_TO_INR_RATE=94.87`, Razorpay receives **189740 paise (about Rs 1,897.40)**.
 
 To change:
-1. Update backend: `/api/create-order` line with `amount: VALUE_IN_PAISE`
-2. Update button text in components
+1. Update backend `.env`: `PREMIUM_PLAN_USD=20`
+2. Update backend `.env`: `USD_TO_INR_RATE=<current rate>`
+3. Update button text in components if the visible plan price changes
 
 ### 4. Test in Production
 

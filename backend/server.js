@@ -39,6 +39,15 @@ try {
   console.error("[PAYMENT] Failed to initialize Razorpay SDK:", error.message);
 }
 
+const PREMIUM_PLAN_USD = parseFloat(process.env.PREMIUM_PLAN_USD || "20");
+const USD_TO_INR_RATE = parseFloat(process.env.USD_TO_INR_RATE || "94.87");
+
+function getPremiumAmountInPaise() {
+  const usdAmount = Number.isFinite(PREMIUM_PLAN_USD) && PREMIUM_PLAN_USD > 0 ? PREMIUM_PLAN_USD : 20;
+  const usdToInrRate = Number.isFinite(USD_TO_INR_RATE) && USD_TO_INR_RATE > 0 ? USD_TO_INR_RATE : 94.87;
+  return Math.round(usdAmount * usdToInrRate * 100);
+}
+
 // Mount Stripe webhook before body parser
 app.post("/api/webhooks/stripe", express.raw({ type: "application/json" }), async (req, res) => {
   if (!stripe) {
@@ -3875,11 +3884,17 @@ app.post("/api/create-order", async (req, res) => {
     }
 
     try {
+      const amountInPaise = getPremiumAmountInPaise();
       const options = {
-        amount: 2000, // ₹20 in paise
+        amount: amountInPaise,
         currency: "INR",
         receipt: `rcpt_${Date.now()}`, // Max 40 chars: Razorpay requirement
         payment_capture: 1, // Auto capture payment
+        notes: {
+          plan: "premium",
+          usd_amount: String(PREMIUM_PLAN_USD),
+          usd_to_inr_rate: String(USD_TO_INR_RATE),
+        },
       };
 
       console.log(`[PAYMENT] Creating order for user ${userId}`, options);
@@ -3964,6 +3979,23 @@ app.post("/api/verify-payment", async (req, res) => {
       const { data: existingUser, error: existingUserError } = await db.from("users").select("*").eq("id", userId).maybeSingle();
       if (existingUserError) throw existingUserError;
 
+      let recordedOrder = null;
+      try {
+        const { data: orderRecord, error: orderRecordError } = await db
+          .from("payment_orders")
+          .select("amount,currency")
+          .eq("razorpay_order_id", order_id)
+          .eq("user_id", userId)
+          .maybeSingle();
+        if (orderRecordError) {
+          console.warn("[PAYMENT] Failed to read order amount:", orderRecordError);
+        } else {
+          recordedOrder = orderRecord;
+        }
+      } catch (dbError) {
+        console.warn("[PAYMENT] Error reading order amount:", dbError);
+      }
+
       // Verify signature using crypto
       const crypto = require("crypto");
       const expectedSignature = crypto
@@ -4028,8 +4060,8 @@ app.post("/api/verify-payment", async (req, res) => {
             user_id: userId,
             razorpay_payment_id: payment_id,
             razorpay_order_id: order_id,
-            amount: 2000,
-            currency: "INR",
+            amount: recordedOrder?.amount || getPremiumAmountInPaise(),
+            currency: recordedOrder?.currency || "INR",
             status: "success",
             created_at: new Date().toISOString(),
           });
