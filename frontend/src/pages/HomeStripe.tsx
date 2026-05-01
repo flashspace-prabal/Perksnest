@@ -167,7 +167,7 @@ const StripeHero = ({ isAuthenticated }: { isAuthenticated: boolean }) => {
 
           {/* Subheadline */}
           <p className="text-xl text-gray-500 leading-relaxed mb-8 max-w-2xl">
-            Access exclusive deals, unlock savings, and scale faster—from your first tool to your hundredth.
+            Access exclusive deals, unlock savings, and scale faster from your first tool to your hundredth.
           </p>
 
           {/* CTA Buttons - Responsive Stacking */}
