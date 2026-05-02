@@ -134,6 +134,12 @@ const plans: PricingPlan[] = [
 
 const PricingSection = () => {
   const navigate = useNavigate();
+  const getCtaPath = (plan: PricingPlan) => {
+    if (plan.cta === "Contact sales") return "/help";
+    if (plan.isPremium) return "/pricing";
+    return "/signup";
+  };
+
   return (
     <section id="pricing" className="py-12 md:py-20 bg-background">
       <div className="container-wide">
@@ -241,7 +247,7 @@ const PricingSection = () => {
                       : 'bg-foreground text-background hover:bg-foreground/90'
                 }`}
                 size="lg"
-                onClick={() => navigate(plan.cta === "Contact sales" ? "/help" : "/signup")}
+                onClick={() => navigate(getCtaPath(plan))}
               >
                 {plan.isPremium && <Crown className="h-4 w-4 mr-2" />}
                 {plan.cta}
