@@ -9,6 +9,7 @@ import { getDeals } from "@/lib/deals";
 import { normalizeMemberCount } from "@/lib/member-count";
 import { SkeletonDealCard, SkeletonLoader } from "@/components/SkeletonLoader";
 import { isFreeDeal, isPremiumDeal } from "@/lib/deal-types";
+import { categoryHasDeals } from "@/lib/category-visibility";
 
 const devLog = (...args: unknown[]) => {
   if (import.meta.env.DEV) console.log(...args);
@@ -314,6 +315,18 @@ const Deals = () => {
     return counts;
   }, [allDeals, searchQuery, activeFilter]);
 
+  const categoryAvailabilityCounts = useMemo(() => {
+    const counts: Record<string, number> = {};
+
+    for (const categoryId of sidebarCategoryIds) {
+      counts[categoryId] = categoryId === "all"
+        ? allDeals.length
+        : allDeals.filter((deal) => categoryHasDeals(categoryId, [deal])).length;
+    }
+
+    return counts;
+  }, [allDeals]);
+
   const filteredDeals = scopedDeals
     .filter((deal) => {
       const accessType = getDealAccessType(deal);
@@ -349,6 +362,7 @@ const Deals = () => {
             <CategorySidebar
               activeCategory={activeCategory}
               categoryCounts={categoryCounts}
+              categoryAvailabilityCounts={categoryAvailabilityCounts}
               onCategoryChange={(cat) => { setActiveCategory(cat); setCurrentPage(1); }}
             />
           </div>
@@ -359,6 +373,7 @@ const Deals = () => {
               <CategorySidebar
                 activeCategory={activeCategory}
                 categoryCounts={categoryCounts}
+                categoryAvailabilityCounts={categoryAvailabilityCounts}
                 onCategoryChange={(cat) => { setActiveCategory(cat); setCurrentPage(1); }}
               />
             </div>

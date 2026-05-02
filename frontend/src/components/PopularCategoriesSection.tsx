@@ -1,8 +1,9 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { ArrowRight } from "lucide-react";
 import SafeImage from "@/components/SafeImage";
 import { dealsData, Deal } from "@/data/deals";
+import { categoryHasDeals, getVisibleCategories } from "@/lib/category-visibility";
 
 const categoryTabs = [
   { id: "ai", name: "AI" },
@@ -19,27 +20,10 @@ const categoryTabs = [
   { id: "hr", name: "HR" },
 ];
 
-// Map category IDs to actual deal categories
-const categoryMapping: Record<string, string[]> = {
-  "ai": ["ai"],
-  "project": ["productivity"],
-  "data": ["cloud", "database", "storage", "infrastructure", "analytics", "monitoring"],
-  "customer": ["crm", "support"],
-  "development": ["deployment", "ci-cd", "web3", "automation"],
-  "marketing": [],
-  "finance": ["finance", "payments"],
-  "communication": ["communication"],
-  "sales": [],
-  "business": [],
-  "it": ["security", "tools", "backup", "forms"],
-  "hr": ["hr"],
-};
-
 // Get deals for a specific category
 const getCategoryDeals = (categoryId: string): Deal[] => {
-  const targetCategories = categoryMapping[categoryId] || [];
   return dealsData
-    .filter(deal => targetCategories.includes(deal.category))
+    .filter(deal => categoryHasDeals(categoryId, [deal]))
     .slice(0, 9);
 };
 
@@ -92,9 +76,19 @@ const DealCard = ({ deal }: DealCardProps) => (
 
 const PopularCategoriesSection = () => {
   const [activeTab, setActiveTab] = useState("ai");
-  const categoryDeals = getCategoryDeals(activeTab);
-  const activeTabName = categoryTabs.find(t => t.id === activeTab)?.name || activeTab;
-  const hasDeal = categoryDeals.length > 0;
+  const visibleCategoryTabs = getVisibleCategories(categoryTabs, dealsData);
+  const selectedTab = visibleCategoryTabs.some((tab) => tab.id === activeTab)
+    ? activeTab
+    : visibleCategoryTabs[0]?.id || "ai";
+    
+  useEffect(() => {
+    if (selectedTab !== activeTab) {
+      setActiveTab(selectedTab);
+    }
+  }, [activeTab, selectedTab]);
+
+  const categoryDeals = getCategoryDeals(selectedTab);
+  const activeTabName = visibleCategoryTabs.find(t => t.id === selectedTab)?.name || selectedTab;
 
   return (
     <section className="py-12 md:py-20 bg-background">
@@ -108,7 +102,7 @@ const PopularCategoriesSection = () => {
             <p className="text-lg text-muted-foreground font-medium">Most popular categories</p>
           </div>
           <Link 
-            to={`/deals?category=${activeTab}`}
+            to={`/deals?category=${selectedTab}`}
             className="hidden md:flex items-center gap-1 text-primary font-medium hover:underline"
           >
             Browse all {activeTabName} software deals
@@ -120,12 +114,12 @@ const PopularCategoriesSection = () => {
           {/* Category Tabs - Horizontal Scroll on Mobile */}
           <div className="w-full md:w-64 shrink-0 overflow-x-auto pb-4 md:pb-0 scrollbar-hide">
             <nav className="flex md:flex-col gap-1.5 md:gap-1 min-w-max md:min-w-0 px-1">
-              {categoryTabs.map((tab) => (
+              {visibleCategoryTabs.map((tab) => (
                 <button
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id)}
                   className={`whitespace-nowrap px-4 py-2.5 rounded-lg text-sm transition-colors ${
-                    activeTab === tab.id
+                    selectedTab === tab.id
                       ? "font-medium text-foreground bg-secondary/80"
                       : "text-muted-foreground hover:text-foreground hover:bg-secondary/50"
                   }`}
@@ -155,7 +149,7 @@ const PopularCategoriesSection = () => {
         {/* Mobile Browse Link */}
         <div className="md:hidden mt-6 text-center">
           <Link 
-            to={`/deals?category=${activeTab}`}
+            to={`/deals?category=${selectedTab}`}
             className="inline-flex items-center gap-1 text-primary font-medium hover:underline"
           >
             Browse all {activeTabName} software deals

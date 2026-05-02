@@ -14,6 +14,8 @@ import {
   UserCog,
   Zap
 } from "lucide-react";
+import { dealsData } from "@/data/deals";
+import { getVisibleCategories } from "@/lib/category-visibility";
 
 const categories = [
   { id: "all", name: "All Deals", icon: Zap, count: 200 },
@@ -33,13 +35,14 @@ const categories = [
 
 const CategoryNav = () => {
   const [activeCategory, setActiveCategory] = useState("all");
+  const visibleCategories = getVisibleCategories(categories, dealsData);
 
   return (
     <section className="border-b border-border bg-card sticky top-16 z-40">
       <div className="container-wide">
         <div className="overflow-x-auto scrollbar-hide py-4">
           <div className="flex gap-2 min-w-max">
-            {categories.map((category) => {
+            {visibleCategories.map((category) => {
               const Icon = category.icon;
               const isActive = activeCategory === category.id;
               

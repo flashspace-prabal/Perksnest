@@ -27,6 +27,7 @@ import { AuthModal } from "@/components/AuthModal";
 import { useAuth } from "@/lib/auth";
 import { dealsData } from "@/data/deals";
 import { FEATURES } from "@/lib/feature-flags";
+import { getVisibleMegaCategories } from "@/lib/category-visibility";
 
 // ─── Category definitions with icons, subcategories, and deal category keys ───
 const megaCategories = [
@@ -153,7 +154,8 @@ const Header = () => {
     }
   };
 
-  const activeCat = megaCategories[hoveredCat];
+  const visibleMegaCategories = getVisibleMegaCategories(megaCategories, dealsData);
+  const activeCat = visibleMegaCategories[hoveredCat] || visibleMegaCategories[0] || megaCategories[0];
   const featuredDeals = getFeaturedDeals(activeCat);
   const totalDeals = dealsData.length;
   const freeDeals = dealsData.filter((d) => d.isFree || !d.isPremium).length;
@@ -199,7 +201,7 @@ const Header = () => {
                         <div className="flex" style={{ minHeight: '520px' }}>
                           {/* Left: Categories */}
                           <div className="w-[200px] py-3 border-r border-border bg-muted/30 shrink-0">
-                            {megaCategories.map((cat, i) => {
+                            {visibleMegaCategories.map((cat, i) => {
                               const Icon = cat.icon;
                               return (
                                 <button
@@ -211,7 +213,7 @@ const Header = () => {
                                   }`}
                                   onMouseEnter={() => setHoveredCat(i)}
                                   onClick={() => {
-                                    navigate(`/deals?category=${activeCat.keys[0]}`);
+                                    navigate(`/deals?category=${cat.keys[0]}`);
                                   }}
                                 >
                                   <Icon className="h-4 w-4 shrink-0" />

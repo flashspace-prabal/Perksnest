@@ -28,6 +28,7 @@ import {
 import { Button } from "@/components/ui/button";
 import SafeImage from "@/components/SafeImage";
 import { dealsData } from "@/data/deals";
+import { getVisibleCategories } from "@/lib/category-visibility";
 
 const categories = [
   { 
@@ -127,6 +128,8 @@ const MegaMenuHeader = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [dealsMenuOpen, setDealsMenuOpen] = useState(false);
   const [activeCategory, setActiveCategory] = useState(categories[0]);
+  const visibleCategories = getVisibleCategories(categories, dealsData);
+  const menuActiveCategory = visibleCategories.find((category) => category.id === activeCategory.id) || visibleCategories[0] || activeCategory;
 
   return (
     <header className="sticky top-0 z-50 bg-background border-b border-border">
@@ -157,22 +160,22 @@ const MegaMenuHeader = () => {
                     <div className="flex">
                       {/* Categories Column */}
                       <div className="w-64 border-r border-border p-4 max-h-[500px] overflow-y-auto">
-                        {categories.map((category) => {
+                        {visibleCategories.map((category) => {
                           const Icon = category.icon;
                           return (
                             <button
                               key={category.id}
-                              onClick={() => { navigate(`/deals?category=${category.id}`); setDealsOpen(false); }}
+                              onClick={() => { navigate(`/deals?category=${category.id}`); setDealsMenuOpen(false); }}
                               onMouseEnter={() => setActiveCategory(category)}
                               className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-colors text-left ${
-                                activeCategory.id === category.id
+                                menuActiveCategory.id === category.id
                                   ? "bg-secondary font-medium text-foreground"
                                   : "text-muted-foreground hover:bg-secondary/50 hover:text-foreground"
                               }`}
                             >
                               <Icon className="h-4 w-4" />
                               <span>{category.name}</span>
-                              {activeCategory.id === category.id && (
+                              {menuActiveCategory.id === category.id && (
                                 <span className="ml-auto text-xs">•</span>
                               )}
                             </button>
@@ -182,12 +185,12 @@ const MegaMenuHeader = () => {
 
                       {/* Subcategories Column */}
                       <div className="w-56 border-r border-border p-4">
-                        <h4 className="font-semibold text-foreground mb-4">{activeCategory.name}</h4>
+                        <h4 className="font-semibold text-foreground mb-4">{menuActiveCategory.name}</h4>
                         <div className="space-y-2">
-                          {activeCategory.subcategories.map((sub) => (
+                          {menuActiveCategory.subcategories.map((sub) => (
                             <Link
                               key={sub}
-                              to={`/deals?category=${activeCategory.id}&sub=${sub.toLowerCase().replace(/\s+/g, '-')}`}
+                              to={`/deals?category=${menuActiveCategory.id}&sub=${sub.toLowerCase().replace(/\s+/g, '-')}`}
                               className="block text-sm text-muted-foreground hover:text-foreground transition-colors py-1"
                             >
                               {sub}

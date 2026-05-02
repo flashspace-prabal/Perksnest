@@ -29,6 +29,7 @@ import { dealsData } from "@/data/deals";
 import SafeImage from "./SafeImage";
 import { FEATURES } from "@/lib/feature-flags";
 import NotificationBell from "./NotificationBell";
+import { getVisibleCategories } from "@/lib/category-visibility";
 
 // Category Data from original MegaMenu - Fully Enriched
 const categories = [
@@ -128,6 +129,8 @@ const MainNavbar = () => {
   const { isAuthenticated, user, logout, isAdmin } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
+  const visibleCategories = getVisibleCategories(categories, dealsData);
+  const menuActiveCategory = visibleCategories.find((cat) => cat.id === activeCategory.id) || visibleCategories[0] || activeCategory;
 
   // Close mobile menu on route change
   useEffect(() => {
@@ -200,7 +203,7 @@ const MainNavbar = () => {
                       <div className="w-72 shrink-0 bg-gray-50/50 p-6 border-r border-gray-100 max-h-[550px] overflow-y-auto custom-scrollbar">
                         <h4 className="text-[10px] font-bold text-gray-400 uppercase tracking-[0.15em] mb-5">Categories</h4>
                         <div className="space-y-0.5">
-                          {categories.map((cat) => {
+                          {visibleCategories.map((cat) => {
                             const Icon = cat.icon;
                             const isActive = activeCategory.id === cat.id;
                             return (
@@ -230,12 +233,12 @@ const MainNavbar = () => {
                         <div className="flex flex-1">
                             {/* Subcategories */}
                             <div className="w-64 shrink-0 p-8 border-r border-gray-50">
-                                <h4 className="text-[10px] font-bold text-gray-400 uppercase tracking-[0.15em] mb-6">{activeCategory.name} Sub-links</h4>
+                                <h4 className="text-[10px] font-bold text-gray-400 uppercase tracking-[0.15em] mb-6">{menuActiveCategory.name} Sub-links</h4>
                                 <div className="space-y-4">
-                                    {activeCategory.subcategories.map((sub) => (
+                                    {menuActiveCategory.subcategories.map((sub) => (
                                     <Link
                                         key={sub}
-                                        to={`/deals?category=${activeCategory.id}&sub=${encodeURIComponent(sub.toLowerCase().replace(/\s+/g, '-'))}`}
+                                        to={`/deals?category=${menuActiveCategory.id}&sub=${encodeURIComponent(sub.toLowerCase().replace(/\s+/g, '-'))}`}
                                         className="block rounded-md text-[14px] font-medium text-gray-600 hover:text-[#5c2169] transition-colors outline-none focus-visible:ring-2 focus-visible:ring-[#5c2169]/30"
                                         onClick={() => setActiveMenu(null)}
                                     >
@@ -245,11 +248,11 @@ const MainNavbar = () => {
                                 </div>
                                 <div className="mt-10 pt-6 border-t border-gray-100">
                                     <Link
-                                      to={`/deals?category=${activeCategory.id}`}
+                                      to={`/deals?category=${menuActiveCategory.id}`}
                                       className="inline-flex items-center gap-1.5 rounded-md text-sm font-bold text-[#5c2169] outline-none focus-visible:ring-2 focus-visible:ring-[#5c2169]/30 group/all"
                                       onClick={() => setActiveMenu(null)}
                                     >
-                                        View all {activeCategory.name}
+                                        View all {menuActiveCategory.name}
                                         <ArrowRight className="h-4 w-4 transition-transform group-hover/all:translate-x-1" />
                                     </Link>
                                 </div>
@@ -419,7 +422,7 @@ const MainNavbar = () => {
               <div className="space-y-4 px-2">
                    <p className="text-xs font-bold text-gray-400 uppercase tracking-widest px-4">Categories</p>
                    <div className="grid grid-cols-1 min-[380px]:grid-cols-2 gap-2 px-2">
-                        {categories.map(cat => (
+                        {visibleCategories.map(cat => (
                             <Link key={cat.id} to={`/deals?category=${cat.id}`} className="flex min-h-11 items-center p-3 bg-gray-50 rounded-xl text-sm font-medium text-gray-700">{cat.name}</Link>
                         ))}
                    </div>

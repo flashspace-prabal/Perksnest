@@ -13,22 +13,6 @@ interface Category {
   subcategories?: SubCategory[];
 }
 
-// Map template category IDs to actual deal category values
-const categoryMapping: Record<string, string[]> = {
-  "ai": ["ai"],
-  "project": ["productivity"],
-  "data": ["cloud", "database", "storage", "infrastructure", "analytics", "monitoring"],
-  "customer": ["crm", "support"],
-  "development": ["deployment", "ci-cd", "web3", "automation"],
-  "marketing": [], // No specific marketing deals in current data
-  "finance": ["finance", "payments"],
-  "communication": ["communication"],
-  "sales": [], // No specific sales deals in current data
-  "business": [], // No specific business deals in current data
-  "it": ["security", "tools", "backup", "forms"],
-  "hr": ["hr"],
-};
-
 const categoryTemplates: Omit<Category, 'count'>[] = [
   { id: "all", name: "All deals" },
   { id: "ai", name: "AI" },
@@ -54,10 +38,11 @@ const categoryTemplates: Omit<Category, 'count'>[] = [
 interface CategorySidebarProps {
   activeCategory: string;
   categoryCounts: Record<string, number>;
+  categoryAvailabilityCounts?: Record<string, number>;
   onCategoryChange: (categoryId: string) => void;
 }
 
-const CategorySidebar = ({ activeCategory, categoryCounts, onCategoryChange }: CategorySidebarProps) => {
+const CategorySidebar = ({ activeCategory, categoryCounts, categoryAvailabilityCounts, onCategoryChange }: CategorySidebarProps) => {
   const [expandedCategories, setExpandedCategories] = useState<string[]>([]);
 
   const toggleExpanded = (categoryId: string) => {
@@ -71,7 +56,11 @@ const CategorySidebar = ({ activeCategory, categoryCounts, onCategoryChange }: C
       <div className="lg:sticky lg:top-24">
         <h3 className="text-base font-semibold text-foreground mb-3">Categories</h3>
         <nav className="flex gap-2 overflow-x-auto pb-2 lg:block lg:space-y-0.5 lg:overflow-visible lg:pb-0 scrollbar-hide">
-          {categoryTemplates.map((template) => {
+          {categoryTemplates.filter((template) => {
+            if (template.id === "all") return true;
+            const availabilityCount = categoryAvailabilityCounts?.[template.id] ?? categoryCounts[template.id] ?? 0;
+            return availabilityCount > 0;
+          }).map((template) => {
             const count = categoryCounts[template.id] || 0;
             const isActive = activeCategory === template.id;
             const isExpanded = expandedCategories.includes(template.id);
