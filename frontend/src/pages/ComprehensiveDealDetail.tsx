@@ -190,6 +190,18 @@ export const ComprehensiveDealDetailPage: React.FC = () => {
     loadDealData();
   }, [dealId, user?.claimedDeals]);
 
+  useEffect(() => {
+    if (!dealId) return;
+
+    const hasClaimedCurrentDeal = user?.claimedDeals?.includes(dealId) || false;
+    setIsClaimed(hasClaimedCurrentDeal);
+
+    if (isClaiming && hasClaimedCurrentDeal) {
+      setIsClaiming(false);
+      navigate(`/deals/${dealId}/redeem`);
+    }
+  }, [dealId, isClaiming, navigate, user?.claimedDeals]);
+
   // SEO Setup
   useSeo(
     deal

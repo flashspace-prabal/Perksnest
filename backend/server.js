@@ -638,6 +638,18 @@ async function handleDealClaimExperience(user, dealId) {
   return result;
 }
 
+function queueDealClaimExperience(user, dealId) {
+  if (!user?.id || !dealId) return false;
+
+  setImmediate(() => {
+    handleDealClaimExperience(user, dealId).catch((error) => {
+      console.warn("[CLAIM EXPERIENCE] Background follow-up failed:", toErrorMessage(error));
+    });
+  });
+
+  return true;
+}
+
 async function handlePremiumActivationExperience(user) {
   if (!user?.id) return;
   let notification = null;
@@ -1925,11 +1937,9 @@ app.post("/api/auth/claim-deal", async (req, res) => {
 
     await db.from("claim_events").upsert({ user_id: userId, deal_id: dealId, claimed_at: new Date().toISOString() }, { onConflict: "user_id,deal_id" });
     await recordClaimedDealRow({ userId, dealId });
-    const claimExperience = alreadyClaimed
-      ? { notificationCreated: false, emailSent: false }
-      : await handleDealClaimExperience(updatedUser, dealId);
+    const emailQueued = !alreadyClaimed && queueDealClaimExperience(updatedUser, dealId);
     console.log(`[AUTH-CLAIM] Claim stored successfully for ${dealId}`);
-    res.json({ success: true, user: mapUser(updatedUser), claimedDeals: updated, alreadyClaimed, ...claimExperience });
+    res.json({ success: true, user: mapUser(updatedUser), claimedDeals: updated, alreadyClaimed, emailQueued });
   } catch (error) {
     console.error("[AUTH-CLAIM] ERROR:", error);
     res.status(500).json({ success: false, error: (error instanceof Error ? error.message : String(error)) });
@@ -2364,12 +2374,10 @@ app.post("/api/deals/claim", async (req, res) => {
       .upsert({ user_id: userId, deal_id: dealId, claimed_at: new Date().toISOString() }, { onConflict: "user_id,deal_id" });
     await recordClaimedDealRow({ userId, dealId });
 
-    const claimExperience = alreadyClaimed
-      ? { notificationCreated: false, emailSent: false }
-      : await handleDealClaimExperience(updatedUser, dealId);
+    const emailQueued = !alreadyClaimed && queueDealClaimExperience(updatedUser, dealId);
 
     console.log(`[CLAIM] Claim event recorded. Returning response...`);
-    res.json({ success: true, user: mapUser(updatedUser), claimedDeals: updated, alreadyClaimed, ...claimExperience });
+    res.json({ success: true, user: mapUser(updatedUser), claimedDeals: updated, alreadyClaimed, emailQueued });
   } catch (error) {
     console.error("[CLAIM] ERROR:", error);
     
