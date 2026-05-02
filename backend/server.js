@@ -608,19 +608,34 @@ ${premiumLink || "Visit PerksNest to explore your premium deals."}
 }
 
 async function handleDealClaimExperience(user, dealId) {
-  if (!user?.id || !dealId) return;
+  const result = {
+    notificationCreated: false,
+    emailSent: false,
+  };
+
+  if (!user?.id || !dealId) return result;
 
   try {
     await notifyDealClaimed(user.id, dealId);
+    result.notificationCreated = true;
   } catch (error) {
     console.warn("[NOTIFICATIONS] Failed to create deal claim notification:", toErrorMessage(error));
   }
 
   try {
-    await sendDealClaimEmail({ user, dealId });
+    result.emailSent = await sendDealClaimEmail({ user, dealId });
   } catch (error) {
     console.warn("[EMAIL] Failed to send deal claim email:", toErrorMessage(error));
   }
+
+  console.log("[CLAIM EXPERIENCE] Deal claim follow-up completed:", {
+    userId: user.id,
+    dealId,
+    notificationCreated: result.notificationCreated,
+    emailSent: result.emailSent,
+  });
+
+  return result;
 }
 
 async function handlePremiumActivationExperience(user) {
@@ -1910,11 +1925,11 @@ app.post("/api/auth/claim-deal", async (req, res) => {
 
     await db.from("claim_events").upsert({ user_id: userId, deal_id: dealId, claimed_at: new Date().toISOString() }, { onConflict: "user_id,deal_id" });
     await recordClaimedDealRow({ userId, dealId });
-    if (!alreadyClaimed) {
-      await handleDealClaimExperience(updatedUser, dealId);
-    }
+    const claimExperience = alreadyClaimed
+      ? { notificationCreated: false, emailSent: false }
+      : await handleDealClaimExperience(updatedUser, dealId);
     console.log(`[AUTH-CLAIM] Claim stored successfully for ${dealId}`);
-    res.json({ success: true, user: mapUser(updatedUser), claimedDeals: updated });
+    res.json({ success: true, user: mapUser(updatedUser), claimedDeals: updated, alreadyClaimed, ...claimExperience });
   } catch (error) {
     console.error("[AUTH-CLAIM] ERROR:", error);
     res.status(500).json({ success: false, error: (error instanceof Error ? error.message : String(error)) });
@@ -2349,12 +2364,12 @@ app.post("/api/deals/claim", async (req, res) => {
       .upsert({ user_id: userId, deal_id: dealId, claimed_at: new Date().toISOString() }, { onConflict: "user_id,deal_id" });
     await recordClaimedDealRow({ userId, dealId });
 
-    if (!alreadyClaimed) {
-      await handleDealClaimExperience(updatedUser, dealId);
-    }
+    const claimExperience = alreadyClaimed
+      ? { notificationCreated: false, emailSent: false }
+      : await handleDealClaimExperience(updatedUser, dealId);
 
     console.log(`[CLAIM] Claim event recorded. Returning response...`);
-    res.json({ success: true, user: mapUser(updatedUser), claimedDeals: updated });
+    res.json({ success: true, user: mapUser(updatedUser), claimedDeals: updated, alreadyClaimed, ...claimExperience });
   } catch (error) {
     console.error("[CLAIM] ERROR:", error);
     

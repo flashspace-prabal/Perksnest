@@ -235,11 +235,7 @@ export const ComprehensiveDealDetailPage: React.FC = () => {
       await claimDeal(dealId);
       setIsClaimed(true);
       toast.success(`${deal?.name} deal claimed successfully!`);
-
-      // Navigate to redeem page after a short delay
-      setTimeout(() => {
-        navigate(`/deals/${dealId}/redeem`);
-      }, 1000);
+      navigate(`/deals/${dealId}/redeem`);
     } catch (error) {
       console.error("Failed to claim deal:", error);
       toast.error("Failed to claim deal. Please try again.");

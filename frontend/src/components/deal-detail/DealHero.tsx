@@ -1,5 +1,5 @@
 import React from "react";
-import { ArrowRight, Share2, Bookmark, Lock } from "lucide-react";
+import { ArrowRight, Check, Share2, Bookmark, Lock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { ComprehensiveDealDetail } from "@/data/deal-details-schema";
@@ -270,11 +270,11 @@ export const DealHero: React.FC<DealHeroProps> = ({
               ) : (
                 <Button
                   onClick={onClaim}
-                  disabled={isClaimed || isLoading}
+                  disabled={isLoading}
                   className="w-full bg-[#5c2169] text-white py-3 rounded-lg font-semibold h-12 flex items-center justify-center gap-2 shadow-md hover:shadow-lg transition"
                 >
-                  {isClaimed ? "✓ Deal Claimed" : "Get deal for free"}
-                  {!isClaimed && <ArrowRight className="w-4 h-4" />}
+                  {isLoading ? "Claiming..." : isClaimed ? "View Claimed Deal" : "Get deal for free"}
+                  {isClaimed ? <Check className="w-4 h-4" /> : <ArrowRight className="w-4 h-4" />}
                 </Button>
               )}
 
